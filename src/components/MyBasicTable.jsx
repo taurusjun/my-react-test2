@@ -13,7 +13,7 @@ import SendIcon from "@mui/icons-material/Send";
 export const MyBasicTable = (props) => {
   const { dataList } = props;
   const navigate = useNavigate();
-  const handleOnClick = (uuid) => navigate(`/about/${uuid}`);
+  // const handleOnClick = (uuid) => navigate(`/exam/${uuid}`);
   // const labelId = `No.${kk}`;
 
   return (
@@ -49,7 +49,7 @@ export const MyBasicTable = (props) => {
               <TableCell align="center">
                 <Button
                   variant="contained"
-                  href={`/about/${row.uuid}`}
+                  href={`/exam/${row.uuid}`}
                   endIcon={<SendIcon />}
                 >
                   开始考试

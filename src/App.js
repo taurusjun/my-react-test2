@@ -3,6 +3,7 @@ import { Home } from "./components/Home";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
 import { List } from "./components/List";
+import { ExamDetail } from "./components/ExamDetail";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="about/:id" element={<About />} />
+        <Route path="exam/:uuid" element={<ExamDetail />} />
         <Route path="contact" element={<Contact />} />
         <Route path="list" element={<List />} />
       </Routes>
