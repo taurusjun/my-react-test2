@@ -1,9 +1,10 @@
-import { Box, List } from "@mui/material";
+import { Box, List, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { SingleItem } from "./SingleItem";
+import { SingleItem } from "./SingleListItem";
 import axios from "axios";
+import { MyBasicTable } from "./MyBasicTable";
 
 export const Home = () => {
   const [state, setState] = useState([]);
@@ -32,11 +33,11 @@ export const Home = () => {
 
   return (
     <div>
-      Home
+      {/* Home
       <nav>
         <Link to="/about">About</Link>
-      </nav>
-      <Box>
+      </nav> */}
+      {/* <Box>
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
         >
@@ -44,6 +45,12 @@ export const Home = () => {
             return <SingleItem kk={value.uuid} />;
           })}
         </List>
+      </Box> */}
+      <Box>
+        <Typography variant="h6" p={2}>
+          历年考卷
+        </Typography>
+        <MyBasicTable dataList={examList} />
       </Box>
     </div>
   );
