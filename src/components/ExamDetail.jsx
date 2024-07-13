@@ -19,25 +19,9 @@ export const ExamDetail = () => {
   const { uuid } = params;
 
   const [state, setState] = useState([]);
-  useEffect(() => {
-    const asyncCallback = async () => {
-      const data = await axios.post("http://127.0.0.1:8001/v1/exam/view", {
-        uuid,
-      });
-      setState(data);
-    };
-
-    asyncCallback();
-  }, [uuid]);
-
-  if (state.status != 200) {
-    return <div>Loading</div>;
-  }
-
-  const { data } = state;
-  const examDetail = data.data;
-  console.log(examDetail.name);
-  const { name, description, sections } = examDetail;
+  const [exam, setExam] = useState({});
+  const [treeData, setTreeData] = useState([]);
+  const [question, setQuestion] = useState({});
 
   ////
   const convertJsonToMUITreeViewData = (sections) => {
@@ -51,7 +35,22 @@ export const ExamDetail = () => {
     }));
   };
 
-  const MUI_X_PRODUCTS = convertJsonToMUITreeViewData(sections);
+  const asyncFetchExamDetail = async (examUUID) => {
+    const data = await axios.post("http://127.0.0.1:8001/v1/exam/view", {
+      uuid: examUUID,
+    });
+    setState(data);
+    setExam(data.data.data);
+    setTreeData(convertJsonToMUITreeViewData(data.data.data.sections));
+  };
+
+  useEffect(() => {
+    asyncFetchExamDetail(uuid);
+  }, [uuid]);
+
+  if (state.status != 200) {
+    return <div>Loading</div>;
+  }
 
   const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
     color:
@@ -84,23 +83,35 @@ export const ExamDetail = () => {
     },
   }));
 
+  const isSectionUUID = (selectedUUID) => {
+    for (var i = 0; i < exam.sections.length; i++) {
+      if (exam.sections[i].uuid == selectedUUID) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const asyncFetchQuestion = async (questionUUID) => {
+    const fqResponse = await axios.post(
+      "http://127.0.0.1:8001/v1/question/view",
+      {
+        uuid: questionUUID,
+      }
+    );
+    setQuestion(fqResponse.data.data);
+  };
+
   const handleSelectedItemsChange = (event, id) => {
     console.log(id);
+    if (!isSectionUUID(id)) {
+      asyncFetchQuestion(id);
+      console.log(question);
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    // if (value === "best") {
-    //   setHelperText("You got it!");
-    //   setError(false);
-    // } else if (value === "worst") {
-    //   setHelperText("Sorry, wrong answer!");
-    //   setError(true);
-    // } else {
-    //   setHelperText("Please select an option.");
-    //   setError(true);
-    // }
   };
 
   const questionContent =
@@ -112,7 +123,8 @@ export const ExamDetail = () => {
         <RichTreeView
           defaultExpandedItems={["272722ad-4421-4869-a325-0db2baefd949"]}
           slots={{ item: CustomTreeItem }}
-          items={MUI_X_PRODUCTS}
+          //   items={uiTreeData}
+          items={treeData}
           onSelectedItemsChange={handleSelectedItemsChange}
         />
       </Box>
@@ -159,6 +171,4 @@ export const ExamDetail = () => {
       </Box>
     </>
   );
-
-  return <div>ExamDetail</div>;
 };
