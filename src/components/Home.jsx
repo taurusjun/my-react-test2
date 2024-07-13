@@ -10,9 +10,10 @@ export const Home = () => {
   const [state, setState] = useState([]);
   useEffect(() => {
     const asyncCallback = async () => {
-      const data = await axios.post("http://127.0.0.1:8001/v1/exam/list", {
+      const data = await axios.post("http://127.0.0.1:8001/v1/userExam/list", {
         pageNo: 1,
         pageSize: 10,
+        user_uuid: "my-test-user-uuid-001",
       });
       setState(data);
     };
@@ -48,7 +49,7 @@ export const Home = () => {
       </Box> */}
       <Box>
         <Typography variant="h6" p={2}>
-          历年考卷
+          我的考卷
         </Typography>
         <MyBasicTable dataList={examList} />
       </Box>

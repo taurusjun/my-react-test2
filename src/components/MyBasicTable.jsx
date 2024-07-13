@@ -21,13 +21,13 @@ export const MyBasicTable = (props) => {
       <Table sx={{ minWidth: 100 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell align="center">编号</TableCell>
+            <TableCell>编号</TableCell>
             <TableCell align="center">名称</TableCell>
             <TableCell align="center">描述</TableCell>
             <TableCell align="center">分类</TableCell>
             <TableCell align="center">状态</TableCell>
-            <TableCell align="center">得分/满分</TableCell>
+            <TableCell align="center">得分</TableCell>
+            <TableCell align="center">多次最高得分</TableCell>
             <TableCell align="center">动作</TableCell>
           </TableRow>
         </TableHead>
@@ -38,18 +38,20 @@ export const MyBasicTable = (props) => {
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.id}
+                {row.exam_uuid}
               </TableCell>
-              <TableCell align="center">{row.uuid}</TableCell>
-              <TableCell align="center">{row.name}</TableCell>
-              <TableCell align="center">{row.description}</TableCell>
-              <TableCell align="center">物理</TableCell>
-              <TableCell align="center">未完成</TableCell>
-              <TableCell align="center">0/100</TableCell>
+              <TableCell align="center">{row.exam_name}</TableCell>
+              <TableCell align="center">{row.exam_description}</TableCell>
+              <TableCell align="center">{row.exam_category_name}</TableCell>
+              <TableCell align="center">
+                {row.is_done ? "已完成" : "未完成"}
+              </TableCell>
+              <TableCell align="center">{row.score}</TableCell>
+              <TableCell align="center">{row.max_score}</TableCell>
               <TableCell align="center">
                 <Button
                   variant="contained"
-                  href={`/exam/${row.uuid}`}
+                  href={`/exam/${row.exam_uuid}`}
                   endIcon={<SendIcon />}
                 >
                   开始考试
