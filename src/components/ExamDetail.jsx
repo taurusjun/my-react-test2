@@ -1,7 +1,9 @@
 import {
   Box,
+  Button,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   FormLabel,
   Radio,
   RadioGroup,
@@ -21,6 +23,11 @@ export const ExamDetail = () => {
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({});
   const [question, setQuestion] = useState({});
+  const [curruntQuestionUUID, setCurruntQuestionUUID] = useState("");
+  const [currentAns, setCurrentAns] = useState(null);
+  const [error, setError] = React.useState(false);
+  const [helperText, setHelperText] = React.useState("");
+
   const [content, setContent] = useState("");
   const [options, setOptions] = useState({});
 
@@ -56,6 +63,7 @@ export const ExamDetail = () => {
     var qDetail = question.QuestionDetails[0];
     setContent(qDetail.question);
     setOptions(qDetail.option_map);
+    setCurruntQuestionUUID(question.uuid);
   };
 
   useEffect(() => {
@@ -112,8 +120,19 @@ export const ExamDetail = () => {
     }
   };
 
+  const handleRadioChange = (event) => {
+    setCurrentAns(event.target.value);
+    setHelperText(" ");
+    setError(false);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log(currentAns);
+    if (currentAns == null) {
+      setHelperText("还未选择答案");
+      setError(true);
+    }
   };
   ////////////////////////////////////////////////////////////////////////
 
@@ -161,16 +180,15 @@ export const ExamDetail = () => {
       </Box>
       <Box>
         <form onSubmit={handleSubmit}>
-          {/* <FormControl sx={{ m: 3 }} error={error} variant="standard"> */}
-          <FormControl sx={{ m: 3 }} variant="standard">
+          <FormControl sx={{ m: 3 }} error={error} variant="standard">
             <Typography variant="h6">单项选择</Typography>
             <Typography variant="span">{content}</Typography>
             {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
             <RadioGroup
               aria-labelledby="demo-error-radios"
               name="quiz"
-              //   value={value}
-              //   onChange={handleRadioChange}
+              value={currentAns}
+              onChange={handleRadioChange}
             >
               {Object.keys(options).map((key) => (
                 <FormControlLabel
@@ -181,10 +199,10 @@ export const ExamDetail = () => {
                 />
               ))}
             </RadioGroup>
-            {/* <FormHelperText>{helperText}</FormHelperText>
+            <FormHelperText>{helperText}</FormHelperText>
             <Button sx={{ mt: 1, mr: 1 }} type="submit" variant="outlined">
-              Check Answer
-            </Button> */}
+              提交
+            </Button>
           </FormControl>
         </form>
       </Box>
