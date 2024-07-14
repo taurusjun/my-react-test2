@@ -18,39 +18,104 @@ export const ExamDetail = () => {
   const params = useParams();
   const { uuid } = params;
 
-  const [state, setState] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({});
-  const [treeData, setTreeData] = useState([]);
   const [question, setQuestion] = useState({});
-
-  ////
-  const convertJsonToMUITreeViewData = (sections) => {
-    return sections.map((section, index) => ({
-      id: section.uuid,
-      label: `[${index + 1}]${section.name}`,
-      children: section.question_list.map((question, qIndex) => ({
-        id: question.question_uuid,
-        label: `[${index + 1}-${qIndex + 1}]`,
-      })),
-    }));
-  };
+  const [content, setContent] = useState("");
+  const [options, setOptions] = useState({});
 
   const asyncFetchExamDetail = async (examUUID) => {
     const data = await axios.post("/api/v1/exam/view", {
       uuid: examUUID,
     });
-    setState(data);
+    setLoading(false);
     setExam(data.data.data);
-    setTreeData(convertJsonToMUITreeViewData(data.data.data.sections));
+  };
+
+  const asyncFetchQuestion = async (questionUUID) => {
+    const fqResponse = await axios.post("/api/v1/question/view", {
+      uuid: questionUUID,
+    });
+    setQuestion(fqResponse.data.data);
+  };
+
+  //handle question
+  const handleQuestion = (question) => {
+    if (question.mode === "Single") {
+      handleSingleQuestion(question);
+    }
+  };
+
+  const handleSingleQuestion = (question) => {
+    if (
+      question.QuestionDetails == null ||
+      question.QuestionDetails.length == 0
+    ) {
+      return;
+    }
+    var qDetail = question.QuestionDetails[0];
+    setContent(qDetail.question);
+    setOptions(qDetail.option_map);
   };
 
   useEffect(() => {
     asyncFetchExamDetail(uuid);
   }, [uuid]);
 
-  if (state.status != 200) {
+  useEffect(() => {
+    handleQuestion(question);
+  }, [question]);
+
+  if (loading) {
     return <div>Loading</div>;
   }
+
+  //////////////////// 将exam section中的数据进行转换 ///////////////////////
+  // tree data
+  const treeViewData = exam.sections.map((section, index) => ({
+    id: section.uuid,
+    label: `[${index + 1}]${section.name}`,
+    children: section.question_list.map((question, qIndex) => ({
+      id: question.question_uuid,
+      label: `[${index + 1}-${qIndex + 1}]`,
+    })),
+  }));
+
+  // map: question_uuid -> section_uuid
+  const questionSectionMap = {};
+  exam.sections.forEach((section) => {
+    section.question_list.forEach((question) => {
+      questionSectionMap[question.question_uuid] = section.uuid;
+    });
+  });
+
+  // map: section_uuid -> Array[question_uuid]
+  const sectionQuestionListMap = {};
+  exam.sections.forEach((section) => {
+    const questionUuids = section.question_list.map(
+      (question) => question.question_uuid
+    );
+    sectionQuestionListMap[section.uuid] = questionUuids;
+  });
+  ////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////// 各种handler //////////////////////////////
+  const isQuestionUUID = (selected_uuid) => {
+    return questionSectionMap[selected_uuid] == null ? false : true;
+  };
+
+  const handleSelectedItemsChange = (event, id) => {
+    console.log(id);
+    if (isQuestionUUID(id)) {
+      asyncFetchQuestion(id);
+      console.log(question);
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  };
+  ////////////////////////////////////////////////////////////////////////
 
   const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
     color:
@@ -83,37 +148,6 @@ export const ExamDetail = () => {
     },
   }));
 
-  const isSectionUUID = (selectedUUID) => {
-    for (var i = 0; i < exam.sections.length; i++) {
-      if (exam.sections[i].uuid == selectedUUID) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  const asyncFetchQuestion = async (questionUUID) => {
-    const fqResponse = await axios.post("/api/v1/question/view", {
-      uuid: questionUUID,
-    });
-    setQuestion(fqResponse.data.data);
-  };
-
-  const handleSelectedItemsChange = (event, id) => {
-    console.log(id);
-    if (!isSectionUUID(id)) {
-      asyncFetchQuestion(id);
-      console.log(question);
-    }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-  };
-
-  const questionContent =
-    "A叠放在物体B上，B置于光滑水平面上。A，B质量分别为mA=6kg，mB=2kg，A，B之间的动摩擦因数μ=0.2，开始时F=10N，此后逐渐增加，在增大到45N的过程中，则 [ ]";
-
   return (
     <>
       <Box sx={{ minWidth: 250 }}>
@@ -121,7 +155,7 @@ export const ExamDetail = () => {
           defaultExpandedItems={["272722ad-4421-4869-a325-0db2baefd949"]}
           slots={{ item: CustomTreeItem }}
           //   items={uiTreeData}
-          items={treeData}
+          items={treeViewData}
           onSelectedItemsChange={handleSelectedItemsChange}
         />
       </Box>
@@ -130,7 +164,7 @@ export const ExamDetail = () => {
           {/* <FormControl sx={{ m: 3 }} error={error} variant="standard"> */}
           <FormControl sx={{ m: 3 }} variant="standard">
             <Typography variant="h6">单项选择</Typography>
-            <Typography variant="span">{questionContent}</Typography>
+            <Typography variant="span">{content}</Typography>
             {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
             <RadioGroup
               aria-labelledby="demo-error-radios"
@@ -138,26 +172,14 @@ export const ExamDetail = () => {
               //   value={value}
               //   onChange={handleRadioChange}
             >
-              <FormControlLabel
-                value="A"
-                control={<Radio />}
-                label="A．当拉力F＜12N时，两物体均保持静止状态"
-              />
-              <FormControlLabel
-                value="B"
-                control={<Radio />}
-                label="B．两物体开始没有相对运动，当拉力超过12N时，开始相对滑动"
-              />
-              <FormControlLabel
-                value="C"
-                control={<Radio />}
-                label="C．两物体间从受力开始就有相对运动"
-              />
-              <FormControlLabel
-                value="D"
-                control={<Radio />}
-                label="D．两物体间始终没有相对运动"
-              />
+              {Object.keys(options).map((key) => (
+                <FormControlLabel
+                  key={key}
+                  value={key}
+                  control={<Radio />}
+                  label={options[key]}
+                />
+              ))}
             </RadioGroup>
             {/* <FormHelperText>{helperText}</FormHelperText>
             <Button sx={{ mt: 1, mr: 1 }} type="submit" variant="outlined">
