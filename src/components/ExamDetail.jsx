@@ -36,7 +36,7 @@ export const ExamDetail = () => {
   };
 
   const asyncFetchExamDetail = async (examUUID) => {
-    const data = await axios.post("http://127.0.0.1:8001/v1/exam/view", {
+    const data = await axios.post("/api/v1/exam/view", {
       uuid: examUUID,
     });
     setState(data);
@@ -93,12 +93,9 @@ export const ExamDetail = () => {
   };
 
   const asyncFetchQuestion = async (questionUUID) => {
-    const fqResponse = await axios.post(
-      "http://127.0.0.1:8001/v1/question/view",
-      {
-        uuid: questionUUID,
-      }
-    );
+    const fqResponse = await axios.post("/api/v1/question/view", {
+      uuid: questionUUID,
+    });
     setQuestion(fqResponse.data.data);
   };
 
