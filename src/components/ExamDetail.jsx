@@ -9,7 +9,7 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
-import { RichTreeView } from "@mui/x-tree-view";
+import { RichTreeView, useTreeViewApiRef } from "@mui/x-tree-view";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -24,12 +24,16 @@ export const ExamDetail = () => {
   const [exam, setExam] = useState({});
   const [question, setQuestion] = useState({});
   const [curruntQuestionUUID, setCurruntQuestionUUID] = useState("");
+  const [curruntQuestionIndex, setCurruntQuestionIndex] = useState(0);
   const [currentAns, setCurrentAns] = useState(null);
   const [error, setError] = React.useState(false);
   const [helperText, setHelperText] = React.useState("");
 
+  const [sectionName, setSectionName] = useState("");
   const [content, setContent] = useState("");
   const [options, setOptions] = useState({});
+
+  const treeViewApiRef = useTreeViewApiRef();
 
   const asyncFetchExamDetail = async (examUUID) => {
     const data = await axios.post("/api/v1/exam/view", {
@@ -39,11 +43,12 @@ export const ExamDetail = () => {
     setExam(data.data.data);
   };
 
-  const asyncFetchQuestion = async (questionUUID) => {
+  const asyncFetchQuestion = async (questionUUID, questionIndex) => {
     const fqResponse = await axios.post("/api/v1/question/view", {
       uuid: questionUUID,
     });
     setQuestion(fqResponse.data.data);
+    setCurruntQuestionIndex(questionIndex);
   };
 
   //handle question
@@ -79,15 +84,32 @@ export const ExamDetail = () => {
   }
 
   //////////////////// 将exam section中的数据进行转换 ///////////////////////
+  const item_type_section = "section";
+  const item_type_question = "question";
+
   // tree data
-  const treeViewData = exam.sections.map((section, index) => ({
-    id: section.uuid,
-    label: `[${index + 1}]${section.name}`,
-    children: section.question_list.map((question, qIndex) => ({
-      id: question.question_uuid,
-      label: `[${index + 1}-${qIndex + 1}]`,
-    })),
-  }));
+  let gQIndex = 0;
+  const sectionUUIDArray = [];
+  const questionUUIDArray = [];
+  const treeViewData = exam.sections.map((section, index) => {
+    sectionUUIDArray.push(section.uuid);
+    return {
+      id: section.uuid,
+      type: item_type_section,
+      name: section.name,
+      label: `[${index + 1}]${section.name}`,
+      children: section.question_list.map((question, qIndex) => {
+        questionUUIDArray[gQIndex] = question.question_uuid;
+        return {
+          id: question.question_uuid,
+          type: item_type_question,
+          index: gQIndex++,
+          sectionName: section.name,
+          label: `[${index + 1}-${qIndex + 1}]`,
+        };
+      }),
+    };
+  });
 
   // map: question_uuid -> section_uuid
   const questionSectionMap = {};
@@ -108,15 +130,15 @@ export const ExamDetail = () => {
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////// 各种handler //////////////////////////////
-  const isQuestionUUID = (selected_uuid) => {
-    return questionSectionMap[selected_uuid] == null ? false : true;
-  };
-
   const handleSelectedItemsChange = (event, id) => {
     console.log(id);
-    if (isQuestionUUID(id)) {
-      asyncFetchQuestion(id);
-      console.log(question);
+    var item = treeViewApiRef.current.getItem(id);
+    console.log(item.type);
+    if (item.type === item_type_question) {
+      //   console.log(item.index);
+      //   console.log(questionArray[item.index]);
+      setSectionName(item.sectionName);
+      asyncFetchQuestion(item.id, item.index);
     }
   };
 
@@ -132,8 +154,22 @@ export const ExamDetail = () => {
     if (currentAns == null) {
       setHelperText("还未选择答案");
       setError(true);
+    } else {
+      console.log(curruntQuestionIndex);
+      console.log(curruntQuestionUUID);
+      gotoNextQuestion();
     }
   };
+
+  const gotoNextQuestion = () => {
+    var nextQuestionIndex = curruntQuestionIndex + 1;
+    if (questionUUIDArray.length > nextQuestionIndex) {
+      var nextQuestionUUID = questionUUIDArray[nextQuestionIndex];
+      //TODO: add cache
+      asyncFetchQuestion(nextQuestionUUID, nextQuestionIndex);
+    }
+  };
+
   ////////////////////////////////////////////////////////////////////////
 
   const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
@@ -171,9 +207,10 @@ export const ExamDetail = () => {
     <>
       <Box sx={{ minWidth: 250 }}>
         <RichTreeView
-          defaultExpandedItems={["272722ad-4421-4869-a325-0db2baefd949"]}
+          apiRef={treeViewApiRef}
+          defaultExpandedItems={sectionUUIDArray}
           slots={{ item: CustomTreeItem }}
-          //   items={uiTreeData}
+          selectedItems={curruntQuestionUUID}
           items={treeViewData}
           onSelectedItemsChange={handleSelectedItemsChange}
         />
@@ -181,7 +218,7 @@ export const ExamDetail = () => {
       <Box>
         <form onSubmit={handleSubmit}>
           <FormControl sx={{ m: 3 }} error={error} variant="standard">
-            <Typography variant="h6">单项选择</Typography>
+            <Typography variant="h6">{sectionName}</Typography>
             <Typography variant="span">{content}</Typography>
             {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
             <RadioGroup
