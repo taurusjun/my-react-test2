@@ -201,6 +201,11 @@ export const ExamDetail = () => {
       paddingLeft: 18,
       borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`,
     },
+    [`& .${treeItemClasses.selected}`]: {
+      color: "red",
+    },
+    // color:
+    //   treeItemClasses.content == { curruntQuestionUUID } ? "yellow" : "blue",
   }));
 
   return (
