@@ -32,6 +32,7 @@ export const ExamDetail = () => {
   const [sectionName, setSectionName] = useState("");
   const [content, setContent] = useState("");
   const [options, setOptions] = useState({});
+  const [answersMap, setAnswersMap] = useState(new Map());
 
   const treeViewApiRef = useTreeViewApiRef();
 
@@ -148,6 +149,7 @@ export const ExamDetail = () => {
     setError(false);
   };
 
+  const questionUUIDAnsMap = new Map();
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log(currentAns);
@@ -157,6 +159,21 @@ export const ExamDetail = () => {
     } else {
       console.log(curruntQuestionIndex);
       console.log(curruntQuestionUUID);
+      var uKey = curruntQuestionUUID;
+      var uAns = currentAns;
+      var uIndex = curruntQuestionIndex;
+      console.log(answersMap);
+      setAnswersMap(
+        (answersMap) =>
+          new Map(
+            answersMap.set(uKey, {
+              index: uIndex,
+              uuid: uKey,
+              answer: uAns,
+            })
+          )
+      );
+
       gotoNextQuestion();
     }
   };
@@ -243,7 +260,7 @@ export const ExamDetail = () => {
             </RadioGroup>
             <FormHelperText>{helperText}</FormHelperText>
             <Button sx={{ mt: 1, mr: 1 }} type="submit" variant="outlined">
-              提交
+              提交并到下一题
             </Button>
           </FormControl>
         </form>
