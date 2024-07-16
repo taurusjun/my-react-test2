@@ -52,6 +52,11 @@ export const ExamDetail = () => {
     });
     setQuestion(fqResponse.data.data);
     setCurruntQuestionIndex(questionIndex);
+    if (answersMap.get(questionUUID) != null) {
+      setCurrentAns(answersMap.get(questionUUID).answer);
+    } else {
+      setCurrentAns(null);
+    }
   };
 
   //handle question
@@ -114,6 +119,13 @@ export const ExamDetail = () => {
     };
   });
 
+  //   treeViewApiRef.current.selectItem({
+  //     event: null,
+  //     itemId: questionUUIDArray[0],
+  //     keepExistingSelection: false,
+  //     shouldBeSelected: true,
+  //   });
+
   // map: question_uuid -> section_uuid
   const questionSectionMap = {};
   exam.sections.forEach((section) => {
@@ -149,10 +161,11 @@ export const ExamDetail = () => {
     setCurrentAns(event.target.value);
     setHelperText(" ");
     setError(false);
+    saveAnswer(curruntQuestionUUID, event.target.value, curruntQuestionIndex);
   };
 
   const questionUUIDAnsMap = new Map();
-  const handleSubmit = (event) => {
+  const handleNextQuestion = (event) => {
     event.preventDefault();
     console.log(currentAns);
     if (currentAns == null) {
@@ -161,24 +174,28 @@ export const ExamDetail = () => {
     } else {
       console.log(curruntQuestionIndex);
       console.log(curruntQuestionUUID);
-      var uKey = curruntQuestionUUID;
-      var uAns = currentAns;
-      var uIndex = curruntQuestionIndex;
-      console.log(answersMap);
-      setAnswersMap(
-        (answersMap) =>
-          new Map(
-            answersMap.set(uKey, {
-              index: uIndex,
-              uuid: uKey,
-              answer: uAns,
-            })
-          )
-      );
+      //   saveAnswer(curruntQuestionUUID, currentAns, curruntQuestionIndex);
 
       gotoNextQuestion();
     }
   };
+
+  function saveAnswer(questionUUID, ans, questionIndex) {
+    var uKey = questionUUID;
+    var uAns = ans;
+    var uIndex = questionIndex;
+    // console.log(answersMap);
+    setAnswersMap(
+      (answersMap) =>
+        new Map(
+          answersMap.set(uKey, {
+            index: uIndex,
+            uuid: uKey,
+            answer: uAns,
+          })
+        )
+    );
+  }
 
   const gotoNextQuestion = () => {
     var nextQuestionIndex = curruntQuestionIndex + 1;
@@ -189,6 +206,11 @@ export const ExamDetail = () => {
     }
   };
 
+  const handleSubmitExam = (event) => {
+    event.preventDefault();
+    console.log("submit!");
+    console.log(answersMap);
+  };
   ////////////////////////////////////////////////////////////////////////
 
   const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
@@ -243,7 +265,7 @@ export const ExamDetail = () => {
       <Box>
         {content !== "" ? (
           <Paper elevation={5} sx={{ minHeight: 300, mr: 20 }}>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleNextQuestion}>
               <FormControl sx={{ m: 3 }} error={error} variant="standard">
                 <Typography
                   variant="h6"
@@ -264,7 +286,7 @@ export const ExamDetail = () => {
                   {Object.keys(options).map((key) => (
                     <FormControlLabel
                       key={key}
-                      value={key}
+                      value={options[key]}
                       control={<Radio />}
                       label={
                         <Typography variant="body1" sx={{ fontSize: 15 }}>
@@ -287,12 +309,17 @@ export const ExamDetail = () => {
                     <Button
                       sx={{ mt: 1, mr: 1, width: 100 }}
                       variant="outlined"
+                      onClick={handleSubmitExam}
                     >
                       直接交卷
                     </Button>
                   </Box>
                 ) : (
-                  <Button sx={{ mt: 1, mr: 1 }} variant="contained">
+                  <Button
+                    sx={{ mt: 1, mr: 1 }}
+                    variant="contained"
+                    onClick={handleSubmitExam}
+                  >
                     交卷
                   </Button>
                 )}
