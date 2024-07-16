@@ -5,8 +5,10 @@ import {
   FormControlLabel,
   FormHelperText,
   FormLabel,
+  Paper,
   Radio,
   RadioGroup,
+  Stack,
   Typography,
 } from "@mui/material";
 import { RichTreeView, useTreeViewApiRef } from "@mui/x-tree-view";
@@ -199,7 +201,7 @@ export const ExamDetail = () => {
       padding: theme.spacing(0.5, 1),
       margin: theme.spacing(0.2, 0),
       [`& .${treeItemClasses.label}`]: {
-        fontSize: "0.8rem",
+        fontSize: 15,
         fontWeight: 500,
       },
     },
@@ -226,9 +228,10 @@ export const ExamDetail = () => {
   }));
 
   return (
-    <>
+    <Stack direction="row" spacing={2} justifyContent="flex-start">
       <Box sx={{ minWidth: 250 }}>
         <RichTreeView
+          sx={{ m: 3 }}
           apiRef={treeViewApiRef}
           defaultExpandedItems={sectionUUIDArray}
           slots={{ item: CustomTreeItem }}
@@ -238,33 +241,81 @@ export const ExamDetail = () => {
         />
       </Box>
       <Box>
-        <form onSubmit={handleSubmit}>
-          <FormControl sx={{ m: 3 }} error={error} variant="standard">
-            <Typography variant="h6">{sectionName}</Typography>
-            <Typography variant="span">{content}</Typography>
-            {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
-            <RadioGroup
-              aria-labelledby="demo-error-radios"
-              name="quiz"
-              value={currentAns}
-              onChange={handleRadioChange}
-            >
-              {Object.keys(options).map((key) => (
-                <FormControlLabel
-                  key={key}
-                  value={key}
-                  control={<Radio />}
-                  label={options[key]}
-                />
-              ))}
-            </RadioGroup>
-            <FormHelperText>{helperText}</FormHelperText>
-            <Button sx={{ mt: 1, mr: 1 }} type="submit" variant="outlined">
-              提交并到下一题
-            </Button>
-          </FormControl>
-        </form>
+        {content !== "" ? (
+          <Paper elevation={5} sx={{ minHeight: 300, mr: 20 }}>
+            <form onSubmit={handleSubmit}>
+              <FormControl sx={{ m: 3 }} error={error} variant="standard">
+                <Typography
+                  variant="h6"
+                  sx={{ textDecoration: "underline", mb: 2 }}
+                >
+                  {sectionName}
+                </Typography>
+                <Typography variant="span" sx={{ mb: 2, textIndent: 16 }}>
+                  {content}
+                </Typography>
+                {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
+                <RadioGroup
+                  aria-labelledby="demo-error-radios"
+                  name="quiz"
+                  value={currentAns}
+                  onChange={handleRadioChange}
+                >
+                  {Object.keys(options).map((key) => (
+                    <FormControlLabel
+                      key={key}
+                      value={key}
+                      control={<Radio />}
+                      label={
+                        <Typography variant="body1" sx={{ fontSize: 15 }}>
+                          {options[key]}
+                        </Typography>
+                      }
+                    />
+                  ))}
+                </RadioGroup>
+                <FormHelperText>{helperText}</FormHelperText>
+                {questionUUIDArray.length - 1 > curruntQuestionIndex ? (
+                  <Box flex={4}>
+                    <Button
+                      sx={{ mt: 1, mr: 20, width: 200 }}
+                      type="submit"
+                      variant="contained"
+                    >
+                      提交并到下一题
+                    </Button>
+                    <Button
+                      sx={{ mt: 1, mr: 1, width: 100 }}
+                      variant="outlined"
+                    >
+                      直接交卷
+                    </Button>
+                  </Box>
+                ) : (
+                  <Button sx={{ mt: 1, mr: 1 }} variant="contained">
+                    交卷
+                  </Button>
+                )}
+              </FormControl>
+            </form>
+          </Paper>
+        ) : (
+          <Paper
+            elevation={5}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: 300,
+              minWidth: 400,
+            }}
+          >
+            <Typography textAlign="center" variant="h6">
+              等待试题载入...
+            </Typography>
+          </Paper>
+        )}
       </Box>
-    </>
+    </Stack>
   );
 };
