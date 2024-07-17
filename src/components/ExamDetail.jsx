@@ -52,6 +52,11 @@ export const ExamDetail = () => {
     });
     setQuestion(fqResponse.data.data);
     setCurruntQuestionIndex(questionIndex);
+    if (questionSectionMap[questionUUID] != null) {
+      setSectionName(questionSectionMap[questionUUID].name);
+    } else {
+      setSectionName("");
+    }
     if (answersMap.get(questionUUID) != null) {
       setCurrentAns(answersMap.get(questionUUID).answer);
     } else {
@@ -130,7 +135,7 @@ export const ExamDetail = () => {
   const questionSectionMap = {};
   exam.sections.forEach((section) => {
     section.question_list.forEach((question) => {
-      questionSectionMap[question.question_uuid] = section.uuid;
+      questionSectionMap[question.question_uuid] = section;
     });
   });
 
