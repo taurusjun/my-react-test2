@@ -195,7 +195,6 @@ export const ExamDetail = () => {
         new Map(
           answersMap.set(uKey, {
             index: uIndex,
-            uuid: uKey,
             answer: uAns,
           })
         )
@@ -310,6 +309,7 @@ export const ExamDetail = () => {
                           {options[key]}
                         </Typography>
                       }
+                      extraField="999"
                     />
                   ))}
                 </RadioGroup>
