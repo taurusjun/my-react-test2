@@ -321,7 +321,7 @@ export const ExamDetail = () => {
                       type="submit"
                       variant="contained"
                     >
-                      提交并到下一题
+                      下一题
                     </Button>
                     <Button
                       sx={{ mt: 1, mr: 1, width: 100 }}
