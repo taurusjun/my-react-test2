@@ -215,7 +215,19 @@ export const ExamDetail = () => {
     event.preventDefault();
     console.log("submit!");
     console.log(answersMap);
+    asyncSubmit();
   };
+
+  const asyncSubmit = async () => {
+    const listItems = Array.from(answersMap).map(([ky, val]) => [
+      { [ky]: val.answer },
+    ]);
+    const fqResponse = await axios.post("/api/v1/exam/submit", {
+      examUUID: exam.uuid,
+      answerList: listItems,
+    });
+  };
+
   ////////////////////////////////////////////////////////////////////////
 
   const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
