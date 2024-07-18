@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import { Home } from "./components/Home";
+import { Home } from "./exam/Home";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
 import { List } from "./components/List";
-import { ExamDetail } from "./components/ExamDetail";
+import { ExamDetail } from "./exam/ExamDetail";
 
 function App() {
   return (

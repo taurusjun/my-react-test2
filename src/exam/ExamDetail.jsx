@@ -17,6 +17,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
 import { styled, alpha } from "@mui/material/styles";
+import { ExamNav } from "./components/ExamNav";
+import { ITEM_TYPE_QUESTION } from "./components/Constants";
+import { SingleSelectionQuestion } from "./components/SingleSelectionQuestion";
 
 export const ExamDetail = () => {
   const params = useParams();
@@ -35,8 +38,6 @@ export const ExamDetail = () => {
   const [content, setContent] = useState("");
   const [options, setOptions] = useState({});
   const [answersMap, setAnswersMap] = useState(new Map());
-
-  const treeViewApiRef = useTreeViewApiRef();
 
   const asyncFetchExamDetail = async (examUUID) => {
     const data = await axios.post("/api/v1/exam/view", {
@@ -57,7 +58,10 @@ export const ExamDetail = () => {
     } else {
       setSectionName("");
     }
-    if (answersMap.get(questionUUID) != null) {
+    if (
+      answersMap.get(questionUUID) != null &&
+      answersMap.get(questionUUID).answer
+    ) {
       setCurrentAns(answersMap.get(questionUUID).answer);
     } else {
       setCurrentAns(null);
@@ -97,64 +101,29 @@ export const ExamDetail = () => {
   }
 
   //////////////////// 将exam section中的数据进行转换 ///////////////////////
-  const item_type_section = "section";
-  const item_type_question = "question";
-
-  // tree data
   let gQIndex = 0;
-  const sectionUUIDArray = [];
   const questionUUIDArray = [];
-  const treeViewData = exam.sections.map((section, index) => {
-    sectionUUIDArray.push(section.uuid);
-    return {
-      id: section.uuid,
-      type: item_type_section,
-      name: section.name,
-      label: `[${index + 1}]${section.name}`,
-      children: section.question_list.map((question, qIndex) => {
-        questionUUIDArray[gQIndex] = question.question_uuid;
-        return {
-          id: question.question_uuid,
-          type: item_type_question,
-          index: gQIndex++,
-          sectionName: section.name,
-          label: `[${index + 1}-${qIndex + 1}]`,
-        };
-      }),
-    };
-  });
-
-  //   treeViewApiRef.current.selectItem({
-  //     event: null,
-  //     itemId: questionUUIDArray[0],
-  //     keepExistingSelection: false,
-  //     shouldBeSelected: true,
-  //   });
-
   // map: question_uuid -> section_uuid
   const questionSectionMap = {};
-  exam.sections.forEach((section) => {
-    section.question_list.forEach((question) => {
-      questionSectionMap[question.question_uuid] = section;
-    });
-  });
-
   // map: section_uuid -> Array[question_uuid]
   const sectionQuestionListMap = {};
   exam.sections.forEach((section) => {
+    section.question_list.forEach((question) => {
+      questionUUIDArray[gQIndex++] = question.question_uuid;
+      questionSectionMap[question.question_uuid] = section;
+    });
     const questionUuids = section.question_list.map(
       (question) => question.question_uuid
     );
     sectionQuestionListMap[section.uuid] = questionUuids;
   });
-  ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////// 各种handler //////////////////////////////
-  const handleSelectedItemsChange = (event, id) => {
-    console.log(id);
-    var item = treeViewApiRef.current.getItem(id);
+  //跟TreeView联动
+  const handleTreeViewSelectedItemsChange = (item) => {
+    console.log(item);
     console.log(item.type);
-    if (item.type === item_type_question) {
+    if (item.type === ITEM_TYPE_QUESTION) {
       //   console.log(item.index);
       //   console.log(questionArray[item.index]);
       setSectionName(item.sectionName);
@@ -162,27 +131,10 @@ export const ExamDetail = () => {
     }
   };
 
-  const handleRadioChange = (event) => {
-    setCurrentAns(event.target.value);
-    setHelperText(" ");
-    setError(false);
-    saveAnswer(curruntQuestionUUID, event.target.value, curruntQuestionIndex);
-  };
-
-  const questionUUIDAnsMap = new Map();
-  const handleNextQuestion = (event) => {
-    event.preventDefault();
-    console.log(currentAns);
-    if (currentAns == null) {
-      setHelperText("还未选择答案");
-      setError(true);
-    } else {
-      console.log(curruntQuestionIndex);
-      console.log(curruntQuestionUUID);
-      //   saveAnswer(curruntQuestionUUID, currentAns, curruntQuestionIndex);
-
-      gotoNextQuestion();
-    }
+  //答案选中时
+  const handleAnswerChange = (selectedAnswer) => {
+    setCurrentAns(selectedAnswer);
+    saveAnswer(curruntQuestionUUID, selectedAnswer, curruntQuestionIndex);
   };
 
   function saveAnswer(questionUUID, ans, questionIndex) {
@@ -201,6 +153,18 @@ export const ExamDetail = () => {
     );
   }
 
+  /////// go to next
+  const handleNextQuestion = (event) => {
+    event.preventDefault();
+    console.log(currentAns);
+    if (currentAns == null) {
+      setHelperText("还未选择答案");
+      setError(true);
+    } else {
+      gotoNextQuestion();
+    }
+  };
+
   const gotoNextQuestion = () => {
     var nextQuestionIndex = curruntQuestionIndex + 1;
     if (questionUUIDArray.length > nextQuestionIndex) {
@@ -209,6 +173,8 @@ export const ExamDetail = () => {
       asyncFetchQuestion(nextQuestionUUID, nextQuestionIndex);
     }
   };
+
+  /////// submit
 
   const handleSubmitExam = (event) => {
     event.preventDefault();
@@ -229,55 +195,13 @@ export const ExamDetail = () => {
 
   ////////////////////////////////////////////////////////////////////////
 
-  const CustomTreeItem = styled(TreeItem)(({ theme }) => ({
-    color:
-      theme.palette.mode === "light"
-        ? theme.palette.grey[800]
-        : theme.palette.grey[200],
-    [`& .${treeItemClasses.content}`]: {
-      borderRadius: theme.spacing(0.5),
-      padding: theme.spacing(0.5, 1),
-      margin: theme.spacing(0.2, 0),
-      [`& .${treeItemClasses.label}`]: {
-        fontSize: 15,
-        fontWeight: 500,
-      },
-    },
-    [`& .${treeItemClasses.iconContainer}`]: {
-      borderRadius: "50%",
-      backgroundColor:
-        theme.palette.mode === "light"
-          ? alpha(theme.palette.primary.main, 0.25)
-          : theme.palette.primary.dark,
-      color:
-        theme.palette.mode === "dark" && theme.palette.primary.contrastText,
-      padding: theme.spacing(0, 1.2),
-    },
-    [`& .${treeItemClasses.groupTransition}`]: {
-      marginLeft: 15,
-      paddingLeft: 18,
-      borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`,
-    },
-    [`& .${treeItemClasses.selected}`]: {
-      color: "red",
-    },
-    // color:
-    //   treeItemClasses.content == { curruntQuestionUUID } ? "yellow" : "blue",
-  }));
-
   return (
     <Stack direction="row" spacing={2} justifyContent="flex-start">
-      <Box sx={{ minWidth: 250 }}>
-        <RichTreeView
-          sx={{ m: 3 }}
-          apiRef={treeViewApiRef}
-          defaultExpandedItems={sectionUUIDArray}
-          slots={{ item: CustomTreeItem }}
-          selectedItems={curruntQuestionUUID}
-          items={treeViewData}
-          onSelectedItemsChange={handleSelectedItemsChange}
-        />
-      </Box>
+      <ExamNav
+        exam={exam}
+        curruntQuestionUUID={curruntQuestionUUID}
+        handleSelectedItemsChange={handleTreeViewSelectedItemsChange}
+      />
       <Box>
         {content !== "" ? (
           <Paper elevation={5} sx={{ minHeight: 300, mr: 20 }}>
@@ -289,30 +213,13 @@ export const ExamDetail = () => {
                 >
                   {sectionName}
                 </Typography>
-                <Typography variant="span" sx={{ mb: 2, textIndent: 16 }}>
-                  {content}
-                </Typography>
-                {/* <FormLabel id="demo-error-radios">Pop quiz: MUI is...</FormLabel> */}
-                <RadioGroup
-                  aria-labelledby="demo-error-radios"
-                  name="quiz"
-                  value={currentAns}
-                  onChange={handleRadioChange}
-                >
-                  {Object.keys(options).map((key) => (
-                    <FormControlLabel
-                      key={key}
-                      value={options[key]}
-                      control={<Radio />}
-                      label={
-                        <Typography variant="body1" sx={{ fontSize: 15 }}>
-                          {options[key]}
-                        </Typography>
-                      }
-                      extraField="999"
-                    />
-                  ))}
-                </RadioGroup>
+                <SingleSelectionQuestion
+                  uuid={curruntQuestionUUID}
+                  content={content}
+                  options={options}
+                  savedAnswer={currentAns}
+                  handleAnswerChange={handleAnswerChange}
+                />
                 <FormHelperText>{helperText}</FormHelperText>
                 {questionUUIDArray.length - 1 > curruntQuestionIndex ? (
                   <Box flex={4}>

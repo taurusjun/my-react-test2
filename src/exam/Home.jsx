@@ -2,9 +2,9 @@ import { Box, List, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { SingleItem } from "./SingleListItem";
+import { SingleItem } from "../components/SingleListItem";
 import axios from "axios";
-import { MyBasicTable } from "./MyBasicTable";
+import { MyBasicTable } from "../components/MyBasicTable";
 
 export const Home = () => {
   const [state, setState] = useState([]);
