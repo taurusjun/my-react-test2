@@ -1,6 +1,7 @@
 import { FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { SingleSelection } from "./SingleSelection";
+import { UI_TYPE_SS } from "./Constants";
 
 export const Question = ({ question, savedAnswer, handleAnswerChange }) => {
   const [answer, setAnswer] = useState(savedAnswer);
@@ -31,38 +32,25 @@ export const Question = ({ question, savedAnswer, handleAnswerChange }) => {
     handleAnswerChange(uuid, quuid, ans);
   };
 
-  return (
-    <>
-      {questionDetails.map((qDetail) => (
-        <div key={qDetail.uuid}>
+  const questionComponent = (qDetail) => {
+    switch (qDetail.ui_type) {
+      case UI_TYPE_SS:
+        return (
           <SingleSelection
             qDetail={qDetail}
             qAnswer={answer}
             handleSelectionChange={handleSelectionChange}
           />
-          {/* <Typography variant="span" sx={{ mb: 2, textIndent: 16 }}>
-            {qDetail.question}
-          </Typography>
-          <RadioGroup
-            aria-labelledby="demo-error-radios"
-            name={qDetail.uuid}
-            value={answer[qDetail.uuid] ?? ""}
-            onChange={innerHandleRadioChange}
-          >
-            {Object.keys(qDetail.option_map).map((ky) => (
-              <FormControlLabel
-                key={`${qDetail.uuid}_${ky}`}
-                value={qDetail.option_map[ky]}
-                control={<Radio />}
-                label={
-                  <Typography variant="body1" sx={{ fontSize: 15 }}>
-                    {qDetail.option_map[ky]}
-                  </Typography>
-                }
-              />
-            ))}
-          </RadioGroup> */}
-        </div>
+        );
+      default:
+        return <div>Unknown UI Type</div>;
+    }
+  };
+
+  return (
+    <>
+      {questionDetails.map((qDetail) => (
+        <div key={qDetail.uuid}>{questionComponent(qDetail)}</div>
       ))}
     </>
   );
