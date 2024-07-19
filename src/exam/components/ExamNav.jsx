@@ -5,7 +5,7 @@ import {
   treeItemClasses,
   useTreeViewApiRef,
 } from "@mui/x-tree-view";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ITEM_TYPE_QUESTION, ITEM_TYPE_SECTION } from "./Constants";
 
 export const ExamNav = ({
@@ -14,6 +14,11 @@ export const ExamNav = ({
   handleSelectedItemsChange,
 }) => {
   const treeViewApiRef = useTreeViewApiRef();
+  const [selectedUUID, setSelectedUUID] = useState(curruntQuestionUUID);
+
+  useEffect(() => {
+    setSelectedUUID(curruntQuestionUUID);
+  }, [curruntQuestionUUID]);
 
   // tree data
   let gQIndex = 0;
@@ -79,6 +84,7 @@ export const ExamNav = ({
     console.log(id);
     var item = treeViewApiRef.current.getItem(id);
     console.log(item.type);
+    setSelectedUUID(item.id);
     handleSelectedItemsChange(item);
   };
 
@@ -90,7 +96,7 @@ export const ExamNav = ({
           apiRef={treeViewApiRef}
           defaultExpandedItems={sectionUUIDArray}
           slots={{ item: CustomTreeItem }}
-          selectedItems={curruntQuestionUUID}
+          selectedItems={selectedUUID}
           items={treeViewData}
           onSelectedItemsChange={innerHandleSelectedItemsChange}
         />

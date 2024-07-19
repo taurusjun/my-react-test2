@@ -35,8 +35,6 @@ export const ExamDetail = () => {
   const [helperText, setHelperText] = React.useState("");
 
   const [sectionName, setSectionName] = useState("");
-  const [content, setContent] = useState("");
-  const [options, setOptions] = useState({});
   const [answersMap, setAnswersMap] = useState(new Map());
 
   const asyncFetchExamDetail = async (examUUID) => {
@@ -52,6 +50,7 @@ export const ExamDetail = () => {
       uuid: questionUUID,
     });
     setQuestion(fqResponse.data.data);
+    setCurruntQuestionUUID(questionUUID);
     setCurruntQuestionIndex(questionIndex);
     if (questionSectionMap[questionUUID] != null) {
       setSectionName(questionSectionMap[questionUUID].name);
