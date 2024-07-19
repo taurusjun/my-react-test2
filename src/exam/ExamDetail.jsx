@@ -19,7 +19,7 @@ import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
 import { styled, alpha } from "@mui/material/styles";
 import { ExamNav } from "./components/ExamNav";
 import { ITEM_TYPE_QUESTION } from "./components/Constants";
-import { SingleSelectionQuestion } from "./components/SingleSelectionQuestion";
+import { Question } from "./components/Question";
 
 export const ExamDetail = () => {
   const params = useParams();
@@ -181,7 +181,7 @@ export const ExamDetail = () => {
                 >
                   {sectionName}
                 </Typography>
-                <SingleSelectionQuestion
+                <Question
                   question={question}
                   savedAnswer={currentAns}
                   handleAnswerChange={handleAnswerChange}

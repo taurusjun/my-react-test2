@@ -1,11 +1,7 @@
 import { FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
-export const SingleSelectionQuestion = ({
-  question,
-  savedAnswer,
-  handleAnswerChange,
-}) => {
+export const Question = ({ question, savedAnswer, handleAnswerChange }) => {
   const [answer, setAnswer] = useState(savedAnswer);
   const [uuid, setUuid] = useState(null);
   const [questionDetails, setQuestionDetails] = useState([]);
