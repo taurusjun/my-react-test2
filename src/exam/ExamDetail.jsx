@@ -27,10 +27,10 @@ export const ExamDetail = () => {
 
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({});
-  const [question, setQuestion] = useState({});
+  const [question, setQuestion] = useState(null);
   const [curruntQuestionUUID, setCurruntQuestionUUID] = useState("");
   const [curruntQuestionIndex, setCurruntQuestionIndex] = useState(0);
-  const [currentAns, setCurrentAns] = useState(null);
+  const [currentAns, setCurrentAns] = useState({});
   const [error, setError] = React.useState(false);
   const [helperText, setHelperText] = React.useState("");
 
@@ -58,43 +58,16 @@ export const ExamDetail = () => {
     } else {
       setSectionName("");
     }
-    if (
-      answersMap.get(questionUUID) != null &&
-      answersMap.get(questionUUID).answer
-    ) {
-      setCurrentAns(answersMap.get(questionUUID).answer);
+    if (answersMap.get(questionUUID) != null) {
+      setCurrentAns(answersMap.get(questionUUID));
     } else {
-      setCurrentAns(null);
+      setCurrentAns({});
     }
-  };
-
-  //handle question
-  const handleQuestion = (question) => {
-    if (question.mode === "Single") {
-      handleSingleQuestion(question);
-    }
-  };
-
-  const handleSingleQuestion = (question) => {
-    if (
-      question.QuestionDetails == null ||
-      question.QuestionDetails.length == 0
-    ) {
-      return;
-    }
-    var qDetail = question.QuestionDetails[0];
-    setContent(qDetail.question);
-    setOptions(qDetail.option_map);
-    setCurruntQuestionUUID(question.uuid);
   };
 
   useEffect(() => {
     asyncFetchExamDetail(uuid);
   }, [uuid]);
-
-  useEffect(() => {
-    handleQuestion(question);
-  }, [question]);
 
   if (loading) {
     return <div>Loading</div>;
@@ -132,25 +105,21 @@ export const ExamDetail = () => {
   };
 
   //答案选中时
-  const handleAnswerChange = (selectedAnswer) => {
-    setCurrentAns(selectedAnswer);
-    saveAnswer(curruntQuestionUUID, selectedAnswer, curruntQuestionIndex);
+  const handleAnswerChange = (uuid, quuid, selectedAnswer) => {
+    // setCurrentAns(selectedAnswer);
+    saveAnswer(uuid, quuid, selectedAnswer, curruntQuestionIndex);
   };
 
-  function saveAnswer(questionUUID, ans, questionIndex) {
+  function saveAnswer(questionUUID, quuid, ans, questionIndex) {
     var uKey = questionUUID;
     var uAns = ans;
     var uIndex = questionIndex;
-    // console.log(answersMap);
-    setAnswersMap(
-      (answersMap) =>
-        new Map(
-          answersMap.set(uKey, {
-            index: uIndex,
-            answer: uAns,
-          })
-        )
-    );
+    var mp = answersMap.get(uKey);
+    if (mp == null) {
+      mp = {};
+    }
+    mp[quuid] = uAns;
+    setAnswersMap((answersMap) => new Map(answersMap.set(uKey, mp)));
   }
 
   /////// go to next
@@ -203,7 +172,7 @@ export const ExamDetail = () => {
         handleSelectedItemsChange={handleTreeViewSelectedItemsChange}
       />
       <Box>
-        {content !== "" ? (
+        {question !== null ? (
           <Paper elevation={5} sx={{ minHeight: 300, mr: 20 }}>
             <form onSubmit={handleNextQuestion}>
               <FormControl sx={{ m: 3 }} error={error} variant="standard">
@@ -214,9 +183,7 @@ export const ExamDetail = () => {
                   {sectionName}
                 </Typography>
                 <SingleSelectionQuestion
-                  uuid={curruntQuestionUUID}
-                  content={content}
-                  options={options}
+                  question={question}
                   savedAnswer={currentAns}
                   handleAnswerChange={handleAnswerChange}
                 />
