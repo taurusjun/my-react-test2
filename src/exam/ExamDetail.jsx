@@ -2,21 +2,14 @@ import {
   Box,
   Button,
   FormControl,
-  FormControlLabel,
   FormHelperText,
-  FormLabel,
   Paper,
-  Radio,
-  RadioGroup,
   Stack,
   Typography,
 } from "@mui/material";
-import { RichTreeView, useTreeViewApiRef } from "@mui/x-tree-view";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { TreeItem, treeItemClasses } from "@mui/x-tree-view/TreeItem";
-import { styled, alpha } from "@mui/material/styles";
 import { ExamNav } from "./components/ExamNav";
 import { ITEM_TYPE_QUESTION } from "./components/Constants";
 import { Question } from "./components/Question";
@@ -96,8 +89,6 @@ export const ExamDetail = () => {
     console.log(item);
     console.log(item.type);
     if (item.type === ITEM_TYPE_QUESTION) {
-      //   console.log(item.index);
-      //   console.log(questionArray[item.index]);
       setSectionName(item.sectionName);
       asyncFetchQuestion(item.id, item.index);
     }
@@ -112,7 +103,6 @@ export const ExamDetail = () => {
   function saveAnswer(questionUUID, quuid, ans, questionIndex) {
     var uKey = questionUUID;
     var uAns = ans;
-    var uIndex = questionIndex;
     var mp = answersMap.get(uKey);
     if (mp == null) {
       mp = {};
@@ -152,12 +142,9 @@ export const ExamDetail = () => {
   };
 
   const asyncSubmit = async () => {
-    const listItems = Array.from(answersMap).map(([ky, val]) => [
-      { [ky]: val.answer },
-    ]);
-    const fqResponse = await axios.post("/api/v1/exam/submit", {
-      examUUID: exam.uuid,
-      answerList: listItems,
+    const fqResponse = await axios.post("/api/v1/userExam/submitExam", {
+      exam_uuid: exam.uuid,
+      answers: JSON.stringify(Object.fromEntries(answersMap)),
     });
   };
 
