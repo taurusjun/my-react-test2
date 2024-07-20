@@ -1,7 +1,8 @@
 import { FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { SingleSelection } from "./SingleSelection";
-import { UI_TYPE_SS } from "./Constants";
+import { UI_TYPE_MS, UI_TYPE_SS } from "./Constants";
+import { MultiSelection } from "./MultiSelection";
 
 export const Question = ({ question, savedAnswer, handleAnswerChange }) => {
   const [answer, setAnswer] = useState(savedAnswer);
@@ -37,6 +38,14 @@ export const Question = ({ question, savedAnswer, handleAnswerChange }) => {
       case UI_TYPE_SS:
         return (
           <SingleSelection
+            qDetail={qDetail}
+            qAnswer={answer}
+            handleSelectionChange={handleSelectionChange}
+          />
+        );
+      case UI_TYPE_MS:
+        return (
+          <MultiSelection
             qDetail={qDetail}
             qAnswer={answer}
             handleSelectionChange={handleSelectionChange}
