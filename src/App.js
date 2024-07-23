@@ -4,12 +4,14 @@ import { About } from "./components/About";
 import { Contact } from "./components/Contact";
 import { List } from "./components/List";
 import { ExamDetail } from "./exam/ExamDetail";
+import { Provider } from "./provider/Provider";
 
 function App() {
   return (
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/provider" element={<Provider />} />
         <Route path="about/:id" element={<About />} />
         <Route path="exam/:uuid" element={<ExamDetail />} />
         <Route path="contact" element={<Contact />} />
