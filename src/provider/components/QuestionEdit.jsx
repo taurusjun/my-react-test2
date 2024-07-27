@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import { Box, Button, InputAdornment, styled } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Box, Button, InputAdornment, Stack, styled } from "@mui/material";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -48,93 +49,102 @@ const QuestionEdit = () => {
     event.preventDefault();
     console.log("submit!");
     console.log(rows);
-    // asyncSubmit();
+    var emptyIndex = rows.findIndex((element) => element.value === "");
+    if (emptyIndex === 0) {
+      console.log("题干内容为空");
+    } else {
+      if (emptyIndex > 0) {
+        console.log(`第${emptyIndex}选项为空`);
+      }
+    }
+
+    if (emptyIndex !== -1) {
+      return;
+    } else {
+      // asyncSubmit();
+    }
   };
 
   return (
-    <>
-      <Box
-        sx={
-          {
-            //   display: "flex",
-            //   alignItems: "center",
-            //   justifyContent: "center",
-          }
-        }
-      >
-        {rows.map((row, index) => (
-          <Box key={index}>
-            {index === 0 ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <TextField
-                  label="在此输入题干"
-                  id="outlined-start-adornment"
-                  //   sx={{ m: 1, width: "25ch" }}
-                  margin="normal"
-                  multiline
-                  rows={4}
-                  value={row.value}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                />
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <TextField
-                  label={`${String.fromCharCode(index + 64)}选项`}
-                  margin="dense"
-                  value={row.value}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        {String.fromCharCode(index + 64)}:
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                {index > 0 && (
-                  <>
-                    <IconButton
-                      aria-label="remove"
-                      onClick={() => handleDeleteRow(index)}
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                    <IconButton
-                      aria-label="add"
-                      onClick={() => handleAddRow(index)}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </>
-                )}
-              </Box>
-            )}
-          </Box>
-        ))}
-      </Box>
-      <Box>
-        <Button
-          sx={{ mt: 1, mr: 1 }}
-          variant="contained"
-          onClick={handleSubmitQuestion}
+    <Box
+      flex={8}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Stack>
+        <Box
+          component="form"
+          sx={{
+            "& .MuiTextField-root": { xs: { m: 0 }, sm: { m: 1, width: 800 } },
+          }}
+          noValidate
+          autoComplete="off"
         >
-          提交
-        </Button>
-      </Box>
-    </>
+          {rows.map((row, index) => (
+            <Box key={index}>
+              {index === 0 ? (
+                <div>
+                  <TextField
+                    label="在此输入题干"
+                    id="outlined-start-adornment"
+                    margin="normal"
+                    multiline
+                    rows={4}
+                    value={row.value}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <TextField
+                    label={`${String.fromCharCode(index + 64)}选项`}
+                    margin="dense"
+                    value={row.value}
+                    error={row.value === ""}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {String.fromCharCode(index + 64)}:
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {index > 0 && (
+                    <>
+                      <IconButton
+                        aria-label="delete"
+                        onClick={() => handleDeleteRow(index)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="add"
+                        onClick={() => handleAddRow(index)}
+                      >
+                        <AddCircleIcon />
+                      </IconButton>
+                    </>
+                  )}
+                </div>
+              )}
+            </Box>
+          ))}
+        </Box>
+        <Box>
+          <Button
+            sx={{ mt: 1, mr: 1 }}
+            variant="contained"
+            onClick={handleSubmitQuestion}
+          >
+            提交
+          </Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 };
 
