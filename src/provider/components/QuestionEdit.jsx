@@ -18,6 +18,7 @@ const QuestionEdit = () => {
   ]);
 
   const [submiting, setSubmiting] = useState(false);
+  const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
 
@@ -73,17 +74,33 @@ const QuestionEdit = () => {
     if (emptyIndex !== -1) {
       setModalTitle("存在错误");
       setModalContent(errorTxt);
+      setReadyToClose(true);
       return;
     } else {
       setModalTitle("");
       setModalContent("正在提交...");
       //setTimeout(setSubmiting(false), 2000);
-      // asyncSubmit();
+      asyncSubmit();
     }
   };
 
-  const handleModalStatus = (state) => {
-    setSubmiting(state);
+  const asyncSubmit = async () => {
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    // const fqResponse = await axios.post("/api/v1/userExam/submitExam", {
+    //   exam_uuid: exam.uuid,
+    //   answers: JSON.stringify(Object.fromEntries(answersMap)),
+    // });
+    // 执行需要等待的操作
+    console.log("开始等待");
+    await sleep(2000); // 等待2秒
+    console.log("等待结束");
+    setModalContent("提交完成!");
+    setReadyToClose(true);
+  };
+
+  const handleModalStatus = () => {
+    setSubmiting(false);
+    setReadyToClose(false);
   };
 
   return (
@@ -171,6 +188,7 @@ const QuestionEdit = () => {
       </Box>
       <BasicModal
         status={submiting}
+        readyToClose={readyToClose}
         titleText={modalTitle}
         contentText={modalContent}
         handleModalStatus={handleModalStatus}
