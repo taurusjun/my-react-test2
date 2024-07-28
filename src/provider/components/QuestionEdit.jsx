@@ -4,17 +4,24 @@ import IconButton from "@mui/material/IconButton";
 import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import { Box, Button, InputAdornment, Stack } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  Stack,
+} from "@mui/material";
 import SubmitModal from "./SubmitModal";
 import { wait } from "@testing-library/user-event/dist/utils";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
-    { value: "" },
-    { value: "" },
-    { value: "" },
-    { value: "" },
-    { value: "" },
+    { value: "", isAns: false },
+    { value: "", isAns: false },
+    { value: "", isAns: false },
+    { value: "", isAns: false },
+    { value: "", isAns: false },
   ]);
 
   const [submiting, setSubmiting] = useState(false);
@@ -40,6 +47,7 @@ const QuestionEdit = () => {
       if (index === 1) {
         updatedRows = updatedRows.map((row, i) => ({
           value: row.value,
+          isAns: row.isAns,
         }));
       }
       setRows(updatedRows);
@@ -49,6 +57,12 @@ const QuestionEdit = () => {
   const handleChange = (index, value) => {
     const updatedRows = [...rows];
     updatedRows[index].value = value;
+    setRows(updatedRows);
+  };
+
+  const handleAnsChange = (index, checked) => {
+    const updatedRows = [...rows];
+    updatedRows[index].isAns = checked;
     setRows(updatedRows);
   };
 
@@ -140,7 +154,20 @@ const QuestionEdit = () => {
                     />
                   </div>
                 ) : (
-                  <div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={row.isAns}
+                          onChange={(e) =>
+                            handleAnsChange(index, e.target.checked)
+                          }
+                        />
+                      }
+                      label="答案"
+                      labelPlacement="top"
+                    />
+
                     <TextField
                       label={`${String.fromCharCode(index + 64)}选项`}
                       margin="dense"
