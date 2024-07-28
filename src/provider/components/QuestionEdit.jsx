@@ -5,7 +5,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Box, Button, InputAdornment, Stack } from "@mui/material";
-import BasicModal from "./BasicModal";
+import SubmitModal from "./SubmitModal";
 import { wait } from "@testing-library/user-event/dist/utils";
 
 const QuestionEdit = () => {
@@ -186,7 +186,7 @@ const QuestionEdit = () => {
           </LoadingButton>
         </Stack>
       </Box>
-      <BasicModal
+      <SubmitModal
         status={submiting}
         readyToClose={readyToClose}
         titleText={modalTitle}
