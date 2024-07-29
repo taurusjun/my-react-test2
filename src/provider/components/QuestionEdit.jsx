@@ -8,12 +8,19 @@ import {
   Box,
   Button,
   Checkbox,
+  FormControl,
   FormControlLabel,
   InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
+  styled,
+  TextareaAutosize,
 } from "@mui/material";
 import SubmitModal from "./SubmitModal";
 import { wait } from "@testing-library/user-event/dist/utils";
+import MultiLevelSelect from "./MultiLevelSelect";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -130,12 +137,12 @@ const QuestionEdit = () => {
         <Stack>
           <Box
             component="form"
-            sx={{
-              "& .MuiTextField-root": {
-                xs: { m: 0 },
-                sm: { m: 1, width: 800 },
-              },
-            }}
+            // sx={{
+            //   "& .MuiTextField-root": {
+            //     xs: { m: 0 },
+            //     sm: { m: 1, width: 800 },
+            //   },
+            // }}
             noValidate
             autoComplete="off"
           >
@@ -144,6 +151,7 @@ const QuestionEdit = () => {
                 {index === 0 ? (
                   <div>
                     <TextField
+                      sx={{ width: 1000 }}
                       label="在此输入题干"
                       id="outlined-start-adornment"
                       margin="normal"
@@ -169,6 +177,7 @@ const QuestionEdit = () => {
                     />
 
                     <TextField
+                      sx={{ width: 800 }}
                       label={`${String.fromCharCode(index + 64)}选项`}
                       margin="dense"
                       value={row.value}
@@ -202,6 +211,93 @@ const QuestionEdit = () => {
                 )}
               </Box>
             ))}
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="demo-simple-select-label">题目分类</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={10}
+                  label="type"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>选择题</MenuItem>
+                  <MenuItem value={20}>填空题</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="demo-simple-select-label">选项类型</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  //   value={age}
+                  value={10}
+                  label="ui-type"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>单选</MenuItem>
+                  <MenuItem value={20}>多选</MenuItem>
+                </Select>
+              </FormControl>
+              {/* <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="demo-simple-select-label">年级</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  //   value={age}
+                  value={10}
+                  label="grade"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>小学</MenuItem>
+                  <MenuItem value={20}>多选</MenuItem>
+                </Select>
+              </FormControl> */}
+              <MultiLevelSelect />
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="demo-simple-select-label">学科</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={10}
+                  label="type"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>物理</MenuItem>
+                  <MenuItem value={20}>化学</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel id="demo-simple-select-label">知识点</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  //   value={age}
+                  value={10}
+                  label="ui-type"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={10}>运动学</MenuItem>
+                  <MenuItem value={20}>电与磁</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <div>
+                <TextField
+                  sx={{ width: 1000 }}
+                  label="题目解析"
+                  id="outlined-start-adornment"
+                  margin="normal"
+                  multiline
+                  rows={3}
+                  //   value={row.value}
+                  //   onChange={(e) => handleChange(index, e.target.value)}
+                />
+              </div>
+            </Box>
           </Box>
           <LoadingButton
             sx={{ mt: 1, mr: 1 }}
