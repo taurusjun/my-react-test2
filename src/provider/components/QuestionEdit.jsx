@@ -17,10 +17,12 @@ import {
   Stack,
   styled,
   TextareaAutosize,
+  Typography,
 } from "@mui/material";
 import SubmitModal from "./SubmitModal";
 import { wait } from "@testing-library/user-event/dist/utils";
 import MultiLevelSelect from "./MultiLevelSelect";
+import HardRating from "./HardRating";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -282,6 +284,40 @@ const QuestionEdit = () => {
                   <MenuItem value={10}>运动学</MenuItem>
                   <MenuItem value={20}>电与磁</MenuItem>
                 </Select>
+              </FormControl>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                ml: 2,
+                mr: 2,
+              }}
+            >
+              <FormControl>
+                <HardRating
+                  onRateChange={(rate) => console.log("rate: " + rate)}
+                />
+              </FormControl>
+              <FormControl>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography component="legend">来源：</Typography>
+                  <TextField
+                    sx={{ width: 500 }}
+                    label="填写来源，比如哪一本书，或者哪一张试卷"
+                    id="outlined-start-adornment"
+                    margin="normal"
+                    rows={1}
+                    //   value={row.value}
+                    //   onChange={(e) => handleChange(index, e.target.value)}
+                  />
+                </Box>
               </FormControl>
             </Box>
             <Box>
