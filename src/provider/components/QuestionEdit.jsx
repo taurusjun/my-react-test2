@@ -13,14 +13,12 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
+  Radio,
   Select,
   Stack,
-  styled,
-  TextareaAutosize,
   Typography,
 } from "@mui/material";
 import SubmitModal from "./SubmitModal";
-import { wait } from "@testing-library/user-event/dist/utils";
 import MultiLevelSelect from "./MultiLevelSelect";
 import HardRating from "./HardRating";
 
@@ -70,9 +68,14 @@ const QuestionEdit = () => {
   };
 
   const handleAnsChange = (index, checked) => {
-    const updatedRows = [...rows];
-    updatedRows[index].isAns = checked;
-    setRows(updatedRows);
+    // const updatedRows = [...rows];
+    if (checked) {
+      const updatedRows = rows.map((item) => {
+        return { ...item, isAns: false };
+      });
+      updatedRows[index].isAns = checked;
+      setRows(updatedRows);
+    }
   };
 
   const handleSubmitQuestion = (event) => {
@@ -167,7 +170,7 @@ const QuestionEdit = () => {
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <FormControlLabel
                       control={
-                        <Checkbox
+                        <Radio
                           checked={row.isAns}
                           onChange={(e) =>
                             handleAnsChange(index, e.target.checked)
