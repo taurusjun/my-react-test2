@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 
-const MultiLevelSelect = () => {
+const MultiLevelSelect = ({ onMultiSelectChange }) => {
   const [schoolLevel, setSchoolLevel] = useState("");
   const [grade, setGrade] = useState("");
 
   const handleSchoolLevelChange = (event) => {
-    setSchoolLevel(event.target.value);
+    var schoolVal = event.target.value;
+    setSchoolLevel(schoolVal);
     setGrade(""); // 重置年级选项
+    onMultiSelectChange(schoolVal, grade);
   };
 
   const handleGradeChange = (event) => {
-    setGrade(event.target.value);
+    var gradVal = event.target.value;
+    setGrade(gradVal);
+    onMultiSelectChange(schoolLevel, gradVal);
   };
 
   return (

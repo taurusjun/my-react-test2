@@ -35,6 +35,19 @@ const QuestionEdit = () => {
   const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
+  const [uiType, setUIType] = useState("single_selection");
+  const [type, setType] = useState("selection");
+  const [category, setCategory] = useState("physics");
+  const [kn, setKN] = useState("");
+  const [gradInfo, setGradInfo] = useState({ school: "", grad: "" });
+  const [rate, setRate] = useState(0);
+  const [source, setSource] = useState("");
+  const [explaination, setExplaination] = useState("");
+
+  const UITypeDict = { single_selection: "单选", multi_selection: "多选" };
+  const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
+  const CategoryDict = { physics: "物理", chemistry: "化学" };
+  const KNDict = { kinematics: "运动学", electromagnetism: "电与磁" };
 
   const handleAddRow = (index) => {
     const newRow = {
@@ -78,10 +91,48 @@ const QuestionEdit = () => {
     }
   };
 
+  const handleSelectChange = (type, value) => {
+    switch (type) {
+      case "type": {
+        setType(value);
+        break;
+      }
+      case "ui-type": {
+        setUIType(value);
+        break;
+      }
+      case "category": {
+        setCategory(value);
+        break;
+      }
+      case "knowledge_node": {
+        setKN(value);
+        break;
+      }
+
+      default:
+    }
+  };
+
+  const handleMultiSelectChange = (school, grad) => {
+    setGradInfo({
+      school,
+      grad,
+    });
+  };
+
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
     console.log("submit!");
     console.log(rows);
+    console.log(type);
+    console.log(uiType);
+    console.log(gradInfo);
+    console.log(category);
+    console.log(kn);
+    console.log(rate);
+    console.log(source);
+    console.log(explaination);
 
     var emptyIndex = rows.findIndex((element) => element.value === "");
     var errorTxt = "";
@@ -218,30 +269,37 @@ const QuestionEdit = () => {
             ))}
             <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
               <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="demo-simple-select-label">题目分类</InputLabel>
+                <InputLabel id="type-label">题目分类</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={10}
+                  labelId="type-label"
+                  id="type-select"
+                  value={type}
                   label="type"
-                  onChange={handleChange}
+                  onChange={(e) => handleSelectChange("type", e.target.value)}
                 >
-                  <MenuItem value={10}>选择题</MenuItem>
-                  <MenuItem value={20}>填空题</MenuItem>
+                  {Object.entries(TypeDict).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="demo-simple-select-label">选项类型</InputLabel>
+                <InputLabel id="ui-type-select-label">选项类型</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  //   value={age}
-                  value={10}
+                  labelId="ui-type-select-label"
+                  id="ui-type-select"
+                  value={uiType}
                   label="ui-type"
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleSelectChange("ui-type", e.target.value)
+                  }
                 >
-                  <MenuItem value={10}>单选</MenuItem>
-                  <MenuItem value={20}>多选</MenuItem>
+                  {Object.entries(UITypeDict).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               {/* <FormControl sx={{ flex: 1 }}>
@@ -258,34 +316,43 @@ const QuestionEdit = () => {
                   <MenuItem value={20}>多选</MenuItem>
                 </Select>
               </FormControl> */}
-              <MultiLevelSelect />
+              <MultiLevelSelect onMultiSelectChange={handleMultiSelectChange} />
             </Box>
             <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
               <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="demo-simple-select-label">学科</InputLabel>
+                <InputLabel id="category-select-label">学科</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={10}
-                  label="type"
-                  onChange={handleChange}
+                  labelId="category-select-label"
+                  id="category-select"
+                  value={category}
+                  label="category"
+                  onChange={(e) =>
+                    handleSelectChange("category", e.target.value)
+                  }
                 >
-                  <MenuItem value={10}>物理</MenuItem>
-                  <MenuItem value={20}>化学</MenuItem>
+                  {Object.entries(CategoryDict).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="demo-simple-select-label">知识点</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  //   value={age}
-                  value={10}
-                  label="ui-type"
-                  onChange={handleChange}
+                  labelId="knowledge_node-select-label"
+                  id="knowledge_node-select"
+                  value={kn}
+                  label="knowledge_node"
+                  onChange={(e) =>
+                    handleSelectChange("knowledge_node", e.target.value)
+                  }
                 >
-                  <MenuItem value={10}>运动学</MenuItem>
-                  <MenuItem value={20}>电与磁</MenuItem>
+                  {Object.entries(KNDict).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Box>
@@ -299,9 +366,7 @@ const QuestionEdit = () => {
               }}
             >
               <FormControl>
-                <HardRating
-                  onRateChange={(rate) => console.log("rate: " + rate)}
-                />
+                <HardRating onRateChange={(rate) => setRate(rate)} />
               </FormControl>
               <FormControl>
                 <Box
@@ -317,8 +382,8 @@ const QuestionEdit = () => {
                     id="outlined-start-adornment"
                     margin="normal"
                     rows={1}
-                    //   value={row.value}
-                    //   onChange={(e) => handleChange(index, e.target.value)}
+                    value={source}
+                    onChange={(e) => setSource(e.target.value)}
                   />
                 </Box>
               </FormControl>
@@ -332,8 +397,8 @@ const QuestionEdit = () => {
                   margin="normal"
                   multiline
                   rows={3}
-                  //   value={row.value}
-                  //   onChange={(e) => handleChange(index, e.target.value)}
+                  value={explaination}
+                  onChange={(e) => setExplaination(e.target.value)}
                 />
               </div>
             </Box>
