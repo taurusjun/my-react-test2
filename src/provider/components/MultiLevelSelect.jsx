@@ -5,6 +5,17 @@ const MultiLevelSelect = ({ onMultiSelectChange }) => {
   const [schoolLevel, setSchoolLevel] = useState("");
   const [grade, setGrade] = useState("");
 
+  const inData = {
+    primary: {
+      desc: "小学",
+      options: {
+        grade1: "一年级",
+        grade2: "二年级",
+        grade3: "三年级",
+      },
+    },
+  };
+
   const handleSchoolLevelChange = (event) => {
     var schoolVal = event.target.value;
     setSchoolLevel(schoolVal);

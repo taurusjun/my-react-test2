@@ -21,6 +21,7 @@ import {
 import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import HardRating from "./HardRating";
+import { CheckBoxIcon } from "@mui/icons-material";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -35,7 +36,8 @@ const QuestionEdit = () => {
   const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
-  const [uiType, setUIType] = useState("single_selection");
+  const [uiType, setUIType] = useState("multi_selection");
+  // const [uiType, setUIType] = useState("single_selection");
   const [type, setType] = useState("selection");
   const [category, setCategory] = useState("physics");
   const [kn, setKN] = useState("");
@@ -81,13 +83,24 @@ const QuestionEdit = () => {
   };
 
   const handleAnsChange = (index, checked) => {
-    // const updatedRows = [...rows];
-    if (checked) {
-      const updatedRows = rows.map((item) => {
-        return { ...item, isAns: false };
-      });
-      updatedRows[index].isAns = checked;
-      setRows(updatedRows);
+    switch (uiType) {
+      case "single_selection": {
+        if (checked) {
+          const updatedRows = rows.map((item) => {
+            return { ...item, isAns: false };
+          });
+          updatedRows[index].isAns = checked;
+          setRows(updatedRows);
+        }
+        break;
+      }
+      case "multi_selection": {
+        const updatedRows = [...rows];
+        updatedRows[index].isAns = checked;
+        setRows(updatedRows);
+        break;
+      }
+      default:
     }
   };
 
@@ -98,6 +111,10 @@ const QuestionEdit = () => {
         break;
       }
       case "ui-type": {
+        const updatedRows = rows.map((item) => {
+          return { ...item, isAns: false };
+        });
+        setRows(updatedRows);
         setUIType(value);
         break;
       }
@@ -221,12 +238,21 @@ const QuestionEdit = () => {
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <FormControlLabel
                       control={
-                        <Radio
-                          checked={row.isAns}
-                          onChange={(e) =>
-                            handleAnsChange(index, e.target.checked)
-                          }
-                        />
+                        uiType == "single_selection" ? (
+                          <Radio
+                            checked={row.isAns}
+                            onChange={(e) =>
+                              handleAnsChange(index, e.target.checked)
+                            }
+                          />
+                        ) : (
+                          <Checkbox
+                            checked={row.isAns}
+                            onChange={(e) =>
+                              handleAnsChange(index, e.target.checked)
+                            }
+                          />
+                        )
                       }
                       label="答案"
                       labelPlacement="top"
