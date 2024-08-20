@@ -151,21 +151,24 @@ const QuestionEdit = () => {
     console.log(source);
     console.log(explaination);
 
-    var emptyIndex = rows.findIndex((element) => element.value === "");
-    var errorTxt = "";
-    if (emptyIndex === 0) {
-      console.log("题干内容为空");
-      errorTxt = "题干内容为空";
-    } else {
-      if (emptyIndex > 0) {
-        console.log(`第${emptyIndex}个选项为空`);
-        errorTxt = `第${emptyIndex}个选项为空`;
-      }
-    }
+    // var emptyIndex = rows.findIndex((element) => element.value === "");
+    // var errorTxt = "";
+    // if (emptyIndex === 0) {
+    //   console.log("题干内容为空");
+    //   errorTxt = "题干内容为空";
+    // } else {
+    //   if (emptyIndex > 0) {
+    //     console.log(`第${emptyIndex}个选项为空`);
+    //     errorTxt = `第${emptyIndex}个选项为空`;
+    //   }
+    // }
+
+    var errorTxt = checkBeforeSubmit();
 
     setSubmiting(true);
 
-    if (emptyIndex !== -1) {
+    // if (emptyIndex !== -1) {
+    if (errorTxt !== "") {
       setModalTitle("存在错误");
       setModalContent(errorTxt);
       setReadyToClose(true);
@@ -176,6 +179,77 @@ const QuestionEdit = () => {
       //setTimeout(setSubmiting(false), 2000);
       asyncSubmit();
     }
+  };
+
+  const checkBeforeSubmit = () => {
+    // 题目
+    var emptyIndex = rows.findIndex((element) => element.value === "");
+    var errorTxt = "";
+    if (emptyIndex === 0) {
+      errorTxt = "题干内容为空";
+      return errorTxt;
+    } else {
+      if (emptyIndex > 0) {
+        errorTxt = `第${emptyIndex}个选项为空`;
+        return errorTxt;
+      }
+    }
+
+    //答案检查
+    // 除去index 0的元素后，检查所有元素的isAns是否都为false
+    const allIsAnsFalse = rows.slice(1).every((row) => row.isAns === false);
+    if (allIsAnsFalse) {
+      errorTxt = "答案未选择";
+      return errorTxt;
+    }
+
+    //题目类型
+    if (type == "") {
+      errorTxt = "题目类型未选择";
+      return errorTxt;
+    }
+
+    //选项类型
+    if (uiType == "") {
+      errorTxt = "选项未选择";
+      return errorTxt;
+    }
+
+    //gradInfo
+    if (gradInfo.school == "") {
+      errorTxt = "学习阶段未选择";
+      return errorTxt;
+    }
+
+    if (gradInfo.grad == "") {
+      errorTxt = "年级未选择";
+      return errorTxt;
+    }
+
+    //category
+    if (category == "") {
+      errorTxt = "学科未选择";
+      return errorTxt;
+    }
+
+    //kn
+    if (kn == "") {
+      errorTxt = "知识点未选择";
+      return errorTxt;
+    }
+
+    //rate
+    if (rate == 0) {
+      errorTxt = "难度未选择";
+      return errorTxt;
+    }
+    //explaination
+    // if (explaination == "") {
+    //   errorTxt = "题目解析未填写";
+    //   return errorTxt;
+    // }
+
+    return "";
   };
 
   const asyncSubmit = async () => {
