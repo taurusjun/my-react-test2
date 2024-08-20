@@ -21,6 +21,7 @@ import {
 import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import HardRating from "./HardRating";
+import ImageUpload from "./ImageUpload";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -293,6 +294,7 @@ const QuestionEdit = () => {
                       value={row.value}
                       onChange={(e) => handleChange(index, e.target.value)}
                     />
+                    <ImageUpload />
                   </div>
                 ) : (
                   <div style={{ display: "flex", alignItems: "center" }}>
