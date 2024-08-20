@@ -33,6 +33,7 @@ const zoomCursor = {
 function ImageUpload() {
   const [image, setImage] = useState(null);
   const [open, setOpen] = useState(false);
+  const [file, setFile] = useState(false);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -44,9 +45,31 @@ function ImageUpload() {
       };
 
       reader.readAsDataURL(file);
+      setFile(file);
     } else {
       alert("请选择一张图片文件");
     }
+  };
+
+  const asyncUploadFile = () => {
+    const formData = new FormData();
+    formData.append("image", file); // 确保 'image' 与后端接收的字段匹配
+
+    // 使用 fetch 或者 axios 等发送 formData 到服务器
+    fetch("http://localhost:3000/upload", {
+      // 替换成你的服务器地址
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        console.log(data);
+        // 此处你也可以更新 UI，例如显示上传成功消息
+      })
+      .catch((error) => {
+        console.error(error);
+        // 处理错误情况，例如显示错误消息
+      });
   };
 
   const handleDelete = () => setImage(null);
