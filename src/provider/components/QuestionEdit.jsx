@@ -21,7 +21,6 @@ import {
 import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import HardRating from "./HardRating";
-import { CheckBoxIcon } from "@mui/icons-material";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -151,23 +150,10 @@ const QuestionEdit = () => {
     console.log(source);
     console.log(explaination);
 
-    // var emptyIndex = rows.findIndex((element) => element.value === "");
-    // var errorTxt = "";
-    // if (emptyIndex === 0) {
-    //   console.log("题干内容为空");
-    //   errorTxt = "题干内容为空";
-    // } else {
-    //   if (emptyIndex > 0) {
-    //     console.log(`第${emptyIndex}个选项为空`);
-    //     errorTxt = `第${emptyIndex}个选项为空`;
-    //   }
-    // }
-
     var errorTxt = checkBeforeSubmit();
 
     setSubmiting(true);
 
-    // if (emptyIndex !== -1) {
     if (errorTxt !== "") {
       setModalTitle("存在错误");
       setModalContent(errorTxt);
