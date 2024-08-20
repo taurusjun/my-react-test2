@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
@@ -34,6 +34,14 @@ function ImageUpload() {
   const [image, setImage] = useState(null);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState(false);
+
+  useEffect(() => {
+    // 在这里进行URL到图片资源的请求
+    const imageUrl =
+      "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
+    // 直接将URL设置给Image，因为我们假设服务器端已经提供了静态文件访问
+    setImage(imageUrl);
+  }, []); // 依赖数组为空，表示只在组件挂载时执行
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
