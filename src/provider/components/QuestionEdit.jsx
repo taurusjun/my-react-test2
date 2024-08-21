@@ -25,11 +25,11 @@ import ImageUpload from "./ImageUpload";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
-    { value: "", isAns: false },
-    { value: "", isAns: false },
-    { value: "", isAns: false },
-    { value: "", isAns: false },
-    { value: "", isAns: false },
+    { value: "", isAns: false, image: null },
+    { value: "", isAns: false, image: null },
+    { value: "", isAns: false, image: null },
+    { value: "", isAns: false, image: null },
+    { value: "", isAns: false, image: null },
   ]);
 
   const [submiting, setSubmiting] = useState(false);
@@ -258,6 +258,12 @@ const QuestionEdit = () => {
     setReadyToClose(false);
   };
 
+  const handleImageChange = (index, imageData) => {
+    const updatedRows = [...rows];
+    updatedRows[index].image = imageData;
+    setRows(updatedRows);
+  };
+
   return (
     <>
       <Box
@@ -294,48 +300,54 @@ const QuestionEdit = () => {
                       value={row.value}
                       onChange={(e) => handleChange(index, e.target.value)}
                     />
-                    <ImageUpload />
+                    <ImageUpload
+                      cid={index}
+                      imageData={row.image}
+                      onImageChange={(imageData) =>
+                        handleImageChange(index, imageData)
+                      }
+                    />
                   </div>
                 ) : (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <FormControlLabel
-                      control={
-                        uiType == "single_selection" ? (
-                          <Radio
-                            checked={row.isAns}
-                            onChange={(e) =>
-                              handleAnsChange(index, e.target.checked)
-                            }
-                          />
-                        ) : (
-                          <Checkbox
-                            checked={row.isAns}
-                            onChange={(e) =>
-                              handleAnsChange(index, e.target.checked)
-                            }
-                          />
-                        )
-                      }
-                      label="答案"
-                      labelPlacement="top"
-                    />
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <FormControlLabel
+                        control={
+                          uiType == "single_selection" ? (
+                            <Radio
+                              checked={row.isAns}
+                              onChange={(e) =>
+                                handleAnsChange(index, e.target.checked)
+                              }
+                            />
+                          ) : (
+                            <Checkbox
+                              checked={row.isAns}
+                              onChange={(e) =>
+                                handleAnsChange(index, e.target.checked)
+                              }
+                            />
+                          )
+                        }
+                        label="答案"
+                        labelPlacement="top"
+                      />
 
-                    <TextField
-                      sx={{ width: 800 }}
-                      label={`${String.fromCharCode(index + 64)}选项`}
-                      margin="dense"
-                      value={row.value}
-                      error={row.value === ""}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            {String.fromCharCode(index + 64)}:
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    {index > 0 && (
+                      <TextField
+                        sx={{ width: 800 }}
+                        label={`${String.fromCharCode(index + 64)}选项`}
+                        margin="dense"
+                        value={row.value}
+                        error={row.value === ""}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              {String.fromCharCode(index + 64)}:
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
                       <>
                         <IconButton
                           aria-label="delete"
@@ -350,7 +362,14 @@ const QuestionEdit = () => {
                           <AddCircleIcon />
                         </IconButton>
                       </>
-                    )}
+                    </div>
+                    <ImageUpload
+                      cid={index}
+                      imageData={row.image}
+                      onImageChange={(imageData) =>
+                        handleImageChange(index, imageData)
+                      }
+                    />
                   </div>
                 )}
               </Box>

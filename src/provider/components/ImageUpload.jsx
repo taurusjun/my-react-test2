@@ -2,14 +2,10 @@ import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import { styled } from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete"; // 导入删除图标
 import IconButton from "@mui/material/IconButton";
-
-const Input = styled("input")({
-  display: "none",
-});
+import Input from "@mui/material/Input";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const style = {
   position: "absolute",
@@ -25,23 +21,19 @@ const style = {
   overflow: "scroll",
 };
 
-// CSS 用于改变鼠标形状
 const zoomCursor = {
-  cursor: "zoom-in", // 鼠标变成放大镜形状
+  cursor: "zoom-in",
 };
 
-function ImageUpload() {
+function ImageUpload({ cid, onImageChange, imageData }) {
   const [image, setImage] = useState(null);
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState(false);
 
   useEffect(() => {
-    // 在这里进行URL到图片资源的请求
-    const imageUrl =
-      "https://www.google.com.hk/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png";
-    // 直接将URL设置给Image，因为我们假设服务器端已经提供了静态文件访问
-    setImage(imageUrl);
-  }, []); // 依赖数组为空，表示只在组件挂载时执行
+    setImage(imageData);
+  }, [imageData]);
+
+  const uniqueId = `contained-button-file-${cid}`; // 创建唯一的ID
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -49,51 +41,36 @@ function ImageUpload() {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        setImage(reader.result);
+        // setImage(reader.result);
+        // Assuming onImageChange is a function passed by the parent component
+        onImageChange(reader.result);
       };
 
       reader.readAsDataURL(file);
-      setFile(file);
     } else {
       alert("请选择一张图片文件");
     }
   };
 
-  const asyncUploadFile = () => {
-    const formData = new FormData();
-    formData.append("image", file); // 确保 'image' 与后端接收的字段匹配
-
-    // 使用 fetch 或者 axios 等发送 formData 到服务器
-    fetch("http://localhost:3000/upload", {
-      // 替换成你的服务器地址
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        console.log(data);
-        // 此处你也可以更新 UI，例如显示上传成功消息
-      })
-      .catch((error) => {
-        console.error(error);
-        // 处理错误情况，例如显示错误消息
-      });
+  // Assuming asyncSubmitQuestion is called when submitting the form in the parent component
+  const handleDelete = () => {
+    // setImage(null);
+    onImageChange(null); // Update parent's component state to reflect the deletion
   };
-
-  const handleDelete = () => setImage(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   return (
     <div>
-      <label htmlFor="contained-button-file">
+      <label htmlFor={uniqueId}>
         <Input
           accept="image/*"
-          id="contained-button-file"
+          id={uniqueId}
           multiple={false}
           type="file"
           onChange={handleFileChange}
+          style={{ display: "none" }} // Ensure the input is hidden
         />
         <Button variant="contained" component="span">
           上传图片
@@ -105,13 +82,13 @@ function ImageUpload() {
           <img
             src={image}
             alt="Uploaded"
+            onClick={handleOpen}
             style={{
               ...zoomCursor,
               marginTop: "20px",
               maxWidth: "100%",
               maxHeight: "400px",
             }}
-            onClick={handleOpen}
           />
           <Modal
             open={open}
@@ -140,7 +117,6 @@ function ImageUpload() {
             </Box>
           </Modal>
 
-          {/* 删除按钮 */}
           <Button
             startIcon={<DeleteIcon />}
             variant="outlined"
