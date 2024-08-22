@@ -306,7 +306,7 @@ const QuestionEdit = () => {
                 </Select>
               </FormControl>
               <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="ui-type-select-label">选项类型</InputLabel>
+                <InputLabel id="ui-type-select-label">题目类型</InputLabel>
                 <Select
                   labelId="ui-type-select-label"
                   id="ui-type-select"
