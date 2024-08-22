@@ -22,6 +22,7 @@ import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import HardRating from "./HardRating";
 import ImageUpload from "./ImageUpload";
+import QuestionDetailEdit from "./QuestionDetailEdit";
 
 const QuestionEdit = () => {
   const [rows, setRows] = useState([
@@ -286,94 +287,7 @@ const QuestionEdit = () => {
             noValidate
             autoComplete="off"
           >
-            {rows.map((row, index) => (
-              <Box key={index}>
-                {index === 0 ? (
-                  <div>
-                    <TextField
-                      sx={{ width: 1000 }}
-                      label="在此输入题干"
-                      id="outlined-start-adornment"
-                      margin="normal"
-                      multiline
-                      rows={4}
-                      value={row.value}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                    />
-                    <ImageUpload
-                      cid={index}
-                      imageData={row.image}
-                      onImageChange={(imageData) =>
-                        handleImageChange(index, imageData)
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <FormControlLabel
-                        control={
-                          uiType == "single_selection" ? (
-                            <Radio
-                              checked={row.isAns}
-                              onChange={(e) =>
-                                handleAnsChange(index, e.target.checked)
-                              }
-                            />
-                          ) : (
-                            <Checkbox
-                              checked={row.isAns}
-                              onChange={(e) =>
-                                handleAnsChange(index, e.target.checked)
-                              }
-                            />
-                          )
-                        }
-                        label="答案"
-                        labelPlacement="top"
-                      />
-
-                      <TextField
-                        sx={{ width: 800 }}
-                        label={`${String.fromCharCode(index + 64)}选项`}
-                        margin="dense"
-                        value={row.value}
-                        error={row.value === ""}
-                        onChange={(e) => handleChange(index, e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              {String.fromCharCode(index + 64)}:
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <>
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => handleDeleteRow(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="add"
-                          onClick={() => handleAddRow(index)}
-                        >
-                          <AddCircleIcon />
-                        </IconButton>
-                      </>
-                    </div>
-                    <ImageUpload
-                      cid={index}
-                      imageData={row.image}
-                      onImageChange={(imageData) =>
-                        handleImageChange(index, imageData)
-                      }
-                    />
-                  </div>
-                )}
-              </Box>
-            ))}
+            <QuestionDetailEdit />
             <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
               <FormControl sx={{ flex: 1 }}>
                 <InputLabel id="type-label">题目分类</InputLabel>
@@ -409,20 +323,6 @@ const QuestionEdit = () => {
                   ))}
                 </Select>
               </FormControl>
-              {/* <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="demo-simple-select-label">年级</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  //   value={age}
-                  value={10}
-                  label="grade"
-                  onChange={handleChange}
-                >
-                  <MenuItem value={10}>小学</MenuItem>
-                  <MenuItem value={20}>多选</MenuItem>
-                </Select>
-              </FormControl> */}
               <MultiLevelSelect onMultiSelectChange={handleMultiSelectChange} />
             </Box>
             <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
@@ -472,9 +372,9 @@ const QuestionEdit = () => {
                 mr: 2,
               }}
             >
-              <FormControl>
+              {/* <FormControl>
                 <HardRating onRateChange={(rate) => setRate(rate)} />
-              </FormControl>
+              </FormControl> */}
               <FormControl>
                 <Box
                   sx={{
