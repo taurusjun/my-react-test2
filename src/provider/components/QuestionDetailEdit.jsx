@@ -36,6 +36,7 @@ const QuestionDetailEdit = ({
   const [uiType, setUIType] = useState(initialUIType);
   const [rate, setRate] = useState(initialRate);
   const [explanation, setExplanation] = useState(initialExplanation);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
     onQuestionDetailChange({
@@ -140,6 +141,10 @@ const QuestionDetailEdit = ({
     }
   };
 
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <>
       <Box
@@ -151,144 +156,139 @@ const QuestionDetailEdit = ({
         }}
       >
         <Stack>
-          <Box
-            component="form"
-            // sx={{
-            //   "& .MuiTextField-root": {
-            //     xs: { m: 0 },
-            //     sm: { m: 1, width: 800 },
-            //   },
-            // }}
-            noValidate
-            autoComplete="off"
-          >
-            <Box>
-              <div>
-                <TextField
-                  sx={{ width: 1000 }}
-                  label="在此输入题干"
-                  id="outlined-start-adornment"
-                  margin="normal"
-                  multiline
-                  rows={4}
-                  value={questionContent.value}
-                  onChange={(e) =>
-                    handleQuestionChange({ value: e.target.value })
-                  }
-                />
-                <ImageUpload
-                  cid={"q1"}
-                  imageData={questionContent.image}
-                  onImageChange={(imageData) =>
-                    handleQuestionChange({ image: imageData })
-                  }
-                />
-              </div>
-            </Box>
-            {rows.map((row, index) => (
-              <Box key={index}>
+          <Button onClick={toggleExpand}>
+            {isExpanded ? "收起详情" : "展开详情"}
+          </Button>
+          {isExpanded && (
+            <Box component="form" noValidate autoComplete="off">
+              <Box>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <FormControlLabel
-                      control={
-                        uiType == "single_selection" ? (
-                          <Radio
-                            checked={row.isAns}
-                            onChange={(e) =>
-                              handleAnsChange(index, e.target.checked)
-                            }
-                          />
-                        ) : (
-                          <Checkbox
-                            checked={row.isAns}
-                            onChange={(e) =>
-                              handleAnsChange(index, e.target.checked)
-                            }
-                          />
-                        )
-                      }
-                      label="答案"
-                      labelPlacement="top"
-                    />
-
-                    <TextField
-                      sx={{ width: 800 }}
-                      label={`${String.fromCharCode(index + 65)}选项`}
-                      margin="dense"
-                      value={row.value}
-                      error={row.value === ""}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            {String.fromCharCode(index + 65)}:
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <>
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => handleDeleteRow(index)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="add"
-                        onClick={() => handleAddRow(index)}
-                      >
-                        <AddCircleIcon />
-                      </IconButton>
-                    </>
-                  </div>
+                  <TextField
+                    sx={{ width: 1000 }}
+                    label="在此输入题干"
+                    id="outlined-start-adornment"
+                    margin="normal"
+                    multiline
+                    rows={4}
+                    value={questionContent.value}
+                    onChange={(e) =>
+                      handleQuestionChange({ value: e.target.value })
+                    }
+                  />
                   <ImageUpload
-                    cid={index}
-                    imageData={row.image}
+                    cid={"q1"}
+                    imageData={questionContent.image}
                     onImageChange={(imageData) =>
-                      handleImageChange(index, imageData)
+                      handleQuestionChange({ image: imageData })
                     }
                   />
                 </div>
               </Box>
-            ))}
-            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel id="ui-type-select-label">显示类型</InputLabel>
-                <Select
-                  labelId="ui-type-select-label"
-                  id="ui-type-select"
-                  value={uiType}
-                  label="ui-type"
-                  onChange={(e) =>
-                    handleSelectChange("ui-type", e.target.value)
-                  }
-                >
-                  {Object.entries(UITypeDict).map(([key, value]) => (
-                    <MenuItem key={key} value={key}>
-                      {value}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl>
-                <HardRating onRateChange={handleRateChange} />
-              </FormControl>
+              {rows.map((row, index) => (
+                <Box key={index}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <FormControlLabel
+                        control={
+                          uiType == "single_selection" ? (
+                            <Radio
+                              checked={row.isAns}
+                              onChange={(e) =>
+                                handleAnsChange(index, e.target.checked)
+                              }
+                            />
+                          ) : (
+                            <Checkbox
+                              checked={row.isAns}
+                              onChange={(e) =>
+                                handleAnsChange(index, e.target.checked)
+                              }
+                            />
+                          )
+                        }
+                        label="答案"
+                        labelPlacement="top"
+                      />
+
+                      <TextField
+                        sx={{ width: 800 }}
+                        label={`${String.fromCharCode(index + 65)}选项`}
+                        margin="dense"
+                        value={row.value}
+                        error={row.value === ""}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              {String.fromCharCode(index + 65)}:
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => handleDeleteRow(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                        <IconButton
+                          aria-label="add"
+                          onClick={() => handleAddRow(index)}
+                        >
+                          <AddCircleIcon />
+                        </IconButton>
+                      </>
+                    </div>
+                    <ImageUpload
+                      cid={index}
+                      imageData={row.image}
+                      onImageChange={(imageData) =>
+                        handleImageChange(index, imageData)
+                      }
+                    />
+                  </div>
+                </Box>
+              ))}
+              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 1 }}>
+                  <InputLabel id="ui-type-select-label">显示类型</InputLabel>
+                  <Select
+                    labelId="ui-type-select-label"
+                    id="ui-type-select"
+                    value={uiType}
+                    label="ui-type"
+                    onChange={(e) =>
+                      handleSelectChange("ui-type", e.target.value)
+                    }
+                  >
+                    {Object.entries(UITypeDict).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <HardRating onRateChange={handleRateChange} />
+                </FormControl>
+              </Box>
+              <Box>
+                <div>
+                  <TextField
+                    sx={{ width: 1000 }}
+                    label="题目解析"
+                    id="outlined-start-adornment"
+                    margin="normal"
+                    multiline
+                    rows={3}
+                    value={explanation}
+                    onChange={(e) => handleExplanationChange(e.target.value)}
+                  />
+                </div>
+              </Box>
             </Box>
-            <Box>
-              <div>
-                <TextField
-                  sx={{ width: 1000 }}
-                  label="题目解析"
-                  id="outlined-start-adornment"
-                  margin="normal"
-                  multiline
-                  rows={3}
-                  value={explanation}
-                  onChange={(e) => handleExplanationChange(e.target.value)}
-                />
-              </div>
-            </Box>
-          </Box>
+          )}
         </Stack>
       </Box>
     </>
