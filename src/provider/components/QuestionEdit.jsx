@@ -112,7 +112,7 @@ const QuestionEdit = () => {
       return "题目类型未选择";
     }
 
-    // 选项类型
+    // 选��类型
     if (uiType == "") {
       return "选项未选择";
     }
@@ -134,6 +134,25 @@ const QuestionEdit = () => {
     // kn
     if (kn == "") {
       return "知识点未选择";
+    }
+
+    // 检查 questionDetail
+    if (questionDetail.questionContent.value.trim() === "") {
+      return "题目不能为空";
+    }
+
+    for (let i = 0; i < questionDetail.rows.length; i++) {
+      if (questionDetail.rows[i].value.trim() === "") {
+        return `第 ${i + 1} 个选项为空`;
+      }
+    }
+
+    if (!questionDetail.rows.some((row) => row.isAns)) {
+      return "答案未选择";
+    }
+
+    if (questionDetail.rate === 0) {
+      return "难度未选择";
     }
 
     return "";
