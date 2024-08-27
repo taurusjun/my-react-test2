@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -21,23 +21,97 @@ import {
 import HardRating from "./HardRating";
 import ImageUpload from "./ImageUpload";
 
-const QuestionDetailEdit = () => {
-  const [questionContent, setQuestionContent] = useState({
-    value: "",
-    image: null,
-  });
+const QuestionDetailEdit = ({
+  initialQuestionContent,
+  initialRows,
+  initialRate,
+  initialExplanation,
+  initialUIType,
+  onQuestionDetailChange,
+}) => {
+  const [questionContent, setQuestionContent] = useState(
+    initialQuestionContent
+  );
+  const [rows, setRows] = useState(initialRows);
+  const [uiType, setUIType] = useState(initialUIType);
+  const [rate, setRate] = useState(initialRate);
+  const [explanation, setExplanation] = useState(initialExplanation);
 
-  const [rows, setRows] = useState([
-    { value: "", isAns: false, image: null },
-    { value: "", isAns: false, image: null },
-    { value: "", isAns: false, image: null },
-    { value: "", isAns: false, image: null },
+  useEffect(() => {
+    onQuestionDetailChange({
+      questionContent,
+      rows,
+      uiType,
+      rate,
+      explanation,
+    });
+  }, [
+    questionContent,
+    rows,
+    uiType,
+    rate,
+    explanation,
+    onQuestionDetailChange,
   ]);
 
-  const [uiType, setUIType] = useState("multi_selection");
-  // const [uiType, setUIType] = useState("single_selection");
-  const [rate, setRate] = useState(0);
-  const [explaination, setExplaination] = useState("");
+  const handleQuestionChange = (changeVal) => {
+    setQuestionContent((prev) => {
+      const newQuestionContent = { ...prev, ...changeVal };
+      return newQuestionContent;
+    });
+  };
+
+  const handleChange = (index, value) => {
+    setRows((prev) => {
+      const updatedRows = [...prev];
+      updatedRows[index].value = value;
+      return updatedRows;
+    });
+  };
+
+  const handleAnsChange = (index, checked) => {
+    setRows((prev) => {
+      let updatedRows;
+      if (uiType === "single_selection") {
+        updatedRows = prev.map((item, i) => ({
+          ...item,
+          isAns: i === index ? checked : false,
+        }));
+      } else {
+        updatedRows = [...prev];
+        updatedRows[index].isAns = checked;
+      }
+      return updatedRows;
+    });
+  };
+
+  const handleSelectChange = (type, value) => {
+    if (type === "ui-type") {
+      setUIType(value);
+      setRows((prev) => {
+        const updatedRows = prev.map((item) => ({ ...item, isAns: false }));
+        return updatedRows;
+      });
+    }
+  };
+
+  const handleImageChange = (index, imageData) => {
+    setRows((prev) => {
+      const updatedRows = [...prev];
+      updatedRows[index].image = imageData;
+      return updatedRows;
+    });
+  };
+
+  // 新增函数处理难度评级变化
+  const handleRateChange = (newRate) => {
+    setRate(newRate);
+  };
+
+  // 新增函数处理解释文本变化
+  const handleExplanationChange = (newExplanation) => {
+    setExplanation(newExplanation);
+  };
 
   const UITypeDict = { single_selection: "单选", multi_selection: "多选" };
 
@@ -64,71 +138,6 @@ const QuestionDetailEdit = () => {
       }
       setRows(updatedRows);
     }
-  };
-
-  const handleQuestionChange = (changeVal) => {
-    setQuestionContent({ ...questionContent, ...changeVal });
-  };
-
-  const handleChange = (index, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index].value = value;
-    setRows(updatedRows);
-  };
-
-  const handleAnsChange = (index, checked) => {
-    switch (uiType) {
-      case "single_selection": {
-        if (checked) {
-          const updatedRows = rows.map((item) => {
-            return { ...item, isAns: false };
-          });
-          updatedRows[index].isAns = checked;
-          setRows(updatedRows);
-        }
-        break;
-      }
-      case "multi_selection": {
-        const updatedRows = [...rows];
-        updatedRows[index].isAns = checked;
-        setRows(updatedRows);
-        break;
-      }
-      default:
-    }
-  };
-
-  const handleSelectChange = (type, value) => {
-    switch (type) {
-      // case "type": {
-      //   setType(value);
-      //   break;
-      // }
-      case "ui-type": {
-        const updatedRows = rows.map((item) => {
-          return { ...item, isAns: false };
-        });
-        setRows(updatedRows);
-        setUIType(value);
-        break;
-      }
-      // case "category": {
-      //   setCategory(value);
-      //   break;
-      // }
-      // case "knowledge_node": {
-      //   setKN(value);
-      //   break;
-      // }
-
-      default:
-    }
-  };
-
-  const handleImageChange = (index, imageData) => {
-    const updatedRows = [...rows];
-    updatedRows[index].image = imageData;
-    setRows(updatedRows);
   };
 
   return (
@@ -262,7 +271,7 @@ const QuestionDetailEdit = () => {
                 </Select>
               </FormControl>
               <FormControl>
-                <HardRating onRateChange={(rate) => setRate(rate)} />
+                <HardRating onRateChange={handleRateChange} />
               </FormControl>
             </Box>
             <Box>
@@ -274,8 +283,8 @@ const QuestionDetailEdit = () => {
                   margin="normal"
                   multiline
                   rows={3}
-                  value={explaination}
-                  onChange={(e) => setExplaination(e.target.value)}
+                  value={explanation}
+                  onChange={(e) => handleExplanationChange(e.target.value)}
                 />
               </div>
             </Box>
