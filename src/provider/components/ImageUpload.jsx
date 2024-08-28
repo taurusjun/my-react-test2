@@ -6,6 +6,8 @@ import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import UploadIcon from "@mui/icons-material/CloudUpload";
+import Tooltip from "@mui/material/Tooltip";
 
 const style = {
   position: "absolute",
@@ -72,9 +74,11 @@ function ImageUpload({ cid, onImageChange, imageData }) {
           onChange={handleFileChange}
           style={{ display: "none" }} // Ensure the input is hidden
         />
-        <Button variant="contained" component="span">
-          上传图片
-        </Button>
+        <Tooltip title="上传图片">
+          <IconButton color="primary" aria-label="上传图片" component="span">
+            <UploadIcon />
+          </IconButton>
+        </Tooltip>
       </label>
 
       {image && (
@@ -117,15 +121,14 @@ function ImageUpload({ cid, onImageChange, imageData }) {
             </Box>
           </Modal>
 
-          <Button
-            startIcon={<DeleteIcon />}
-            variant="outlined"
+          <IconButton
             color="error"
+            aria-label="删除图片"
             onClick={handleDelete}
             sx={{ mt: 2 }}
           >
-            删除图片
-          </Button>
+            <DeleteIcon />
+          </IconButton>
         </>
       )}
     </div>
