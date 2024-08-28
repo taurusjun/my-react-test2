@@ -20,7 +20,6 @@ const QuestionEdit = () => {
   const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
-  const [uiType, setUIType] = useState("multi_selection");
   const [type, setType] = useState("selection");
   const [category, setCategory] = useState("physics");
   const [kn, setKN] = useState("");
@@ -40,7 +39,6 @@ const QuestionEdit = () => {
     explanation: "",
   });
 
-  const UITypeDict = { single_selection: "单选", multi_selection: "多选" };
   const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
   const CategoryDict = { physics: "物理", chemistry: "化学" };
   const KNDict = { kinematics: "运动学", electromagnetism: "电与磁" };
@@ -49,10 +47,6 @@ const QuestionEdit = () => {
     switch (type) {
       case "type": {
         setType(value);
-        break;
-      }
-      case "ui-type": {
-        setUIType(value);
         break;
       }
       case "category": {
@@ -76,7 +70,10 @@ const QuestionEdit = () => {
   };
 
   const handleQuestionDetailChange = (updatedQuestionDetail) => {
-    setQuestionDetail(updatedQuestionDetail);
+    setQuestionDetail((prevState) => ({
+      ...prevState,
+      ...updatedQuestionDetail,
+    }));
     console.log(updatedQuestionDetail);
   };
 
@@ -84,7 +81,6 @@ const QuestionEdit = () => {
     event.preventDefault();
     console.log("submit!");
     console.log(type);
-    console.log(uiType);
     console.log(gradInfo);
     console.log(category);
     console.log(kn);
@@ -111,11 +107,6 @@ const QuestionEdit = () => {
     // 题目类型
     if (type == "") {
       return "题目类型未选择";
-    }
-
-    // 选类型
-    if (uiType == "") {
-      return "选项未选择";
     }
 
     // gradInfo
@@ -153,7 +144,7 @@ const QuestionEdit = () => {
       }
     }
 
-    if (!questionDetail.rows.some((row) => row.isAns)) {
+    if (questionDetail.rows.some((row) => row.isAns)) {
       return "答案未选择";
     }
 
@@ -270,7 +261,6 @@ const QuestionEdit = () => {
               initialRows={questionDetail.rows}
               initialRate={questionDetail.rate}
               initialExplanation={questionDetail.explanation}
-              initialUIType={uiType}
               onQuestionDetailChange={handleQuestionDetailChange}
             />
           </Paper>
