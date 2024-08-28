@@ -29,15 +29,22 @@ const QuestionDetailEdit = ({
   initialUIType,
   onQuestionDetailChange,
 }) => {
+  const UITypeDict = {
+    single_selection: "单选",
+    multi_selection: "多选",
+    fill_blank: "填空",
+  };
+
   const [questionContent, setQuestionContent] = useState(
     initialQuestionContent
   );
   const [rows, setRows] = useState(initialRows);
-  const [uiType, setUIType] = useState(initialUIType);
+  const [uiType, setUIType] = useState(initialUIType || "single_selection");
   const [rate, setRate] = useState(initialRate);
   const [explanation, setExplanation] = useState(initialExplanation);
   const [isExpanded, setIsExpanded] = useState(true);
   const [answer, setAnswer] = useState([]);
+  const [fillBlankAnswer, setFillBlankAnswer] = useState("");
 
   useEffect(() => {
     onQuestionDetailChange({
@@ -48,15 +55,7 @@ const QuestionDetailEdit = ({
       explanation,
       answer,
     });
-  }, [
-    questionContent,
-    rows,
-    uiType,
-    rate,
-    explanation,
-    answer,
-    onQuestionDetailChange,
-  ]);
+  }, [questionContent, rows, uiType, rate, explanation, answer]);
 
   const handleQuestionChange = (changeVal) => {
     setQuestionContent((prev) => {
@@ -117,8 +116,6 @@ const QuestionDetailEdit = ({
     setExplanation(newExplanation);
   };
 
-  const UITypeDict = { single_selection: "单选", multi_selection: "多选" };
-
   const handleAddRow = (index) => {
     const newRow = {
       value: "",
@@ -149,34 +146,36 @@ const QuestionDetailEdit = ({
   };
 
   const handleAnswerChange = (event) => {
-    const selectedAnswers = Array.isArray(event.target.value)
-      ? event.target.value
-      : [event.target.value];
-    setAnswer(selectedAnswers);
+    if (uiType === "fill_blank") {
+      setFillBlankAnswer(event.target.value);
+      setAnswer([event.target.value]);
+    } else {
+      const selectedAnswers = Array.isArray(event.target.value)
+        ? event.target.value
+        : [event.target.value];
+      setAnswer(selectedAnswers);
 
-    // 更新rows的isAns属性
-    const newRows = rows.map((row, index) => ({
-      ...row,
-      isAns: selectedAnswers.includes(String.fromCharCode(65 + index)),
-    }));
-    setRows(newRows);
+      // 更新rows的isAns属性
+      const newRows = rows.map((row, index) => ({
+        ...row,
+        isAns: selectedAnswers.includes(String.fromCharCode(65 + index)),
+      }));
+      setRows(newRows);
+    }
   };
 
   const handleRowChange = (index, field, value) => {
     let newRows = [...rows];
     if (field === "isAns") {
       if (uiType === "single_selection") {
-        // 单选：只允许一个选项被选中
         newRows = newRows.map((row, idx) => ({
           ...row,
           isAns: idx === index ? value : false,
         }));
       } else {
-        // 多选：直接更新当前行
         newRows[index].isAns = value;
       }
     } else {
-      // 处理其他字段的变化
       newRows[index][field] = value;
     }
     setRows(newRows);
@@ -211,7 +210,7 @@ const QuestionDetailEdit = ({
       >
         <Stack>
           <Button onClick={toggleExpand}>
-            {isExpanded ? "收起详情" : "展���详情"}
+            {isExpanded ? "收起详情" : "展详情"}
           </Button>
           {isExpanded && (
             <Box component="form" noValidate autoComplete="off">
@@ -238,78 +237,80 @@ const QuestionDetailEdit = ({
                   />
                 </div>
               </Box>
-              {rows.map((row, index) => (
-                <Box key={index}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <FormControlLabel
-                        control={
-                          uiType == "single_selection" ? (
-                            <Radio
-                              checked={row.isAns}
-                              onChange={(e) =>
-                                handleRowChange(
-                                  index,
-                                  "isAns",
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          ) : (
-                            <Checkbox
-                              checked={row.isAns}
-                              onChange={(e) =>
-                                handleRowChange(
-                                  index,
-                                  "isAns",
-                                  e.target.checked
-                                )
-                              }
-                            />
-                          )
+              {uiType !== "fill_blank" &&
+                rows.map((row, index) => (
+                  <Box key={index}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <FormControlLabel
+                          control={
+                            uiType == "single_selection" ? (
+                              <Radio
+                                checked={row.isAns}
+                                onChange={(e) =>
+                                  handleRowChange(
+                                    index,
+                                    "isAns",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            ) : (
+                              <Checkbox
+                                checked={row.isAns}
+                                onChange={(e) =>
+                                  handleRowChange(
+                                    index,
+                                    "isAns",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            )
+                          }
+                        />
+
+                        <TextField
+                          sx={{ width: 800 }}
+                          label={`${String.fromCharCode(index + 65)}选项`}
+                          margin="dense"
+                          value={row.value}
+                          error={row.value === ""}
+                          onChange={(e) => handleChange(index, e.target.value)}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                {String.fromCharCode(index + 65)}:
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        <>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => handleDeleteRow(index)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="add"
+                            onClick={() => handleAddRow(index)}
+                          >
+                            <AddCircleIcon />
+                          </IconButton>
+                        </>
+                      </div>
+                      <ImageUpload
+                        cid={index}
+                        imageData={row.image}
+                        onImageChange={(imageData) =>
+                          handleImageChange(index, imageData)
                         }
                       />
-
-                      <TextField
-                        sx={{ width: 800 }}
-                        label={`${String.fromCharCode(index + 65)}选项`}
-                        margin="dense"
-                        value={row.value}
-                        error={row.value === ""}
-                        onChange={(e) => handleChange(index, e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              {String.fromCharCode(index + 65)}:
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      <>
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => handleDeleteRow(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="add"
-                          onClick={() => handleAddRow(index)}
-                        >
-                          <AddCircleIcon />
-                        </IconButton>
-                      </>
                     </div>
-                    <ImageUpload
-                      cid={index}
-                      imageData={row.image}
-                      onImageChange={(imageData) =>
-                        handleImageChange(index, imageData)
-                      }
-                    />
-                  </div>
-                </Box>
-              ))}
+                  </Box>
+                ))}
+
               <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
                 <FormControl sx={{ flex: 1 }}>
                   <InputLabel id="ui-type-select-label">显示类型</InputLabel>
@@ -321,8 +322,11 @@ const QuestionDetailEdit = ({
                     onChange={handleUITypeChange}
                     sx={{ height: "40px" }} // 添加这一行来调整高度
                   >
-                    <MenuItem value="single_selection">单选</MenuItem>
-                    <MenuItem value="multi_selection">多选</MenuItem>
+                    {Object.entries(UITypeDict).map(([value, label]) => (
+                      <MenuItem key={value} value={value}>
+                        {label}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
                 <FormControl>
@@ -330,27 +334,43 @@ const QuestionDetailEdit = ({
                 </FormControl>
               </Box>
               <Box sx={{ mt: 2, mb: 2 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="answer-select-label">答案</InputLabel>
-                  <Select
-                    labelId="answer-select-label"
-                    id="answer-select"
-                    multiple={uiType === "multi_selection"}
-                    value={answer}
-                    onChange={handleAnswerChange}
-                    renderValue={(selected) =>
-                      Array.isArray(selected) ? selected.join(", ") : selected
-                    }
-                  >
-                    {rows.map((row, index) => (
-                      <MenuItem
-                        key={index}
-                        value={String.fromCharCode(65 + index)}
+                <FormControl fullWidth required>
+                  {uiType === "fill_blank" ? (
+                    <TextField
+                      label="答案"
+                      value={fillBlankAnswer}
+                      onChange={handleAnswerChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                    />
+                  ) : (
+                    <>
+                      <InputLabel id="answer-select-label">答案</InputLabel>
+                      <Select
+                        labelId="answer-select-label"
+                        label="答案"
+                        id="answer-select"
+                        multiple={uiType === "multi_selection"}
+                        value={answer}
+                        onChange={handleAnswerChange}
+                        renderValue={(selected) =>
+                          Array.isArray(selected)
+                            ? selected.join(", ")
+                            : selected
+                        }
                       >
-                        {String.fromCharCode(65 + index)}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                        {rows.map((row, index) => (
+                          <MenuItem
+                            key={index}
+                            value={String.fromCharCode(65 + index)}
+                          >
+                            {String.fromCharCode(65 + index)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </>
+                  )}
                 </FormControl>
               </Box>
               <Box>
