@@ -145,8 +145,15 @@ const QuestionEdit = () => {
       }
     }
 
-    if (!questionDetail.rows.some((row) => row.isAns)) {
-      return "答案未选择";
+    // 检查答案
+    if (type === "fillInBlank") {
+      if (!questionDetail.answer || questionDetail.answer.length === 0) {
+        return "填空题答案未填写";
+      }
+    } else {
+      if (!questionDetail.rows.some((row) => row.isAns)) {
+        return "选择题答案未选择";
+      }
     }
 
     if (questionDetail.rate === 0) {
