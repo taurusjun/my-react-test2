@@ -37,6 +37,7 @@ const QuestionDetailEdit = ({
   const [rate, setRate] = useState(initialRate);
   const [explanation, setExplanation] = useState(initialExplanation);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [answer, setAnswer] = useState([]);
 
   useEffect(() => {
     onQuestionDetailChange({
@@ -45,6 +46,7 @@ const QuestionDetailEdit = ({
       uiType,
       rate,
       explanation,
+      answer,
     });
   }, [
     questionContent,
@@ -52,6 +54,7 @@ const QuestionDetailEdit = ({
     uiType,
     rate,
     explanation,
+    answer,
     onQuestionDetailChange,
   ]);
 
@@ -145,6 +148,57 @@ const QuestionDetailEdit = ({
     setIsExpanded(!isExpanded);
   };
 
+  const handleAnswerChange = (event) => {
+    const selectedAnswers = Array.isArray(event.target.value)
+      ? event.target.value
+      : [event.target.value];
+    setAnswer(selectedAnswers);
+
+    // 更新rows的isAns属性
+    const newRows = rows.map((row, index) => ({
+      ...row,
+      isAns: selectedAnswers.includes(String.fromCharCode(65 + index)),
+    }));
+    setRows(newRows);
+  };
+
+  const handleRowChange = (index, field, value) => {
+    let newRows = [...rows];
+    if (field === "isAns") {
+      if (uiType === "single_selection") {
+        // 单选：只允许一个选项被选中
+        newRows = newRows.map((row, idx) => ({
+          ...row,
+          isAns: idx === index ? value : false,
+        }));
+      } else {
+        // 多选：直接更新当前行
+        newRows[index].isAns = value;
+      }
+    } else {
+      // 处理其他字段的变化
+      newRows[index][field] = value;
+    }
+    setRows(newRows);
+
+    // 更新答案
+    const newAnswer = newRows
+      .map((row, idx) => (row.isAns ? String.fromCharCode(65 + idx) : null))
+      .filter(Boolean);
+    setAnswer(newAnswer);
+  };
+
+  const handleUITypeChange = (event) => {
+    const newUIType = event.target.value;
+    setUIType(newUIType);
+
+    // 清除答案
+    setAnswer([]);
+
+    // 重置所有行的isAns属性
+    setRows(rows.map((row) => ({ ...row, isAns: false })));
+  };
+
   return (
     <>
       <Box
@@ -157,7 +211,7 @@ const QuestionDetailEdit = ({
       >
         <Stack>
           <Button onClick={toggleExpand}>
-            {isExpanded ? "收起详情" : "展开详情"}
+            {isExpanded ? "收起详情" : "展���详情"}
           </Button>
           {isExpanded && (
             <Box component="form" noValidate autoComplete="off">
@@ -194,20 +248,26 @@ const QuestionDetailEdit = ({
                             <Radio
                               checked={row.isAns}
                               onChange={(e) =>
-                                handleAnsChange(index, e.target.checked)
+                                handleRowChange(
+                                  index,
+                                  "isAns",
+                                  e.target.checked
+                                )
                               }
                             />
                           ) : (
                             <Checkbox
                               checked={row.isAns}
                               onChange={(e) =>
-                                handleAnsChange(index, e.target.checked)
+                                handleRowChange(
+                                  index,
+                                  "isAns",
+                                  e.target.checked
+                                )
                               }
                             />
                           )
                         }
-                        label="答案"
-                        labelPlacement="top"
                       />
 
                       <TextField
@@ -257,21 +317,40 @@ const QuestionDetailEdit = ({
                     labelId="ui-type-select-label"
                     id="ui-type-select"
                     value={uiType}
-                    label="ui-type"
-                    onChange={(e) =>
-                      handleSelectChange("ui-type", e.target.value)
-                    }
+                    label="显示类型"
+                    onChange={handleUITypeChange}
                     sx={{ height: "40px" }} // 添加这一行来调整高度
                   >
-                    {Object.entries(UITypeDict).map(([key, value]) => (
-                      <MenuItem key={key} value={key}>
-                        {value}
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="single_selection">单选</MenuItem>
+                    <MenuItem value="multi_selection">多选</MenuItem>
                   </Select>
                 </FormControl>
                 <FormControl>
                   <HardRating onRateChange={handleRateChange} />
+                </FormControl>
+              </Box>
+              <Box sx={{ mt: 2, mb: 2 }}>
+                <FormControl fullWidth>
+                  <InputLabel id="answer-select-label">答案</InputLabel>
+                  <Select
+                    labelId="answer-select-label"
+                    id="answer-select"
+                    multiple={uiType === "multi_selection"}
+                    value={answer}
+                    onChange={handleAnswerChange}
+                    renderValue={(selected) =>
+                      Array.isArray(selected) ? selected.join(", ") : selected
+                    }
+                  >
+                    {rows.map((row, index) => (
+                      <MenuItem
+                        key={index}
+                        value={String.fromCharCode(65 + index)}
+                      >
+                        {String.fromCharCode(65 + index)}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </FormControl>
               </Box>
               <Box>
