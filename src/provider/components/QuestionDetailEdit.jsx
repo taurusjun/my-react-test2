@@ -308,7 +308,15 @@ const QuestionDetailEdit = ({
                         />
 
                         <TextField
-                          sx={{ width: 800 }}
+                          sx={{
+                            width: 800,
+                            "& .MuiInputBase-root": {
+                              height: "40px", // 调整这个值来降低高度
+                            },
+                            "& .MuiOutlinedInput-input": {
+                              padding: "8px 14px", // 调整内边距以适应新的高度
+                            },
+                          }}
                           label={`${String.fromCharCode(index + 65)}选项`}
                           margin="dense"
                           value={row.value}
@@ -405,6 +413,7 @@ const QuestionDetailEdit = ({
                             ? selected.join(", ")
                             : selected
                         }
+                        sx={{ height: "40px" }}
                       >
                         {rows.map((row, index) => (
                           <MenuItem
