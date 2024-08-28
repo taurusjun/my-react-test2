@@ -1,85 +1,99 @@
-import React, { useState } from "react";
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 
-const MultiLevelSelect = ({ onMultiSelectChange }) => {
-  const [schoolLevel, setSchoolLevel] = useState("");
-  const [grade, setGrade] = useState("");
+const schoolLevels = {
+  primary: "小学",
+  junior: "初中",
+  senior: "高中",
+};
 
-  const inData = {
-    primary: {
-      desc: "小学",
-      options: {
-        grade1: "一年级",
-        grade2: "二年级",
-        grade3: "三年级",
-      },
-    },
-  };
+const grades = {
+  primary: ["grade1", "grade2", "grade3", "grade4", "grade5", "grade6"],
+  junior: ["grade7", "grade8", "grade9"],
+  senior: ["grade10", "grade11", "grade12"],
+};
+
+const gradeNames = {
+  grade1: "一年级",
+  grade2: "二年级",
+  grade3: "三年级",
+  grade4: "四年级",
+  grade5: "五年级",
+  grade6: "六年级",
+  grade7: "初一",
+  grade8: "初二",
+  grade9: "初三",
+  grade10: "高一",
+  grade11: "高二",
+  grade12: "高三",
+};
+
+const MultiLevelSelect = ({
+  onMultiSelectChange,
+  initialSchoolLevel,
+  initialGrade,
+  error,
+}) => {
+  const [schoolLevel, setSchoolLevel] = useState(initialSchoolLevel || "");
+  const [grade, setGrade] = useState(initialGrade || "");
+
+  useEffect(() => {
+    if (initialSchoolLevel && initialGrade) {
+      setSchoolLevel(initialSchoolLevel);
+      setGrade(initialGrade);
+    }
+  }, [initialSchoolLevel, initialGrade]);
 
   const handleSchoolLevelChange = (event) => {
-    var schoolVal = event.target.value;
-    setSchoolLevel(schoolVal);
-    setGrade(""); // 重置年级选项
-    onMultiSelectChange(schoolVal, grade);
+    const newSchoolLevel = event.target.value;
+    setSchoolLevel(newSchoolLevel);
+    setGrade("");
+    onMultiSelectChange(newSchoolLevel, "");
   };
 
   const handleGradeChange = (event) => {
-    var gradVal = event.target.value;
-    setGrade(gradVal);
-    onMultiSelectChange(schoolLevel, gradVal);
+    const newGrade = event.target.value;
+    setGrade(newGrade);
+    onMultiSelectChange(schoolLevel, newGrade);
   };
 
   return (
-    <>
-      <FormControl sx={{ flex: 1 }}>
-        <InputLabel id="grad-select-label">阶段</InputLabel>
+    <Box sx={{ display: "flex", gap: 1, flex: 2 }}>
+      <FormControl sx={{ flex: 1 }} required error={error}>
+        <InputLabel id="school-level-label">学习阶段</InputLabel>
         <Select
-          labelId="grad-select-label"
-          id="grad-select"
+          labelId="school-level-label"
+          id="school-level-select"
           value={schoolLevel}
+          label="学习阶段"
           onChange={handleSchoolLevelChange}
-          defaultValue="primary"
         >
-          <MenuItem value="primary">小学</MenuItem>
-          <MenuItem value="middle">初中</MenuItem>
+          {Object.entries(schoolLevels).map(([key, value]) => (
+            <MenuItem key={key} value={key}>
+              {value}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
-
-      {schoolLevel === "primary" && (
-        <FormControl sx={{ flex: 1 }}>
-          <InputLabel id="primary-select-label">年级</InputLabel>
-          <Select
-            labelId="primary-select-label"
-            id="primary-select"
-            value={grade}
-            onChange={handleGradeChange}
-            defaultValue="grade1"
-          >
-            <MenuItem value="grade1">一年级</MenuItem>
-            <MenuItem value="grade2">二年级</MenuItem>
-            <MenuItem value="grade3">三年级</MenuItem>
-            <MenuItem value="grade4">四年级</MenuItem>
-            <MenuItem value="grade5">五年级</MenuItem>
-            <MenuItem value="grade6">六年级</MenuItem>
-          </Select>
-        </FormControl>
-      )}
-
-      {schoolLevel === "middle" && (
-        <FormControl sx={{ flex: 1 }}>
-          <InputLabel id="middle-select-label">年级</InputLabel>
-          <Select
-            value={grade}
-            onChange={handleGradeChange}
-            defaultValue="seven"
-          >
-            <MenuItem value="seven">初一</MenuItem>
-            <MenuItem value="eight">初二</MenuItem>
-            <MenuItem value="nine">初三</MenuItem>
-          </Select>
-        </FormControl>
-      )}
-    </>
+      <FormControl sx={{ flex: 1 }} required error={error}>
+        <InputLabel id="grade-label">年级</InputLabel>
+        <Select
+          labelId="grade-label"
+          id="grade-select"
+          value={grade}
+          label="年级"
+          onChange={handleGradeChange}
+          disabled={!schoolLevel}
+        >
+          {schoolLevel &&
+            grades[schoolLevel].map((gradeKey) => (
+              <MenuItem key={gradeKey} value={gradeKey}>
+                {gradeNames[gradeKey]}
+              </MenuItem>
+            ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 };
 

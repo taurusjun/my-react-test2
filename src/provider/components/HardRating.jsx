@@ -1,54 +1,48 @@
-import * as React from "react";
-import Rating from "@mui/material/Rating";
-import Box from "@mui/material/Box";
+import React from "react";
+import { Rating, Typography, Box, FormHelperText } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import { Typography } from "@mui/material";
 
-const labels = {
-  0: "未选",
-  1: "简单",
-  2: "入门",
-  3: "普通",
-  4: "难题",
-  5: "竞赛",
-};
-
-function getLabelText(value) {
-  return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
-}
-
-export default function HardRating({ onRateChange }) {
-  const [value, setValue] = React.useState(0);
+const HardRating = ({ onRateChange, required, error, initialValue = 0 }) => {
+  const [value, setValue] = React.useState(initialValue);
   const [hover, setHover] = React.useState(-1);
 
+  const handleChange = (event, newValue) => {
+    if (!newValue) {
+      newValue = 0;
+    }
+    setValue(newValue);
+    onRateChange(newValue);
+  };
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      <Typography component="legend">难度选择：</Typography>
-      <Rating
-        name="hover-feedback"
-        value={value}
-        precision={1}
-        getLabelText={getLabelText}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-          onRateChange(newValue);
-        }}
-        onChangeActive={(event, newHover) => {
-          setHover(newHover);
-        }}
-        emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-      />
-      {value !== null && (
-        <Typography sx={{ ml: 2 }} variant="body1" style={{ color: "red" }}>
-          {labels[hover !== -1 ? hover : value]}
+    <Box>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Typography component="legend" sx={{ mr: 2 }}>
+          难度等级 {required && <span style={{ color: "red" }}>*</span>}
         </Typography>
-      )}
+        <Rating
+          name="difficulty-rating"
+          value={value}
+          precision={1}
+          onChange={handleChange}
+          onChangeActive={(event, newHover) => {
+            setHover(newHover);
+          }}
+          emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+        />
+        {value !== null && (
+          <Typography sx={{ ml: 2 }}>
+            {
+              ["简单", "较易", "中等", "较难", "困难"][
+                hover !== -1 ? hover : value - 1
+              ]
+            }
+          </Typography>
+        )}
+      </Box>
+      {error && <FormHelperText error>难度等级是必选项</FormHelperText>}
     </Box>
   );
-}
+};
+
+export default HardRating;

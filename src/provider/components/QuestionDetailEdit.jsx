@@ -30,6 +30,7 @@ const QuestionDetailEdit = ({
   initialAnswer,
   initialAnswerImage,
   onQuestionDetailChange,
+  errors,
 }) => {
   const UITypeDict = {
     single_selection: "单选",
@@ -92,8 +93,8 @@ const QuestionDetailEdit = ({
         isAns: initialAnswer.includes(String.fromCharCode(65 + index)),
       }));
       setRows(newRows);
-      setAnswer(Array.isArray(initialAnswer) ? initialAnswer : [initialAnswer]);
     }
+    setAnswer(Array.isArray(initialAnswer) ? initialAnswer : [initialAnswer]);
   }, [initialAnswer]);
 
   const handleQuestionChange = (changeVal) => {
@@ -259,10 +260,15 @@ const QuestionDetailEdit = ({
                     id="outlined-start-adornment"
                     margin="normal"
                     multiline
+                    required
                     rows={4}
                     value={questionContent.value}
                     onChange={(e) =>
                       handleQuestionChange({ value: e.target.value })
+                    }
+                    error={errors && errors.questionContent}
+                    helperText={
+                      errors && errors.questionContent ? "题目内容不能为空" : ""
                     }
                   />
                   <ImageUpload
@@ -319,8 +325,14 @@ const QuestionDetailEdit = ({
                           }}
                           label={`${String.fromCharCode(index + 65)}选项`}
                           margin="dense"
+                          required
                           value={row.value}
-                          error={row.value === ""}
+                          error={errors && errors.rows && errors.rows[index]}
+                          helperText={
+                            errors && errors.rows && errors.rows[index]
+                              ? "选项不能为空"
+                              : ""
+                          }
                           onChange={(e) => handleChange(index, e.target.value)}
                           InputProps={{
                             startAdornment: (
@@ -356,7 +368,7 @@ const QuestionDetailEdit = ({
                   </Box>
                 ))}
 
-              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, mt: 2, mb: 2 }}>
                 <FormControl sx={{ flex: 1 }}>
                   <InputLabel id="ui-type-select-label">显示类型</InputLabel>
                   <Select
@@ -366,6 +378,7 @@ const QuestionDetailEdit = ({
                     label="显示类型"
                     onChange={handleUITypeChange}
                     sx={{ height: "40px" }}
+                    required
                   >
                     {Object.entries(UITypeDict).map(([value, label]) => (
                       <MenuItem key={value} value={value}>
@@ -374,8 +387,13 @@ const QuestionDetailEdit = ({
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl>
-                  <HardRating onRateChange={handleRateChange} />
+                <FormControl sx={{ flex: 1 }}>
+                  <HardRating
+                    onRateChange={handleRateChange}
+                    required
+                    error={errors && errors.rate}
+                    initialValue={rate}
+                  />
                 </FormControl>
               </Box>
               <Box sx={{ mt: 2, mb: 2 }}>
@@ -389,6 +407,10 @@ const QuestionDetailEdit = ({
                         fullWidth
                         required
                         variant="outlined"
+                        error={errors && errors.answer}
+                        helperText={
+                          errors && errors.answer ? "填空题答案不能为空" : ""
+                        }
                       />
                       <Box sx={{ mt: 2 }}>
                         <ImageUpload
@@ -407,6 +429,9 @@ const QuestionDetailEdit = ({
                         id="answer-select"
                         multiple={uiType === "multi_selection"}
                         value={answer}
+                        required
+                        error={errors && errors.answer}
+                        helperText={errors && errors.answer ? "答案未选" : ""}
                         onChange={handleAnswerChange}
                         renderValue={(selected) =>
                           Array.isArray(selected)
