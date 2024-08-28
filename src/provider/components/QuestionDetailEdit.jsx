@@ -261,6 +261,7 @@ const QuestionDetailEdit = ({
                     onChange={(e) =>
                       handleSelectChange("ui-type", e.target.value)
                     }
+                    sx={{ height: "40px" }} // 添加这一行来调整高度
                   >
                     {Object.entries(UITypeDict).map(([key, value]) => (
                       <MenuItem key={key} value={key}>

@@ -27,6 +27,7 @@ const QuestionEdit = () => {
   const [gradInfo, setGradInfo] = useState({ school: "", grad: "" });
   const [source, setSource] = useState("");
   const [explaination, setExplaination] = useState("");
+  const [digest, setDigest] = useState("");
   const [questionDetail, setQuestionDetail] = useState({
     questionContent: { value: "", image: null },
     rows: [
@@ -112,7 +113,7 @@ const QuestionEdit = () => {
       return "题目类型未选择";
     }
 
-    // 选��类型
+    // 选类型
     if (uiType == "") {
       return "选项未选择";
     }
@@ -134,6 +135,11 @@ const QuestionEdit = () => {
     // kn
     if (kn == "") {
       return "知识点未选择";
+    }
+
+    // digest
+    if (digest == "") {
+      return "摘要未填写";
     }
 
     // 检查 questionDetail
@@ -179,54 +185,8 @@ const QuestionEdit = () => {
     >
       <Stack width="100%">
         <Box component="form" noValidate autoComplete="off">
-          <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-            <QuestionDetailEdit
-              initialQuestionContent={questionDetail.questionContent}
-              initialRows={questionDetail.rows}
-              initialRate={questionDetail.rate}
-              initialExplanation={questionDetail.explanation}
-              initialUIType={uiType}
-              onQuestionDetailChange={handleQuestionDetailChange}
-            />
-          </Paper>
-
           <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="type-label">题目分类</InputLabel>
-              <Select
-                labelId="type-label"
-                id="type-select"
-                value={type}
-                label="type"
-                onChange={(e) => handleSelectChange("type", e.target.value)}
-              >
-                {Object.entries(TypeDict).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel id="ui-type-select-label">题目类型</InputLabel>
-              <Select
-                labelId="ui-type-select-label"
-                id="ui-type-select"
-                value={uiType}
-                label="ui-type"
-                onChange={(e) => handleSelectChange("ui-type", e.target.value)}
-              >
-                {Object.entries(UITypeDict).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <MultiLevelSelect onMultiSelectChange={handleMultiSelectChange} />
-          </Box>
-          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 1 }}>
+            <FormControl sx={{ flex: 1 }} required>
               <InputLabel id="category-select-label">学科</InputLabel>
               <Select
                 labelId="category-select-label"
@@ -242,7 +202,7 @@ const QuestionEdit = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl sx={{ flex: 1 }}>
+            <FormControl sx={{ flex: 1 }} required>
               <InputLabel id="demo-simple-select-label">知识点</InputLabel>
               <Select
                 labelId="knowledge_node-select-label"
@@ -260,6 +220,39 @@ const QuestionEdit = () => {
                 ))}
               </Select>
             </FormControl>
+            <MultiLevelSelect onMultiSelectChange={handleMultiSelectChange} />
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+            <FormControl sx={{ flex: 1 }} required>
+              <InputLabel id="type-label">题目分类</InputLabel>
+              <Select
+                labelId="type-label"
+                id="type-select"
+                value={type}
+                label="type"
+                onChange={(e) => handleSelectChange("type", e.target.value)}
+              >
+                {Object.entries(TypeDict).map(([key, value]) => (
+                  <MenuItem key={key} value={key}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+            <FormControl sx={{ flex: 2 }}>
+              <TextField
+                id="digest-input"
+                label="摘要: 比如题目的主要内容"
+                value={digest}
+                onChange={(e) => setDigest(e.target.value)}
+                variant="outlined"
+                required
+              />
+            </FormControl>
             <FormControl sx={{ flex: 1 }}>
               <TextField
                 id="source-input"
@@ -270,18 +263,17 @@ const QuestionEdit = () => {
               />
             </FormControl>
           </Box>
-          <Box sx={{ ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <TextField
-              fullWidth
-              label="题目解析"
-              id="explanation-input"
-              multiline
-              rows={3}
-              value={explaination}
-              onChange={(e) => setExplaination(e.target.value)}
-              variant="outlined"
+
+          <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <QuestionDetailEdit
+              initialQuestionContent={questionDetail.questionContent}
+              initialRows={questionDetail.rows}
+              initialRate={questionDetail.rate}
+              initialExplanation={questionDetail.explanation}
+              initialUIType={uiType}
+              onQuestionDetailChange={handleQuestionDetailChange}
             />
-          </Box>
+          </Paper>
         </Box>
         <LoadingButton
           sx={{ mt: 1, mr: 1 }}
