@@ -27,7 +27,8 @@ const QuestionDetailEdit = ({
   initialRate,
   initialExplanation,
   initialUIType,
-  initialAnswerImage, // 新增
+  initialAnswer,
+  initialAnswerImage,
   onQuestionDetailChange,
 }) => {
   const UITypeDict = {
@@ -39,12 +40,33 @@ const QuestionDetailEdit = ({
   const [questionContent, setQuestionContent] = useState(
     initialQuestionContent
   );
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState(() => {
+    if (
+      initialAnswer &&
+      (initialUIType === "single_selection" ||
+        initialUIType === "multi_selection")
+    ) {
+      return initialRows.map((row, index) => ({
+        ...row,
+        isAns: initialAnswer.includes(String.fromCharCode(65 + index)),
+      }));
+    }
+    return initialRows;
+  });
   const [uiType, setUIType] = useState(initialUIType || "single_selection");
   const [rate, setRate] = useState(initialRate);
   const [explanation, setExplanation] = useState(initialExplanation);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [answer, setAnswer] = useState([]);
+  const [answer, setAnswer] = useState(() => {
+    if (
+      initialAnswer &&
+      (initialUIType === "single_selection" ||
+        initialUIType === "multi_selection")
+    ) {
+      return Array.isArray(initialAnswer) ? initialAnswer : [initialAnswer];
+    }
+    return initialAnswer || "";
+  });
   const [fillBlankAnswer, setFillBlankAnswer] = useState("");
   const [answerImage, setAnswerImage] = useState(initialAnswerImage || null);
 
@@ -56,9 +78,23 @@ const QuestionDetailEdit = ({
       rate,
       explanation,
       answer,
-      answerImage, // 添加 answerImage 到更新函数中
+      answerImage,
     });
   }, [questionContent, rows, uiType, rate, explanation, answer, answerImage]);
+
+  useEffect(() => {
+    if (
+      initialAnswer &&
+      (uiType === "single_selection" || uiType === "multi_selection")
+    ) {
+      const newRows = rows.map((row, index) => ({
+        ...row,
+        isAns: initialAnswer.includes(String.fromCharCode(65 + index)),
+      }));
+      setRows(newRows);
+      setAnswer(Array.isArray(initialAnswer) ? initialAnswer : [initialAnswer]);
+    }
+  }, [initialAnswer]);
 
   const handleQuestionChange = (changeVal) => {
     setQuestionContent((prev) => {
@@ -109,12 +145,10 @@ const QuestionDetailEdit = ({
     });
   };
 
-  // 新增函数处理难度评级变化
   const handleRateChange = (newRate) => {
     setRate(newRate);
   };
 
-  // 新增函数处理解释文本变化
   const handleExplanationChange = (newExplanation) => {
     setExplanation(newExplanation);
   };
@@ -151,14 +185,13 @@ const QuestionDetailEdit = ({
   const handleAnswerChange = (event) => {
     if (uiType === "fill_blank") {
       setFillBlankAnswer(event.target.value);
-      setAnswer([event.target.value]);
+      setAnswer(event.target.value);
     } else {
       const selectedAnswers = Array.isArray(event.target.value)
         ? event.target.value
         : [event.target.value];
       setAnswer(selectedAnswers);
 
-      // 更新rows的isAns属性
       const newRows = rows.map((row, index) => ({
         ...row,
         isAns: selectedAnswers.includes(String.fromCharCode(65 + index)),
@@ -183,7 +216,6 @@ const QuestionDetailEdit = ({
     }
     setRows(newRows);
 
-    // 更新答案
     const newAnswer = newRows
       .map((row, idx) => (row.isAns ? String.fromCharCode(65 + idx) : null))
       .filter(Boolean);
@@ -194,10 +226,8 @@ const QuestionDetailEdit = ({
     const newUIType = event.target.value;
     setUIType(newUIType);
 
-    // 清除答案
     setAnswer([]);
 
-    // 重置所有行的isAns属性
     setRows(rows.map((row) => ({ ...row, isAns: false })));
   };
 
@@ -217,7 +247,7 @@ const QuestionDetailEdit = ({
       >
         <Stack>
           <Button onClick={toggleExpand}>
-            {isExpanded ? "收起详情" : "展详情"}
+            {isExpanded ? "收起详情" : "展开详情"}
           </Button>
           {isExpanded && (
             <Box component="form" noValidate autoComplete="off">
@@ -327,7 +357,7 @@ const QuestionDetailEdit = ({
                     value={uiType}
                     label="显示类型"
                     onChange={handleUITypeChange}
-                    sx={{ height: "40px" }} // 添加这一行来调整高度
+                    sx={{ height: "40px" }}
                   >
                     {Object.entries(UITypeDict).map(([value, label]) => (
                       <MenuItem key={value} value={value}>
@@ -346,7 +376,7 @@ const QuestionDetailEdit = ({
                     <>
                       <TextField
                         label="答案"
-                        value={fillBlankAnswer}
+                        value={answer}
                         onChange={handleAnswerChange}
                         fullWidth
                         required
