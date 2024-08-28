@@ -27,6 +27,7 @@ const QuestionDetailEdit = ({
   initialRate,
   initialExplanation,
   initialUIType,
+  initialAnswerImage, // 新增
   onQuestionDetailChange,
 }) => {
   const UITypeDict = {
@@ -45,6 +46,7 @@ const QuestionDetailEdit = ({
   const [isExpanded, setIsExpanded] = useState(true);
   const [answer, setAnswer] = useState([]);
   const [fillBlankAnswer, setFillBlankAnswer] = useState("");
+  const [answerImage, setAnswerImage] = useState(initialAnswerImage || null);
 
   useEffect(() => {
     onQuestionDetailChange({
@@ -54,8 +56,9 @@ const QuestionDetailEdit = ({
       rate,
       explanation,
       answer,
+      answerImage, // 添加 answerImage 到更新函数中
     });
-  }, [questionContent, rows, uiType, rate, explanation, answer]);
+  }, [questionContent, rows, uiType, rate, explanation, answer, answerImage]);
 
   const handleQuestionChange = (changeVal) => {
     setQuestionContent((prev) => {
@@ -198,6 +201,10 @@ const QuestionDetailEdit = ({
     setRows(rows.map((row) => ({ ...row, isAns: false })));
   };
 
+  const handleAnswerImageChange = (imageData) => {
+    setAnswerImage(imageData);
+  };
+
   return (
     <>
       <Box
@@ -336,14 +343,23 @@ const QuestionDetailEdit = ({
               <Box sx={{ mt: 2, mb: 2 }}>
                 <FormControl fullWidth required>
                   {uiType === "fill_blank" ? (
-                    <TextField
-                      label="答案"
-                      value={fillBlankAnswer}
-                      onChange={handleAnswerChange}
-                      fullWidth
-                      required
-                      variant="outlined"
-                    />
+                    <>
+                      <TextField
+                        label="答案"
+                        value={fillBlankAnswer}
+                        onChange={handleAnswerChange}
+                        fullWidth
+                        required
+                        variant="outlined"
+                      />
+                      <Box sx={{ mt: 2 }}>
+                        <ImageUpload
+                          cid="fill-blank-answer"
+                          imageData={answerImage}
+                          onImageChange={handleAnswerImageChange}
+                        />
+                      </Box>
+                    </>
                   ) : (
                     <>
                       <InputLabel id="answer-select-label">答案</InputLabel>
