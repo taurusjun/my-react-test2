@@ -37,6 +37,7 @@ const QuestionEdit = () => {
     ],
     rate: 0,
     explanation: "",
+    uiType: "multi_selection", // 添加 uiType 字段
   });
 
   const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
@@ -144,7 +145,7 @@ const QuestionEdit = () => {
       }
     }
 
-    if (questionDetail.rows.some((row) => row.isAns)) {
+    if (!questionDetail.rows.some((row) => row.isAns)) {
       return "答案未选择";
     }
 
@@ -261,6 +262,7 @@ const QuestionEdit = () => {
               initialRows={questionDetail.rows}
               initialRate={questionDetail.rate}
               initialExplanation={questionDetail.explanation}
+              initialUIType={questionDetail.uiType} // 使用 questionDetail 中的 uiType
               onQuestionDetailChange={handleQuestionDetailChange}
             />
           </Paper>
