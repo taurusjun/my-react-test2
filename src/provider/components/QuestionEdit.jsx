@@ -9,6 +9,8 @@ import {
   TextField,
   Typography,
   Paper,
+  Chip,
+  Autocomplete,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SubmitModal from "./SubmitModal";
@@ -30,7 +32,9 @@ const QuestionEdit = () => {
       grad: "grade5",
     },
     source: "",
+    tags: [], // 存储标签的数组
     digest: "",
+    material: "",
     questionDetail: {
       questionContent: { value: "qqqqqqq", image: null },
       rows: [
@@ -65,6 +69,9 @@ const QuestionEdit = () => {
   const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
   const CategoryDict = { physics: "物理", chemistry: "化学" };
   const KNDict = { kinematics: "运动学", electromagnetism: "电与磁" };
+
+  // 预定义的标签
+  const predefinedTags = ["重要", "难题", "常考", "创新", "综合"];
 
   const handleSelectChange = (type, value) => {
     setQuestionData((prevData) => ({
@@ -164,7 +171,7 @@ const QuestionEdit = () => {
 
     // kn
     if (questionData.kn == "") {
-      return "知识点未选择";
+      return "知识点未选";
     }
 
     // digest
@@ -216,6 +223,13 @@ const QuestionEdit = () => {
   const handleModalStatus = () => {
     setSubmiting(false);
     setReadyToClose(false);
+  };
+
+  const handleTagChange = (event, newValue) => {
+    setQuestionData((prevData) => ({
+      ...prevData,
+      tags: newValue,
+    }));
   };
 
   return (
@@ -314,6 +328,48 @@ const QuestionEdit = () => {
                   }))
                 }
                 variant="outlined"
+              />
+            </FormControl>
+            <FormControl sx={{ flex: 1 }}>
+              <Autocomplete
+                multiple
+                id="tags-input"
+                options={predefinedTags}
+                value={questionData.tags}
+                onChange={handleTagChange}
+                freeSolo
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip label={option} {...getTagProps({ index })} />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="标签"
+                    placeholder="选择或输入标签"
+                  />
+                )}
+              />
+            </FormControl>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+            <FormControl sx={{ flex: 1 }}>
+              <TextField
+                id="material-input"
+                label="材料"
+                value={questionData.material}
+                onChange={(e) =>
+                  setQuestionData((prevData) => ({
+                    ...prevData,
+                    material: e.target.value,
+                  }))
+                }
+                variant="outlined"
+                multiline
+                rows={4}
               />
             </FormControl>
           </Box>
