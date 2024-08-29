@@ -359,7 +359,7 @@ const QuestionEdit = () => {
             <FormControl sx={{ flex: 1 }}>
               <TextField
                 id="material-input"
-                label="材料"
+                label="材料:如果有输入则会显示在题目上方"
                 value={questionData.material}
                 onChange={(e) =>
                   setQuestionData((prevData) => ({
