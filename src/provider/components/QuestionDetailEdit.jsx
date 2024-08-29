@@ -39,8 +39,12 @@ const QuestionDetailEdit = ({
   }, [questionDetail]);
 
   useEffect(() => {
-    onQuestionDetailChange(localQuestionDetail);
-  }, [localQuestionDetail]);
+    if (
+      JSON.stringify(localQuestionDetail) !== JSON.stringify(questionDetail)
+    ) {
+      onQuestionDetailChange(localQuestionDetail);
+    }
+  }, [localQuestionDetail, questionDetail, onQuestionDetailChange]);
 
   const handleChange = (field, value) => {
     onQuestionDetailChange({ ...questionDetail, [field]: value });
@@ -54,9 +58,42 @@ const QuestionDetailEdit = ({
   };
 
   const handleRowChange = (index, field, value) => {
-    const newRows = [...localQuestionDetail.rows];
-    newRows[index] = { ...newRows[index], [field]: value };
-    handleChange("rows", newRows);
+    let newRows = [...localQuestionDetail.rows];
+    let newAnswer = [...localQuestionDetail.answer];
+
+    if (field === "isAns") {
+      const optionLetter = String.fromCharCode(65 + index);
+
+      if (localQuestionDetail.uiType === "single_selection") {
+        // 单选情况：取消其他所有选项，只选中当前选项
+        newRows = newRows.map((row, i) => ({
+          ...row,
+          isAns: i === index ? value : false,
+        }));
+        newAnswer = value ? [optionLetter] : [];
+      } else {
+        // 多选情况：保持原有逻辑
+        newRows[index] = { ...newRows[index], isAns: value };
+        if (value) {
+          if (!newAnswer.includes(optionLetter)) {
+            newAnswer.push(optionLetter);
+          }
+        } else {
+          newAnswer = newAnswer.filter((ans) => ans !== optionLetter);
+        }
+      }
+    } else {
+      newRows[index] = { ...newRows[index], [field]: value };
+    }
+
+    const updatedQuestionDetail = {
+      ...localQuestionDetail,
+      rows: newRows,
+      answer: newAnswer,
+    };
+
+    setLocalQuestionDetail(updatedQuestionDetail);
+    onQuestionDetailChange(updatedQuestionDetail);
   };
 
   const handleAddRow = () => {
@@ -74,30 +111,47 @@ const QuestionDetailEdit = ({
   };
 
   const handleAnswerChange = (event) => {
+    let newAnswer;
+    let newRows;
+
     if (localQuestionDetail.uiType === "fill_blank") {
-      handleChange("answer", [event.target.value]);
+      newAnswer = [event.target.value];
+      newRows = localQuestionDetail.rows;
     } else {
-      const selectedAnswers = Array.isArray(event.target.value)
+      newAnswer = Array.isArray(event.target.value)
         ? event.target.value
         : [event.target.value];
-      handleChange("answer", selectedAnswers);
-
-      const newRows = localQuestionDetail.rows.map((row, index) => ({
+      newRows = localQuestionDetail.rows.map((row, index) => ({
         ...row,
-        isAns: selectedAnswers.includes(String.fromCharCode(65 + index)),
+        isAns: newAnswer.includes(String.fromCharCode(65 + index)),
       }));
-      handleChange("rows", newRows);
     }
+
+    const updatedQuestionDetail = {
+      ...localQuestionDetail,
+      answer: newAnswer,
+      rows: newRows,
+    };
+
+    setLocalQuestionDetail(updatedQuestionDetail);
+    onQuestionDetailChange(updatedQuestionDetail);
   };
 
   const handleUITypeChange = (event) => {
     const newUIType = event.target.value;
-    handleChange("uiType", newUIType);
-    handleChange("answer", []);
-    handleChange(
-      "rows",
-      localQuestionDetail.rows.map((row) => ({ ...row, isAns: false }))
-    );
+    const updatedQuestionDetail = {
+      ...localQuestionDetail,
+      uiType: newUIType,
+      answer: [],
+      rows: localQuestionDetail.rows.map((row) => ({ ...row, isAns: false })),
+    };
+
+    if (newUIType === "fill_blank") {
+      updatedQuestionDetail.rows = [];
+    }
+
+    setLocalQuestionDetail(updatedQuestionDetail);
+    onQuestionDetailChange(updatedQuestionDetail);
   };
 
   return (
