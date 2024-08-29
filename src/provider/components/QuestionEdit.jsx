@@ -273,6 +273,34 @@ const QuestionEdit = () => {
     }));
   };
 
+  // 添加移动问题详情的函数
+  const moveQuestionDetail = (index, direction) => {
+    setQuestionData((prevData) => {
+      const newQuestionDetails = [...prevData.questionDetails];
+      if (direction === "up" && index > 0) {
+        [newQuestionDetails[index], newQuestionDetails[index - 1]] = [
+          newQuestionDetails[index - 1],
+          newQuestionDetails[index],
+        ];
+      } else if (
+        direction === "down" &&
+        index < newQuestionDetails.length - 1
+      ) {
+        [newQuestionDetails[index], newQuestionDetails[index + 1]] = [
+          newQuestionDetails[index + 1],
+          newQuestionDetails[index],
+        ];
+      }
+      return {
+        ...prevData,
+        questionDetails: newQuestionDetails.map((detail, i) => ({
+          ...detail,
+          order_in_question: i + 1,
+        })),
+      };
+    });
+  };
+
   return (
     <Box
       flex={8}
@@ -429,17 +457,44 @@ const QuestionEdit = () => {
                       }
                       errors={errors.questionDetails[index]}
                     />
-                    {questionData.questionDetails.length > 1 && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => removeQuestionDetail(index)}
-                        sx={{ position: "absolute", top: 0, right: 0 }}
-                      >
-                        删除问题
-                      </Button>
-                    )}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        display: "flex",
+                        gap: 1,
+                      }}
+                    >
+                      {index > 0 && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => moveQuestionDetail(index, "up")}
+                        >
+                          上移
+                        </Button>
+                      )}
+                      {index < questionData.questionDetails.length - 1 && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => moveQuestionDetail(index, "down")}
+                        >
+                          下移
+                        </Button>
+                      )}
+                      {questionData.questionDetails.length > 1 && (
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => removeQuestionDetail(index)}
+                        >
+                          删除
+                        </Button>
+                      )}
+                    </Box>
                   </Box>
                 ))}
                 <Button
