@@ -61,6 +61,41 @@ const QuestionEdit = ({ questionUUID }) => {
     ],
   });
 
+  const fetchQuestionData = async (uuid) => {
+    if (!uuid) {
+      setQuestionData({
+        type: "",
+        category: "",
+        kn: "",
+        gradInfo: {
+          school: "",
+          grad: "",
+        },
+        source: "",
+        tags: [],
+        digest: "",
+        material: "",
+        questionDetails: [],
+      });
+      return;
+    }
+
+    try {
+      const response = await axios.get(`/api/questions/${uuid}`);
+      setQuestionData(response.data);
+    } catch (error) {
+      console.error("获取题目数据时出错:", error);
+      // 这里可以添加错误处理逻辑，比如显示错误消息
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestionData(questionUUID);
+  }, [questionUUID]);
+
+  if (loading) return <div>加载中...</div>;
+  if (error) return <div>加载失败</div>;
+
   const handleSelectChange = (type, value) => {
     setQuestionData((prevData) => ({
       ...prevData,
@@ -280,41 +315,6 @@ const QuestionEdit = ({ questionUUID }) => {
       };
     });
   };
-
-  const fetchQuestionData = async (uuid) => {
-    if (!uuid) {
-      setQuestionData({
-        type: "",
-        category: "",
-        kn: "",
-        gradInfo: {
-          school: "",
-          grad: "",
-        },
-        source: "",
-        tags: [],
-        digest: "",
-        material: "",
-        questionDetails: [],
-      });
-      return;
-    }
-
-    try {
-      const response = await axios.get(`/api/questions/${uuid}`);
-      setQuestionData(response.data);
-    } catch (error) {
-      console.error("获取题目数据时出错:", error);
-      // 这里可以添加错误处理逻辑，比如显示错误消息
-    }
-  };
-
-  useEffect(() => {
-    fetchQuestionData(questionUUID);
-  }, [questionUUID]);
-
-  if (loading) return <div>加载中...</div>;
-  if (error) return <div>加载失败</div>;
 
   return (
     <Box
