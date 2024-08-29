@@ -32,29 +32,38 @@ const QuestionDetailEdit = ({
 
   const [localQuestionDetail, setLocalQuestionDetail] =
     useState(questionDetail);
-  const [uuid] = useState(() => uuidv4()); // 在组件初始化时生成一个 UUID
+  const [isLocalUpdate, setIsLocalUpdate] = useState(false);
 
   useEffect(() => {
-    setLocalQuestionDetail(questionDetail);
+    if (!isLocalUpdate) {
+      setLocalQuestionDetail(questionDetail);
+    }
+    setIsLocalUpdate(false);
   }, [questionDetail]);
 
   useEffect(() => {
-    if (
-      JSON.stringify(localQuestionDetail) !== JSON.stringify(questionDetail)
-    ) {
+    if (isLocalUpdate) {
       onQuestionDetailChange(localQuestionDetail);
     }
-  }, [localQuestionDetail, questionDetail, onQuestionDetailChange]);
+  }, [localQuestionDetail, onQuestionDetailChange]);
 
   const handleChange = (field, value) => {
-    onQuestionDetailChange({ ...questionDetail, [field]: value });
+    setIsLocalUpdate(true);
+    setLocalQuestionDetail((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleQuestionContentChange = (changeVal) => {
-    handleChange("questionContent", {
-      ...localQuestionDetail.questionContent,
-      ...changeVal,
-    });
+    setIsLocalUpdate(true);
+    setLocalQuestionDetail((prev) => ({
+      ...prev,
+      questionContent: {
+        ...prev.questionContent,
+        ...changeVal,
+      },
+    }));
   };
 
   const handleRowChange = (index, field, value) => {
@@ -154,6 +163,9 @@ const QuestionDetailEdit = ({
     onQuestionDetailChange(updatedQuestionDetail);
   };
 
+  // 在组件顶部添加这行，为每个问题生成一个唯一的 UUID
+  const questionUuid = React.useMemo(() => uuidv4(), []);
+
   return (
     <Box>
       <Typography variant="h6">
@@ -174,7 +186,7 @@ const QuestionDetailEdit = ({
         margin="normal"
       />
       <ImageUpload
-        cid={`${uuid}_${questionDetail.order_in_question}_q1`}
+        cid={`${questionUuid}_${questionDetail.order_in_question}_q1`}
         imageData={localQuestionDetail.questionContent.image}
         onImageChange={(imageData) =>
           handleQuestionContentChange({ image: imageData })
@@ -224,7 +236,7 @@ const QuestionDetailEdit = ({
               </IconButton>
             </div>
             <ImageUpload
-              cid={`${uuid}_${questionDetail.order_in_question}_${index}`}
+              cid={`${questionUuid}_${questionDetail.order_in_question}_${index}`}
               imageData={row.image}
               onImageChange={(imageData) =>
                 handleRowChange(index, "image", imageData)
@@ -277,7 +289,7 @@ const QuestionDetailEdit = ({
               />
               <Box sx={{ mt: 2 }}>
                 <ImageUpload
-                  cid={`${uuid}_${questionDetail.order_in_question}_fill-blank-answer`}
+                  cid={`${questionUuid}_${questionDetail.order_in_question}_fill-blank-answer`}
                   imageData={localQuestionDetail.answerImage}
                   onImageChange={(imageData) =>
                     handleChange("answerImage", imageData)
