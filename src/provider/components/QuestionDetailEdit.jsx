@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid"; // 添加这行来引入 uuid
 import {
   Box,
   TextField,
@@ -31,6 +32,7 @@ const QuestionDetailEdit = ({
 
   const [localQuestionDetail, setLocalQuestionDetail] =
     useState(questionDetail);
+  const [uuid] = useState(() => uuidv4()); // 在组件初始化时生成一个 UUID
 
   useEffect(() => {
     setLocalQuestionDetail(questionDetail);
@@ -118,7 +120,7 @@ const QuestionDetailEdit = ({
         margin="normal"
       />
       <ImageUpload
-        cid={"q1"}
+        cid={`${uuid}_${questionDetail.order_in_question}_q1`}
         imageData={localQuestionDetail.questionContent.image}
         onImageChange={(imageData) =>
           handleQuestionContentChange({ image: imageData })
@@ -168,7 +170,7 @@ const QuestionDetailEdit = ({
               </IconButton>
             </div>
             <ImageUpload
-              cid={index}
+              cid={`${uuid}_${questionDetail.order_in_question}_${index}`}
               imageData={row.image}
               onImageChange={(imageData) =>
                 handleRowChange(index, "image", imageData)
@@ -221,7 +223,7 @@ const QuestionDetailEdit = ({
               />
               <Box sx={{ mt: 2 }}>
                 <ImageUpload
-                  cid="fill-blank-answer"
+                  cid={`${uuid}_${questionDetail.order_in_question}_fill-blank-answer`}
                   imageData={localQuestionDetail.answerImage}
                   onImageChange={(imageData) =>
                     handleChange("answerImage", imageData)
