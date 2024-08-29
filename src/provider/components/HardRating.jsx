@@ -1,6 +1,7 @@
 import React from "react";
 import { Rating, Typography, Box, FormHelperText } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
+import { DifficultyDict } from "../utils/dictionaries";
 
 const HardRating = ({ onRateChange, required, error, initialValue = 0 }) => {
   const [value, setValue] = React.useState(initialValue);
@@ -32,11 +33,7 @@ const HardRating = ({ onRateChange, required, error, initialValue = 0 }) => {
         />
         {value !== null && (
           <Typography sx={{ ml: 2 }}>
-            {
-              ["简单", "较易", "中等", "较难", "困难"][
-                hover !== -1 ? hover : value - 1
-              ]
-            }
+            {DifficultyDict[hover !== -1 ? hover : value] || ""}
           </Typography>
         )}
       </Box>

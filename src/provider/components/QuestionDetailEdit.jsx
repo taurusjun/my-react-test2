@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   Radio,
   Checkbox,
+  Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -40,7 +41,7 @@ const QuestionDetailEdit = ({
   }, [localQuestionDetail]);
 
   const handleChange = (field, value) => {
-    setLocalQuestionDetail((prev) => ({ ...prev, [field]: value }));
+    onQuestionDetailChange({ ...questionDetail, [field]: value });
   };
 
   const handleQuestionContentChange = (changeVal) => {
@@ -98,32 +99,31 @@ const QuestionDetailEdit = ({
   };
 
   return (
-    <Box component="form" noValidate autoComplete="off">
-      <Box>
-        <TextField
-          sx={{ width: "100%" }}
-          label="在此输入题干"
-          margin="normal"
-          multiline
-          required
-          rows={4}
-          value={localQuestionDetail.questionContent.value}
-          onChange={(e) =>
-            handleQuestionContentChange({ value: e.target.value })
-          }
-          error={errors && errors.questionContent}
-          helperText={
-            errors && errors.questionContent ? "题目内容不能为空" : ""
-          }
-        />
-        <ImageUpload
-          cid={"q1"}
-          imageData={localQuestionDetail.questionContent.image}
-          onImageChange={(imageData) =>
-            handleQuestionContentChange({ image: imageData })
-          }
-        />
-      </Box>
+    <Box>
+      <Typography variant="h6">
+        问题 {questionDetail.order_in_question}
+      </Typography>
+      <TextField
+        fullWidth
+        label="问题内容"
+        value={questionDetail.questionContent.value}
+        onChange={(e) =>
+          handleChange("questionContent", {
+            ...questionDetail.questionContent,
+            value: e.target.value,
+          })
+        }
+        error={errors?.questionContent}
+        helperText={errors?.questionContent ? "问题内容不能为空" : ""}
+        margin="normal"
+      />
+      <ImageUpload
+        cid={"q1"}
+        imageData={localQuestionDetail.questionContent.image}
+        onImageChange={(imageData) =>
+          handleQuestionContentChange({ image: imageData })
+        }
+      />
       {localQuestionDetail.uiType !== "fill_blank" &&
         localQuestionDetail.rows.map((row, index) => (
           <Box key={index}>

@@ -38,20 +38,23 @@ const QuestionEdit = () => {
     tags: [], // 存储标签的数组
     digest: "",
     material: "",
-    questionDetail: {
-      questionContent: { value: "qqqqqqq", image: null },
-      rows: [
-        { value: "v1", isAns: false, image: null },
-        { value: "v2", isAns: false, image: null },
-        { value: "v3", isAns: true, image: null },
-        { value: "v4", isAns: false, image: null },
-      ],
-      rate: 1,
-      explanation: "eeeee",
-      uiType: "multi_selection",
-      answer: ["C"],
-      answerImage: null,
-    },
+    questionDetails: [
+      {
+        order_in_question: 1,
+        questionContent: { value: "qqqqqqq", image: null },
+        rows: [
+          { value: "v1", isAns: false, image: null },
+          { value: "v2", isAns: false, image: null },
+          { value: "v3", isAns: true, image: null },
+          { value: "v4", isAns: false, image: null },
+        ],
+        rate: 1,
+        explanation: "eeeee",
+        uiType: "multi_selection",
+        answer: ["C"],
+        answerImage: null,
+      },
+    ],
   });
 
   const [errors, setErrors] = useState({
@@ -61,12 +64,14 @@ const QuestionEdit = () => {
     school: false,
     grad: false,
     digest: false,
-    questionDetail: {
-      questionContent: false,
-      rows: [],
-      answer: false,
-      rate: false,
-    },
+    questionDetails: [
+      {
+        questionContent: false,
+        rows: [],
+        answer: false,
+        rate: false,
+      },
+    ],
   });
 
   const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
@@ -90,13 +95,12 @@ const QuestionEdit = () => {
     }));
   };
 
-  const handleQuestionDetailChange = (updatedQuestionDetail) => {
+  const handleQuestionDetailChange = (updatedQuestionDetail, index) => {
     setQuestionData((prevData) => ({
       ...prevData,
-      questionDetail: {
-        ...prevData.questionDetail,
-        ...updatedQuestionDetail,
-      },
+      questionDetails: prevData.questionDetails.map((detail, i) =>
+        i === index ? { ...detail, ...updatedQuestionDetail } : detail
+      ),
     }));
     console.log(updatedQuestionDetail);
   };
@@ -134,17 +138,12 @@ const QuestionEdit = () => {
       school: questionData.gradInfo.school === "",
       grad: questionData.gradInfo.grad === "",
       digest: questionData.digest.trim() === "",
-      questionDetail: {
-        questionContent:
-          questionData.questionDetail.questionContent.value.trim() === "",
-        rows: questionData.questionDetail.rows.map(
-          (row) => row.value.trim() === ""
-        ),
-        answer:
-          !questionData.questionDetail.answer ||
-          questionData.questionDetail.answer.length === 0,
-        rate: questionData.questionDetail.rate === 0,
-      },
+      questionDetails: questionData.questionDetails.map((detail) => ({
+        questionContent: detail.questionContent.value.trim() === "",
+        rows: detail.rows.map((row) => row.value.trim() === ""),
+        answer: !detail.answer || detail.answer.length === 0,
+        rate: detail.rate === 0,
+      })),
     };
 
     setErrors(newErrors);
@@ -182,33 +181,33 @@ const QuestionEdit = () => {
       return "摘要未填写";
     }
 
-    // 检查 questionDetail
-    if (questionData.questionDetail.questionContent.value.trim() === "") {
-      return "题目不能为空";
-    }
-
-    for (let i = 0; i < questionData.questionDetail.rows.length; i++) {
-      if (questionData.questionDetail.rows[i].value.trim() === "") {
-        return `第 ${i + 1} 个选项为空`;
+    // 检查 questionDetails
+    for (let i = 0; i < questionData.questionDetails.length; i++) {
+      const detail = questionData.questionDetails[i];
+      if (detail.questionContent.value.trim() === "") {
+        return `第 ${i + 1} 个题目内容不能为空`;
       }
-    }
 
-    // 检查答案
-    if (questionData.type === "fillInBlank") {
-      if (
-        !questionData.questionDetail.answer ||
-        questionData.questionDetail.answer.length === 0
-      ) {
-        return "填空题答案填写";
+      for (let j = 0; j < detail.rows.length; j++) {
+        if (detail.rows[j].value.trim() === "") {
+          return `第 ${i + 1} 个题目的第 ${j + 1} 个选项为空`;
+        }
       }
-    } else {
-      if (!questionData.questionDetail.rows.some((row) => row.isAns)) {
-        return "选择题答案未选择";
-      }
-    }
 
-    if (questionData.questionDetail.rate === 0) {
-      return "难度未选择";
+      // 检查答案
+      if (questionData.type === "fillInBlank") {
+        if (!detail.answer || detail.answer.length === 0) {
+          return `第 ${i + 1} 个填空题答案未填写`;
+        }
+      } else {
+        if (!detail.rows.some((row) => row.isAns)) {
+          return `第 ${i + 1} 个选择题答案未选择`;
+        }
+      }
+
+      if (detail.rate === 0) {
+        return `第 ${i + 1} 个题目难度未选择`;
+      }
     }
 
     return "";
@@ -237,6 +236,41 @@ const QuestionEdit = () => {
 
   const handlePreviewToggle = () => {
     setShowPreview(!showPreview);
+  };
+
+  // 添加新的问题详情
+  const addQuestionDetail = () => {
+    setQuestionData((prevData) => ({
+      ...prevData,
+      questionDetails: [
+        ...prevData.questionDetails,
+        {
+          order_in_question: prevData.questionDetails.length + 1,
+          questionContent: { value: "", image: null },
+          rows: [
+            { value: "", isAns: false, image: null },
+            { value: "", isAns: false, image: null },
+            { value: "", isAns: false, image: null },
+            { value: "", isAns: false, image: null },
+          ],
+          rate: 1,
+          explanation: "",
+          uiType: "multi_selection",
+          answer: [],
+          answerImage: null,
+        },
+      ],
+    }));
+  };
+
+  // 删除问题详情
+  const removeQuestionDetail = (index) => {
+    setQuestionData((prevData) => ({
+      ...prevData,
+      questionDetails: prevData.questionDetails
+        .filter((_, i) => i !== index)
+        .map((detail, i) => ({ ...detail, order_in_question: i + 1 })),
+    }));
   };
 
   return (
@@ -386,11 +420,36 @@ const QuestionEdit = () => {
               </Box>
 
               <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-                <QuestionDetailEdit
-                  questionDetail={questionData.questionDetail}
-                  onQuestionDetailChange={handleQuestionDetailChange}
-                  errors={errors.questionDetail}
-                />
+                {questionData.questionDetails.map((detail, index) => (
+                  <Box key={index} sx={{ mb: 3, position: "relative" }}>
+                    <QuestionDetailEdit
+                      questionDetail={detail}
+                      onQuestionDetailChange={(updatedDetail) =>
+                        handleQuestionDetailChange(updatedDetail, index)
+                      }
+                      errors={errors.questionDetails[index]}
+                    />
+                    {questionData.questionDetails.length > 1 && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => removeQuestionDetail(index)}
+                        sx={{ position: "absolute", top: 0, right: 0 }}
+                      >
+                        删除问题
+                      </Button>
+                    )}
+                  </Box>
+                ))}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={addQuestionDetail}
+                  sx={{ mt: 2 }}
+                >
+                  添加新问题
+                </Button>
               </Paper>
             </Box>
             <Box

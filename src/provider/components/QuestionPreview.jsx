@@ -1,82 +1,62 @@
 import React from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
-import { schoolLevels, gradeNames } from "./MultiLevelSelect";
+import { Box, Typography, Button } from "@mui/material";
+import {
+  TypeDict,
+  CategoryDict,
+  KNDict,
+  SchoolDict,
+  GradeDict,
+  DifficultyDict,
+} from "../utils/dictionaries";
 
 const QuestionPreview = ({ questionData, onClose }) => {
-  const getSchoolLevel = (school) => {
-    return (
-      Object.entries(schoolLevels).find(
-        ([key, value]) => value === school
-      )?.[0] || school
-    );
-  };
-
-  const getGradeName = (grad) => {
-    return (
-      Object.entries(gradeNames).find(([key, value]) => value === grad)?.[0] ||
-      grad
-    );
-  };
-
-  const schoolLevel = getSchoolLevel(questionData.gradInfo.school);
-  const gradeName = getGradeName(questionData.gradInfo.grad);
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        问题预览
+    <Box>
+      <Typography variant="h5">问题预览</Typography>
+      <Typography>
+        类型: {TypeDict[questionData.type] || questionData.type}
       </Typography>
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          类型: {questionData.type === "selection" ? "选择题" : "填空题"}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          学科: {questionData.category === "physics" ? "物理" : "化学"}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          知识点: {questionData.kn}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          年级: {schoolLevels[schoolLevel] || questionData.gradInfo.school} -{" "}
-          {gradeNames[gradeName] || questionData.gradInfo.grad}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          摘要: {questionData.digest}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          来源: {questionData.source}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          标签: {questionData.tags.join(", ")}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          材料: {questionData.material}
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          问题内容:
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {questionData.questionDetail.questionContent.value}
-        </Typography>
-        {questionData.type === "selection" && (
-          <Box sx={{ mt: 2 }}>
-            {questionData.questionDetail.rows.map((row, index) => (
-              <Typography key={index} variant="body1">
-                {String.fromCharCode(65 + index)}. {row.value}{" "}
-                {row.isAns && "(正确答案)"}
-              </Typography>
+      <Typography>
+        学科: {CategoryDict[questionData.category] || questionData.category}
+      </Typography>
+      <Typography>
+        知识点: {KNDict[questionData.kn] || questionData.kn}
+      </Typography>
+      <Typography>
+        年级: {SchoolDict[questionData.gradInfo.school]} -{" "}
+        {GradeDict[questionData.gradInfo.grad]}
+      </Typography>
+      <Typography>摘要: {questionData.digest}</Typography>
+      <Typography>来源: {questionData.source}</Typography>
+      <Typography>标签: {questionData.tags.join(", ")}</Typography>
+      <Typography>材料: {questionData.material}</Typography>
+
+      {questionData.questionDetails.map((detail, index) => (
+        <Box key={index} mt={2}>
+          <Typography variant="h6">问题 {detail.order_in_question}</Typography>
+          <Typography>问题内容: {detail.questionContent.value}</Typography>
+          <Typography>选项:</Typography>
+          <ul>
+            {detail.rows.map((row, rowIndex) => (
+              <li key={rowIndex}>
+                {row.value} {row.isAns ? "(正确答案)" : ""}
+              </li>
             ))}
-          </Box>
-        )}
-        <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
-          难度: {questionData.questionDetail.rate}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          解释: {questionData.questionDetail.explanation}
-        </Typography>
-      </Paper>
-      <Button variant="contained" onClick={onClose}>
-        返回编辑
+          </ul>
+          <Typography>
+            难度: {DifficultyDict[detail.rate] || detail.rate}
+          </Typography>
+          <Typography>解释: {detail.explanation}</Typography>
+        </Box>
+      ))}
+
+      <Button
+        onClick={onClose}
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+      >
+        关闭预览
       </Button>
     </Box>
   );
