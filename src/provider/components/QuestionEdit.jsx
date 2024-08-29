@@ -387,15 +387,7 @@ const QuestionEdit = () => {
 
               <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
                 <QuestionDetailEdit
-                  initialQuestionContent={
-                    questionData.questionDetail.questionContent
-                  }
-                  initialRows={questionData.questionDetail.rows}
-                  initialRate={questionData.questionDetail.rate}
-                  initialExplanation={questionData.questionDetail.explanation}
-                  initialUIType={questionData.questionDetail.uiType}
-                  initialAnswer={questionData.questionDetail.answer}
-                  initialAnswerImage={questionData.questionDetail.answerImage}
+                  questionDetail={questionData.questionDetail}
                   onQuestionDetailChange={handleQuestionDetailChange}
                   errors={errors.questionDetail}
                 />
