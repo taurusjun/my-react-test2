@@ -11,17 +11,20 @@ import {
   Paper,
   Chip,
   Autocomplete,
+  Button,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import QuestionDetailEdit from "./QuestionDetailEdit";
+import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
 
 const QuestionEdit = () => {
   const [submiting, setSubmiting] = useState(false);
   const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   const [questionData, setQuestionData] = useState({
     type: "selection",
@@ -232,172 +235,205 @@ const QuestionEdit = () => {
     }));
   };
 
+  const handlePreviewToggle = () => {
+    setShowPreview(!showPreview);
+  };
+
   return (
     <Box
       flex={8}
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
     >
       <Stack width="100%">
-        <Box component="form" noValidate autoComplete="off">
-          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 1 }} required error={errors.category}>
-              <InputLabel id="category-select-label">学科</InputLabel>
-              <Select
-                labelId="category-select-label"
-                id="category-select"
-                value={questionData.category}
-                label="category"
-                onChange={(e) => handleSelectChange("category", e.target.value)}
-              >
-                {Object.entries(CategoryDict).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl sx={{ flex: 1 }} required error={errors.kn}>
-              <InputLabel id="demo-simple-select-label">知识点</InputLabel>
-              <Select
-                labelId="knowledge_node-select-label"
-                id="knowledge_node-select"
-                value={questionData.kn}
-                label="knowledge_node"
-                onChange={(e) => handleSelectChange("kn", e.target.value)}
-              >
-                {Object.entries(KNDict).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <MultiLevelSelect
-              onMultiSelectChange={handleMultiSelectChange}
-              initialSchoolLevel={questionData.gradInfo.school}
-              initialGrade={questionData.gradInfo.grad}
-              error={errors.school || errors.grad}
-            />
-          </Box>
+        {!showPreview ? (
+          <>
+            <Box component="form" noValidate autoComplete="off">
+              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 1 }} required error={errors.category}>
+                  <InputLabel id="category-select-label">学科</InputLabel>
+                  <Select
+                    labelId="category-select-label"
+                    id="category-select"
+                    value={questionData.category}
+                    label="category"
+                    onChange={(e) =>
+                      handleSelectChange("category", e.target.value)
+                    }
+                  >
+                    {Object.entries(CategoryDict).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ flex: 1 }} required error={errors.kn}>
+                  <InputLabel id="demo-simple-select-label">知识点</InputLabel>
+                  <Select
+                    labelId="knowledge_node-select-label"
+                    id="knowledge_node-select"
+                    value={questionData.kn}
+                    label="knowledge_node"
+                    onChange={(e) => handleSelectChange("kn", e.target.value)}
+                  >
+                    {Object.entries(KNDict).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <MultiLevelSelect
+                  onMultiSelectChange={handleMultiSelectChange}
+                  initialSchoolLevel={questionData.gradInfo.school}
+                  initialGrade={questionData.gradInfo.grad}
+                  error={errors.school || errors.grad}
+                />
+              </Box>
 
-          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 1 }} required error={errors.type}>
-              <InputLabel id="type-label">题目分类</InputLabel>
-              <Select
-                labelId="type-label"
-                id="type-select"
-                value={questionData.type}
-                label="type"
-                onChange={(e) => handleSelectChange("type", e.target.value)}
-              >
-                {Object.entries(TypeDict).map(([key, value]) => (
-                  <MenuItem key={key} value={key}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
+              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 1 }} required error={errors.type}>
+                  <InputLabel id="type-label">题目分类</InputLabel>
+                  <Select
+                    labelId="type-label"
+                    id="type-select"
+                    value={questionData.type}
+                    label="type"
+                    onChange={(e) => handleSelectChange("type", e.target.value)}
+                  >
+                    {Object.entries(TypeDict).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
 
-          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 2 }}>
-              <TextField
-                id="digest-input"
-                label="摘要: 比如题目的主要内容"
-                value={questionData.digest}
-                onChange={(e) =>
-                  setQuestionData((prevData) => ({
-                    ...prevData,
-                    digest: e.target.value,
-                  }))
-                }
-                variant="outlined"
-                required
-                error={errors.digest}
-              />
-            </FormControl>
-            <FormControl sx={{ flex: 1 }}>
-              <TextField
-                id="source-input"
-                label="来源: 比如哪一本书，或者哪一张试卷"
-                value={questionData.source}
-                onChange={(e) =>
-                  setQuestionData((prevData) => ({
-                    ...prevData,
-                    source: e.target.value,
-                  }))
-                }
-                variant="outlined"
-              />
-            </FormControl>
-            <FormControl sx={{ flex: 1 }}>
-              <Autocomplete
-                multiple
-                id="tags-input"
-                options={predefinedTags}
-                value={questionData.tags}
-                onChange={handleTagChange}
-                freeSolo
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip label={option} {...getTagProps({ index })} />
-                  ))
-                }
-                renderInput={(params) => (
+              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 2 }}>
                   <TextField
-                    {...params}
-                    variant="standard"
-                    label="标签"
-                    placeholder="选择或输入标签"
+                    id="digest-input"
+                    label="摘要: 比如题目的主要内容"
+                    value={questionData.digest}
+                    onChange={(e) =>
+                      setQuestionData((prevData) => ({
+                        ...prevData,
+                        digest: e.target.value,
+                      }))
+                    }
+                    variant="outlined"
+                    required
+                    error={errors.digest}
                   />
-                )}
-              />
-            </FormControl>
-          </Box>
+                </FormControl>
+                <FormControl sx={{ flex: 1 }}>
+                  <TextField
+                    id="source-input"
+                    label="来源: 比如哪一本书，或者哪一张试卷"
+                    value={questionData.source}
+                    onChange={(e) =>
+                      setQuestionData((prevData) => ({
+                        ...prevData,
+                        source: e.target.value,
+                      }))
+                    }
+                    variant="outlined"
+                  />
+                </FormControl>
+                <FormControl sx={{ flex: 1 }}>
+                  <Autocomplete
+                    multiple
+                    id="tags-input"
+                    options={predefinedTags}
+                    value={questionData.tags}
+                    onChange={handleTagChange}
+                    freeSolo
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <Chip label={option} {...getTagProps({ index })} />
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="标签"
+                        placeholder="选择或输入标签"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Box>
 
-          <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-            <FormControl sx={{ flex: 1 }}>
-              <TextField
-                id="material-input"
-                label="材料:多个题目共用"
-                value={questionData.material}
-                onChange={(e) =>
-                  setQuestionData((prevData) => ({
-                    ...prevData,
-                    material: e.target.value,
-                  }))
-                }
+              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 1 }}>
+                  <TextField
+                    id="material-input"
+                    label="材料:多个题目共用"
+                    value={questionData.material}
+                    onChange={(e) =>
+                      setQuestionData((prevData) => ({
+                        ...prevData,
+                        material: e.target.value,
+                      }))
+                    }
+                    variant="outlined"
+                    multiline
+                    rows={4}
+                  />
+                </FormControl>
+              </Box>
+
+              <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+                <QuestionDetailEdit
+                  initialQuestionContent={
+                    questionData.questionDetail.questionContent
+                  }
+                  initialRows={questionData.questionDetail.rows}
+                  initialRate={questionData.questionDetail.rate}
+                  initialExplanation={questionData.questionDetail.explanation}
+                  initialUIType={questionData.questionDetail.uiType}
+                  initialAnswer={questionData.questionDetail.answer}
+                  initialAnswerImage={questionData.questionDetail.answerImage}
+                  onQuestionDetailChange={handleQuestionDetailChange}
+                  errors={errors.questionDetail}
+                />
+              </Paper>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 2,
+                mr: 2,
+                ml: 2,
+                gap: 2, // 添加间隔
+              }}
+            >
+              <LoadingButton
+                variant="contained"
+                onClick={handleSubmitQuestion}
+                loading={submiting}
+                fullWidth // 添加fullWidth属性
+              >
+                提交
+              </LoadingButton>
+              <Button
                 variant="outlined"
-                multiline
-                rows={4}
-              />
-            </FormControl>
-          </Box>
-
-          <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-            <QuestionDetailEdit
-              initialQuestionContent={
-                questionData.questionDetail.questionContent
-              }
-              initialRows={questionData.questionDetail.rows}
-              initialRate={questionData.questionDetail.rate}
-              initialExplanation={questionData.questionDetail.explanation}
-              initialUIType={questionData.questionDetail.uiType}
-              initialAnswer={questionData.questionDetail.answer}
-              initialAnswerImage={questionData.questionDetail.answerImage}
-              onQuestionDetailChange={handleQuestionDetailChange}
-              errors={errors.questionDetail}
-            />
-          </Paper>
-        </Box>
-        <LoadingButton
-          sx={{ mt: 1, mr: 1 }}
-          variant="contained"
-          onClick={handleSubmitQuestion}
-          loading={submiting}
-        >
-          提交
-        </LoadingButton>
+                onClick={handlePreviewToggle}
+                fullWidth // 添加fullWidth属性
+              >
+                预览
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <QuestionPreview
+            questionData={questionData}
+            onClose={handlePreviewToggle}
+          />
+        )}
       </Stack>
       <SubmitModal
         status={submiting}
