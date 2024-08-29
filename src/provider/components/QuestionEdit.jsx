@@ -76,9 +76,6 @@ const QuestionEdit = () => {
     ],
   });
 
-  // 预定义的标签
-  const predefinedTags = ["重要", "难题", "常考", "创新", "综合"];
-
   const handleSelectChange = (type, value) => {
     setQuestionData((prevData) => ({
       ...prevData,
@@ -412,14 +409,23 @@ const QuestionEdit = () => {
                   <Autocomplete
                     multiple
                     id="tags-input"
-                    options={predefinedTags}
+                    options={dictionaries.PredefinedTags}
                     value={questionData.tags}
                     onChange={handleTagChange}
                     freeSolo
                     renderTags={(value, getTagProps) =>
-                      value.map((option, index) => (
-                        <Chip label={option} {...getTagProps({ index })} />
-                      ))
+                      value.map((option, index) => {
+                        const tagProps = getTagProps({ index });
+                        // 从 tagProps 中移除 key
+                        const { key, ...tagPropsWithoutKey } = tagProps;
+                        return (
+                          <Chip
+                            key={key} // 单独设置 key
+                            label={option}
+                            {...tagPropsWithoutKey} // 传递其他 props
+                          />
+                        );
+                      })
                     }
                     renderInput={(params) => (
                       <TextField
@@ -526,7 +532,7 @@ const QuestionEdit = () => {
                 variant="contained"
                 onClick={handleSubmitQuestion}
                 loading={submiting}
-                fullWidth // 添加fullWidth属性
+                fullWidth // 添加fullWidth���性
               >
                 提交
               </LoadingButton>

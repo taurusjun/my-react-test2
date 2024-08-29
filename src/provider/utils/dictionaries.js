@@ -84,3 +84,6 @@ export const DifficultyDict = {
   4: "较难",
   5: "困难",
 };
+
+// 预定义标签
+export const PredefinedTags = ["重要", "难题", "常考", "创新", "综合"];

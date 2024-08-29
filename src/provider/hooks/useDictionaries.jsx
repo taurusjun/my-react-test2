@@ -9,6 +9,7 @@ import {
   GradeDict,
   DifficultyDict,
   SchoolGradeMapping,
+  PredefinedTags,
 } from "../utils/dictionaries.js"; // 导入各种字典
 
 // 创建一个模拟适配器实例
@@ -23,6 +24,7 @@ mock.onGet("/api/dictionaries").reply(200, {
   GradeDict,
   SchoolGradeMapping,
   DifficultyDict,
+  PredefinedTags,
 });
 
 export function useDictionaries() {
@@ -34,6 +36,7 @@ export function useDictionaries() {
     GradeDict: {},
     SchoolGradeMapping: {},
     DifficultyDict: {},
+    PredefinedTags: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
