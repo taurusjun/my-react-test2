@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   FormControl,
@@ -20,7 +20,54 @@ import QuestionDetailEdit from "./QuestionDetailEdit";
 import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
 import { useDictionaries } from "../hooks/useDictionaries";
 
-const QuestionEdit = () => {
+// 模拟 fetch 函数
+const mockFetch = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockData = {
+        type: "selection",
+        category: "physics",
+        kn: "mechanics",
+        gradInfo: {
+          school: "primary",
+          grad: "grade5",
+        },
+        source: "2023年春季期中考试",
+        tags: ["力学", "牛顿定律"],
+        digest: "关于力和运动的多选题",
+        material: "以下是关于力和运动的一些描述。",
+        questionDetails: [
+          {
+            order_in_question: 1,
+            questionContent: {
+              value: "下列关于力和运动的说法，正确的是：",
+              image: null,
+            },
+            rows: [
+              { value: "物体运动一定有力", isAns: false, image: null },
+              { value: "物体受力一定运动", isAns: false, image: null },
+              { value: "力是物体运动状态改变的原因", isAns: true, image: null },
+              { value: "力的作用是相互的", isAns: true, image: null },
+            ],
+            rate: 3,
+            explanation:
+              "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动定律的基本内容。",
+            uiType: "multi_selection",
+            answer: ["C", "D"],
+            answerImage: null,
+          },
+        ],
+      };
+
+      resolve({
+        ok: true,
+        json: () => Promise.resolve(mockData),
+      });
+    }, 500);
+  });
+};
+
+const QuestionEdit = ({ questionUUID }) => {
   const { dictionaries, loading, error } = useDictionaries();
   const [submiting, setSubmiting] = useState(false);
   const [readyToClose, setReadyToClose] = useState(false);
@@ -29,34 +76,18 @@ const QuestionEdit = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   const [questionData, setQuestionData] = useState({
-    type: "selection",
-    category: "physics",
+    type: "",
+    category: "",
     kn: "",
     gradInfo: {
-      school: "primary",
-      grad: "grade5",
+      school: "",
+      grad: "",
     },
     source: "",
-    tags: [], // 存储标签的数组
+    tags: [],
     digest: "",
     material: "",
-    questionDetails: [
-      {
-        order_in_question: 1,
-        questionContent: { value: "qqqqqqq", image: null },
-        rows: [
-          { value: "v1", isAns: false, image: null },
-          { value: "v2", isAns: false, image: null },
-          { value: "v3", isAns: true, image: null },
-          { value: "v4", isAns: false, image: null },
-        ],
-        rate: 1,
-        explanation: "eeeee",
-        uiType: "multi_selection",
-        answer: ["C"],
-        answerImage: null,
-      },
-    ],
+    questionDetails: [],
   });
 
   const [errors, setErrors] = useState({
@@ -296,6 +327,43 @@ const QuestionEdit = () => {
     });
   };
 
+  const fetchQuestionData = async (uuid) => {
+    if (!uuid) {
+      setQuestionData({
+        type: "",
+        category: "",
+        kn: "",
+        gradInfo: {
+          school: "",
+          grad: "",
+        },
+        source: "",
+        tags: [],
+        digest: "",
+        material: "",
+        questionDetails: [],
+      });
+      return;
+    }
+
+    try {
+      // 使用模拟的 fetch 函数
+      const response = await mockFetch(`/api/questions/${uuid}`);
+      if (!response.ok) {
+        throw new Error("获取题目数据失败");
+      }
+      const data = await response.json();
+      setQuestionData(data);
+    } catch (error) {
+      console.error("获取题目数据时出错:", error);
+      // 这里可以添加错误处理逻辑，比如显示错误消息
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestionData(questionUUID);
+  }, [questionUUID]);
+
   if (loading) return <div>加载中...</div>;
   if (error) return <div>加载失败</div>;
 
@@ -532,7 +600,7 @@ const QuestionEdit = () => {
                 variant="contained"
                 onClick={handleSubmitQuestion}
                 loading={submiting}
-                fullWidth // 添加fullWidth���性
+                fullWidth // 添加fullWidth属性
               >
                 提交
               </LoadingButton>

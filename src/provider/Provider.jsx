@@ -15,7 +15,7 @@ export const Provider = () => {
         }}
       >
         <SideBar />
-        <QuestionEdit />
+        <QuestionEdit questionUUID="123" />
       </Stack>
     </Box>
   );
