@@ -18,8 +18,10 @@ import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import QuestionDetailEdit from "./QuestionDetailEdit";
 import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
+import { useDictionaries } from "../hooks/useDictionaries";
 
 const QuestionEdit = () => {
+  const { dictionaries, loading, error } = useDictionaries();
   const [submiting, setSubmiting] = useState(false);
   const [readyToClose, setReadyToClose] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -73,10 +75,6 @@ const QuestionEdit = () => {
       },
     ],
   });
-
-  const TypeDict = { selection: "选择题", fillInBlank: "填空题" };
-  const CategoryDict = { physics: "物理", chemistry: "化学" };
-  const KNDict = { kinematics: "运动学", electromagnetism: "电与磁" };
 
   // 预定义的标签
   const predefinedTags = ["重要", "难题", "常考", "创新", "综合"];
@@ -301,6 +299,9 @@ const QuestionEdit = () => {
     });
   };
 
+  if (loading) return <div>加载中...</div>;
+  if (error) return <div>加载失败</div>;
+
   return (
     <Box
       flex={8}
@@ -322,11 +323,13 @@ const QuestionEdit = () => {
                       handleSelectChange("category", e.target.value)
                     }
                   >
-                    {Object.entries(CategoryDict).map(([key, value]) => (
-                      <MenuItem key={key} value={key}>
-                        {value}
-                      </MenuItem>
-                    ))}
+                    {Object.entries(dictionaries.CategoryDict).map(
+                      ([key, value]) => (
+                        <MenuItem key={key} value={key}>
+                          {value}
+                        </MenuItem>
+                      )
+                    )}
                   </Select>
                 </FormControl>
                 <FormControl sx={{ flex: 1 }} required error={errors.kn}>
@@ -338,7 +341,7 @@ const QuestionEdit = () => {
                     label="knowledge_node"
                     onChange={(e) => handleSelectChange("kn", e.target.value)}
                   >
-                    {Object.entries(KNDict).map(([key, value]) => (
+                    {Object.entries(dictionaries.KNDict).map(([key, value]) => (
                       <MenuItem key={key} value={key}>
                         {value}
                       </MenuItem>
@@ -363,11 +366,13 @@ const QuestionEdit = () => {
                     label="type"
                     onChange={(e) => handleSelectChange("type", e.target.value)}
                   >
-                    {Object.entries(TypeDict).map(([key, value]) => (
-                      <MenuItem key={key} value={key}>
-                        {value}
-                      </MenuItem>
-                    ))}
+                    {Object.entries(dictionaries.TypeDict).map(
+                      ([key, value]) => (
+                        <MenuItem key={key} value={key}>
+                          {value}
+                        </MenuItem>
+                      )
+                    )}
                   </Select>
                 </FormControl>
               </Box>

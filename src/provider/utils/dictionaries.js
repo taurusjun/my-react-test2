@@ -70,6 +70,12 @@ export const GradeDict = {
   grade12: "高三",
 };
 
+export const SchoolGradeMapping = {
+  primary: ["grade1", "grade2", "grade3", "grade4", "grade5", "grade6"],
+  junior: ["grade7", "grade8", "grade9"],
+  senior: ["grade10", "grade11", "grade12"],
+};
+
 // 难度等级字典
 export const DifficultyDict = {
   1: "简单",

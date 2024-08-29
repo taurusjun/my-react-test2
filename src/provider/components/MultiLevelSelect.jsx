@@ -1,32 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
-
-export const schoolLevels = {
-  primary: "小学",
-  junior: "初中",
-  senior: "高中",
-};
-
-export const grades = {
-  primary: ["grade1", "grade2", "grade3", "grade4", "grade5", "grade6"],
-  junior: ["grade7", "grade8", "grade9"],
-  senior: ["grade10", "grade11", "grade12"],
-};
-
-export const gradeNames = {
-  grade1: "一年级",
-  grade2: "二年级",
-  grade3: "三年级",
-  grade4: "四年级",
-  grade5: "五年级",
-  grade6: "六年级",
-  grade7: "初一",
-  grade8: "初二",
-  grade9: "初三",
-  grade10: "高一",
-  grade11: "高二",
-  grade12: "高三",
-};
+import { useDictionaries } from "../hooks/useDictionaries"; // 假设 hook 在这个位置
 
 const MultiLevelSelect = ({
   onMultiSelectChange,
@@ -34,6 +8,7 @@ const MultiLevelSelect = ({
   initialGrade,
   error,
 }) => {
+  const { dictionaries, loading, error: dictionariesError } = useDictionaries();
   const [schoolLevel, setSchoolLevel] = useState(initialSchoolLevel || "");
   const [grade, setGrade] = useState(initialGrade || "");
 
@@ -57,6 +32,14 @@ const MultiLevelSelect = ({
     onMultiSelectChange(schoolLevel, newGrade);
   };
 
+  if (loading) {
+    return <div>加载中...</div>;
+  }
+
+  if (dictionariesError) {
+    return <div>加载字典时出错: {dictionariesError.message}</div>;
+  }
+
   return (
     <Box sx={{ display: "flex", gap: 1, flex: 2 }}>
       <FormControl sx={{ flex: 1 }} required error={error}>
@@ -68,7 +51,7 @@ const MultiLevelSelect = ({
           label="学习阶段"
           onChange={handleSchoolLevelChange}
         >
-          {Object.entries(schoolLevels).map(([key, value]) => (
+          {Object.entries(dictionaries.SchoolDict).map(([key, value]) => (
             <MenuItem key={key} value={key}>
               {value}
             </MenuItem>
@@ -86,9 +69,9 @@ const MultiLevelSelect = ({
           disabled={!schoolLevel}
         >
           {schoolLevel &&
-            grades[schoolLevel].map((gradeKey) => (
+            dictionaries.SchoolGradeMapping[schoolLevel].map((gradeKey) => (
               <MenuItem key={gradeKey} value={gradeKey}>
-                {gradeNames[gradeKey]}
+                {dictionaries.GradeDict[gradeKey]}
               </MenuItem>
             ))}
         </Select>
