@@ -128,7 +128,7 @@ const QuestionDetailEdit = ({
       newRows = localQuestionDetail.rows;
     } else {
       newAnswer = Array.isArray(event.target.value)
-        ? event.target.value
+        ? event.target.value.sort() // 对多选答案进行排序
         : [event.target.value];
       newRows = localQuestionDetail.rows.map((row, index) => ({
         ...row,
@@ -308,7 +308,7 @@ const QuestionDetailEdit = ({
                 required
                 error={errors && errors.answer}
                 onChange={handleAnswerChange}
-                renderValue={(selected) => selected.join(", ")}
+                renderValue={(selected) => selected.sort().join(", ")} // 对显示的答案进行排序
               >
                 {localQuestionDetail.rows.map((_, index) => (
                   <MenuItem key={index} value={String.fromCharCode(65 + index)}>
