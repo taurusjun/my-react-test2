@@ -61,6 +61,8 @@ const QuestionEdit = ({ questionUUID }) => {
     ],
   });
 
+  const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
+
   const fetchQuestionData = async (uuid) => {
     if (!uuid) {
       setQuestionData({
@@ -93,6 +95,16 @@ const QuestionEdit = ({ questionUUID }) => {
     fetchQuestionData(questionUUID);
   }, [questionUUID]);
 
+  useEffect(() => {
+    if (questionData.category && dictionaries.CategoryKNMapping) {
+      const knList =
+        dictionaries.CategoryKNMapping[questionData.category] || [];
+      setAvailableKnowledgeNodes(knList);
+    } else {
+      setAvailableKnowledgeNodes([]);
+    }
+  }, [questionData.category, dictionaries.CategoryKNMapping]);
+
   if (loading) return <div>加载中...</div>;
   if (error) return <div>加载失败</div>;
 
@@ -101,6 +113,14 @@ const QuestionEdit = ({ questionUUID }) => {
       ...prevData,
       [type]: value,
     }));
+
+    if (type === "category") {
+      // 当学科改变时，重置知识点选择
+      setQuestionData((prevData) => ({
+        ...prevData,
+        kn: "",
+      }));
+    }
   };
 
   const handleMultiSelectChange = (school, grad) => {
@@ -278,7 +298,7 @@ const QuestionEdit = ({ questionUUID }) => {
     }));
   };
 
-  // 删���问题详情
+  // 删除问题详情
   const removeQuestionDetail = (index) => {
     setQuestionData((prevData) => ({
       ...prevData,
@@ -355,9 +375,9 @@ const QuestionEdit = ({ questionUUID }) => {
                     label="knowledge_node"
                     onChange={(e) => handleSelectChange("kn", e.target.value)}
                   >
-                    {Object.entries(dictionaries.KNDict).map(([key, value]) => (
-                      <MenuItem key={key} value={key}>
-                        {value}
+                    {availableKnowledgeNodes.map((kn) => (
+                      <MenuItem key={kn} value={kn}>
+                        {dictionaries.KNDict[kn]}
                       </MenuItem>
                     ))}
                   </Select>

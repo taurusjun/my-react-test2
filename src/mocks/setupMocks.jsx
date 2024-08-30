@@ -9,6 +9,7 @@ import {
   DifficultyDict,
   SchoolGradeMapping,
   PredefinedTags,
+  CategoryKNMapping,
 } from "../provider/utils/dictionaries.js";
 
 // 创建一个新的MockAdapter实例
@@ -24,6 +25,7 @@ mock.onGet("/api/dictionaries").reply(200, {
   SchoolGradeMapping,
   DifficultyDict,
   PredefinedTags,
+  CategoryKNMapping,
 });
 
 // 模拟问题数据的API响应

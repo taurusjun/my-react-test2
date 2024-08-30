@@ -47,6 +47,13 @@ export const KNDict = {
   // 可以根据需要添加更多知识点
 };
 
+export const CategoryKNMapping = {
+  physics: ["mechanics", "thermodynamics", "optics", "electromagnetism"],
+  chemistry: ["organicChemistry", "inorganicChemistry", "physicalChemistry"],
+  biology: ["cellBiology", "genetics", "ecology"],
+  math: ["algebra", "geometry", "calculus"],
+};
+
 // 学校类型字典
 export const SchoolDict = {
   primary: "小学",

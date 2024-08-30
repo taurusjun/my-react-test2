@@ -11,6 +11,7 @@ export function useDictionaries() {
     SchoolGradeMapping: {},
     DifficultyDict: {},
     PredefinedTags: [],
+    CategoryKNMapping: {},
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
