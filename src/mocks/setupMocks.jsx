@@ -11,6 +11,7 @@ import {
   PredefinedTags,
   CategoryKNMapping,
 } from "../provider/utils/dictionaries.js";
+import { format } from "date-fns";
 
 // 创建一个新的MockAdapter实例
 const mock = new MockAdapter(axios, { onNoMatch: "passthrough" });
@@ -81,6 +82,7 @@ mock.onGet("/api/questionlist").reply((config) => {
       digest: `问题摘要 ${index + 1}`,
       category: index % 2 === 0 ? "物理" : "生物",
       KN: `知识点 ${index + 1}`,
+      updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
     }));
 
   // 根据搜索条件过滤问题

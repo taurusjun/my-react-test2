@@ -20,6 +20,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
 import { styled, alpha } from "@mui/material/styles";
+import { format } from "date-fns"; // 导入 date-fns 库来格式化日期
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
@@ -147,6 +148,7 @@ const QuestionList = () => {
               <StyledTableCell>摘要</StyledTableCell>
               <StyledTableCell>科目</StyledTableCell>
               <StyledTableCell>知识点</StyledTableCell>
+              <StyledTableCell>更新时间</StyledTableCell>
               <StyledTableCell align="center">操作</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -156,6 +158,9 @@ const QuestionList = () => {
                 <BodyTableCell>{question.digest}</BodyTableCell>
                 <BodyTableCell>{question.category}</BodyTableCell>
                 <BodyTableCell>{question.KN}</BodyTableCell>
+                <BodyTableCell>
+                  {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
+                </BodyTableCell>
                 <BodyTableCell align="center">
                   <Button
                     variant="contained"
