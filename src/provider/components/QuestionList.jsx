@@ -19,13 +19,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
 
-// 更新模拟数据,使用正确的字段名
-const questions = [
-  { uuid: "a1b2c3d4", digest: "牛顿第一定律", category: "物理", KN: "力学" },
-  { uuid: "e5f6g7h8", digest: "光合作用", category: "生物", KN: "植物生理" },
-  // 添加更多问题...
-];
-
 const QuestionList = () => {
   const navigate = useNavigate();
   const [searchType, setSearchType] = useState("digest");

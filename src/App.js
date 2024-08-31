@@ -17,6 +17,7 @@ function App() {
         <Route path="exam/:uuid" element={<ExamDetail />} />
         <Route path="contact" element={<Contact />} />
         <Route path="list" element={<List />} />
+        <Route path="/question-edit" element={<QuestionEdit />} />
         <Route path="/question-edit/:uuid" element={<QuestionEdit />} />
       </Routes>
     </div>
