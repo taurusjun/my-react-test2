@@ -21,7 +21,7 @@ import QuestionDetailEdit from "./QuestionDetailEdit";
 import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
-import QuestionBreadcrumbs from "./QuestionBreadcrumbs";
+import MainLayout from "../layouts/MainLayout";
 
 const QuestionEdit = () => {
   const { uuid } = useParams();
@@ -340,13 +340,8 @@ const QuestionEdit = () => {
   };
 
   return (
-    <Box
-      flex={8}
-      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-    >
+    <MainLayout currentPage="编辑问题" maxWidth="xl">
       <Stack width="100%">
-        <QuestionBreadcrumbs currentPage={uuid ? "编辑题目" : "新建题目"} />
-
         {!showPreview ? (
           <>
             <Box component="form" noValidate autoComplete="off">
@@ -601,7 +596,7 @@ const QuestionEdit = () => {
         contentText={modalContent}
         handleModalStatus={handleModalStatus}
       />
-    </Box>
+    </MainLayout>
   );
 };
 

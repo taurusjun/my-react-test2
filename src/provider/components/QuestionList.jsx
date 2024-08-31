@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import MainLayout from "../layouts/MainLayout"; // 确保路径正确
 import {
   Table,
   TableBody,
@@ -14,11 +15,22 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Box,
+  TablePagination,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
-import QuestionBreadcrumbs from "./QuestionBreadcrumbs";
+import { styled, alpha } from "@mui/material/styles";
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.info.light, 0.1),
+  color: theme.palette.common.black,
+  fontSize: 18, // 增加表头文字大小
+  fontWeight: "bold",
+}));
+
+const BodyTableCell = styled(TableCell)(({ theme }) => ({
+  fontSize: 16,
+}));
 
 const QuestionList = () => {
   const navigate = useNavigate();
@@ -26,34 +38,59 @@ const QuestionList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [questions, setQuestions] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const handleEdit = (uuid) => {
-    navigate(`/question-edit/${uuid}`);
-  };
+  useEffect(() => {
+    fetchQuestions();
+  }, [page, rowsPerPage, selectedCategory, searchType, searchTerm]);
 
-  const handleNewQuestion = () => {
-    navigate("/question-edit");
-  };
-
-  const handleSearch = async () => {
+  const fetchQuestions = async () => {
     try {
       const response = await axios.get("/api/questionlist", {
         params: {
           category: selectedCategory,
           searchType: searchType,
           searchTerm: searchTerm,
+          page: page + 1, // 后端通常从1开始计数
+          pageSize: rowsPerPage,
         },
       });
-      setQuestions(response.data);
+      setQuestions(response.data.items);
+      setTotalCount(response.data.totalCount);
     } catch (error) {
-      console.error("Error fetching questions:", error);
+      console.error("获取问题列表时出错:", error);
       // 这里可以添加错误处理，比如显示一个错误提示
     }
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleNewQuestion = () => {
+    navigate("/question-edit"); // 假设新建问题的路由是 "/new-question"
+  };
+
+  const handleResetSearch = () => {
+    setSearchType("digest");
+    setSearchTerm("");
+    setSelectedCategory("");
+    setPage(0);
+  };
+
+  const handleEdit = (uuid) => {
+    navigate(`/question-edit/${uuid}`); // 假设编辑问题的路由是 "/edit-question/:uuid"
+  };
+
   return (
-    <Box sx={{ width: "100%" }}>
-      <QuestionBreadcrumbs currentPage="题目列表" />
+    <MainLayout currentPage="题目列表" maxWidth="xl">
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button
           variant="contained"
@@ -66,10 +103,10 @@ const QuestionList = () => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={handleSearch}
+          onClick={handleResetSearch}
           sx={{ width: "200px", height: "56px" }} // 调整按钮的宽度和高度
         >
-          搜索问题
+          重置搜索
         </Button>
         <FormControl sx={{ minWidth: 120 }}>
           <InputLabel>科目</InputLabel>
@@ -84,7 +121,7 @@ const QuestionList = () => {
             {/* 添加更多科目选项 */}
           </Select>
         </FormControl>
-        <FormControl sx={{ minWidth: 120 }}>
+        <FormControl sx={{ minWidth: 140 }}>
           <InputLabel>搜索类型</InputLabel>
           <Select
             value={searchType}
@@ -107,19 +144,19 @@ const QuestionList = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>摘要</TableCell>
-              <TableCell>科目</TableCell>
-              <TableCell>知识点</TableCell>
-              <TableCell align="right">操作</TableCell>
+              <StyledTableCell>摘要</StyledTableCell>
+              <StyledTableCell>科目</StyledTableCell>
+              <StyledTableCell>知识点</StyledTableCell>
+              <StyledTableCell align="center">操作</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {questions.map((question) => (
               <TableRow key={question.uuid}>
-                <TableCell>{question.digest}</TableCell>
-                <TableCell>{question.category}</TableCell>
-                <TableCell>{question.KN}</TableCell>
-                <TableCell align="right">
+                <BodyTableCell>{question.digest}</BodyTableCell>
+                <BodyTableCell>{question.category}</BodyTableCell>
+                <BodyTableCell>{question.KN}</BodyTableCell>
+                <BodyTableCell align="center">
                   <Button
                     variant="contained"
                     size="small"
@@ -127,13 +164,26 @@ const QuestionList = () => {
                   >
                     编辑
                   </Button>
-                </TableCell>
+                </BodyTableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="每页行数:"
+          labelDisplayedRows={({ from, to, count, page }) =>
+            `第 ${page + 1} 页，${from}-${to} 共 ${count}`
+          }
+        />
       </TableContainer>
-    </Box>
+    </MainLayout>
   );
 };
 

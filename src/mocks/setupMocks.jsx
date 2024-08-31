@@ -56,7 +56,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
       ],
       rate: 3,
       explanation:
-        "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动��律的基本内容。",
+        "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
       uiType: "multi_selection",
       answer: ["C", "D"],
       answerImage: null,
@@ -65,23 +65,26 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
 });
 
 mock.onGet("/api/questionlist").reply((config) => {
-  const { category, searchType, searchTerm } = config.params;
+  const {
+    category,
+    searchType,
+    searchTerm,
+    page = 1,
+    pageSize = 10,
+  } = config.params;
 
   // 模拟的问题列表
-  const mockQuestions = [
-    { uuid: "a1b2c3d4", digest: "牛顿第一定律", category: "物理", KN: "力学" },
-    { uuid: "e5f6g7h8", digest: "光合作用", category: "生物", KN: "植物生理" },
-    {
-      uuid: "i9j0k1l2",
-      digest: "细胞结构",
-      category: "生物",
-      KN: "细胞生物学",
-    },
-    // 可以添加更多模拟数据...
-  ];
+  const mockQuestions = Array(100)
+    .fill()
+    .map((_, index) => ({
+      uuid: `question-${index + 1}`,
+      digest: `问题摘要 ${index + 1}`,
+      category: index % 2 === 0 ? "物理" : "生物",
+      KN: `知识点 ${index + 1}`,
+    }));
 
   // 根据搜索条件过滤问题
-  let filteredQuestions = mockQuestions;
+  let filteredQuestions = [...mockQuestions];
 
   if (category) {
     filteredQuestions = filteredQuestions.filter(
@@ -92,13 +95,24 @@ mock.onGet("/api/questionlist").reply((config) => {
   if (searchTerm) {
     filteredQuestions = filteredQuestions.filter((q) => {
       if (searchType === "digest") {
-        return q.digest.includes(searchTerm);
+        return q.digest.toLowerCase().includes(searchTerm.toLowerCase());
       } else if (searchType === "knowledge") {
-        return q.KN.includes(searchTerm);
+        return q.KN.toLowerCase().includes(searchTerm.toLowerCase());
       }
       return true;
     });
   }
 
-  return [200, filteredQuestions];
+  const totalCount = filteredQuestions.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  return [
+    200,
+    {
+      items: paginatedQuestions,
+      totalCount: totalCount,
+    },
+  ];
 });

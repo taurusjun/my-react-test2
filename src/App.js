@@ -4,7 +4,7 @@ import { About } from "./components/About";
 import { Contact } from "./components/Contact";
 import { List } from "./components/List";
 import { ExamDetail } from "./exam/ExamDetail";
-import { Provider } from "./provider/Provider";
+import QuestionList from "./provider/components/QuestionList";
 import QuestionEdit from "./provider/components/QuestionEdit";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/questions" element={<Provider />} />
+        <Route path="/questions" element={<QuestionList />} />
         <Route path="about/:id" element={<About />} />
         <Route path="exam/:uuid" element={<ExamDetail />} />
         <Route path="contact" element={<Contact />} />
