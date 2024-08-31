@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
 import { styled, alpha } from "@mui/material/styles";
 import { format } from "date-fns"; // 导入 date-fns 库来格式化日期
+import { useDictionaries } from "../hooks/useDictionaries"; // 确保正确导入
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
@@ -42,6 +43,7 @@ const QuestionList = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+  const { dictionaries, loading, error } = useDictionaries();
 
   useEffect(() => {
     fetchQuestions();
@@ -65,6 +67,9 @@ const QuestionList = () => {
       // 这里可以添加错误处理，比如显示一个错误提示
     }
   };
+
+  if (loading) return <div>加载中...</div>;
+  if (error) return <div>加载失败</div>;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -117,9 +122,11 @@ const QuestionList = () => {
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <MenuItem value="">全部</MenuItem>
-            <MenuItem value="物理">物理</MenuItem>
-            <MenuItem value="生物">生物</MenuItem>
-            {/* 添加更多科目选项 */}
+            {Object.entries(dictionaries.CategoryDict).map(([key, value]) => (
+              <MenuItem key={key} value={key}>
+                {value}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         <FormControl sx={{ minWidth: 140 }}>
