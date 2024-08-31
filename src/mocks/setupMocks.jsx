@@ -56,7 +56,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
       ],
       rate: 3,
       explanation:
-        "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动定律的基本内容。",
+        "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动��律的基本内容。",
       uiType: "multi_selection",
       answer: ["C", "D"],
       answerImage: null,
@@ -64,4 +64,41 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   ],
 });
 
-export default mock;
+mock.onGet("/api/questionlist").reply((config) => {
+  const { category, searchType, searchTerm } = config.params;
+
+  // 模拟的问题列表
+  const mockQuestions = [
+    { uuid: "a1b2c3d4", digest: "牛顿第一定律", category: "物理", KN: "力学" },
+    { uuid: "e5f6g7h8", digest: "光合作用", category: "生物", KN: "植物生理" },
+    {
+      uuid: "i9j0k1l2",
+      digest: "细胞结构",
+      category: "生物",
+      KN: "细胞生物学",
+    },
+    // 可以添加更多模拟数据...
+  ];
+
+  // 根据搜索条件过滤问题
+  let filteredQuestions = mockQuestions;
+
+  if (category) {
+    filteredQuestions = filteredQuestions.filter(
+      (q) => q.category === category
+    );
+  }
+
+  if (searchTerm) {
+    filteredQuestions = filteredQuestions.filter((q) => {
+      if (searchType === "digest") {
+        return q.digest.includes(searchTerm);
+      } else if (searchType === "knowledge") {
+        return q.KN.includes(searchTerm);
+      }
+      return true;
+    });
+  }
+
+  return [200, filteredQuestions];
+});

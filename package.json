@@ -52,6 +52,8 @@
     ]
   },
   "devDependencies": {
-    "axios-mock-adapter": "^2.0.0"
+    "axios-mock-adapter": "^2.0.0",
+    "graphql": "^16.9.0",
+    "msw": "^2.4.1"
   }
 }
