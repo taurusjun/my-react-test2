@@ -1,13 +1,5 @@
 import React from "react";
 import { Box, Typography, Button, CardMedia } from "@mui/material";
-import {
-  TypeDict,
-  CategoryDict,
-  KNDict,
-  SchoolDict,
-  GradeDict,
-  DifficultyDict,
-} from "../utils/dictionaries";
 
 const QuestionPreview = ({ questionData, onClose }) => {
   return (

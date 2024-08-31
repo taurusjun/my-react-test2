@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
+import QuestionBreadcrumbs from "./QuestionBreadcrumbs";
 
 const QuestionList = () => {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ const QuestionList = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
+      <QuestionBreadcrumbs currentPage="题目列表" />
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button
           variant="contained"
