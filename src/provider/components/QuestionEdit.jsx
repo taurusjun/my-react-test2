@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -21,7 +22,8 @@ import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
 
-const QuestionEdit = ({ questionUUID }) => {
+const QuestionEdit = () => {
+  const { uuid } = useParams();
   const { dictionaries, loading, error } = useDictionaries();
   const [submiting, setSubmiting] = useState(false);
   const [readyToClose, setReadyToClose] = useState(false);
@@ -92,8 +94,8 @@ const QuestionEdit = ({ questionUUID }) => {
   };
 
   useEffect(() => {
-    fetchQuestionData(questionUUID);
-  }, [questionUUID]);
+    fetchQuestionData(uuid);
+  }, [uuid]);
 
   useEffect(() => {
     if (questionData.category && dictionaries.CategoryKNMapping) {

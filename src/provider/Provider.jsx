@@ -1,5 +1,5 @@
 import React from "react";
-import QuestionEdit from "./components/QuestionEdit";
+import QuestionList from "./components/QuestionList";
 import { SideBar } from "./components/SideBar";
 import { Box, Stack } from "@mui/material";
 
@@ -10,12 +10,12 @@ export const Provider = () => {
         direction="row"
         spacing={2}
         sx={{
-          pr: "5%", // 添加右侧 5% 的空白
-          width: "95%", // 设置 Stack 宽度为 95%
+          pr: "5%",
+          width: "95%",
         }}
       >
         <SideBar />
-        <QuestionEdit questionUUID="123" />
+        <QuestionList />
       </Stack>
     </Box>
   );
