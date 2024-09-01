@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import MainLayout from "../layouts/MainLayout"; // 确保路径正确
+import QuestionMainLayout from "../layouts/QuestionMainLayout"; // 确保路径正确
 import {
   Table,
   TableBody,
@@ -96,7 +96,7 @@ const QuestionList = () => {
   };
 
   return (
-    <MainLayout currentPage="题目列表" maxWidth="xl">
+    <QuestionMainLayout currentPage="题目列表" maxWidth="xl">
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button
           variant="contained"
@@ -195,7 +195,7 @@ const QuestionList = () => {
           }
         />
       </TableContainer>
-    </MainLayout>
+    </QuestionMainLayout>
   );
 };
 

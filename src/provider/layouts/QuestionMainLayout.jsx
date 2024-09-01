@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Container } from "@mui/material";
 import QuestionBreadcrumbs from "../components/QuestionBreadcrumbs";
 
-const MainLayout = ({ children, currentPage, maxWidth = "lg" }) => {
+const QuestionMainLayout = ({ children, currentPage, maxWidth = "lg" }) => {
   return (
     <Box sx={{ width: "100%" }}>
       <QuestionBreadcrumbs currentPage={currentPage} />
@@ -19,4 +19,4 @@ const MainLayout = ({ children, currentPage, maxWidth = "lg" }) => {
   );
 };
 
-export default MainLayout;
+export default QuestionMainLayout;

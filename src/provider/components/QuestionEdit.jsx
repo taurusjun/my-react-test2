@@ -21,7 +21,7 @@ import QuestionDetailEdit from "./QuestionDetailEdit";
 import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
-import MainLayout from "../layouts/MainLayout";
+import QuestionMainLayout from "../layouts/QuestionMainLayout";
 
 const QuestionEdit = () => {
   const { uuid } = useParams();
@@ -340,7 +340,7 @@ const QuestionEdit = () => {
   };
 
   return (
-    <MainLayout currentPage="编辑问题" maxWidth="xl">
+    <QuestionMainLayout currentPage="编辑问题" maxWidth="xl">
       <Stack width="100%">
         {!showPreview ? (
           <>
@@ -596,7 +596,7 @@ const QuestionEdit = () => {
         contentText={modalContent}
         handleModalStatus={handleModalStatus}
       />
-    </MainLayout>
+    </QuestionMainLayout>
   );
 };
 
