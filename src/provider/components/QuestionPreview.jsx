@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Button, CardMedia } from "@mui/material";
+import { Box, Typography, Button, CardMedia, Chip } from "@mui/material";
 
 const QuestionPreview = ({ questionData, onClose }) => {
   return (
@@ -15,6 +15,21 @@ const QuestionPreview = ({ questionData, onClose }) => {
       <Typography>标签: {questionData.tags.join(", ")}</Typography>
       <Typography>摘要: {questionData.digest}</Typography>
       <Typography>材料: {questionData.material}</Typography>
+
+      {/* 添加关联来源的显示 */}
+      <Box mt={2}>
+        <Typography>关联来源:</Typography>
+        {questionData.relatedSources &&
+        questionData.relatedSources.length > 0 ? (
+          questionData.relatedSources.map((source, index) => (
+            <Chip key={index} label={source} sx={{ mr: 1, mt: 1 }} />
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            无关联来源
+          </Typography>
+        )}
+      </Box>
 
       {questionData.questionDetails.map((detail, index) => (
         <Box key={index} mt={2}>

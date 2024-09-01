@@ -65,6 +65,25 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   ],
 });
 
+// 添加对 /api/related-sources 的模拟
+mock.onGet("/api/related-sources").reply((config) => {
+  const query = config.params.query.toLowerCase();
+  const allOptions = [
+    "2010年春季物理竞赛",
+    "2011年秋季数学竞赛",
+    "高中物理教材",
+    "2022年高考真题",
+    "初中数学竞赛题集",
+    "高中化学实验指南",
+  ];
+
+  const filteredOptions = allOptions.filter((option) =>
+    option.toLowerCase().includes(query)
+  );
+
+  return [200, filteredOptions];
+});
+
 mock.onGet("/api/questionlist").reply((config) => {
   const {
     category,

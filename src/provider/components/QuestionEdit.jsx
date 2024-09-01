@@ -31,6 +31,8 @@ const QuestionEdit = () => {
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [relatedSourceOptions, setRelatedSourceOptions] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
   const [questionData, setQuestionData] = useState({
     type: "",
@@ -45,6 +47,7 @@ const QuestionEdit = () => {
     digest: "",
     material: "",
     questionDetails: [],
+    relatedSources: [], // 添加 relatedSources 字段
   });
 
   const [errors, setErrors] = useState({
@@ -81,6 +84,7 @@ const QuestionEdit = () => {
         digest: "",
         material: "",
         questionDetails: [],
+        relatedSources: [], // 添加 relatedSources 字段
       });
       return;
     }
@@ -107,6 +111,22 @@ const QuestionEdit = () => {
       setAvailableKnowledgeNodes([]);
     }
   }, [questionData.category, dictionaries.CategoryKNMapping]);
+
+  useEffect(() => {
+    fetchRelatedSourceOptions("");
+  }, []);
+
+  const fetchRelatedSourceOptions = async (query) => {
+    try {
+      const response = await axios.get("/api/related-sources", {
+        params: { query },
+      });
+      setRelatedSourceOptions(response.data);
+    } catch (error) {
+      console.error("获取关联来源选项时出错:", error);
+      // 这里可以添加错误处理逻辑，比如显示错误消息
+    }
+  };
 
   if (loading) return <div>加载中...</div>;
   if (error) return <div>加载失败</div>;
@@ -339,8 +359,20 @@ const QuestionEdit = () => {
     });
   };
 
+  const handleRelatedSourcesChange = (event, newValue) => {
+    setQuestionData((prevData) => ({
+      ...prevData,
+      relatedSources: newValue,
+    }));
+  };
+
+  const handleInputChange = (event, newInputValue) => {
+    setInputValue(newInputValue);
+    fetchRelatedSourceOptions(newInputValue);
+  };
+
   return (
-    <QuestionMainLayout currentPage="编辑问题" maxWidth="xl">
+    <QuestionMainLayout currentPage="编辑题" maxWidth="xl">
       <Stack width="100%">
         {!showPreview ? (
           <>
@@ -408,6 +440,34 @@ const QuestionEdit = () => {
                       )
                     )}
                   </Select>
+                </FormControl>
+                <FormControl sx={{ flex: 2 }}>
+                  <Autocomplete
+                    multiple
+                    id="related-sources"
+                    options={relatedSourceOptions}
+                    value={questionData.relatedSources}
+                    onChange={handleRelatedSourcesChange}
+                    onInputChange={handleInputChange}
+                    inputValue={inputValue}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="关联"
+                        placeholder="选择相关试卷或书籍"
+                        variant="standard"
+                      />
+                    )}
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <Chip
+                          label={option}
+                          {...getTagProps({ index })}
+                          key={option}
+                        />
+                      ))
+                    }
+                  />
                 </FormControl>
               </Box>
 
