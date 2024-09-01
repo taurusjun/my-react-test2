@@ -63,22 +63,26 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
       answerImage: null,
     },
   ],
+  relatedSources: [
+    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+    { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
+  ],
 });
 
 // 添加对 /api/related-sources 的模拟
 mock.onGet("/api/related-sources").reply((config) => {
   const query = config.params.query.toLowerCase();
   const allOptions = [
-    "2010年春季物理竞赛",
-    "2011年秋季数学竞赛",
-    "高中物理教材",
-    "2022年高考真题",
-    "初中数学竞赛题集",
-    "高中化学实验指南",
+    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+    { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
+    { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
+    { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
+    { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
+    { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
   ];
 
   const filteredOptions = allOptions.filter((option) =>
-    option.toLowerCase().includes(query)
+    option.name.toLowerCase().includes(query)
   );
 
   return [200, filteredOptions];

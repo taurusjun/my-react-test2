@@ -121,6 +121,7 @@ const QuestionEdit = () => {
       const response = await axios.get("/api/related-sources", {
         params: { query },
       });
+      // 响应数据已经是正确的格式，无需转换
       setRelatedSourceOptions(response.data);
     } catch (error) {
       console.error("获取关联来源选项时出错:", error);
@@ -128,7 +129,7 @@ const QuestionEdit = () => {
     }
   };
 
-  if (loading) return <div>加载中...</div>;
+  if (loading) return <div>载中...</div>;
   if (error) return <div>加载失败</div>;
 
   const handleSelectChange = (type, value) => {
@@ -166,11 +167,7 @@ const QuestionEdit = () => {
   const handleSubmitQuestion = (event) => {
     event.preventDefault();
     console.log("submit!");
-    console.log(questionData.type);
-    console.log(questionData.gradInfo);
-    console.log(questionData.category);
-    console.log(questionData.kn);
-    console.log(questionData.source);
+    console.log(questionData);
 
     var errorTxt = checkBeforeSubmit();
 
@@ -450,6 +447,10 @@ const QuestionEdit = () => {
                     onChange={handleRelatedSourcesChange}
                     onInputChange={handleInputChange}
                     inputValue={inputValue}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.uuid === value.uuid
+                    }
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -461,9 +462,9 @@ const QuestionEdit = () => {
                     renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
                         <Chip
-                          label={option}
+                          label={option.name}
                           {...getTagProps({ index })}
-                          key={option}
+                          key={option.uuid}
                         />
                       ))
                     }
