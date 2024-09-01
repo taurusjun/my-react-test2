@@ -149,7 +149,7 @@ const QuestionList = () => {
           onClick={handleNewQuestion}
           sx={{ width: "200px", height: "56px" }} // 调整按钮的宽度和高度
         >
-          新建问题
+          新建题目
         </Button>
         <Button
           variant="contained"
@@ -230,8 +230,8 @@ const QuestionList = () => {
               <StyledTableCell>摘要</StyledTableCell>
               <StyledTableCell>科目</StyledTableCell>
               <StyledTableCell>知识点</StyledTableCell>
-              <StyledTableCell>更新时间</StyledTableCell>
               <StyledTableCell>关联资源</StyledTableCell>
+              <StyledTableCell>更新时间</StyledTableCell>
               <StyledTableCell align="center">操作</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -244,12 +244,12 @@ const QuestionList = () => {
                 </BodyTableCell>
                 <BodyTableCell>{question.KN}</BodyTableCell>
                 <BodyTableCell>
-                  {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
-                </BodyTableCell>
-                <BodyTableCell>
                   {question.relatedSources
                     .map((source) => source.name)
                     .join(", ")}
+                </BodyTableCell>
+                <BodyTableCell>
+                  {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
                 </BodyTableCell>
                 <BodyTableCell align="center">
                   <Button
