@@ -507,23 +507,31 @@ const QuestionEdit = () => {
                   <Autocomplete
                     multiple
                     id="tags-input"
-                    options={dictionaries.PredefinedTags}
-                    value={questionData.tags}
-                    onChange={handleTagChange}
-                    freeSolo
+                    options={Object.entries(dictionaries.TagDict).map(
+                      ([key, value]) => ({ key, value })
+                    )}
+                    value={questionData.tags.map((key) => ({
+                      key,
+                      value: dictionaries.TagDict[key],
+                    }))}
+                    onChange={(event, newValue) =>
+                      handleTagChange(
+                        event,
+                        newValue.map((option) => option.key)
+                      )
+                    }
+                    getOptionLabel={(option) => option.value}
+                    isOptionEqualToValue={(option, value) =>
+                      option.key === value.key
+                    }
                     renderTags={(value, getTagProps) =>
-                      value.map((option, index) => {
-                        const tagProps = getTagProps({ index });
-                        // 从 tagProps 中移除 key
-                        const { key, ...tagPropsWithoutKey } = tagProps;
-                        return (
-                          <Chip
-                            key={key} // 单独设置 key
-                            label={option}
-                            {...tagPropsWithoutKey} // 传递其他 props
-                          />
-                        );
-                      })
+                      value.map((option, index) => (
+                        <Chip
+                          label={option.value}
+                          {...getTagProps({ index })}
+                          key={option.key}
+                        />
+                      ))
                     }
                     renderInput={(params) => (
                       <TextField

@@ -10,7 +10,7 @@ export function useDictionaries() {
     GradeDict: {},
     SchoolGradeMapping: {},
     DifficultyDict: {},
-    PredefinedTags: [],
+    TagDict: {},
     CategoryKNMapping: {},
   });
   const [loading, setLoading] = useState(true);

@@ -8,7 +8,7 @@ import {
   GradeDict,
   DifficultyDict,
   SchoolGradeMapping,
-  PredefinedTags,
+  TagDict,
   CategoryKNMapping,
 } from "../provider/utils/dictionaries.js";
 import { format } from "date-fns";
@@ -25,7 +25,7 @@ mock.onGet("/api/dictionaries").reply(200, {
   GradeDict,
   SchoolGradeMapping,
   DifficultyDict,
-  PredefinedTags,
+  TagDict,
   CategoryKNMapping,
 });
 
@@ -39,7 +39,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
     grad: "grade5",
   },
   source: "2023年春季期中考试",
-  tags: ["力学", "牛顿定律"],
+  tags: ["frequentlyTested", "important"],
   digest: "关于力和运动的多选题",
   material: "以下是关于力和运动的一些描述。",
   questionDetails: [
