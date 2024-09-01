@@ -104,8 +104,7 @@ mock.onGet("/api/questionlist").reply((config) => {
     .map((_, index) => ({
       uuid: `question-${index + 1}`,
       digest: `问题摘要 ${index + 1}`,
-      category: index % 2 === 0 ? "物理" : "生物",
-      categoryCode: index % 2 === 0 ? "physics" : "biology",
+      category: index % 2 === 0 ? "physics" : "biology",
       KN: `知识点 ${index + 1}`,
       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
       relatedSources:
@@ -119,7 +118,7 @@ mock.onGet("/api/questionlist").reply((config) => {
 
   if (category) {
     filteredQuestions = filteredQuestions.filter(
-      (q) => q.categoryCode === category
+      (q) => q.category === category
     );
   }
 

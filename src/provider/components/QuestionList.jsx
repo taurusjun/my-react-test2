@@ -239,7 +239,9 @@ const QuestionList = () => {
             {questions.map((question) => (
               <TableRow key={question.uuid}>
                 <BodyTableCell>{question.digest}</BodyTableCell>
-                <BodyTableCell>{question.category}</BodyTableCell>
+                <BodyTableCell>
+                  {dictionaries.CategoryDict[question.category]}
+                </BodyTableCell>
                 <BodyTableCell>{question.KN}</BodyTableCell>
                 <BodyTableCell>
                   {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
