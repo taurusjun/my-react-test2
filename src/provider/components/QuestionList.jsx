@@ -22,6 +22,8 @@ import axios from "axios"; // 确保已安装 axios
 import { styled, alpha } from "@mui/material/styles";
 import { format } from "date-fns"; // 导入 date-fns 库来格式化日期
 import { useDictionaries } from "../hooks/useDictionaries"; // 确保正确导入
+import Autocomplete from "@mui/material/Autocomplete";
+import Chip from "@mui/material/Chip";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
@@ -44,10 +46,50 @@ const QuestionList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const { dictionaries, loading, error } = useDictionaries();
+  const [inputValue, setInputValue] = useState(""); // 添加 inputValue 状态
+  const [relatedSourceOptions, setRelatedSourceOptions] = useState([]); // 添加 relatedSourceOptions 状态
+
+  const [searchParams, setSearchParams] = useState({
+    category: "",
+    kn: "",
+    type: "",
+    relatedSources: [], // 添加 relatedSources 字段
+  });
+
+  const handleRelatedSourcesChange = (event, newValue) => {
+    setSearchParams((prevParams) => ({
+      ...prevParams,
+      relatedSources: newValue,
+    }));
+  };
+
+  const handleInputChange = (event, newInputValue) => {
+    setInputValue(newInputValue);
+    fetchRelatedSourceOptions(newInputValue);
+  };
+
+  const fetchRelatedSourceOptions = async (input) => {
+    try {
+      const response = await axios.get("/api/related-sources", {
+        params: { query: input },
+      });
+      setRelatedSourceOptions(response.data);
+    } catch (error) {
+      console.error("获取关联资源选项时出错:", error);
+    }
+  };
 
   useEffect(() => {
     fetchQuestions();
-  }, [page, rowsPerPage, selectedCategory, searchType, searchTerm]);
+    fetchRelatedSourceOptions(""); // 初始化时获取关联资源选项
+  }, [
+    page,
+    rowsPerPage,
+    selectedCategory,
+    searchType,
+    searchTerm,
+    searchParams.relatedSources,
+  ]);
 
   const fetchQuestions = async () => {
     try {
@@ -58,6 +100,9 @@ const QuestionList = () => {
           searchTerm: searchTerm,
           page: page + 1, // 后端通常从1开始计数
           pageSize: rowsPerPage,
+          relatedSources: searchParams.relatedSources.map(
+            (source) => source.uuid
+          ), // 添加关联资源参数
         },
       });
       setQuestions(response.data.items);
@@ -129,6 +174,36 @@ const QuestionList = () => {
             ))}
           </Select>
         </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <Autocomplete
+            multiple
+            id="related-sources"
+            options={relatedSourceOptions}
+            value={searchParams.relatedSources}
+            onChange={handleRelatedSourcesChange}
+            onInputChange={handleInputChange}
+            inputValue={inputValue}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="关联资源"
+                placeholder="选择相关试卷或书籍"
+                variant="standard"
+              />
+            )}
+            renderTags={(value, getTagProps) =>
+              value.map((option, index) => (
+                <Chip
+                  label={option.name}
+                  {...getTagProps({ index })}
+                  key={option.uuid}
+                />
+              ))
+            }
+          />
+        </FormControl>
         <FormControl sx={{ minWidth: 140 }}>
           <InputLabel>搜索类型</InputLabel>
           <Select
@@ -145,7 +220,7 @@ const QuestionList = () => {
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          fullWidth
+          sx={{ flex: 2 }} // 设置搜索摘要的宽度为关联资源的两倍
         />
       </Stack>
       <TableContainer component={Paper}>

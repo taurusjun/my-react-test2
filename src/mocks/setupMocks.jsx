@@ -95,6 +95,7 @@ mock.onGet("/api/questionlist").reply((config) => {
     searchTerm,
     page = 1,
     pageSize = 10,
+    relatedSources = [],
   } = config.params;
 
   // 模拟的问题列表
@@ -107,6 +108,8 @@ mock.onGet("/api/questionlist").reply((config) => {
       categoryCode: index % 2 === 0 ? "physics" : "biology",
       KN: `知识点 ${index + 1}`,
       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+      relatedSources:
+        index % 2 === 0 ? ["uuid-1234-abcd-5678"] : ["uuid-3456-cdef-7890"], // 使用模拟的关联资源
     }));
 
   // 根据搜索条件过滤问题
@@ -127,6 +130,12 @@ mock.onGet("/api/questionlist").reply((config) => {
       }
       return true;
     });
+  }
+
+  if (relatedSources.length > 0) {
+    filteredQuestions = filteredQuestions.filter((q) =>
+      relatedSources.some((source) => q.relatedSources.includes(source))
+    );
   }
 
   const totalCount = filteredQuestions.length;
