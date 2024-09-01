@@ -31,6 +31,7 @@ mock.onGet("/api/dictionaries").reply(200, {
 
 // 模拟问题数据的API响应
 mock.onGet(/\/api\/questions\/.*/).reply(200, {
+  uuid: "uuid-question-1",
   type: "selection",
   category: "physics",
   kn: "mechanics",
@@ -44,6 +45,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   material: "以下是关于力和运动的一些描述。",
   questionDetails: [
     {
+      uuid: "uuid-question-detail-1",
       order_in_question: 1,
       questionContent: {
         value: "下列关于力和运动的说法，正确的是：",
