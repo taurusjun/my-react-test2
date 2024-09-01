@@ -369,7 +369,10 @@ const QuestionEdit = () => {
   };
 
   return (
-    <QuestionMainLayout currentPage="编辑题" maxWidth="xl">
+    <QuestionMainLayout
+      currentPage={uuid ? "编辑题目" : "新建题目"}
+      maxWidth="xl"
+    >
       <Stack width="100%">
         {!showPreview ? (
           <>
