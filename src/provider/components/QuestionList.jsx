@@ -231,6 +231,7 @@ const QuestionList = () => {
               <StyledTableCell>科目</StyledTableCell>
               <StyledTableCell>知识点</StyledTableCell>
               <StyledTableCell>更新时间</StyledTableCell>
+              <StyledTableCell>关联资源</StyledTableCell>
               <StyledTableCell align="center">操作</StyledTableCell>
             </TableRow>
           </TableHead>
@@ -242,6 +243,11 @@ const QuestionList = () => {
                 <BodyTableCell>{question.KN}</BodyTableCell>
                 <BodyTableCell>
                   {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
+                </BodyTableCell>
+                <BodyTableCell>
+                  {question.relatedSources
+                    .map((source) => source.name)
+                    .join(", ")}
                 </BodyTableCell>
                 <BodyTableCell align="center">
                   <Button

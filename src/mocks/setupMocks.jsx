@@ -109,7 +109,9 @@ mock.onGet("/api/questionlist").reply((config) => {
       KN: `知识点 ${index + 1}`,
       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
       relatedSources:
-        index % 2 === 0 ? ["uuid-1234-abcd-5678"] : ["uuid-3456-cdef-7890"], // 使用模拟的关联资源
+        index % 2 === 0
+          ? [{ uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" }]
+          : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }], // 使用模拟的关联资源
     }));
 
   // 根据搜索条件过滤问题
@@ -134,7 +136,9 @@ mock.onGet("/api/questionlist").reply((config) => {
 
   if (relatedSources.length > 0) {
     filteredQuestions = filteredQuestions.filter((q) =>
-      relatedSources.some((source) => q.relatedSources.includes(source))
+      relatedSources.some((source) =>
+        q.relatedSources.some((relSource) => relSource.uuid === source)
+      )
     );
   }
 
