@@ -38,7 +38,7 @@ const QuestionEdit = () => {
     type: "",
     category: "",
     kn: "",
-    gradInfo: {
+    gradeInfo: {
       school: "",
       grade: "",
     },
@@ -75,7 +75,7 @@ const QuestionEdit = () => {
         type: "",
         category: "",
         kn: "",
-        gradInfo: {
+        gradeInfo: {
           school: "",
           grade: "",
         },
@@ -150,7 +150,7 @@ const QuestionEdit = () => {
   const handleMultiSelectChange = (school, grade) => {
     setQuestionData((prevData) => ({
       ...prevData,
-      gradInfo: { school, grade: grade },
+      gradeInfo: { school, grade: grade },
     }));
   };
 
@@ -190,8 +190,8 @@ const QuestionEdit = () => {
       type: questionData.type === "",
       category: questionData.category === "",
       kn: questionData.kn === "",
-      school: questionData.gradInfo.school === "",
-      grade: questionData.gradInfo.grade === "",
+      school: questionData.gradeInfo.school === "",
+      grade: questionData.gradeInfo.grade === "",
       digest: questionData.digest.trim() === "",
       questionDetails: questionData.questionDetails.map((detail) => ({
         questionContent: detail.questionContent.value.trim() === "",
@@ -212,12 +212,12 @@ const QuestionEdit = () => {
       return "题目类型未选择";
     }
 
-    // gradInfo
-    if (questionData.gradInfo.school == "") {
+    // gradeInfo
+    if (questionData.gradeInfo.school == "") {
       return "学习阶段未选择";
     }
 
-    if (questionData.gradInfo.grade == "") {
+    if (questionData.gradeInfo.grade == "") {
       return "年级未选择";
     }
 
@@ -416,8 +416,8 @@ const QuestionEdit = () => {
                 </FormControl>
                 <MultiLevelSelect
                   onMultiSelectChange={handleMultiSelectChange}
-                  initialSchoolLevel={questionData.gradInfo.school}
-                  initialGrade={questionData.gradInfo.grade}
+                  initialSchoolLevel={questionData.gradeInfo.school}
+                  initialGrade={questionData.gradeInfo.grade}
                   error={errors.school || errors.grade}
                 />
               </Box>

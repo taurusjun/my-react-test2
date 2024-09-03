@@ -35,7 +35,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   type: "selection",
   category: "physics",
   kn: "mechanics",
-  gradInfo: {
+  gradeInfo: {
     school: "primary",
     grade: "grade5",
   },

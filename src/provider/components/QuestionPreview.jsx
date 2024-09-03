@@ -1,18 +1,39 @@
 import React from "react";
 import { Box, Typography, Button, CardMedia, Chip } from "@mui/material";
+import { useDictionaries } from "../hooks/useDictionaries";
 
 const QuestionPreview = ({ questionData, onClose }) => {
+  const { dictionaries, loading, error } = useDictionaries();
+  const { TypeDict, CategoryDict, KNDict, SchoolDict, GradeDict, TagDict } =
+    dictionaries;
+  // 辅助函数，用于将代码转换为值
+  const getValueFromCode = (code, dict) => {
+    return dict[code] || code;
+  };
+
   return (
     <Box>
       <Typography variant="h5">问题预览</Typography>
-      <Typography>类型: {questionData.type}</Typography>
-      <Typography>学科: {questionData.category}</Typography>
-      <Typography>知识点: {questionData.kn}</Typography>
       <Typography>
-        年级: {questionData.gradInfo.school} - {questionData.gradInfo.grad}
+        类型: {getValueFromCode(questionData.type, TypeDict)}
+      </Typography>
+      <Typography>
+        学科: {getValueFromCode(questionData.category, CategoryDict)}
+      </Typography>
+      <Typography>
+        知识点: {getValueFromCode(questionData.kn, KNDict)}
+      </Typography>
+      <Typography>
+        年级: {getValueFromCode(questionData.gradeInfo.school, SchoolDict)} -{" "}
+        {getValueFromCode(questionData.gradeInfo.grade, GradeDict)}
       </Typography>
       <Typography>来源: {questionData.source}</Typography>
-      <Typography>标签: {questionData.tags.join(", ")}</Typography>
+      <Typography>
+        标签:{" "}
+        {questionData.tags
+          .map((tag) => getValueFromCode(tag.name || tag, TagDict))
+          .join(", ")}
+      </Typography>
       <Typography>摘要: {questionData.digest}</Typography>
       <Typography>材料: {questionData.material}</Typography>
 
@@ -22,7 +43,11 @@ const QuestionPreview = ({ questionData, onClose }) => {
         {questionData.relatedSources &&
         questionData.relatedSources.length > 0 ? (
           questionData.relatedSources.map((source, index) => (
-            <Chip key={index} label={source} sx={{ mr: 1, mt: 1 }} />
+            <Chip
+              key={index}
+              label={source.name || source}
+              sx={{ mr: 1, mt: 1 }}
+            />
           ))
         ) : (
           <Typography variant="body2" color="text.secondary">
