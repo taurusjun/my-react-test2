@@ -40,7 +40,7 @@ const QuestionEdit = () => {
     kn: "",
     gradInfo: {
       school: "",
-      grad: "",
+      grade: "",
     },
     source: "",
     tags: [],
@@ -55,7 +55,7 @@ const QuestionEdit = () => {
     category: false,
     kn: false,
     school: false,
-    grad: false,
+    grade: false,
     digest: false,
     questionDetails: [
       {
@@ -77,7 +77,7 @@ const QuestionEdit = () => {
         kn: "",
         gradInfo: {
           school: "",
-          grad: "",
+          grade: "",
         },
         source: "",
         tags: [],
@@ -147,10 +147,10 @@ const QuestionEdit = () => {
     }
   };
 
-  const handleMultiSelectChange = (school, grad) => {
+  const handleMultiSelectChange = (school, grade) => {
     setQuestionData((prevData) => ({
       ...prevData,
-      gradInfo: { school, grad },
+      gradInfo: { school, grade: grade },
     }));
   };
 
@@ -191,7 +191,7 @@ const QuestionEdit = () => {
       category: questionData.category === "",
       kn: questionData.kn === "",
       school: questionData.gradInfo.school === "",
-      grad: questionData.gradInfo.grad === "",
+      grade: questionData.gradInfo.grade === "",
       digest: questionData.digest.trim() === "",
       questionDetails: questionData.questionDetails.map((detail) => ({
         questionContent: detail.questionContent.value.trim() === "",
@@ -217,7 +217,7 @@ const QuestionEdit = () => {
       return "学习阶段未选择";
     }
 
-    if (questionData.gradInfo.grad == "") {
+    if (questionData.gradInfo.grade == "") {
       return "年级未选择";
     }
 
@@ -417,8 +417,8 @@ const QuestionEdit = () => {
                 <MultiLevelSelect
                   onMultiSelectChange={handleMultiSelectChange}
                   initialSchoolLevel={questionData.gradInfo.school}
-                  initialGrade={questionData.gradInfo.grad}
-                  error={errors.school || errors.grad}
+                  initialGrade={questionData.gradInfo.grade}
+                  error={errors.school || errors.grade}
                 />
               </Box>
 

@@ -37,7 +37,7 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   kn: "mechanics",
   gradInfo: {
     school: "primary",
-    grad: "grade5",
+    grade: "grade5",
   },
   source: "2023年春季期中考试",
   tags: ["frequentlyTested", "important"],
