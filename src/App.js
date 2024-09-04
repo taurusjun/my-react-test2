@@ -6,6 +6,7 @@ import { List } from "./components/List";
 import { ExamDetail } from "./exam/ExamDetail";
 import QuestionList from "./provider/components/QuestionList";
 import QuestionEdit from "./provider/components/QuestionEdit";
+import { ExamList, NewExam } from "./pages/exam";
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="list" element={<List />} />
         <Route path="/question-edit" element={<QuestionEdit />} />
         <Route path="/question-edit/:uuid" element={<QuestionEdit />} />
+        <Route path="/exams" element={<ExamList />} />
+        <Route path="/exam/new" element={<NewExam />} />
       </Routes>
     </div>
   );
