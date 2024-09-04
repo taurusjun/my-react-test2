@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Box,
@@ -38,18 +38,30 @@ import QuestionList from "../../../provider/components/QuestionList";
 
 const EditExam = () => {
   const { uuid } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({ sections: [] });
+  const [initialExam, setInitialExam] = useState(null);
   const [expandedSection, setExpandedSection] = useState(null);
   const [openQuestionList, setOpenQuestionList] = useState(false);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(null);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
+  const [duplicateQuestions, setDuplicateQuestions] = useState([]);
+  const [openDuplicateDialog, setOpenDuplicateDialog] = useState(false);
+
+  // 使用 useMemo 来缓存已存在的问题 UUID 集合
+  const existingQuestionUuids = useMemo(() => {
+    return new Set(
+      exam.sections.flatMap((section) => section.questions.map((q) => q.uuid))
+    );
+  }, [exam.sections]);
 
   useEffect(() => {
     const fetchExamData = async () => {
       try {
         const response = await axios.get(`/api/exams/${uuid}`);
         setExam(response.data);
+        setInitialExam(JSON.parse(JSON.stringify(response.data))); // 深拷贝
         setLoading(false);
       } catch (error) {
         console.error("获取考试数据失败:", error);
@@ -171,18 +183,58 @@ const EditExam = () => {
   };
 
   const handleAddSelectedQuestions = () => {
-    updateExam((prev) => {
-      const newSections = [...prev.sections];
-      const currentSection = newSections[currentSectionIndex];
-      const currentQuestions = currentSection.questions || [];
-      const newQuestions = selectedQuestions.map((q, index) => ({
-        ...q,
-        order_in_section: currentQuestions.length + index + 1,
-      }));
-      currentSection.questions = [...currentQuestions, ...newQuestions];
-      return { sections: newSections };
-    });
+    const newQuestions = selectedQuestions.filter(
+      (q) => !existingQuestionUuids.has(q.uuid)
+    );
+    const duplicates = selectedQuestions.filter((q) =>
+      existingQuestionUuids.has(q.uuid)
+    );
+
+    if (duplicates.length > 0) {
+      setDuplicateQuestions(duplicates);
+      setOpenDuplicateDialog(true);
+    }
+
+    if (newQuestions.length > 0) {
+      updateExam((prev) => {
+        const newSections = [...prev.sections];
+        const currentSection = newSections[currentSectionIndex];
+        const currentQuestions = currentSection.questions || [];
+        const addedQuestions = newQuestions.map((q, index) => ({
+          ...q,
+          order_in_section: currentQuestions.length + index + 1,
+        }));
+        currentSection.questions = [...currentQuestions, ...addedQuestions];
+        return { sections: newSections };
+      });
+    }
+
     handleCloseQuestionList();
+  };
+
+  const handleCloseDuplicateDialog = () => {
+    setOpenDuplicateDialog(false);
+    setDuplicateQuestions([]);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      await axios.put(`/api/exams/${uuid}`, exam);
+      alert("考试更新成功！");
+      navigate("/exams"); // 假设更新成功后跳转到考试列表页
+    } catch (error) {
+      console.error("更新考试失败:", error);
+      alert("更新考试失败，请重试。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestore = () => {
+    if (window.confirm("确定要还原到初始状态吗？所有未保存的更改将丢失。")) {
+      setExam(JSON.parse(JSON.stringify(initialExam))); // 深拷贝
+    }
   };
 
   if (loading || !exam) {
@@ -243,6 +295,26 @@ const EditExam = () => {
           <MenuItem value="high">高中</MenuItem>
         </Select>
       </FormControl>
+
+      {/* 添加提交和还原按钮 */}
+      <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          提交
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={handleRestore}
+          disabled={loading}
+        >
+          还原
+        </Button>
+      </Box>
 
       <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
         考试部分
@@ -392,6 +464,21 @@ const EditExam = () => {
           <Button onClick={handleAddSelectedQuestions} color="primary">
             添加所选问题
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDuplicateDialog} onClose={handleCloseDuplicateDialog}>
+        <DialogTitle>重复的问题</DialogTitle>
+        <DialogContent>
+          <Typography>以下问题已经存在于考试中，无法重复添加：</Typography>
+          <ul>
+            {duplicateQuestions.map((q) => (
+              <li key={q.uuid}>{q.digest}</li>
+            ))}
+          </ul>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDuplicateDialog}>确定</Button>
         </DialogActions>
       </Dialog>
     </Box>
