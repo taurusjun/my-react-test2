@@ -10,15 +10,19 @@ import {
   MenuItem,
   CircularProgress,
   Button,
-  List,
-  ListItem,
   IconButton,
   Typography,
   Card,
   CardContent,
   CardActions,
   Collapse,
-  InputAdornment,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -32,6 +36,8 @@ const EditExam = () => {
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({ sections: [] }); // 初始化 exam 对象，确保 sections 总是一个数组
   const [expandedSection, setExpandedSection] = useState(null);
+  const [openQuestionList, setOpenQuestionList] = useState(false);
+  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -50,6 +56,19 @@ const EditExam = () => {
 
     fetchExamData();
   }, [uuid]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await axios.get("/api/questionlist");
+        setQuestions(response.data.items);
+      } catch (error) {
+        console.error("获取问题列表失败:", error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   const updateExam = (updater) => {
     setExam((prev) => ({
@@ -115,33 +134,6 @@ const EditExam = () => {
     });
   };
 
-  const addQuestion = (sectionIndex) => {
-    updateExam((prev) => {
-      const newSections = [...prev.sections];
-      newSections[sectionIndex].questions.push({
-        id: Date.now(),
-        content: "新题目",
-      });
-      return { sections: newSections };
-    });
-  };
-
-  const updateQuestion = (sectionIndex, questionIndex, newContent) => {
-    updateExam((prev) => {
-      const newSections = [...prev.sections];
-      newSections[sectionIndex].questions[questionIndex].content = newContent;
-      return { sections: newSections };
-    });
-  };
-
-  const deleteQuestion = (sectionIndex, questionIndex) => {
-    updateExam((prev) => {
-      const newSections = [...prev.sections];
-      newSections[sectionIndex].questions.splice(questionIndex, 1);
-      return { sections: newSections };
-    });
-  };
-
   const moveQuestion = (sectionIndex, questionIndex, direction) => {
     updateExam((prev) => {
       const newSections = [...prev.sections];
@@ -153,9 +145,33 @@ const EditExam = () => {
         const temp = questions[questionIndex];
         questions[questionIndex] = questions[questionIndex + direction];
         questions[questionIndex + direction] = temp;
+        // 更新 order_in_section
+        questions[questionIndex].order_in_section = questionIndex + 1;
+        questions[questionIndex + direction].order_in_section =
+          questionIndex + direction + 1;
       }
       return { sections: newSections };
     });
+  };
+
+  const deleteQuestion = (sectionIndex, questionIndex) => {
+    updateExam((prev) => {
+      const newSections = [...prev.sections];
+      newSections[sectionIndex].questions.splice(questionIndex, 1);
+      // 重新排序剩余的问题
+      newSections[sectionIndex].questions.forEach((q, i) => {
+        q.order_in_section = i + 1;
+      });
+      return { sections: newSections };
+    });
+  };
+
+  const handleSelectQuestions = () => {
+    setOpenQuestionList(true);
+  };
+
+  const handleCloseQuestionList = () => {
+    setOpenQuestionList(false);
   };
 
   if (loading || !exam) {
@@ -163,7 +179,7 @@ const EditExam = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, mt: 2 }}>
+    <Box sx={{ maxWidth: 800, mt: 2 }}>
       <TextField
         label="名称"
         value={exam.name}
@@ -211,7 +227,7 @@ const EditExam = () => {
           }}
         >
           <MenuItem value="primary">小学</MenuItem>
-          <MenuItem value="middle">��中</MenuItem>
+          <MenuItem value="middle">中学</MenuItem>
           <MenuItem value="high">高中</MenuItem>
         </Select>
       </FormControl>
@@ -220,101 +236,118 @@ const EditExam = () => {
         考试部分
       </Typography>
       {exam.sections && exam.sections.length > 0 ? (
-        <List>
-          {exam.sections
-            .sort((a, b) => a.order_in_exam - b.order_in_exam)
-            .map((section, index) => (
-              <Card key={section.id} sx={{ mb: 2 }}>
-                <CardContent>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    顺序: {section.order_in_exam}
-                  </Typography>
-                  <InlineEdit
-                    value={section.name}
-                    onSave={(newName) => updateSectionName(index, newName)}
-                  />
-                </CardContent>
-                <CardActions>
-                  <IconButton
-                    onClick={() => moveSection(index, -1)}
-                    disabled={index === 0}
-                  >
-                    <ArrowUpwardIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => moveSection(index, 1)}
-                    disabled={index === exam.sections.length - 1}
-                  >
-                    <ArrowDownwardIcon />
-                  </IconButton>
-                  <IconButton onClick={() => deleteSection(index)}>
-                    <DeleteIcon />
-                  </IconButton>
-                  <Button
-                    onClick={() =>
-                      setExpandedSection(
-                        expandedSection === index ? null : index
-                      )
-                    }
-                    aria-expanded={expandedSection === index}
-                    aria-label="显示更多"
-                    endIcon={<ExpandMoreIcon />}
-                    sx={{ marginLeft: "auto" }}
-                  >
-                    {expandedSection === index
-                      ? "收起问题列表"
-                      : "展开问题列表"}
-                  </Button>
-                </CardActions>
-                <Collapse
-                  in={expandedSection === index}
-                  timeout="auto"
-                  unmountOnExit
+        exam.sections
+          .sort((a, b) => a.order_in_exam - b.order_in_exam)
+          .map((section, index) => (
+            <Card key={section.id} sx={{ mb: 2 }}>
+              <CardContent>
+                <Typography variant="subtitle2" color="text.secondary">
+                  顺序: {section.order_in_exam}
+                </Typography>
+                <InlineEdit
+                  value={section.name}
+                  onSave={(newName) => updateSectionName(index, newName)}
+                />
+              </CardContent>
+              <CardActions>
+                <IconButton
+                  onClick={() => moveSection(index, -1)}
+                  disabled={index === 0}
                 >
-                  <CardContent>
-                    <Typography variant="subtitle1">题目列表</Typography>
-                    <List>
-                      {section.questions.map((question, qIndex) => (
-                        <ListItem key={question.id}>
-                          <TextField
-                            value={question.content}
-                            onChange={(e) =>
-                              updateQuestion(index, qIndex, e.target.value)
-                            }
-                            fullWidth
-                            margin="dense"
-                          />
-                          <IconButton
-                            onClick={() => moveQuestion(index, qIndex, -1)}
-                            disabled={qIndex === 0}
-                          >
-                            <ArrowUpwardIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => moveQuestion(index, qIndex, 1)}
-                            disabled={qIndex === section.questions.length - 1}
-                          >
-                            <ArrowDownwardIcon />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => deleteQuestion(index, qIndex)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </ListItem>
-                      ))}
-                    </List>
-                    <Button
-                      startIcon={<AddIcon />}
-                      onClick={() => addQuestion(index)}
-                    >
-                      添加题目
-                    </Button>
-                  </CardContent>
-                </Collapse>
-              </Card>
-            ))}
-        </List>
+                  <ArrowUpwardIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => moveSection(index, 1)}
+                  disabled={index === exam.sections.length - 1}
+                >
+                  <ArrowDownwardIcon />
+                </IconButton>
+                <IconButton onClick={() => deleteSection(index)}>
+                  <DeleteIcon />
+                </IconButton>
+                <Button
+                  onClick={() =>
+                    setExpandedSection(expandedSection === index ? null : index)
+                  }
+                  aria-expanded={expandedSection === index}
+                  aria-label="显示更多"
+                  endIcon={<ExpandMoreIcon />}
+                  sx={{ marginLeft: "auto" }}
+                >
+                  {expandedSection === index ? "收起问题列表" : "展开问题列表"}
+                </Button>
+              </CardActions>
+              <Collapse
+                in={expandedSection === index}
+                timeout="auto"
+                unmountOnExit
+              >
+                <CardContent>
+                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                    题目列表
+                  </Typography>
+                  <TableContainer component={Paper}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>顺序</TableCell>
+                          <TableCell>摘要</TableCell>
+                          <TableCell>难度</TableCell>
+                          <TableCell align="right">操作</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {section.questions
+                          .sort(
+                            (a, b) => a.order_in_section - b.order_in_section
+                          )
+                          .map((question, qIndex) => (
+                            <TableRow key={question.uuid}>
+                              <TableCell>{question.order_in_section}</TableCell>
+                              <TableCell>{question.digest}</TableCell>
+                              <TableCell>{question.difficulty}</TableCell>
+                              <TableCell align="right">
+                                <IconButton
+                                  onClick={() =>
+                                    moveQuestion(index, qIndex, -1)
+                                  }
+                                  disabled={qIndex === 0}
+                                  size="small"
+                                >
+                                  <ArrowUpwardIcon />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => moveQuestion(index, qIndex, 1)}
+                                  disabled={
+                                    qIndex === section.questions.length - 1
+                                  }
+                                  size="small"
+                                >
+                                  <ArrowDownwardIcon />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => deleteQuestion(index, qIndex)}
+                                  size="small"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <Button
+                    startIcon={<AddIcon />}
+                    onClick={() => handleSelectQuestions(index)}
+                    sx={{ mt: 2 }}
+                  >
+                    选择问题
+                  </Button>
+                </CardContent>
+              </Collapse>
+            </Card>
+          ))
       ) : (
         <Typography>暂无考试部分</Typography>
       )}

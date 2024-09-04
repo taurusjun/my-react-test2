@@ -77,7 +77,7 @@ mock.onGet("/api/related-sources").reply((config) => {
   const allOptions = [
     { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
     { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
-    { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
+    { uuid: "uuid-3456-cdef-7890", name: "高中��理教材" },
     { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
     { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
     { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
@@ -217,6 +217,68 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
     duration: 120,
     totalScore: 100,
     status: "未开始",
+    sections: [
+      {
+        id: "section-1",
+        name: "选择题",
+        order_in_exam: 1,
+        questions: [
+          {
+            uuid: "question-1",
+            digest: "这是第一道选择题，考察基础数学概念。",
+            difficulty: "easy",
+            content: "1 + 1 = ?",
+            options: ["A. 1", "B. 2", "C. 3", "D. 4"],
+            answer: "B",
+            score: 5,
+            order_in_section: 1,
+          },
+          {
+            uuid: "question-2",
+            digest: "这是第二道选择题，考察代数运算。",
+            difficulty: "medium",
+            content: "解方程：2x + 5 = 13",
+            options: ["A. x = 3", "B. x = 4", "C. x = 5", "D. x = 6"],
+            answer: "B",
+            score: 5,
+            order_in_section: 2,
+          },
+        ],
+      },
+      {
+        id: "section-2",
+        name: "填空题",
+        order_in_exam: 2,
+        questions: [
+          {
+            uuid: "question-3",
+            digest: "这是一道填空题，考察几何知识。",
+            difficulty: "medium",
+            content: "圆的面积公式是 ______。",
+            answer: "πr²",
+            score: 10,
+            order_in_section: 1,
+          },
+        ],
+      },
+      {
+        id: "section-3",
+        name: "解答题",
+        order_in_exam: 3,
+        questions: [
+          {
+            uuid: "question-4",
+            digest: "这是一道解答题，考察函数应用。",
+            difficulty: "hard",
+            content: "已知函数f(x) = 2x² + 3x - 1，求f(x)的最小值。",
+            answer:
+              "解答步骤：\n1. 求导数f'(x) = 4x + 3\n2. 令f'(x) = 0，解得x = -3/4\n3. 计算f(-3/4) = -25/8\n所以，最小值为 -25/8",
+            score: 20,
+            order_in_section: 1,
+          },
+        ],
+      },
+    ],
   };
 
   return [200, mockExam];
