@@ -1,6 +1,6 @@
-import ExamList from "./list";
-import NewExam from "./new";
-import ViewExam from "./view";
-import EditExam from "./edit";
+import ExamList from "./component/list";
+import NewExam from "./component/new";
+import ViewExam from "./component/view";
+import EditExam from "./component/edit";
 
 export { ExamList, NewExam, ViewExam, EditExam };

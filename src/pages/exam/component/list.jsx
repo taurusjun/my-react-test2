@@ -19,7 +19,21 @@ import {
   Search as SearchIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
-import axios from "axios"; // 添加这行导入
+import axios from "axios";
+import { styled, alpha } from "@mui/material/styles";
+import ExamMainLayout from "./layouts/ExamMainLayout";
+
+// 添加以下样式组件
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.info.light, 0.1),
+  color: theme.palette.common.black,
+  fontSize: 18,
+  fontWeight: "bold",
+}));
+
+const BodyTableCell = styled(TableCell)(({ theme }) => ({
+  fontSize: 16,
+}));
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
@@ -59,7 +73,7 @@ const ExamList = () => {
   };
 
   return (
-    <Box>
+    <ExamMainLayout currentPage="考试列表" maxWidth="xl">
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         <TextField
           label="搜索名称"
@@ -96,10 +110,10 @@ const ExamList = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>名称</TableCell>
-              <TableCell>科目</TableCell>
-              <TableCell>创建时间</TableCell>
-              <TableCell>操作</TableCell>
+              <StyledTableCell>名称</StyledTableCell>
+              <StyledTableCell>科目</StyledTableCell>
+              <StyledTableCell>创建时间</StyledTableCell>
+              <StyledTableCell align="center">操作</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -107,10 +121,10 @@ const ExamList = () => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((exam) => (
                 <TableRow key={exam.uuid}>
-                  <TableCell>{exam.name}</TableCell>
-                  <TableCell>{exam.category}</TableCell>
-                  <TableCell>{exam.createdAt}</TableCell>
-                  <TableCell>
+                  <BodyTableCell>{exam.name}</BodyTableCell>
+                  <BodyTableCell>{exam.category}</BodyTableCell>
+                  <BodyTableCell>{exam.createdAt}</BodyTableCell>
+                  <BodyTableCell align="center">
                     <Button
                       startIcon={<EditIcon />}
                       onClick={() => navigate(`/exam/edit/${exam.uuid}`)}
@@ -123,7 +137,7 @@ const ExamList = () => {
                     >
                       查看
                     </Button>
-                  </TableCell>
+                  </BodyTableCell>
                 </TableRow>
               ))}
           </TableBody>
@@ -137,7 +151,7 @@ const ExamList = () => {
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Box>
+    </ExamMainLayout>
   );
 };
 
