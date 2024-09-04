@@ -27,6 +27,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -35,6 +37,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InlineEdit from "../../../components/InlineEdit";
 import QuestionList from "../../../provider/components/QuestionList";
+import ExamMainLayout from "./layouts/ExamMainLayout";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -48,6 +51,13 @@ const EditExam = () => {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [duplicateQuestions, setDuplicateQuestions] = useState([]);
   const [openDuplicateDialog, setOpenDuplicateDialog] = useState(false);
+  const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
+  const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // 使用 useMemo 来缓存已存在的问题 UUID 集合
   const existingQuestionUuids = useMemo(() => {
@@ -218,23 +228,47 @@ const EditExam = () => {
   };
 
   const handleSubmit = async () => {
+    setOpenSubmitDialog(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setOpenSubmitDialog(false);
+    setLoading(true);
     try {
-      setLoading(true);
       await axios.put(`/api/exams/${uuid}`, exam);
-      alert("考试更新成功！");
-      navigate("/exams"); // 假设更新成功后跳转到考试列表页
+      setSnackbar({
+        open: true,
+        message: "考试更新成功！",
+        severity: "success",
+      });
+      // 延迟导航，以便用户能看到成功消息
+      setTimeout(() => navigate("/exams"), 2000);
     } catch (error) {
       console.error("更新考试失败:", error);
-      alert("更新考试失败，请重试。");
+      setSnackbar({
+        open: true,
+        message: "更新考试失败，请重试。",
+        severity: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRestore = () => {
-    if (window.confirm("确定要还原到初始状态吗？所有未保存的更改将丢失。")) {
-      setExam(JSON.parse(JSON.stringify(initialExam))); // 深拷贝
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
     }
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleRestore = () => {
+    setOpenRestoreDialog(true);
+  };
+
+  const handleConfirmRestore = () => {
+    setOpenRestoreDialog(false);
+    setExam(JSON.parse(JSON.stringify(initialExam))); // 深拷贝
   };
 
   if (loading || !exam) {
@@ -242,246 +276,320 @@ const EditExam = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mt: 2 }}>
-      <TextField
-        label="名称"
-        value={exam.name}
-        fullWidth
-        margin="normal"
-        InputProps={{
-          readOnly: true,
-          style: { color: "rgba(0, 0, 0, 0.38)" },
-          disableUnderline: true,
-        }}
-        disabled
-      />
-      <FormControl fullWidth margin="normal" disabled>
-        <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>科目</InputLabel>
-        <Select
-          value={exam.category}
-          label="科目"
-          inputProps={{
+    <ExamMainLayout currentPage="编辑考试">
+      <Box sx={{ maxWidth: 800, mt: 2 }}>
+        <TextField
+          label="名称"
+          value={exam.name}
+          fullWidth
+          margin="normal"
+          InputProps={{
             readOnly: true,
             style: { color: "rgba(0, 0, 0, 0.38)" },
+            disableUnderline: true,
           }}
-          sx={{
-            "& .MuiSelect-icon": {
-              color: "rgba(0, 0, 0, 0.38)",
-            },
-          }}
-        >
-          <MenuItem value="math">数学</MenuItem>
-          <MenuItem value="english">英语</MenuItem>
-          <MenuItem value="physics">物理</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl fullWidth margin="normal" disabled>
-        <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>阶段</InputLabel>
-        <Select
-          value={exam.stage}
-          label="阶段"
-          inputProps={{
-            readOnly: true,
-            style: { color: "rgba(0, 0, 0, 0.38)" },
-          }}
-          sx={{
-            "& .MuiSelect-icon": {
-              color: "rgba(0, 0, 0, 0.38)",
-            },
-          }}
-        >
-          <MenuItem value="primary">小学</MenuItem>
-          <MenuItem value="middle">中学</MenuItem>
-          <MenuItem value="high">高中</MenuItem>
-        </Select>
-      </FormControl>
+          disabled
+        />
+        <FormControl fullWidth margin="normal" disabled>
+          <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>科目</InputLabel>
+          <Select
+            value={exam.category}
+            label="科目"
+            inputProps={{
+              readOnly: true,
+              style: { color: "rgba(0, 0, 0, 0.38)" },
+            }}
+            sx={{
+              "& .MuiSelect-icon": {
+                color: "rgba(0, 0, 0, 0.38)",
+              },
+            }}
+          >
+            <MenuItem value="math">数学</MenuItem>
+            <MenuItem value="english">英语</MenuItem>
+            <MenuItem value="physics">物理</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth margin="normal" disabled>
+          <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>阶段</InputLabel>
+          <Select
+            value={exam.stage}
+            label="阶段"
+            inputProps={{
+              readOnly: true,
+              style: { color: "rgba(0, 0, 0, 0.38)" },
+            }}
+            sx={{
+              "& .MuiSelect-icon": {
+                color: "rgba(0, 0, 0, 0.38)",
+              },
+            }}
+          >
+            <MenuItem value="primary">小学</MenuItem>
+            <MenuItem value="middle">中学</MenuItem>
+            <MenuItem value="high">高中</MenuItem>
+          </Select>
+        </FormControl>
 
-      {/* 添加提交和还原按钮 */}
-      <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          提交
-        </Button>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleRestore}
-          disabled={loading}
-        >
-          还原
-        </Button>
-      </Box>
-
-      <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-        考试部分
-      </Typography>
-      {exam.sections && exam.sections.length > 0 ? (
-        exam.sections
-          .sort((a, b) => a.order_in_exam - b.order_in_exam)
-          .map((section, index) => (
-            <Card key={section.id} sx={{ mb: 2 }}>
-              <CardContent>
-                <Typography variant="subtitle2" color="text.secondary">
-                  顺序: {section.order_in_exam}
-                </Typography>
-                <InlineEdit
-                  value={section.name}
-                  onSave={(newName) => updateSectionName(index, newName)}
-                />
-              </CardContent>
-              <CardActions>
-                <IconButton
-                  onClick={() => moveSection(index, -1)}
-                  disabled={index === 0}
-                >
-                  <ArrowUpwardIcon />
-                </IconButton>
-                <IconButton
-                  onClick={() => moveSection(index, 1)}
-                  disabled={index === exam.sections.length - 1}
-                >
-                  <ArrowDownwardIcon />
-                </IconButton>
-                <IconButton onClick={() => deleteSection(index)}>
-                  <DeleteIcon />
-                </IconButton>
-                <Button
-                  onClick={() =>
-                    setExpandedSection(expandedSection === index ? null : index)
-                  }
-                  aria-expanded={expandedSection === index}
-                  aria-label="显示更多"
-                  endIcon={<ExpandMoreIcon />}
-                  sx={{ marginLeft: "auto" }}
-                >
-                  {expandedSection === index ? "收起问题列表" : "展开问题列表"}
-                </Button>
-              </CardActions>
-              <Collapse
-                in={expandedSection === index}
-                timeout="auto"
-                unmountOnExit
-              >
-                <CardContent>
-                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    题目列表
-                  </Typography>
-                  <TableContainer component={Paper}>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>顺序</TableCell>
-                          <TableCell>摘要</TableCell>
-                          <TableCell>难度</TableCell>
-                          <TableCell align="right">操作</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {section.questions
-                          .sort(
-                            (a, b) => a.order_in_section - b.order_in_section
-                          )
-                          .map((question, qIndex) => (
-                            <TableRow key={question.uuid}>
-                              <TableCell>{question.order_in_section}</TableCell>
-                              <TableCell>{question.digest}</TableCell>
-                              <TableCell>{question.difficulty}</TableCell>
-                              <TableCell align="right">
-                                <IconButton
-                                  onClick={() =>
-                                    moveQuestion(index, qIndex, -1)
-                                  }
-                                  disabled={qIndex === 0}
-                                  size="small"
-                                >
-                                  <ArrowUpwardIcon />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() => moveQuestion(index, qIndex, 1)}
-                                  disabled={
-                                    qIndex === section.questions.length - 1
-                                  }
-                                  size="small"
-                                >
-                                  <ArrowDownwardIcon />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() => deleteQuestion(index, qIndex)}
-                                  size="small"
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <Button
-                    startIcon={<AddIcon />}
-                    onClick={() => handleSelectQuestions(index)}
-                    sx={{ mt: 2 }}
-                  >
-                    选择问题
-                  </Button>
-                </CardContent>
-              </Collapse>
-            </Card>
-          ))
-      ) : (
-        <Typography>暂无考试部分</Typography>
-      )}
-      <Button
-        startIcon={<AddIcon />}
-        onClick={addSection}
-        variant="outlined"
-        fullWidth
-      >
-        添加新部分
-      </Button>
-
-      <Dialog
-        open={openQuestionList}
-        onClose={handleCloseQuestionList}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>选择问题</DialogTitle>
-        <DialogContent>
-          <QuestionList
-            fixedCategory={exam.category}
-            onSelectionChange={handleQuestionSelection}
-            multiSelect={true}
-            isFromExamEdit={true}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseQuestionList}>取消</Button>
-          <Button onClick={handleAddSelectedQuestions} color="primary">
-            添加所选问题
+        <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            提交
           </Button>
-        </DialogActions>
-      </Dialog>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleRestore}
+            disabled={loading}
+          >
+            还原
+          </Button>
+        </Box>
 
-      <Dialog open={openDuplicateDialog} onClose={handleCloseDuplicateDialog}>
-        <DialogTitle>重复的问题</DialogTitle>
-        <DialogContent>
-          <Typography>以下问题已经存在于考试中，无法重复添加：</Typography>
-          <ul>
-            {duplicateQuestions.map((q) => (
-              <li key={q.uuid}>{q.digest}</li>
-            ))}
-          </ul>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDuplicateDialog}>确定</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          考试部分
+        </Typography>
+        {exam.sections && exam.sections.length > 0 ? (
+          exam.sections
+            .sort((a, b) => a.order_in_exam - b.order_in_exam)
+            .map((section, index) => (
+              <Card key={section.id} sx={{ mb: 2 }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      sx={{ mr: 2, minWidth: "80px" }}
+                    >
+                      第 {section.order_in_exam} 题
+                    </Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <InlineEdit
+                        value={section.name}
+                        onSave={(newName) => updateSectionName(index, newName)}
+                        sx={{ width: "100%" }}
+                      />
+                    </Box>
+                  </Box>
+                </CardContent>
+                <CardActions>
+                  <IconButton
+                    onClick={() => moveSection(index, -1)}
+                    disabled={index === 0}
+                  >
+                    <ArrowUpwardIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => moveSection(index, 1)}
+                    disabled={index === exam.sections.length - 1}
+                  >
+                    <ArrowDownwardIcon />
+                  </IconButton>
+                  <IconButton onClick={() => deleteSection(index)}>
+                    <DeleteIcon />
+                  </IconButton>
+                  <Button
+                    onClick={() =>
+                      setExpandedSection(
+                        expandedSection === index ? null : index
+                      )
+                    }
+                    aria-expanded={expandedSection === index}
+                    aria-label="显示更多"
+                    endIcon={<ExpandMoreIcon />}
+                    sx={{ marginLeft: "auto" }}
+                  >
+                    {expandedSection === index
+                      ? "收起问题列表"
+                      : "展开问题列表"}
+                  </Button>
+                </CardActions>
+                <Collapse
+                  in={expandedSection === index}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <CardContent>
+                    <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                      题目列表
+                    </Typography>
+                    <TableContainer component={Paper}>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>顺序</TableCell>
+                            <TableCell>摘要</TableCell>
+                            <TableCell>难度</TableCell>
+                            <TableCell align="right">操作</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {section.questions
+                            .sort(
+                              (a, b) => a.order_in_section - b.order_in_section
+                            )
+                            .map((question, qIndex) => (
+                              <TableRow key={question.uuid}>
+                                <TableCell>
+                                  {question.order_in_section}
+                                </TableCell>
+                                <TableCell>{question.digest}</TableCell>
+                                <TableCell>{question.difficulty}</TableCell>
+                                <TableCell align="right">
+                                  <IconButton
+                                    onClick={() =>
+                                      moveQuestion(index, qIndex, -1)
+                                    }
+                                    disabled={qIndex === 0}
+                                    size="small"
+                                  >
+                                    <ArrowUpwardIcon />
+                                  </IconButton>
+                                  <IconButton
+                                    onClick={() =>
+                                      moveQuestion(index, qIndex, 1)
+                                    }
+                                    disabled={
+                                      qIndex === section.questions.length - 1
+                                    }
+                                    size="small"
+                                  >
+                                    <ArrowDownwardIcon />
+                                  </IconButton>
+                                  <IconButton
+                                    onClick={() =>
+                                      deleteQuestion(index, qIndex)
+                                    }
+                                    size="small"
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                    <Button
+                      startIcon={<AddIcon />}
+                      onClick={() => handleSelectQuestions(index)}
+                      sx={{ mt: 2 }}
+                    >
+                      选择问题
+                    </Button>
+                  </CardContent>
+                </Collapse>
+              </Card>
+            ))
+        ) : (
+          <Typography>暂无考试部分</Typography>
+        )}
+        <Button
+          startIcon={<AddIcon />}
+          onClick={addSection}
+          variant="outlined"
+          fullWidth
+        >
+          添加新部分
+        </Button>
+
+        <Dialog
+          open={openQuestionList}
+          onClose={handleCloseQuestionList}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>选择问题</DialogTitle>
+          <DialogContent>
+            <QuestionList
+              fixedCategory={exam.category}
+              onSelectionChange={handleQuestionSelection}
+              multiSelect={true}
+              isFromExamEdit={true}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseQuestionList}>取消</Button>
+            <Button onClick={handleAddSelectedQuestions} color="primary">
+              添加所选问题
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={openDuplicateDialog} onClose={handleCloseDuplicateDialog}>
+          <DialogTitle>重复的问题</DialogTitle>
+          <DialogContent>
+            <Typography>以下问题已经存在于考试中，无法重复添加：</Typography>
+            <ul>
+              {duplicateQuestions.map((q) => (
+                <li key={q.uuid}>{q.digest}</li>
+              ))}
+            </ul>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDuplicateDialog}>确定</Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={openSubmitDialog}
+          onClose={() => setOpenSubmitDialog(false)}
+        >
+          <DialogTitle>确认提交</DialogTitle>
+          <DialogContent>
+            <Typography>您确定要提交这些更改吗？</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenSubmitDialog(false)}>取消</Button>
+            <Button onClick={handleConfirmSubmit} color="primary">
+              确认
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={openRestoreDialog}
+          onClose={() => setOpenRestoreDialog(false)}
+        >
+          <DialogTitle>确认还原</DialogTitle>
+          <DialogContent>
+            <Typography>
+              您确定要还原到初始状态吗？所有未保存的更改将丢失。
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenRestoreDialog(false)}>取消</Button>
+            <Button onClick={handleConfirmRestore} color="secondary">
+              确认
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "center", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbar.severity}
+            sx={{
+              width: "100%",
+              maxWidth: "400px", // 限制最大宽度
+              boxShadow: 3, // 添加阴影效果
+            }}
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </ExamMainLayout>
   );
 };
 
