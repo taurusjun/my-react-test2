@@ -202,3 +202,29 @@ mock.onGet("/api/exams").reply((config) => {
     },
   ];
 });
+
+// 添加获取单个考试数据的模拟
+mock.onGet(/\/api\/exams\/.*/).reply((config) => {
+  const uuid = config.url.split("/").pop();
+
+  const mockExam = {
+    uuid: uuid,
+    name: "模拟考试 1",
+    category: "math",
+    stage: "middle",
+    createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+    startTime: format(addDays(new Date(), 7), "yyyy-MM-dd HH:mm:ss"),
+    duration: 120,
+    totalScore: 100,
+    status: "未开始",
+  };
+
+  return [200, mockExam];
+});
+
+// 添加更新考试数据的模拟
+mock.onPut(/\/api\/exams\/.*/).reply((config) => {
+  const updatedExam = JSON.parse(config.data);
+  console.log("更新的考试数据:", updatedExam);
+  return [200, { message: "考试更新成功" }];
+});
