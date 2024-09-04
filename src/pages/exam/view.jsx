@@ -27,7 +27,7 @@ const ViewExam = () => {
           <strong>名称:</strong> {exam?.name}
         </Typography>
         <Typography>
-          <strong>科目:</strong> {exam?.subject}
+          <strong>科目:</strong> {exam?.category}
         </Typography>
         <Typography>
           <strong>阶段:</strong> {exam?.stage}
