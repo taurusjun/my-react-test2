@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useMediaQuery, useTheme } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import QuestionMainLayout from "../layouts/QuestionMainLayout"; // 确保路径正确
 import {
   Table,
@@ -16,6 +19,7 @@ import {
   FormControl,
   InputLabel,
   TablePagination,
+  Checkbox,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // 确保已安装 axios
@@ -28,7 +32,7 @@ import Chip from "@mui/material/Chip";
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
   color: theme.palette.common.black,
-  fontSize: 18, // 增加表头文字大小
+  fontSize: 18, // 增加���头文字大小
   fontWeight: "bold",
 }));
 
@@ -36,11 +40,18 @@ const BodyTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 16,
 }));
 
-const QuestionList = () => {
+const QuestionList = ({
+  fixedCategory,
+  onSelectionChange,
+  multiSelect,
+  isFromExamEdit,
+  maxWidth,
+}) => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const navigate = useNavigate();
   const [searchType, setSearchType] = useState("digest");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
   const [questions, setQuestions] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -48,6 +59,7 @@ const QuestionList = () => {
   const { dictionaries, loading, error } = useDictionaries();
   const [inputValue, setInputValue] = useState(""); // 添加 inputValue 状态
   const [relatedSourceOptions, setRelatedSourceOptions] = useState([]); // 添加 relatedSourceOptions 状态
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   const [searchParams, setSearchParams] = useState({
     category: "",
@@ -85,7 +97,7 @@ const QuestionList = () => {
   }, [
     page,
     rowsPerPage,
-    selectedCategory,
+    fixedCategory,
     searchType,
     searchTerm,
     searchParams.relatedSources,
@@ -95,7 +107,7 @@ const QuestionList = () => {
     try {
       const response = await axios.get("/api/questionlist", {
         params: {
-          category: selectedCategory,
+          category: fixedCategory,
           searchType: searchType,
           searchTerm: searchTerm,
           page: page + 1, // 后端通常从1开始计数
@@ -132,48 +144,53 @@ const QuestionList = () => {
   const handleResetSearch = () => {
     setSearchType("digest");
     setSearchTerm("");
-    setSelectedCategory("");
     setPage(0);
   };
 
   const handleEdit = (uuid) => {
-    navigate(`/question-edit/${uuid}`); // 假设编辑问题的路由是 "/edit-question/:uuid"
+    navigate(`/question-edit/${uuid}`);
   };
 
+  const handleQuestionSelect = (question) => {
+    if (multiSelect) {
+      setSelectedQuestions((prev) => {
+        const isSelected = prev.some((q) => q.uuid === question.uuid);
+        const newSelection = isSelected
+          ? prev.filter((q) => q.uuid !== question.uuid)
+          : [...prev, question];
+        onSelectionChange(newSelection);
+        return newSelection;
+      });
+    } else {
+      setSelectedQuestions([question]);
+      onSelectionChange([question]);
+    }
+  };
+
+  const showIcons = isFromExamEdit || maxWidth === "lg";
+
   return (
-    <QuestionMainLayout currentPage="题目列表" maxWidth="xl">
+    <QuestionMainLayout
+      currentPage="题目列表"
+      maxWidth={isFromExamEdit ? "lg" : "xl"}
+    >
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         <Button
           variant="contained"
           color="primary"
           onClick={handleNewQuestion}
-          sx={{ width: "200px", height: "56px" }} // 调整按钮的宽度和高度
+          sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
         >
-          新建题目
+          {showIcons ? <AddIcon /> : "新建题目"}
         </Button>
         <Button
           variant="contained"
           color="secondary"
           onClick={handleResetSearch}
-          sx={{ width: "200px", height: "56px" }} // 调整按钮的宽度和高度
+          sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
         >
-          重置搜索
+          {showIcons ? <RestartAltIcon /> : "重置搜索"}
         </Button>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel>科目</InputLabel>
-          <Select
-            value={selectedCategory}
-            label="科目"
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <MenuItem value="">全部</MenuItem>
-            {Object.entries(dictionaries.CategoryDict).map(([key, value]) => (
-              <MenuItem key={key} value={key}>
-                {value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <FormControl sx={{ flex: 1 }}>
           <Autocomplete
             multiple
@@ -204,7 +221,7 @@ const QuestionList = () => {
             }
           />
         </FormControl>
-        <FormControl sx={{ minWidth: 140 }}>
+        <FormControl sx={{ minWidth: showIcons ? 100 : 140 }}>
           <InputLabel>搜索类型</InputLabel>
           <Select
             value={searchType}
@@ -220,7 +237,7 @@ const QuestionList = () => {
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flex: 2 }} // 设置搜索摘要的宽度为关联资源的两倍
+          sx={{ flex: showIcons ? 1 : 2 }}
         />
       </Stack>
       <TableContainer component={Paper}>
@@ -232,7 +249,9 @@ const QuestionList = () => {
               <StyledTableCell>知识点</StyledTableCell>
               <StyledTableCell>关联资源</StyledTableCell>
               <StyledTableCell>更新时间</StyledTableCell>
-              <StyledTableCell align="center">操作</StyledTableCell>
+              <StyledTableCell align="center">
+                {isFromExamEdit ? "选择" : "操作"}
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -252,13 +271,22 @@ const QuestionList = () => {
                   {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
                 </BodyTableCell>
                 <BodyTableCell align="center">
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => handleEdit(question.uuid)}
-                  >
-                    编辑
-                  </Button>
+                  {isFromExamEdit ? (
+                    <Checkbox
+                      checked={selectedQuestions.some(
+                        (q) => q.uuid === question.uuid
+                      )}
+                      onChange={() => handleQuestionSelect(question)}
+                    />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleEdit(question.uuid)}
+                    >
+                      编辑
+                    </Button>
+                  )}
                 </BodyTableCell>
               </TableRow>
             ))}

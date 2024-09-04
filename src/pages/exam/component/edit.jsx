@@ -23,6 +23,10 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -30,23 +34,22 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InlineEdit from "../../../components/InlineEdit";
+import QuestionList from "../../../provider/components/QuestionList";
 
 const EditExam = () => {
   const { uuid } = useParams();
   const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState({ sections: [] }); // 初始化 exam 对象，确保 sections 总是一个数组
+  const [exam, setExam] = useState({ sections: [] });
   const [expandedSection, setExpandedSection] = useState(null);
   const [openQuestionList, setOpenQuestionList] = useState(false);
-  const [questions, setQuestions] = useState([]);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(null);
+  const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   useEffect(() => {
     const fetchExamData = async () => {
       try {
         const response = await axios.get(`/api/exams/${uuid}`);
-        setExam({
-          ...response.data,
-          sections: response.data.sections || [], // 确保 sections 总是一个数组
-        });
+        setExam(response.data);
         setLoading(false);
       } catch (error) {
         console.error("获取考试数据失败:", error);
@@ -57,19 +60,6 @@ const EditExam = () => {
     fetchExamData();
   }, [uuid]);
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await axios.get("/api/questionlist");
-        setQuestions(response.data.items);
-      } catch (error) {
-        console.error("获取问题列表失败:", error);
-      }
-    };
-
-    fetchQuestions();
-  }, []);
-
   const updateExam = (updater) => {
     setExam((prev) => ({
       ...prev,
@@ -79,7 +69,7 @@ const EditExam = () => {
 
   const addSection = () => {
     updateExam((prev) => {
-      const sections = prev.sections || []; // 如果 sections 不存在，使用空数组
+      const sections = prev.sections || [];
       const newOrder =
         sections.length > 0
           ? Math.max(...sections.map((s) => s.order_in_exam)) + 1
@@ -166,12 +156,33 @@ const EditExam = () => {
     });
   };
 
-  const handleSelectQuestions = () => {
+  const handleSelectQuestions = (sectionIndex) => {
+    setCurrentSectionIndex(sectionIndex);
     setOpenQuestionList(true);
   };
 
   const handleCloseQuestionList = () => {
     setOpenQuestionList(false);
+    setSelectedQuestions([]);
+  };
+
+  const handleQuestionSelection = (questions) => {
+    setSelectedQuestions(questions);
+  };
+
+  const handleAddSelectedQuestions = () => {
+    updateExam((prev) => {
+      const newSections = [...prev.sections];
+      const currentSection = newSections[currentSectionIndex];
+      const currentQuestions = currentSection.questions || [];
+      const newQuestions = selectedQuestions.map((q, index) => ({
+        ...q,
+        order_in_section: currentQuestions.length + index + 1,
+      }));
+      currentSection.questions = [...currentQuestions, ...newQuestions];
+      return { sections: newSections };
+    });
+    handleCloseQuestionList();
   };
 
   if (loading || !exam) {
@@ -209,6 +220,7 @@ const EditExam = () => {
         >
           <MenuItem value="math">数学</MenuItem>
           <MenuItem value="english">英语</MenuItem>
+          <MenuItem value="physics">物理</MenuItem>
         </Select>
       </FormControl>
       <FormControl fullWidth margin="normal" disabled>
@@ -359,6 +371,29 @@ const EditExam = () => {
       >
         添加新部分
       </Button>
+
+      <Dialog
+        open={openQuestionList}
+        onClose={handleCloseQuestionList}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>选择问题</DialogTitle>
+        <DialogContent>
+          <QuestionList
+            fixedCategory={exam.category}
+            onSelectionChange={handleQuestionSelection}
+            multiSelect={true}
+            isFromExamEdit={true}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseQuestionList}>取消</Button>
+          <Button onClick={handleAddSelectedQuestions} color="primary">
+            添加所选问题
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
