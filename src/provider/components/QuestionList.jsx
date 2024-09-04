@@ -32,7 +32,7 @@ import Chip from "@mui/material/Chip";
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
   color: theme.palette.common.black,
-  fontSize: 18, // 增加���头文字大小
+  fontSize: 18, // 增加头文字大小
   fontWeight: "bold",
 }));
 
@@ -145,6 +145,11 @@ const QuestionList = ({
     setSearchType("digest");
     setSearchTerm("");
     setPage(0);
+    setSearchParams((prevParams) => ({
+      ...prevParams,
+      relatedSources: [],
+    }));
+    setInputValue(""); // 清空 Autocomplete 的输入值
   };
 
   const handleEdit = (uuid) => {
@@ -175,14 +180,16 @@ const QuestionList = ({
       maxWidth={isFromExamEdit ? "lg" : "xl"}
     >
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNewQuestion}
-          sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
-        >
-          {showIcons ? <AddIcon /> : "新建题目"}
-        </Button>
+        {!isFromExamEdit && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleNewQuestion}
+            sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
+          >
+            {showIcons ? <AddIcon /> : "新建题目"}
+          </Button>
+        )}
         <Button
           variant="contained"
           color="secondary"
