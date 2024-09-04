@@ -11,7 +11,7 @@ import {
   TagDict,
   CategoryKNMapping,
 } from "../provider/utils/dictionaries.js";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 
 // 创建一个新的MockAdapter实例
 const mock = new MockAdapter(axios, { onNoMatch: "passthrough" });
@@ -152,6 +152,52 @@ mock.onGet("/api/questionlist").reply((config) => {
     200,
     {
       items: paginatedQuestions,
+      totalCount: totalCount,
+    },
+  ];
+});
+
+// 更新模拟考试数据
+mock.onGet("/api/exams").reply((config) => {
+  const { page = 1, pageSize = 10, name, category } = config.params;
+
+  // 模拟的考试列表
+  const mockExams = Array(50)
+    .fill()
+    .map((_, index) => ({
+      uuid: `exam-${index + 1}`,
+      name: `模拟考试 ${index + 1}`,
+      category: index % 2 === 0 ? "math" : "physics",
+      createdAt: format(addDays(new Date(), -index), "yyyy-MM-dd HH:mm:ss"),
+      startTime: format(addDays(new Date(), index), "yyyy-MM-dd HH:mm:ss"),
+      duration: 120, // 单位：分钟
+      totalScore: 100,
+      status:
+        index % 3 === 0 ? "未开始" : index % 3 === 1 ? "进行中" : "已结束",
+    }));
+
+  // 根据搜索条件过滤考试
+  let filteredExams = [...mockExams];
+
+  if (name) {
+    filteredExams = filteredExams.filter((exam) =>
+      exam.name.toLowerCase().includes(name.toLowerCase())
+    );
+  }
+
+  if (category) {
+    filteredExams = filteredExams.filter((exam) => exam.category === category);
+  }
+
+  const totalCount = filteredExams.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+
+  return [
+    200,
+    {
+      exams: paginatedExams,
       totalCount: totalCount,
     },
   ];

@@ -19,15 +19,35 @@ import {
   Search as SearchIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
+import axios from "axios"; // 添加这行导入
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchParams, setSearchParams] = useState({ name: "", subject: "" });
+  const [searchParams, setSearchParams] = useState({ name: "", category: "" });
   const navigate = useNavigate();
 
-  // ... 获取考试列表的逻辑
+  useEffect(() => {
+    fetchExams();
+  }, [page, rowsPerPage, searchParams]);
+
+  const fetchExams = async () => {
+    try {
+      const response = await axios.get("/api/exams", {
+        params: {
+          page: page + 1,
+          pageSize: rowsPerPage,
+          name: searchParams.name,
+          category: searchParams.category,
+        },
+      });
+      setExams(response.data.exams);
+    } catch (error) {
+      console.error("获取考试列表失败:", error);
+      // 这里可以添加错误处理，比如显示一个错误提示
+    }
+  };
 
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
@@ -54,15 +74,13 @@ const ExamList = () => {
           variant="outlined"
           size="small"
           onChange={(e) =>
-            setSearchParams({ ...searchParams, subject: e.target.value })
+            setSearchParams({ ...searchParams, category: e.target.value })
           }
         />
         <Button
           variant="contained"
           startIcon={<SearchIcon />}
-          onClick={() => {
-            /* 执行搜索 */
-          }}
+          onClick={fetchExams}
         >
           搜索
         </Button>
@@ -90,7 +108,7 @@ const ExamList = () => {
               .map((exam) => (
                 <TableRow key={exam.uuid}>
                   <TableCell>{exam.name}</TableCell>
-                  <TableCell>{exam.subject}</TableCell>
+                  <TableCell>{exam.category}</TableCell>
                   <TableCell>{exam.createdAt}</TableCell>
                   <TableCell>
                     <Button
