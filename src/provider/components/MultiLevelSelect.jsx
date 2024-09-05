@@ -5,8 +5,10 @@ import { useDictionaries } from "../hooks/useDictionaries";
 
 // 创建一个自定义的 Select 组件
 const NarrowSelect = styled(Select)(({ theme }) => ({
-  minWidth: "100px", // 你可以根据需要调整这个值
+  height: "56px", // 设置固定高度
   "& .MuiSelect-select": {
+    paddingTop: "15px", // 调整内边距以垂直居中文本
+    paddingBottom: "15px",
     paddingRight: "24px !important",
   },
 }));
@@ -18,6 +20,7 @@ const MultiLevelSelect = ({
   error,
   disabled,
   readOnly,
+  inline = false,
 }) => {
   const { dictionaries, loading, error: dictionariesError } = useDictionaries();
   const [schoolLevel, setSchoolLevel] = useState(initialSchoolLevel || "");
@@ -52,23 +55,15 @@ const MultiLevelSelect = ({
   }
 
   return (
-    <Box display="flex" alignItems="center" gap={2}>
-      <FormControl margin="normal" error={error} disabled={disabled}>
-        <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
-          学习阶段
-        </InputLabel>
+    <Box display="flex" alignItems="flex-start" gap={2}>
+      <FormControl sx={{ width: "150px" }} error={error} disabled={disabled}>
+        <InputLabel>学习阶段</InputLabel>
         <NarrowSelect
           value={schoolLevel}
           onChange={handleSchoolLevelChange}
           label="学习阶段"
           inputProps={{
             readOnly: readOnly,
-            style: { color: "rgba(0, 0, 0, 0.38)" },
-          }}
-          sx={{
-            "& .MuiSelect-icon": {
-              color: "rgba(0, 0, 0, 0.38)",
-            },
           }}
         >
           {Object.entries(dictionaries.SchoolDict).map(([key, value]) => (
@@ -79,20 +74,14 @@ const MultiLevelSelect = ({
         </NarrowSelect>
       </FormControl>
       {schoolLevel && (
-        <FormControl margin="normal" error={error} disabled={disabled}>
-          <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>年级</InputLabel>
+        <FormControl sx={{ width: "150px" }} error={error} disabled={disabled}>
+          <InputLabel>年级</InputLabel>
           <NarrowSelect
             value={grade}
             onChange={handleGradeChange}
             label="年级"
             inputProps={{
               readOnly: readOnly,
-              style: { color: "rgba(0, 0, 0, 0.38)" },
-            }}
-            sx={{
-              "& .MuiSelect-icon": {
-                color: "rgba(0, 0, 0, 0.38)",
-              },
             }}
           >
             {Object.entries(dictionaries.GradeDict).map(([key, value]) => (

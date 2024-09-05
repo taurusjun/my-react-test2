@@ -5,10 +5,10 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Select,
   Stack,
   TextField,
   Typography,
+  Select,
   Paper,
   Chip,
   Autocomplete,
@@ -24,6 +24,7 @@ import QuestionPreview from "./QuestionPreview";
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
 import QuestionMainLayout from "../layouts/QuestionMainLayout";
+import NarrowSelect from "../../components/NarrowSelect";
 
 const QuestionEdit = ({
   onSubmit,
@@ -33,6 +34,7 @@ const QuestionEdit = ({
   initialSchool,
   initialGrade,
   initialKn,
+  isFromExamEdit = false,
 }) => {
   const { uuid } = useParams();
   const navigate = useNavigate();
@@ -151,8 +153,11 @@ const QuestionEdit = ({
   if (error) return <div>加载失败</div>;
 
   const handleSelectChange = (type, value) => {
-    if (type === "category" || type === "gradeInfo" || type === "kn") {
-      // 不允许更改这些字段
+    if (
+      isFromExamEdit &&
+      (type === "category" || type === "gradeInfo" || type === "kn")
+    ) {
+      // 如果是从 exam edit 进入，且是这些字段，则不允许更改
       return;
     }
     setQuestionData((prevData) => ({
@@ -170,8 +175,14 @@ const QuestionEdit = ({
   };
 
   const handleMultiSelectChange = (school, grade) => {
-    // 不允许更改这些字段
-    return;
+    if (isFromExamEdit) {
+      // 如果是从 exam edit 进入，不允许更改
+      return;
+    }
+    setQuestionData((prevData) => ({
+      ...prevData,
+      gradeInfo: { school, grade },
+    }));
   };
 
   const handleQuestionDetailChange = (updatedQuestionDetail, index) => {
@@ -407,15 +418,25 @@ const QuestionEdit = ({
       {!showPreview ? (
         <>
           <Box component="form" noValidate autoComplete="off">
-            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                ml: 2,
+                mr: 2,
+                mt: 2,
+                mb: 2,
+                alignItems: "flex-start",
+              }}
+            >
               <FormControl
-                sx={{ flex: 1 }}
+                sx={{ width: "150px" }}
                 required
                 error={errors.category}
-                disabled
+                disabled={isFromExamEdit}
               >
                 <InputLabel id="category-select-label">学科</InputLabel>
-                <Select
+                <NarrowSelect
                   labelId="category-select-label"
                   id="category-select"
                   value={questionData.category}
@@ -431,11 +452,16 @@ const QuestionEdit = ({
                       </MenuItem>
                     )
                   )}
-                </Select>
+                </NarrowSelect>
               </FormControl>
-              <FormControl sx={{ flex: 1 }} required error={errors.kn} disabled>
+              <FormControl
+                sx={{ width: "150px" }}
+                required
+                error={errors.kn}
+                disabled={isFromExamEdit}
+              >
                 <InputLabel id="demo-simple-select-label">知识点</InputLabel>
-                <Select
+                <NarrowSelect
                   labelId="knowledge_node-select-label"
                   id="knowledge_node-select"
                   value={questionData.kn}
@@ -447,15 +473,16 @@ const QuestionEdit = ({
                       {dictionaries.KNDict[kn]}
                     </MenuItem>
                   ))}
-                </Select>
+                </NarrowSelect>
               </FormControl>
               <MultiLevelSelect
                 onMultiSelectChange={handleMultiSelectChange}
                 initialSchoolLevel={questionData.gradeInfo.school}
                 initialGrade={questionData.gradeInfo.grade}
                 error={errors.school || errors.grade}
-                disabled={true}
-                readOnly={true}
+                disabled={isFromExamEdit}
+                readOnly={isFromExamEdit}
+                inline={true}
               />
             </Box>
 
@@ -701,7 +728,7 @@ const QuestionEdit = ({
   return (
     <QuestionMainLayout
       currentPage={uuid ? "编辑题目" : "新建题目"}
-      maxWidth="xl"
+      maxWidth="lg"
     >
       {content}
       <SubmitModal

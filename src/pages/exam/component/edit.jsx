@@ -42,13 +42,7 @@ import ExamMainLayout from "./layouts/ExamMainLayout";
 import QuestionEdit from "../../../provider/components/QuestionEdit";
 import MultiLevelSelect from "../../../provider/components/MultiLevelSelect";
 import { styled } from "@mui/material/styles";
-
-const NarrowSelect = styled(Select)(({ theme }) => ({
-  minWidth: "100px",
-  "& .MuiSelect-select": {
-    paddingRight: "24px !important",
-  },
-}));
+import NarrowSelect from "../../../components/NarrowSelect";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -333,55 +327,50 @@ const EditExam = () => {
   return (
     <ExamMainLayout currentPage="编辑考试">
       <Box sx={{ maxWidth: 800, mt: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-            <TextField
-              label="名称"
-              value={exam.name}
-              margin="normal"
-              InputProps={{
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <TextField
+            label="名称"
+            value={exam.name}
+            InputProps={{
+              readOnly: true,
+              style: { color: "rgba(0, 0, 0, 0.38)" },
+            }}
+            disabled
+            variant="outlined"
+            sx={{ width: "200px" }}
+          />
+          <FormControl disabled sx={{ width: "150px" }}>
+            <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
+              科目
+            </InputLabel>
+            <NarrowSelect
+              value={exam.category}
+              label="科目"
+              inputProps={{
                 readOnly: true,
                 style: { color: "rgba(0, 0, 0, 0.38)" },
-                disableUnderline: true,
               }}
-              disabled
-            />
-          </Grid>
-          <Grid item>
-            <FormControl margin="normal" disabled>
-              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
-                科目
-              </InputLabel>
-              <NarrowSelect
-                value={exam.category}
-                label="科目"
-                inputProps={{
-                  readOnly: true,
-                  style: { color: "rgba(0, 0, 0, 0.38)" },
-                }}
-                sx={{
-                  "& .MuiSelect-icon": {
-                    color: "rgba(0, 0, 0, 0.38)",
-                  },
-                }}
-              >
-                <MenuItem value="math">数学</MenuItem>
-                <MenuItem value="english">英语</MenuItem>
-                <MenuItem value="physics">物理</MenuItem>
-              </NarrowSelect>
-            </FormControl>
-          </Grid>
-          <Grid item>
-            <MultiLevelSelect
-              onMultiSelectChange={handleGradeInfoChange}
-              initialSchoolLevel={exam.gradeInfo.school}
-              initialGrade={exam.gradeInfo.grade}
-              error={false}
-              disabled={true}
-              readOnly={true}
-            />
-          </Grid>
-        </Grid>
+              sx={{
+                "& .MuiSelect-icon": {
+                  color: "rgba(0, 0, 0, 0.38)",
+                },
+              }}
+            >
+              <MenuItem value="math">数学</MenuItem>
+              <MenuItem value="english">英语</MenuItem>
+              <MenuItem value="physics">物理</MenuItem>
+            </NarrowSelect>
+          </FormControl>
+          <MultiLevelSelect
+            onMultiSelectChange={handleGradeInfoChange}
+            initialSchoolLevel={exam.gradeInfo.school}
+            initialGrade={exam.gradeInfo.grade}
+            error={false}
+            disabled={true}
+            readOnly={true}
+            inline={true}
+          />
+        </Box>
 
         <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
           <Button
@@ -643,7 +632,8 @@ const EditExam = () => {
               initialCategory={exam.category}
               initialSchool={exam.gradeInfo.school}
               initialGrade={exam.gradeInfo.grade}
-              initialKn={exam.kn} // 添加这一行，传入选中的知识点
+              initialKn={exam.kn}
+              isFromExamEdit={true} // 添加这一行，传入选中的知识点
             />
           </DialogContent>
         </Dialog>
