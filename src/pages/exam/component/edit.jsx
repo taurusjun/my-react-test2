@@ -365,7 +365,7 @@ const EditExam = () => {
                       color="text.secondary"
                       sx={{ mr: 2, minWidth: "80px" }}
                     >
-                      第 {section.order_in_exam} 题
+                      第 {section.order_in_exam} 部分
                     </Typography>
                     <Box sx={{ flexGrow: 1 }}>
                       <InlineEdit
