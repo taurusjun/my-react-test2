@@ -52,6 +52,7 @@ const EditExam = () => {
     name: "",
     sections: [],
     gradeInfo: { school: "", grade: "" },
+    duration: 0,
   });
   const [initialExam, setInitialExam] = useState(null);
   const [expandedSection, setExpandedSection] = useState(null);
@@ -75,6 +76,20 @@ const EditExam = () => {
     return new Set(
       exam.sections.flatMap((section) => section.questions.map((q) => q.uuid))
     );
+  }, [exam.sections]);
+
+  // 使用 useMemo 计算 section 数量和总分值
+  const examStats = useMemo(() => {
+    const sectionCount = exam.sections.length;
+    const totalScore = exam.sections.reduce((total, section) => {
+      return (
+        total +
+        section.questions.reduce((sectionTotal, question) => {
+          return sectionTotal + (Number(question.score) || 0);
+        }, 0)
+      );
+    }, 0);
+    return { sectionCount, totalScore };
   }, [exam.sections]);
 
   useEffect(() => {
@@ -224,6 +239,7 @@ const EditExam = () => {
         const addedQuestions = newQuestions.map((q, index) => ({
           ...q,
           order_in_section: currentQuestions.length + index + 1,
+          score: 0, // 设置默认分数为 0
         }));
         currentSection.questions = [...currentQuestions, ...addedQuestions];
         return { sections: newSections };
@@ -302,6 +318,7 @@ const EditExam = () => {
         {
           ...newQuestion,
           order_in_section: currentQuestions.length + 1,
+          score: 0, // 设置默认分数为 0
         },
       ];
       return { sections: newSections };
@@ -337,6 +354,13 @@ const EditExam = () => {
     }));
   };
 
+  const handleDurationChange = (newDuration) => {
+    setExam((prevExam) => ({
+      ...prevExam,
+      duration: Number(newDuration),
+    }));
+  };
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -344,46 +368,89 @@ const EditExam = () => {
   return (
     <ExamMainLayout currentPage="编辑考试">
       <Box sx={{ maxWidth: 800, mt: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <TextField
-            label="名称"
-            value={exam.name}
-            onChange={handleExamNameChange}
-            variant="outlined"
-            sx={{ width: "200px" }}
-          />
-          <FormControl disabled sx={{ width: "150px" }}>
-            <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
-              科目
-            </InputLabel>
-            <NarrowSelect
-              value={exam.category}
-              label="科目"
-              inputProps={{
-                readOnly: true,
-                style: { color: "rgba(0, 0, 0, 0.38)" },
-              }}
+        <Grid container spacing={2}>
+          {/* 名称占满第一行 */}
+          <Grid item xs={12}>
+            <TextField
+              label="名称"
+              value={exam.name}
+              onChange={handleExamNameChange}
+              variant="outlined"
+              fullWidth
+            />
+          </Grid>
+
+          {/* 科目、学习阶段、年级、时长在第二行 */}
+          <Grid item xs={12} sm={3}>
+            <FormControl fullWidth disabled>
+              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
+                科目
+              </InputLabel>
+              <NarrowSelect
+                value={exam.category}
+                label="科目"
+                inputProps={{
+                  readOnly: true,
+                  style: { color: "rgba(0, 0, 0, 0.38)" },
+                }}
+                sx={{
+                  "& .MuiSelect-icon": {
+                    color: "rgba(0, 0, 0, 0.38)",
+                  },
+                }}
+              >
+                <MenuItem value="math">数学</MenuItem>
+                <MenuItem value="english">英语</MenuItem>
+                <MenuItem value="physics">物理</MenuItem>
+              </NarrowSelect>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <MultiLevelSelect
+              onMultiSelectChange={handleGradeInfoChange}
+              initialSchoolLevel={exam.gradeInfo.school}
+              initialGrade={exam.gradeInfo.grade}
+              error={false}
+              disabled={true}
+              readOnly={true}
+              inline={true}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Box
               sx={{
-                "& .MuiSelect-icon": {
-                  color: "rgba(0, 0, 0, 0.38)",
-                },
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+                whiteSpace: "nowrap",
               }}
             >
-              <MenuItem value="math">数学</MenuItem>
-              <MenuItem value="english">英语</MenuItem>
-              <MenuItem value="physics">物理</MenuItem>
-            </NarrowSelect>
-          </FormControl>
-          <MultiLevelSelect
-            onMultiSelectChange={handleGradeInfoChange}
-            initialSchoolLevel={exam.gradeInfo.school}
-            initialGrade={exam.gradeInfo.grade}
-            error={false}
-            disabled={true}
-            readOnly={true}
-            inline={true}
-          />
-        </Box>
+              <Typography variant="body2" sx={{ mr: 1, flexShrink: 0 }}>
+                时长:
+              </Typography>
+              <InlineEdit
+                value={exam.duration ? exam.duration.toString() : ""}
+                onSave={handleDurationChange}
+                isNumber={true}
+                width="100px" // 增加宽度
+              />
+              <Typography variant="body1" sx={{ ml: 1, flexShrink: 0 }}>
+                分钟
+              </Typography>
+            </Box>
+          </Grid>
+
+          {/* 统计信息在第三行 */}
+          <Grid item xs={12}>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", color: "text.secondary" }}
+            >
+              共 {examStats.sectionCount} 个模块 | 总分值:{" "}
+              {examStats.totalScore} 分
+            </Typography>
+          </Grid>
+        </Grid>
 
         <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
           <Button
