@@ -43,6 +43,7 @@ import QuestionEdit from "../../../provider/components/QuestionEdit";
 import MultiLevelSelect from "../../../provider/components/MultiLevelSelect";
 import { styled } from "@mui/material/styles";
 import NarrowSelect from "../../../components/NarrowSelect";
+import { useDictionaries } from "../../../provider/hooks/useDictionaries";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -70,6 +71,11 @@ const EditExam = () => {
   });
   const [openNewQuestionDialog, setOpenNewQuestionDialog] = useState(false);
   const [newQuestionSectionIndex, setNewQuestionSectionIndex] = useState(null);
+  const {
+    dictionaries,
+    loading: dictionariesLoading,
+    error: dictionariesError,
+  } = useDictionaries();
 
   // 使用 useMemo 来缓存已存在的问题 UUID 集合
   const existingQuestionUuids = useMemo(() => {
@@ -365,6 +371,18 @@ const EditExam = () => {
     return <CircularProgress />;
   }
 
+  if (dictionariesLoading) {
+    return <CircularProgress />;
+  }
+
+  if (dictionariesError) {
+    return (
+      <Typography color="error">
+        加载字典数据失败: {dictionariesError.message}
+      </Typography>
+    );
+  }
+
   return (
     <ExamMainLayout currentPage="编辑考试">
       <Box sx={{ maxWidth: 800, mt: 2 }}>
@@ -399,9 +417,13 @@ const EditExam = () => {
                   },
                 }}
               >
-                <MenuItem value="math">数学</MenuItem>
-                <MenuItem value="english">英语</MenuItem>
-                <MenuItem value="physics">物理</MenuItem>
+                {Object.entries(dictionaries.CategoryDict).map(
+                  ([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  )
+                )}
               </NarrowSelect>
             </FormControl>
           </Grid>
@@ -425,14 +447,14 @@ const EditExam = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              <Typography variant="body2" sx={{ mr: 1, flexShrink: 0 }}>
+              <Typography variant="body1" sx={{ mr: 1, flexShrink: 0 }}>
                 时长:
               </Typography>
               <InlineEdit
                 value={exam.duration ? exam.duration.toString() : ""}
                 onSave={handleDurationChange}
                 isNumber={true}
-                width="100px" // 增加宽度
+                width="100px"
               />
               <Typography variant="body1" sx={{ ml: 1, flexShrink: 0 }}>
                 分钟
@@ -561,7 +583,9 @@ const EditExam = () => {
                                   {question.order_in_section}
                                 </TableCell>
                                 <TableCell>{question.digest}</TableCell>
-                                <TableCell>{question.kn}</TableCell>
+                                <TableCell>
+                                  {dictionaries.KNDict[question.kn]}
+                                </TableCell>
                                 <TableCell>
                                   <InlineEdit
                                     value={
