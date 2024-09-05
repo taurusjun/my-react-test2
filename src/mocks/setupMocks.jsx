@@ -331,3 +331,185 @@ mock.onPut(/\/api\/questions\/.*/).reply((config) => {
     },
   ];
 });
+
+// 为 /api/exams/view/${uuid} 添加模拟数据
+mock.onGet(/\/api\/examview\/.*/).reply((config) => {
+  const uuid = config.url.split("/").pop();
+
+  const mockExam = {
+    uuid: uuid,
+    name: "物理模拟考试 1",
+    category: "physics",
+    gradeInfo: {
+      school: "senior",
+      grade: "grade11",
+    },
+    createdAt: "2024-09-05 22:47:43",
+    startTime: "2024-09-12 22:47:43",
+    duration: 120,
+    totalScore: 100,
+    status: "未开始",
+    sections: [
+      {
+        uuid: "section-1",
+        name: "选择题",
+        order_in_exam: 1,
+        questions: [
+          {
+            uuid: "question-1",
+            type: "selection",
+            category: "physics",
+            kn: "mechanics",
+            gradeInfo: {
+              school: "senior",
+              grade: "grade11",
+            },
+            source: "2023年春季期中考试",
+            tags: ["important"],
+            digest: "关于力和运动的多选题",
+            material: "以下是关于力和运动的一些描述。",
+            questionDetails: [
+              {
+                uuid: "question_detail-1",
+                order_in_question: 1,
+                questionContent: {
+                  value: "下列关于力和运动的说法，正确的是：",
+                  image: null,
+                },
+                rows: [
+                  {
+                    value: "物体运动一定有力",
+                    isAns: false,
+                    image: null,
+                  },
+                  {
+                    value: "物体受力一定运动",
+                    isAns: false,
+                    image: null,
+                  },
+                  {
+                    value: "力是物体运动状态改变的原因",
+                    isAns: true,
+                    image: null,
+                  },
+                  {
+                    value: "力的作用是相互的",
+                    isAns: true,
+                    image: null,
+                  },
+                ],
+                score: 5,
+                rate: 4,
+                explanation:
+                  "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
+                uiType: "multi_selection",
+                answer: ["C", "D"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              {
+                uuid: "uuid-1234-abcd-5678",
+                name: "2010年春季物理竞赛",
+              },
+              {
+                uuid: "uuid-3456-cdef-7890",
+                name: "高中物理教材",
+              },
+            ],
+          },
+          {
+            uuid: "question-2",
+            type: "fill_in_blank",
+            category: "physics",
+            kn: "thermodynamics",
+            gradeInfo: {
+              school: "senior",
+              grade: "grade11",
+            },
+            source: "2023年秋季期末考试",
+            tags: ["basic"],
+            digest: "热力学第一定律填空题",
+            material: "",
+            questionDetails: [
+              {
+                uuid: "question_detail-2",
+                order_in_question: 1,
+                questionContent: {
+                  value:
+                    "热力学第一定律表述为：系统的内能增加等于系统从外界吸收的______和外界对系统做的______之和。",
+                  image: null,
+                },
+                rows: [],
+                score: 10,
+                rate: 3,
+                explanation:
+                  "热力学第一定律的完整表述是：系统的内能增加等于系统从外界吸收的热量和外界对系统做的功之和。",
+                uiType: "fill_in_blank",
+                answer: ["热量", "功"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              {
+                uuid: "uuid-5678-efgh-1234",
+                name: "高中物理教材 - 热学部分",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        uuid: "section-2",
+        name: "计算题",
+        order_in_exam: 2,
+        questions: [
+          {
+            uuid: "question-3",
+            type: "calculation",
+            category: "physics",
+            kn: "kinematics",
+            gradeInfo: {
+              school: "senior",
+              grade: "grade11",
+            },
+            source: "2024年模拟考试",
+            tags: ["difficult"],
+            digest: "匀变速直线运动计算题",
+            material:
+              "一辆汽车在笔直的公路上行驶，初速度为10m/s，加速度为2m/s²。",
+            questionDetails: [
+              {
+                uuid: "question_detail-3",
+                order_in_question: 1,
+                questionContent: {
+                  value: "计算汽车行驶5秒后的速度和位移。",
+                  image: null,
+                },
+                rows: [],
+                score: 15,
+                rate: 5,
+                explanation:
+                  "解答步骤：\n1. 使用v = v0 + at计算末速度\n2. 使用s = v0t + (1/2)at²计算位移",
+                uiType: "long_answer",
+                answer: [
+                  "末速度：v = 10 + 2 * 5 = 20 m/s",
+                  "位移：s = 10 * 5 + 0.5 * 2 * 5² = 75 m",
+                ],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              {
+                uuid: "uuid-9012-ijkl-5678",
+                name: "高中物理竞赛题集 - 运动学",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  return [200, mockExam];
+});
