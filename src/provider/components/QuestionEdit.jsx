@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -13,18 +13,21 @@ import {
   Chip,
   Autocomplete,
   Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SubmitModal from "./SubmitModal";
 import MultiLevelSelect from "./MultiLevelSelect";
 import QuestionDetailEdit from "./QuestionDetailEdit";
-import QuestionPreview from "./QuestionPreview"; // 导入新的 QuestionPreview 组件
+import QuestionPreview from "./QuestionPreview";
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
 import QuestionMainLayout from "../layouts/QuestionMainLayout";
 
-const QuestionEdit = () => {
+const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
   const { uuid } = useParams();
+  const navigate = useNavigate();
   const { dictionaries, loading, error } = useDictionaries();
   const [submiting, setSubmiting] = useState(false);
   const [readyToClose, setReadyToClose] = useState(false);
@@ -33,6 +36,11 @@ const QuestionEdit = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [relatedSourceOptions, setRelatedSourceOptions] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const [questionData, setQuestionData] = useState({
     type: "",
@@ -47,7 +55,7 @@ const QuestionEdit = () => {
     digest: "",
     material: "",
     questionDetails: [],
-    relatedSources: [], // 添加 relatedSources 字段
+    relatedSources: [],
   });
 
   const [errors, setErrors] = useState({
@@ -69,6 +77,12 @@ const QuestionEdit = () => {
 
   const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
 
+  useEffect(() => {
+    if (!isDialog) {
+      fetchQuestionData(uuid);
+    }
+  }, [uuid, isDialog]);
+
   const fetchQuestionData = async (uuid) => {
     if (!uuid) {
       setQuestionData({
@@ -84,7 +98,7 @@ const QuestionEdit = () => {
         digest: "",
         material: "",
         questionDetails: [],
-        relatedSources: [], // 添加 relatedSources 字段
+        relatedSources: [],
       });
       return;
     }
@@ -97,10 +111,6 @@ const QuestionEdit = () => {
       // 这里可以添加错误处理逻辑，比如显示错误消息
     }
   };
-
-  useEffect(() => {
-    fetchQuestionData(uuid);
-  }, [uuid]);
 
   useEffect(() => {
     if (questionData.category && dictionaries.CategoryKNMapping) {
@@ -164,7 +174,7 @@ const QuestionEdit = () => {
     console.log(updatedQuestionDetail);
   };
 
-  const handleSubmitQuestion = (event) => {
+  const handleSubmitQuestion = async (event) => {
     event.preventDefault();
     console.log("submit!");
     console.log(questionData);
@@ -177,11 +187,49 @@ const QuestionEdit = () => {
       setModalTitle("存在错误");
       setModalContent(errorTxt);
       setReadyToClose(true);
+      setSubmiting(false);
       return;
-    } else {
-      setModalTitle("");
-      setModalContent("正在提交...");
-      asyncSubmit();
+    }
+
+    try {
+      let response;
+      if (isDialog) {
+        // 创建新问题
+        response = await axios.post("/api/questions", questionData);
+        onSubmit(response.data);
+      } else {
+        // 更新现有问题
+        response = await axios.put(`/api/questions/${uuid}`, questionData);
+        setModalTitle("提交成功");
+        setModalContent("问题已成功更新");
+        setReadyToClose(true);
+      }
+
+      // 添加成功提示
+      setSnackbar({
+        open: true,
+        message: isDialog ? "问题创建成功！" : "问题更新成功！",
+        severity: "success",
+      });
+
+      if (!isDialog) {
+        // 如果不是对话框模式，延迟导航
+        setTimeout(() => navigate(-1), 2000);
+      }
+    } catch (error) {
+      console.error("提交问题失败:", error);
+      setModalTitle("提交失败");
+      setModalContent("提交问题时发生错误，请重试。");
+      setReadyToClose(true);
+
+      // 添加错误提示
+      setSnackbar({
+        open: true,
+        message: "提交问题失败，请重试。",
+        severity: "error",
+      });
+    } finally {
+      setSubmiting(false);
     }
   };
 
@@ -201,80 +249,41 @@ const QuestionEdit = () => {
       })),
     };
 
+    console.log("检查错误:", newErrors);
+
     setErrors(newErrors);
 
-    if (Object.values(newErrors).some((error) => error)) {
-      return "请填写所有必填字段";
-    }
-
-    // 题目类型
-    if (questionData.type == "") {
-      return "题目类型未选择";
-    }
-
-    // gradeInfo
-    if (questionData.gradeInfo.school == "") {
-      return "学习阶段未选择";
-    }
-
-    if (questionData.gradeInfo.grade == "") {
-      return "年级未选择";
-    }
-
-    // category
-    if (questionData.category == "") {
-      return "学科未选择";
-    }
-
-    // kn
-    if (questionData.kn == "") {
-      return "知识点未选";
-    }
-
-    // digest
-    if (questionData.digest == "") {
-      return "摘要未填写";
+    // 检查顶层字段
+    for (let key in newErrors) {
+      if (key !== "questionDetails" && newErrors[key]) {
+        console.log(`错误字段: ${key}`);
+        return `请填写 ${key} 字段`;
+      }
     }
 
     // 检查 questionDetails
-    for (let i = 0; i < questionData.questionDetails.length; i++) {
-      const detail = questionData.questionDetails[i];
-      if (detail.questionContent.value.trim() === "") {
-        return `第 ${i + 1} 个题目内容不能为空`;
+    for (let i = 0; i < newErrors.questionDetails.length; i++) {
+      const detail = newErrors.questionDetails[i];
+      if (detail.questionContent) {
+        console.log(`问题内容 ${i + 1} 为空`);
+        return `请填写第 ${i + 1} 个问题的内容`;
       }
-
-      for (let j = 0; j < detail.rows.length; j++) {
-        if (detail.rows[j].value.trim() === "") {
-          return `第 ${i + 1} 个题目的第 ${j + 1} 个选项为空`;
-        }
+      if (detail.rows.some((row) => row)) {
+        console.log(`问题 ${i + 1} 的某个选项为空`);
+        return `请填写第 ${i + 1} 个问题的所有选项`;
       }
-
-      // 检查答案
-      if (questionData.type === "fillInBlank") {
-        if (!detail.answer || detail.answer.length === 0) {
-          return `第 ${i + 1} 个填空题答案未填写`;
-        }
-      } else {
-        if (!detail.rows.some((row) => row.isAns)) {
-          return `第 ${i + 1} 个选择题答案未选择`;
-        }
+      if (detail.answer) {
+        console.log(`问题 ${i + 1} 没有答案`);
+        return `请为第 ${i + 1} 个问题选择答案`;
       }
-
-      if (detail.rate === 0) {
-        return `第 ${i + 1} 个题目难度未选择`;
+      if (detail.rate) {
+        console.log(`问题 ${i + 1} 没有难度`);
+        return `请为第 ${i + 1} 个问题选择难度`;
       }
     }
 
+    console.log("检查通过");
     return "";
-  };
-
-  const asyncSubmit = async () => {
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    console.log("开始等待");
-    await sleep(2000);
-    console.log("等待结束");
-    setModalContent("提交完成!");
-    setReadyToClose(true);
   };
 
   const handleModalStatus = () => {
@@ -368,299 +377,316 @@ const QuestionEdit = () => {
     fetchRelatedSourceOptions(newInputValue);
   };
 
+  const handleCancel = () => {
+    if (isDialog) {
+      onCancel();
+    } else {
+      navigate(-1); // 返回上一页
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const content = (
+    <Stack width="100%">
+      {!showPreview ? (
+        <>
+          <Box component="form" noValidate autoComplete="off">
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 1 }} required error={errors.category}>
+                <InputLabel id="category-select-label">学科</InputLabel>
+                <Select
+                  labelId="category-select-label"
+                  id="category-select"
+                  value={questionData.category}
+                  label="category"
+                  onChange={(e) =>
+                    handleSelectChange("category", e.target.value)
+                  }
+                >
+                  {Object.entries(dictionaries.CategoryDict).map(
+                    ([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    )
+                  )}
+                </Select>
+              </FormControl>
+              <FormControl sx={{ flex: 1 }} required error={errors.kn}>
+                <InputLabel id="demo-simple-select-label">知识点</InputLabel>
+                <Select
+                  labelId="knowledge_node-select-label"
+                  id="knowledge_node-select"
+                  value={questionData.kn}
+                  label="knowledge_node"
+                  onChange={(e) => handleSelectChange("kn", e.target.value)}
+                >
+                  {availableKnowledgeNodes.map((kn) => (
+                    <MenuItem key={kn} value={kn}>
+                      {dictionaries.KNDict[kn]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <MultiLevelSelect
+                onMultiSelectChange={handleMultiSelectChange}
+                initialSchoolLevel={questionData.gradeInfo.school}
+                initialGrade={questionData.gradeInfo.grade}
+                error={errors.school || errors.grade}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 1 }} required error={errors.type}>
+                <InputLabel id="type-label">题目分类</InputLabel>
+                <Select
+                  labelId="type-label"
+                  id="type-select"
+                  value={questionData.type}
+                  label="type"
+                  onChange={(e) => handleSelectChange("type", e.target.value)}
+                >
+                  {Object.entries(dictionaries.TypeDict).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl sx={{ flex: 2 }}>
+                <Autocomplete
+                  multiple
+                  id="related-sources"
+                  options={relatedSourceOptions}
+                  value={questionData.relatedSources}
+                  onChange={handleRelatedSourcesChange}
+                  onInputChange={handleInputChange}
+                  inputValue={inputValue}
+                  getOptionLabel={(option) => option.name}
+                  isOptionEqualToValue={(option, value) =>
+                    option.uuid === value.uuid
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="关联"
+                      placeholder="选择相关试卷或书籍"
+                      variant="standard"
+                    />
+                  )}
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                      <Chip
+                        label={option.name}
+                        {...getTagProps({ index })}
+                        key={option.uuid}
+                      />
+                    ))
+                  }
+                />
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 2 }}>
+                <TextField
+                  id="digest-input"
+                  label="摘要: 比如题目的主要内容"
+                  value={questionData.digest}
+                  onChange={(e) =>
+                    setQuestionData((prevData) => ({
+                      ...prevData,
+                      digest: e.target.value,
+                    }))
+                  }
+                  variant="outlined"
+                  required
+                  error={errors.digest}
+                />
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <TextField
+                  id="source-input"
+                  label="来源: 比如哪一本书，或者哪一张试卷"
+                  value={questionData.source}
+                  onChange={(e) =>
+                    setQuestionData((prevData) => ({
+                      ...prevData,
+                      source: e.target.value,
+                    }))
+                  }
+                  variant="outlined"
+                />
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <Autocomplete
+                  multiple
+                  id="tags-input"
+                  options={Object.entries(dictionaries.TagDict).map(
+                    ([key, value]) => ({ key, value })
+                  )}
+                  value={questionData.tags.map((key) => ({
+                    key,
+                    value: dictionaries.TagDict[key],
+                  }))}
+                  onChange={(event, newValue) =>
+                    handleTagChange(
+                      event,
+                      newValue.map((option) => option.key)
+                    )
+                  }
+                  getOptionLabel={(option) => option.value}
+                  isOptionEqualToValue={(option, value) =>
+                    option.key === value.key
+                  }
+                  renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                      <Chip
+                        label={option.value}
+                        {...getTagProps({ index })}
+                        key={option.key}
+                      />
+                    ))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="标签"
+                      placeholder="选择或输入标签"
+                    />
+                  )}
+                />
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <TextField
+                  id="material-input"
+                  label="材料:多个题目共用"
+                  value={questionData.material}
+                  onChange={(e) =>
+                    setQuestionData((prevData) => ({
+                      ...prevData,
+                      material: e.target.value,
+                    }))
+                  }
+                  variant="outlined"
+                  multiline
+                  rows={4}
+                />
+              </FormControl>
+            </Box>
+
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+              {questionData.questionDetails.map((detail, index) => (
+                <Box key={index} sx={{ mb: 3, position: "relative" }}>
+                  <QuestionDetailEdit
+                    questionDetail={detail}
+                    onQuestionDetailChange={(updatedDetail) =>
+                      handleQuestionDetailChange(updatedDetail, index)
+                    }
+                    errors={errors.questionDetails[index]}
+                  />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      display: "flex",
+                      gap: 1,
+                    }}
+                  >
+                    {index > 0 && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => moveQuestionDetail(index, "up")}
+                      >
+                        上移
+                      </Button>
+                    )}
+                    {index < questionData.questionDetails.length - 1 && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => moveQuestionDetail(index, "down")}
+                      >
+                        下移
+                      </Button>
+                    )}
+                    {questionData.questionDetails.length > 1 && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => removeQuestionDetail(index)}
+                      >
+                        删除
+                      </Button>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={addQuestionDetail}
+                sx={{ mt: 2 }}
+              >
+                添加新问题
+              </Button>
+            </Paper>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              mt: 2,
+              mr: 2,
+              ml: 2,
+              gap: 2,
+            }}
+          >
+            <LoadingButton
+              variant="contained"
+              onClick={handleSubmitQuestion}
+              loading={submiting}
+              fullWidth
+            >
+              提交
+            </LoadingButton>
+            <Button variant="outlined" onClick={handleCancel} fullWidth>
+              {isDialog ? "取消" : "返回"}
+            </Button>
+          </Box>
+        </>
+      ) : (
+        <QuestionPreview
+          questionData={questionData}
+          onClose={handlePreviewToggle}
+        />
+      )}
+    </Stack>
+  );
+
+  if (isDialog) {
+    return content;
+  }
+
   return (
     <QuestionMainLayout
       currentPage={uuid ? "编辑题目" : "新建题目"}
       maxWidth="xl"
     >
-      <Stack width="100%">
-        {!showPreview ? (
-          <>
-            <Box component="form" noValidate autoComplete="off">
-              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-                <FormControl sx={{ flex: 1 }} required error={errors.category}>
-                  <InputLabel id="category-select-label">学科</InputLabel>
-                  <Select
-                    labelId="category-select-label"
-                    id="category-select"
-                    value={questionData.category}
-                    label="category"
-                    onChange={(e) =>
-                      handleSelectChange("category", e.target.value)
-                    }
-                  >
-                    {Object.entries(dictionaries.CategoryDict).map(
-                      ([key, value]) => (
-                        <MenuItem key={key} value={key}>
-                          {value}
-                        </MenuItem>
-                      )
-                    )}
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ flex: 1 }} required error={errors.kn}>
-                  <InputLabel id="demo-simple-select-label">知识点</InputLabel>
-                  <Select
-                    labelId="knowledge_node-select-label"
-                    id="knowledge_node-select"
-                    value={questionData.kn}
-                    label="knowledge_node"
-                    onChange={(e) => handleSelectChange("kn", e.target.value)}
-                  >
-                    {availableKnowledgeNodes.map((kn) => (
-                      <MenuItem key={kn} value={kn}>
-                        {dictionaries.KNDict[kn]}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <MultiLevelSelect
-                  onMultiSelectChange={handleMultiSelectChange}
-                  initialSchoolLevel={questionData.gradeInfo.school}
-                  initialGrade={questionData.gradeInfo.grade}
-                  error={errors.school || errors.grade}
-                />
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-                <FormControl sx={{ flex: 1 }} required error={errors.type}>
-                  <InputLabel id="type-label">题目分类</InputLabel>
-                  <Select
-                    labelId="type-label"
-                    id="type-select"
-                    value={questionData.type}
-                    label="type"
-                    onChange={(e) => handleSelectChange("type", e.target.value)}
-                  >
-                    {Object.entries(dictionaries.TypeDict).map(
-                      ([key, value]) => (
-                        <MenuItem key={key} value={key}>
-                          {value}
-                        </MenuItem>
-                      )
-                    )}
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ flex: 2 }}>
-                  <Autocomplete
-                    multiple
-                    id="related-sources"
-                    options={relatedSourceOptions}
-                    value={questionData.relatedSources}
-                    onChange={handleRelatedSourcesChange}
-                    onInputChange={handleInputChange}
-                    inputValue={inputValue}
-                    getOptionLabel={(option) => option.name}
-                    isOptionEqualToValue={(option, value) =>
-                      option.uuid === value.uuid
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="关联"
-                        placeholder="选择相关试卷或书籍"
-                        variant="standard"
-                      />
-                    )}
-                    renderTags={(value, getTagProps) =>
-                      value.map((option, index) => (
-                        <Chip
-                          label={option.name}
-                          {...getTagProps({ index })}
-                          key={option.uuid}
-                        />
-                      ))
-                    }
-                  />
-                </FormControl>
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-                <FormControl sx={{ flex: 2 }}>
-                  <TextField
-                    id="digest-input"
-                    label="摘要: 比如题目的主要内容"
-                    value={questionData.digest}
-                    onChange={(e) =>
-                      setQuestionData((prevData) => ({
-                        ...prevData,
-                        digest: e.target.value,
-                      }))
-                    }
-                    variant="outlined"
-                    required
-                    error={errors.digest}
-                  />
-                </FormControl>
-                <FormControl sx={{ flex: 1 }}>
-                  <TextField
-                    id="source-input"
-                    label="来源: 比如哪一本书，或者哪一张试卷"
-                    value={questionData.source}
-                    onChange={(e) =>
-                      setQuestionData((prevData) => ({
-                        ...prevData,
-                        source: e.target.value,
-                      }))
-                    }
-                    variant="outlined"
-                  />
-                </FormControl>
-                <FormControl sx={{ flex: 1 }}>
-                  <Autocomplete
-                    multiple
-                    id="tags-input"
-                    options={Object.entries(dictionaries.TagDict).map(
-                      ([key, value]) => ({ key, value })
-                    )}
-                    value={questionData.tags.map((key) => ({
-                      key,
-                      value: dictionaries.TagDict[key],
-                    }))}
-                    onChange={(event, newValue) =>
-                      handleTagChange(
-                        event,
-                        newValue.map((option) => option.key)
-                      )
-                    }
-                    getOptionLabel={(option) => option.value}
-                    isOptionEqualToValue={(option, value) =>
-                      option.key === value.key
-                    }
-                    renderTags={(value, getTagProps) =>
-                      value.map((option, index) => (
-                        <Chip
-                          label={option.value}
-                          {...getTagProps({ index })}
-                          key={option.key}
-                        />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        variant="standard"
-                        label="标签"
-                        placeholder="选择或输入标签"
-                      />
-                    )}
-                  />
-                </FormControl>
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-                <FormControl sx={{ flex: 1 }}>
-                  <TextField
-                    id="material-input"
-                    label="材料:多个题目共用"
-                    value={questionData.material}
-                    onChange={(e) =>
-                      setQuestionData((prevData) => ({
-                        ...prevData,
-                        material: e.target.value,
-                      }))
-                    }
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                  />
-                </FormControl>
-              </Box>
-
-              <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-                {questionData.questionDetails.map((detail, index) => (
-                  <Box key={index} sx={{ mb: 3, position: "relative" }}>
-                    <QuestionDetailEdit
-                      questionDetail={detail}
-                      onQuestionDetailChange={(updatedDetail) =>
-                        handleQuestionDetailChange(updatedDetail, index)
-                      }
-                      errors={errors.questionDetails[index]}
-                    />
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        display: "flex",
-                        gap: 1,
-                      }}
-                    >
-                      {index > 0 && (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => moveQuestionDetail(index, "up")}
-                        >
-                          上移
-                        </Button>
-                      )}
-                      {index < questionData.questionDetails.length - 1 && (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => moveQuestionDetail(index, "down")}
-                        >
-                          下移
-                        </Button>
-                      )}
-                      {questionData.questionDetails.length > 1 && (
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          onClick={() => removeQuestionDetail(index)}
-                        >
-                          删除
-                        </Button>
-                      )}
-                    </Box>
-                  </Box>
-                ))}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={addQuestionDetail}
-                  sx={{ mt: 2 }}
-                >
-                  添加新问题
-                </Button>
-              </Paper>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 2,
-                mr: 2,
-                ml: 2,
-                gap: 2, // 添加间隔
-              }}
-            >
-              <LoadingButton
-                variant="contained"
-                onClick={handleSubmitQuestion}
-                loading={submiting}
-                fullWidth // 添加fullWidth属性
-              >
-                提交
-              </LoadingButton>
-              <Button
-                variant="outlined"
-                onClick={handlePreviewToggle}
-                fullWidth // 添加fullWidth属性
-              >
-                预览
-              </Button>
-            </Box>
-          </>
-        ) : (
-          <QuestionPreview
-            questionData={questionData}
-            onClose={handlePreviewToggle}
-          />
-        )}
-      </Stack>
+      {content}
       <SubmitModal
         status={submiting}
         readyToClose={readyToClose}
@@ -668,6 +694,26 @@ const QuestionEdit = () => {
         contentText={modalContent}
         handleModalStatus={handleModalStatus}
       />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{
+            width: "100%",
+            maxWidth: "400px",
+            boxShadow: 3,
+            marginTop: "200px",
+          }}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </QuestionMainLayout>
   );
 };

@@ -29,6 +29,7 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -38,6 +39,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InlineEdit from "../../../components/InlineEdit";
 import QuestionList from "../../../provider/components/QuestionList";
 import ExamMainLayout from "./layouts/ExamMainLayout";
+import QuestionEdit from "../../../provider/components/QuestionEdit";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -58,6 +60,8 @@ const EditExam = () => {
     message: "",
     severity: "success",
   });
+  const [openNewQuestionDialog, setOpenNewQuestionDialog] = useState(false);
+  const [newQuestionSectionIndex, setNewQuestionSectionIndex] = useState(null);
 
   // 使用 useMemo 来缓存已存在的问题 UUID 集合
   const existingQuestionUuids = useMemo(() => {
@@ -271,6 +275,38 @@ const EditExam = () => {
     setExam(JSON.parse(JSON.stringify(initialExam))); // 深拷贝
   };
 
+  const handleOpenNewQuestionDialog = (sectionIndex) => {
+    setNewQuestionSectionIndex(sectionIndex);
+    setOpenNewQuestionDialog(true);
+  };
+
+  const handleCloseNewQuestionDialog = () => {
+    setOpenNewQuestionDialog(false);
+    setNewQuestionSectionIndex(null);
+  };
+
+  const handleNewQuestionSubmit = (newQuestion) => {
+    updateExam((prev) => {
+      const newSections = [...prev.sections];
+      const currentSection = newSections[newQuestionSectionIndex];
+      const currentQuestions = currentSection.questions || [];
+      currentSection.questions = [
+        ...currentQuestions,
+        {
+          ...newQuestion,
+          order_in_section: currentQuestions.length + 1,
+        },
+      ];
+      return { sections: newSections };
+    });
+    setSnackbar({
+      open: true,
+      message: "新问题已成功添加到考试中！",
+      severity: "success",
+    });
+    handleCloseNewQuestionDialog();
+  };
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -278,58 +314,70 @@ const EditExam = () => {
   return (
     <ExamMainLayout currentPage="编辑考试">
       <Box sx={{ maxWidth: 800, mt: 2 }}>
-        <TextField
-          label="名称"
-          value={exam.name}
-          fullWidth
-          margin="normal"
-          InputProps={{
-            readOnly: true,
-            style: { color: "rgba(0, 0, 0, 0.38)" },
-            disableUnderline: true,
-          }}
-          disabled
-        />
-        <FormControl fullWidth margin="normal" disabled>
-          <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>科目</InputLabel>
-          <Select
-            value={exam.category}
-            label="科目"
-            inputProps={{
-              readOnly: true,
-              style: { color: "rgba(0, 0, 0, 0.38)" },
-            }}
-            sx={{
-              "& .MuiSelect-icon": {
-                color: "rgba(0, 0, 0, 0.38)",
-              },
-            }}
-          >
-            <MenuItem value="math">数学</MenuItem>
-            <MenuItem value="english">英语</MenuItem>
-            <MenuItem value="physics">物理</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth margin="normal" disabled>
-          <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>阶段</InputLabel>
-          <Select
-            value={exam.stage}
-            label="阶段"
-            inputProps={{
-              readOnly: true,
-              style: { color: "rgba(0, 0, 0, 0.38)" },
-            }}
-            sx={{
-              "& .MuiSelect-icon": {
-                color: "rgba(0, 0, 0, 0.38)",
-              },
-            }}
-          >
-            <MenuItem value="primary">小学</MenuItem>
-            <MenuItem value="middle">中学</MenuItem>
-            <MenuItem value="high">高中</MenuItem>
-          </Select>
-        </FormControl>
+        <Grid container spacing={2}>
+          <Grid item xs={4}>
+            <TextField
+              label="名称"
+              value={exam.name}
+              fullWidth
+              margin="normal"
+              InputProps={{
+                readOnly: true,
+                style: { color: "rgba(0, 0, 0, 0.38)" },
+                disableUnderline: true,
+              }}
+              disabled
+            />
+          </Grid>
+          <Grid item xs={4}>
+            <FormControl fullWidth margin="normal" disabled>
+              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
+                科目
+              </InputLabel>
+              <Select
+                value={exam.category}
+                label="科目"
+                inputProps={{
+                  readOnly: true,
+                  style: { color: "rgba(0, 0, 0, 0.38)" },
+                }}
+                sx={{
+                  "& .MuiSelect-icon": {
+                    color: "rgba(0, 0, 0, 0.38)",
+                  },
+                }}
+              >
+                <MenuItem value="math">数学</MenuItem>
+                <MenuItem value="english">英语</MenuItem>
+                <MenuItem value="physics">物理</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={4}>
+            <FormControl fullWidth margin="normal" disabled>
+              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
+                阶段
+              </InputLabel>
+              <Select
+                value={exam.stage}
+                label="阶段"
+                inputProps={{
+                  readOnly: true,
+                  style: { color: "rgba(0, 0, 0, 0.38)" },
+                }}
+                sx={{
+                  "& .MuiSelect-icon": {
+                    color: "rgba(0, 0, 0, 0.38)",
+                  },
+                }}
+              >
+                <MenuItem value="primary">小学</MenuItem>
+                <MenuItem value="middle">中学</MenuItem>
+                <MenuItem value="high">高中</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
 
         <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
           <Button
@@ -475,13 +523,20 @@ const EditExam = () => {
                         </TableBody>
                       </Table>
                     </TableContainer>
-                    <Button
-                      startIcon={<AddIcon />}
-                      onClick={() => handleSelectQuestions(index)}
-                      sx={{ mt: 2 }}
-                    >
-                      选择问题
-                    </Button>
+                    <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                      <Button
+                        startIcon={<AddIcon />}
+                        onClick={() => handleOpenNewQuestionDialog(index)}
+                      >
+                        新建问题
+                      </Button>
+                      <Button
+                        startIcon={<AddIcon />}
+                        onClick={() => handleSelectQuestions(index)}
+                      >
+                        选择问题
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Collapse>
               </Card>
@@ -568,6 +623,21 @@ const EditExam = () => {
               确认
             </Button>
           </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={openNewQuestionDialog}
+          onClose={handleCloseNewQuestionDialog}
+          maxWidth="xl"
+          fullWidth
+        >
+          <DialogContent>
+            <QuestionEdit
+              onSubmit={handleNewQuestionSubmit}
+              onCancel={handleCloseNewQuestionDialog}
+              isDialog={true}
+            />
+          </DialogContent>
         </Dialog>
 
         <Snackbar

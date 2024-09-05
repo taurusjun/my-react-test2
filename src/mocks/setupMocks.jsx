@@ -291,3 +291,40 @@ mock.onPut(/\/api\/exams\/.*/).reply((config) => {
   console.log("更新的考试数据:", updatedExam);
   return [200, { message: "考试更新成功" }];
 });
+
+// 模拟创建新问题的 POST 请求
+mock.onPost("/api/questions").reply((config) => {
+  const newQuestion = JSON.parse(config.data);
+  console.log("创建的新问题:", newQuestion);
+
+  // 生成一个新的 UUID
+  const newUuid = `question-${Date.now()}`;
+
+  // 返回创建成功的响应，包含新创建的问题数据
+  return [
+    201,
+    {
+      ...newQuestion,
+      uuid: newUuid,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+});
+
+// 模拟更新现有问题的 PUT 请求
+mock.onPut(/\/api\/questions\/.*/).reply((config) => {
+  const uuid = config.url.split("/").pop();
+  const updatedQuestion = JSON.parse(config.data);
+  console.log(`更新问题 ${uuid}:`, updatedQuestion);
+
+  // 返回更新成功的响应，包含更新后的问题数据
+  return [
+    200,
+    {
+      ...updatedQuestion,
+      uuid: uuid,
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+});
