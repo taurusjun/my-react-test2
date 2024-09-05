@@ -10,6 +10,7 @@ import {
   Typography,
   Select,
   Paper,
+  Grid,
   Chip,
   Autocomplete,
   Button,
@@ -414,221 +415,227 @@ const QuestionEdit = ({
   };
 
   const content = (
-    <Stack width="100%">
+    <Box
+      sx={{
+        width: "100%",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "20px",
+      }}
+    >
       {!showPreview ? (
-        <>
-          <Box component="form" noValidate autoComplete="off">
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                ml: 2,
-                mr: 2,
-                mt: 2,
-                mb: 2,
-                alignItems: "flex-start",
-              }}
+        <Grid container spacing={2}>
+          {/* 第一行 */}
+          <Grid item xs={12} sm={4}>
+            <FormControl
+              fullWidth
+              required
+              error={errors.category}
+              disabled={isFromExamEdit}
             >
-              <FormControl
-                sx={{ width: "150px" }}
-                required
-                error={errors.category}
-                disabled={isFromExamEdit}
+              <InputLabel id="category-select-label">学科</InputLabel>
+              <Select
+                labelId="category-select-label"
+                id="category-select"
+                value={questionData.category}
+                label="学科"
+                onChange={(e) => handleSelectChange("category", e.target.value)}
               >
-                <InputLabel id="category-select-label">学科</InputLabel>
-                <NarrowSelect
-                  labelId="category-select-label"
-                  id="category-select"
-                  value={questionData.category}
-                  label="category"
-                  onChange={(e) =>
-                    handleSelectChange("category", e.target.value)
-                  }
-                >
-                  {Object.entries(dictionaries.CategoryDict).map(
-                    ([key, value]) => (
-                      <MenuItem key={key} value={key}>
-                        {value}
-                      </MenuItem>
-                    )
-                  )}
-                </NarrowSelect>
-              </FormControl>
-              <FormControl
-                sx={{ width: "150px" }}
-                required
-                error={errors.kn}
-                disabled={isFromExamEdit}
-              >
-                <InputLabel id="demo-simple-select-label">知识点</InputLabel>
-                <NarrowSelect
-                  labelId="knowledge_node-select-label"
-                  id="knowledge_node-select"
-                  value={questionData.kn}
-                  label="knowledge_node"
-                  onChange={(e) => handleSelectChange("kn", e.target.value)}
-                >
-                  {availableKnowledgeNodes.map((kn) => (
-                    <MenuItem key={kn} value={kn}>
-                      {dictionaries.KNDict[kn]}
-                    </MenuItem>
-                  ))}
-                </NarrowSelect>
-              </FormControl>
-              <MultiLevelSelect
-                onMultiSelectChange={handleMultiSelectChange}
-                initialSchoolLevel={questionData.gradeInfo.school}
-                initialGrade={questionData.gradeInfo.grade}
-                error={errors.school || errors.grade}
-                disabled={isFromExamEdit}
-                readOnly={isFromExamEdit}
-                inline={true}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 1 }} required error={errors.type}>
-                <InputLabel id="type-label">题目分类</InputLabel>
-                <Select
-                  labelId="type-label"
-                  id="type-select"
-                  value={questionData.type}
-                  label="type"
-                  onChange={(e) => handleSelectChange("type", e.target.value)}
-                >
-                  {Object.entries(dictionaries.TypeDict).map(([key, value]) => (
+                {Object.entries(dictionaries.CategoryDict).map(
+                  ([key, value]) => (
                     <MenuItem key={key} value={key}>
                       {value}
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ flex: 2 }}>
-                <Autocomplete
-                  multiple
-                  id="related-sources"
-                  options={relatedSourceOptions}
-                  value={questionData.relatedSources}
-                  onChange={handleRelatedSourcesChange}
-                  onInputChange={handleInputChange}
-                  inputValue={inputValue}
-                  getOptionLabel={(option) => option.name}
-                  isOptionEqualToValue={(option, value) =>
-                    option.uuid === value.uuid
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="关联"
-                      placeholder="选择相关试卷或书籍"
-                      variant="standard"
-                    />
-                  )}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip
-                        label={option.name}
-                        {...getTagProps({ index })}
-                        key={option.uuid}
-                      />
-                    ))
-                  }
-                />
-              </FormControl>
-            </Box>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControl
+              fullWidth
+              required
+              error={errors.kn}
+              disabled={isFromExamEdit}
+            >
+              <InputLabel id="knowledge_node-select-label">知识点</InputLabel>
+              <Select
+                labelId="knowledge_node-select-label"
+                id="knowledge_node-select"
+                value={questionData.kn}
+                label="知识点"
+                onChange={(e) => handleSelectChange("kn", e.target.value)}
+              >
+                {Object.entries(dictionaries.CategoryDict).map(
+                  ([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <MultiLevelSelect
+              onMultiSelectChange={handleMultiSelectChange}
+              initialSchoolLevel={questionData.gradeInfo.school}
+              initialGrade={questionData.gradeInfo.grade}
+              error={errors.school || errors.grade}
+              disabled={isFromExamEdit}
+              readOnly={isFromExamEdit}
+              inline={true}
+              fullWidth
+            />
+          </Grid>
 
-            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 2 }}>
+          {/* 第二行 */}
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth required error={errors.type}>
+              <InputLabel id="type-label">题目分类</InputLabel>
+              <Select
+                labelId="type-label"
+                id="type-select"
+                value={questionData.type}
+                label="题目分类"
+                onChange={(e) => handleSelectChange("type", e.target.value)}
+              >
+                {Object.entries(dictionaries.TypeDict).map(([key, value]) => (
+                  <MenuItem key={key} value={key}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Autocomplete
+              multiple
+              id="related-sources"
+              options={relatedSourceOptions}
+              value={questionData.relatedSources}
+              onChange={handleRelatedSourcesChange}
+              onInputChange={handleInputChange}
+              inputValue={inputValue}
+              getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.uuid === value.uuid
+              }
+              renderInput={(params) => (
                 <TextField
-                  id="digest-input"
-                  label="摘要: 比如题目的主要内容"
-                  value={questionData.digest}
-                  onChange={(e) =>
-                    setQuestionData((prevData) => ({
-                      ...prevData,
-                      digest: e.target.value,
-                    }))
-                  }
+                  {...params}
+                  label="关联"
+                  placeholder="选择相关试卷或书籍"
                   variant="outlined"
-                  required
-                  error={errors.digest}
+                  fullWidth
                 />
-              </FormControl>
-              <FormControl sx={{ flex: 1 }}>
-                <TextField
-                  id="source-input"
-                  label="来源: 比如哪一本书，或者哪一张试卷"
-                  value={questionData.source}
-                  onChange={(e) =>
-                    setQuestionData((prevData) => ({
-                      ...prevData,
-                      source: e.target.value,
-                    }))
-                  }
-                  variant="outlined"
-                />
-              </FormControl>
-              <FormControl sx={{ flex: 1 }}>
-                <Autocomplete
-                  multiple
-                  id="tags-input"
-                  options={Object.entries(dictionaries.TagDict).map(
-                    ([key, value]) => ({ key, value })
-                  )}
-                  value={questionData.tags.map((key) => ({
-                    key,
-                    value: dictionaries.TagDict[key],
-                  }))}
-                  onChange={(event, newValue) =>
-                    handleTagChange(
-                      event,
-                      newValue.map((option) => option.key)
-                    )
-                  }
-                  getOptionLabel={(option) => option.value}
-                  isOptionEqualToValue={(option, value) =>
-                    option.key === value.key
-                  }
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip
-                        label={option.value}
-                        {...getTagProps({ index })}
-                        key={option.key}
-                      />
-                    ))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="standard"
-                      label="标签"
-                      placeholder="选择或输入标签"
-                    />
-                  )}
-                />
-              </FormControl>
-            </Box>
+              )}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option.name}
+                    {...getTagProps({ index })}
+                    key={option.uuid}
+                  />
+                ))
+              }
+            />
+          </Grid>
 
-            <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
+          {/* 第三行 */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              id="digest-input"
+              label="摘要: 比如题目的主要内容"
+              value={questionData.digest}
+              onChange={(e) =>
+                setQuestionData((prevData) => ({
+                  ...prevData,
+                  digest: e.target.value,
+                }))
+              }
+              variant="outlined"
+              required
+              error={errors.digest}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              fullWidth
+              id="source-input"
+              label="来源: 比如哪一本书，或者哪一张试卷"
+              value={questionData.source}
+              onChange={(e) =>
+                setQuestionData((prevData) => ({
+                  ...prevData,
+                  source: e.target.value,
+                }))
+              }
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <Autocomplete
+              multiple
+              id="tags-input"
+              options={Object.entries(dictionaries.TagDict).map(
+                ([key, value]) => ({ key, value })
+              )}
+              value={questionData.tags.map((key) => ({
+                key,
+                value: dictionaries.TagDict[key],
+              }))}
+              onChange={(event, newValue) =>
+                handleTagChange(
+                  event,
+                  newValue.map((option) => option.key)
+                )
+              }
+              getOptionLabel={(option) => option.value}
+              isOptionEqualToValue={(option, value) => option.key === value.key}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option.value}
+                    {...getTagProps({ index })}
+                    key={option.key}
+                  />
+                ))
+              }
+              renderInput={(params) => (
                 <TextField
-                  id="material-input"
-                  label="材料:多个题目共用"
-                  value={questionData.material}
-                  onChange={(e) =>
-                    setQuestionData((prevData) => ({
-                      ...prevData,
-                      material: e.target.value,
-                    }))
-                  }
+                  {...params}
                   variant="outlined"
-                  multiline
-                  rows={4}
+                  label="标签"
+                  placeholder="选择或输入标签"
+                  fullWidth
                 />
-              </FormControl>
-            </Box>
+              )}
+            />
+          </Grid>
 
+          {/* 第四行 */}
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              id="material-input"
+              label="材料:多个题目共用"
+              value={questionData.material}
+              onChange={(e) =>
+                setQuestionData((prevData) => ({
+                  ...prevData,
+                  material: e.target.value,
+                }))
+              }
+              variant="outlined"
+              multiline
+              rows={4}
+            />
+          </Grid>
+
+          {/* 问题详情部分 */}
+          <Grid item xs={12}>
             <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
               {questionData.questionDetails.map((detail, index) => (
                 <Box key={index} sx={{ mb: 3, position: "relative" }}>
@@ -688,17 +695,10 @@ const QuestionEdit = ({
                 添加新问题
               </Button>
             </Paper>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mt: 2,
-              mr: 2,
-              ml: 2,
-              gap: 2,
-            }}
-          >
+          </Grid>
+
+          {/* 提交和返回按钮 */}
+          <Grid item xs={6}>
             <LoadingButton
               variant="contained"
               onClick={handleSubmitQuestion}
@@ -707,18 +707,20 @@ const QuestionEdit = ({
             >
               提交
             </LoadingButton>
+          </Grid>
+          <Grid item xs={6}>
             <Button variant="outlined" onClick={handleCancel} fullWidth>
               {isDialog ? "取消" : "返回"}
             </Button>
-          </Box>
-        </>
+          </Grid>
+        </Grid>
       ) : (
         <QuestionPreview
           questionData={questionData}
           onClose={handlePreviewToggle}
         />
       )}
-    </Stack>
+    </Box>
   );
 
   if (isDialog) {
