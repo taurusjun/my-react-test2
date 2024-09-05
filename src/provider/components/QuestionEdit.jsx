@@ -45,8 +45,6 @@ const QuestionEdit = ({
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
   const [showPreview, setShowPreview] = useState(false);
-  const [relatedSourceOptions, setRelatedSourceOptions] = useState([]);
-  const [inputValue, setInputValue] = useState("");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -137,23 +135,6 @@ const QuestionEdit = ({
       setAvailableKnowledgeNodes([]);
     }
   }, [questionData.category, dictionaries.CategoryKNMapping]);
-
-  useEffect(() => {
-    fetchRelatedSourceOptions("");
-  }, []);
-
-  const fetchRelatedSourceOptions = async (query) => {
-    try {
-      const response = await axios.get("/api/related-sources", {
-        params: { query },
-      });
-      // 响应数据已经是正确的格式，无需转换
-      setRelatedSourceOptions(response.data);
-    } catch (error) {
-      console.error("获取关联来源选项时出错:", error);
-      // 这里可以添加错误处理逻辑，比如显示错误消息
-    }
-  };
 
   if (loading) return <div>载中...</div>;
   if (error) return <div>加载失败</div>;
@@ -397,18 +378,6 @@ const QuestionEdit = ({
     });
   };
 
-  const handleRelatedSourcesChange = (event, newValue) => {
-    setQuestionData((prevData) => ({
-      ...prevData,
-      relatedSources: newValue,
-    }));
-  };
-
-  const handleInputChange = (event, newInputValue) => {
-    setInputValue(newInputValue);
-    fetchRelatedSourceOptions(newInputValue);
-  };
-
   const handleCancel = () => {
     if (isDialog) {
       onCancel();
@@ -512,37 +481,36 @@ const QuestionEdit = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Autocomplete
-              multiple
-              id="related-sources"
-              options={relatedSourceOptions}
-              value={questionData.relatedSources}
-              onChange={handleRelatedSourcesChange}
-              onInputChange={handleInputChange}
-              inputValue={inputValue}
-              getOptionLabel={(option) => option.name}
-              isOptionEqualToValue={(option, value) =>
-                option.uuid === value.uuid
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="关联"
-                  placeholder="选择相关试卷或书籍"
-                  variant="outlined"
-                  fullWidth
-                />
-              )}
-              renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                  <Chip
-                    label={option.name}
-                    {...getTagProps({ index })}
-                    key={option.uuid}
-                  />
-                ))
-              }
-            />
+            <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
+              <Typography variant="body1" sx={{ mr: 1, minWidth: "40px" }}>
+                关联:
+              </Typography>
+              <Box
+                sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, flex: 1 }}
+              >
+                {questionData.relatedSources.length > 0 ? (
+                  questionData.relatedSources.map((source) => (
+                    <Chip
+                      key={source.uuid}
+                      label={source.name}
+                      variant="outlined"
+                      size="medium"
+                      sx={{
+                        fontSize: "inherit",
+                        height: "auto",
+                        "& .MuiChip-label": {
+                          padding: "3px 8px",
+                        },
+                      }}
+                    />
+                  ))
+                ) : (
+                  <Typography variant="body1" color="text.secondary">
+                    无关联试卷或书籍
+                  </Typography>
+                )}
+              </Box>
+            </Box>
           </Grid>
 
           {/* 第三行 */}

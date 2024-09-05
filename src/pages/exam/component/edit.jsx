@@ -49,6 +49,7 @@ const EditExam = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({
+    name: "",
     sections: [],
     gradeInfo: { school: "", grade: "" },
   });
@@ -328,6 +329,14 @@ const EditExam = () => {
     });
   };
 
+  const handleExamNameChange = (event) => {
+    const newName = event.target.value;
+    setExam((prevExam) => ({
+      ...prevExam,
+      name: newName,
+    }));
+  };
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -339,11 +348,7 @@ const EditExam = () => {
           <TextField
             label="名称"
             value={exam.name}
-            InputProps={{
-              readOnly: true,
-              style: { color: "rgba(0, 0, 0, 0.38)" },
-            }}
-            disabled
+            onChange={handleExamNameChange}
             variant="outlined"
             sx={{ width: "200px" }}
           />
