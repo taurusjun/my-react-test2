@@ -128,6 +128,11 @@ const QuestionEdit = ({
       const knList =
         dictionaries.CategoryKNMapping[questionData.category] || [];
       setAvailableKnowledgeNodes(knList);
+
+      // 如果当前选中的知识点不在新的列表中,重置知识点
+      if (knList.length > 0 && !knList.includes(questionData.kn)) {
+        setQuestionData((prevData) => ({ ...prevData, kn: "" }));
+      }
     } else {
       setAvailableKnowledgeNodes([]);
     }
@@ -154,10 +159,7 @@ const QuestionEdit = ({
   if (error) return <div>加载失败</div>;
 
   const handleSelectChange = (type, value) => {
-    if (
-      isFromExamEdit &&
-      (type === "category" || type === "gradeInfo" || type === "kn")
-    ) {
+    if (isFromExamEdit && (type === "category" || type === "gradeInfo")) {
       // 如果是从 exam edit 进入，且是这些字段，则不允许更改
       return;
     }
@@ -167,7 +169,7 @@ const QuestionEdit = ({
     }));
 
     if (type === "category") {
-      // 当学科改变时，重置知识点选择
+      // 当学科改变时,重置知识点选择
       setQuestionData((prevData) => ({
         ...prevData,
         kn: "",
@@ -452,12 +454,7 @@ const QuestionEdit = ({
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControl
-              fullWidth
-              required
-              error={errors.kn}
-              disabled={isFromExamEdit}
-            >
+            <FormControl fullWidth required error={errors.kn}>
               <InputLabel id="knowledge_node-select-label">知识点</InputLabel>
               <Select
                 labelId="knowledge_node-select-label"
@@ -466,13 +463,11 @@ const QuestionEdit = ({
                 label="知识点"
                 onChange={(e) => handleSelectChange("kn", e.target.value)}
               >
-                {Object.entries(dictionaries.CategoryDict).map(
-                  ([key, value]) => (
-                    <MenuItem key={key} value={key}>
-                      {value}
-                    </MenuItem>
-                  )
-                )}
+                {availableKnowledgeNodes.map((kn) => (
+                  <MenuItem key={kn} value={kn}>
+                    {dictionaries.KNDict[kn] || kn}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
