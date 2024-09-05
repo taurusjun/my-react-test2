@@ -320,6 +320,14 @@ const EditExam = () => {
     }));
   };
 
+  const updateQuestionScore = (sectionIndex, questionIndex, newScore) => {
+    updateExam((prev) => {
+      const newSections = [...prev.sections];
+      newSections[sectionIndex].questions[questionIndex].score = newScore;
+      return { sections: newSections };
+    });
+  };
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -466,6 +474,7 @@ const EditExam = () => {
                             <TableCell>顺序</TableCell>
                             <TableCell>摘要</TableCell>
                             <TableCell>知识点</TableCell>
+                            <TableCell>分值</TableCell>
                             <TableCell align="right">操作</TableCell>
                           </TableRow>
                         </TableHead>
@@ -481,6 +490,20 @@ const EditExam = () => {
                                 </TableCell>
                                 <TableCell>{question.digest}</TableCell>
                                 <TableCell>{question.kn}</TableCell>
+                                <TableCell>
+                                  <InlineEdit
+                                    value={question.score || ""}
+                                    onSave={(newScore) =>
+                                      updateQuestionScore(
+                                        index,
+                                        qIndex,
+                                        newScore
+                                      )
+                                    }
+                                    type="number"
+                                    sx={{ width: "60px" }}
+                                  />
+                                </TableCell>
                                 <TableCell align="right">
                                   <IconButton
                                     onClick={() =>
