@@ -57,8 +57,8 @@ export const CategoryKNMapping = {
 // 学校类型字典
 export const SchoolDict = {
   primary: "小学",
-  juniorHigh: "初中",
-  seniorHigh: "高中",
+  junior: "初中",
+  senior: "高中",
 };
 
 // 年级字典

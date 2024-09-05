@@ -40,12 +40,24 @@ import InlineEdit from "../../../components/InlineEdit";
 import QuestionList from "../../../provider/components/QuestionList";
 import ExamMainLayout from "./layouts/ExamMainLayout";
 import QuestionEdit from "../../../provider/components/QuestionEdit";
+import MultiLevelSelect from "../../../provider/components/MultiLevelSelect";
+import { styled } from "@mui/material/styles";
+
+const NarrowSelect = styled(Select)(({ theme }) => ({
+  minWidth: "100px",
+  "& .MuiSelect-select": {
+    paddingRight: "24px !important",
+  },
+}));
 
 const EditExam = () => {
   const { uuid } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [exam, setExam] = useState({ sections: [] });
+  const [exam, setExam] = useState({
+    sections: [],
+    gradeInfo: { school: "", grade: "" },
+  });
   const [initialExam, setInitialExam] = useState(null);
   const [expandedSection, setExpandedSection] = useState(null);
   const [openQuestionList, setOpenQuestionList] = useState(false);
@@ -307,6 +319,13 @@ const EditExam = () => {
     handleCloseNewQuestionDialog();
   };
 
+  const handleGradeInfoChange = (school, grade) => {
+    setExam((prev) => ({
+      ...prev,
+      gradeInfo: { school, grade },
+    }));
+  };
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -314,12 +333,11 @@ const EditExam = () => {
   return (
     <ExamMainLayout currentPage="编辑考试">
       <Box sx={{ maxWidth: 800, mt: 2 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={4}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
             <TextField
               label="名称"
               value={exam.name}
-              fullWidth
               margin="normal"
               InputProps={{
                 readOnly: true,
@@ -329,12 +347,12 @@ const EditExam = () => {
               disabled
             />
           </Grid>
-          <Grid item xs={4}>
-            <FormControl fullWidth margin="normal" disabled>
+          <Grid item>
+            <FormControl margin="normal" disabled>
               <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
                 科目
               </InputLabel>
-              <Select
+              <NarrowSelect
                 value={exam.category}
                 label="科目"
                 inputProps={{
@@ -350,32 +368,18 @@ const EditExam = () => {
                 <MenuItem value="math">数学</MenuItem>
                 <MenuItem value="english">英语</MenuItem>
                 <MenuItem value="physics">物理</MenuItem>
-              </Select>
+              </NarrowSelect>
             </FormControl>
           </Grid>
-          <Grid item xs={4}>
-            <FormControl fullWidth margin="normal" disabled>
-              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
-                阶段
-              </InputLabel>
-              <Select
-                value={exam.stage}
-                label="阶段"
-                inputProps={{
-                  readOnly: true,
-                  style: { color: "rgba(0, 0, 0, 0.38)" },
-                }}
-                sx={{
-                  "& .MuiSelect-icon": {
-                    color: "rgba(0, 0, 0, 0.38)",
-                  },
-                }}
-              >
-                <MenuItem value="primary">小学</MenuItem>
-                <MenuItem value="middle">中学</MenuItem>
-                <MenuItem value="high">高中</MenuItem>
-              </Select>
-            </FormControl>
+          <Grid item>
+            <MultiLevelSelect
+              onMultiSelectChange={handleGradeInfoChange}
+              initialSchoolLevel={exam.gradeInfo.school}
+              initialGrade={exam.gradeInfo.grade}
+              error={false}
+              disabled={true}
+              readOnly={true}
+            />
           </Grid>
         </Grid>
 

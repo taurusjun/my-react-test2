@@ -77,7 +77,7 @@ mock.onGet("/api/related-sources").reply((config) => {
   const allOptions = [
     { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
     { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
-    { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
+    { uuid: "uuid-3456-cdef-7890", name: "高中��理教材" },
     { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
     { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
     { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
@@ -203,7 +203,7 @@ mock.onGet("/api/exams").reply((config) => {
   ];
 });
 
-// 添加获取单个考试数据的模拟
+// 修改获取单个考试数据的模拟
 mock.onGet(/\/api\/exams\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();
 
@@ -211,7 +211,10 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
     uuid: uuid,
     name: "物理模拟考试 1",
     category: "physics",
-    stage: "high",
+    gradeInfo: {
+      school: "senior",
+      grade: "grade11",
+    },
     createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
     startTime: format(addDays(new Date(), 7), "yyyy-MM-dd HH:mm:ss"),
     duration: 120,
