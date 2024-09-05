@@ -25,7 +25,15 @@ import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
 import QuestionMainLayout from "../layouts/QuestionMainLayout";
 
-const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
+const QuestionEdit = ({
+  onSubmit,
+  onCancel,
+  isDialog = false,
+  initialCategory,
+  initialSchool,
+  initialGrade,
+  initialKn,
+}) => {
   const { uuid } = useParams();
   const navigate = useNavigate();
   const { dictionaries, loading, error } = useDictionaries();
@@ -44,11 +52,11 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
 
   const [questionData, setQuestionData] = useState({
     type: "",
-    category: "",
-    kn: "",
+    category: initialCategory || "",
+    kn: initialKn || "",
     gradeInfo: {
-      school: "",
-      grade: "",
+      school: initialSchool || "",
+      grade: initialGrade || "",
     },
     source: "",
     tags: [],
@@ -143,6 +151,10 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
   if (error) return <div>加载失败</div>;
 
   const handleSelectChange = (type, value) => {
+    if (type === "category" || type === "gradeInfo" || type === "kn") {
+      // 不允许更改这些字段
+      return;
+    }
     setQuestionData((prevData) => ({
       ...prevData,
       [type]: value,
@@ -158,10 +170,8 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
   };
 
   const handleMultiSelectChange = (school, grade) => {
-    setQuestionData((prevData) => ({
-      ...prevData,
-      gradeInfo: { school, grade: grade },
-    }));
+    // 不允许更改这些字段
+    return;
   };
 
   const handleQuestionDetailChange = (updatedQuestionDetail, index) => {
@@ -398,7 +408,12 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
         <>
           <Box component="form" noValidate autoComplete="off">
             <Box sx={{ display: "flex", gap: 1, ml: 2, mr: 2, mt: 2, mb: 2 }}>
-              <FormControl sx={{ flex: 1 }} required error={errors.category}>
+              <FormControl
+                sx={{ flex: 1 }}
+                required
+                error={errors.category}
+                disabled
+              >
                 <InputLabel id="category-select-label">学科</InputLabel>
                 <Select
                   labelId="category-select-label"
@@ -418,7 +433,7 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
                   )}
                 </Select>
               </FormControl>
-              <FormControl sx={{ flex: 1 }} required error={errors.kn}>
+              <FormControl sx={{ flex: 1 }} required error={errors.kn} disabled>
                 <InputLabel id="demo-simple-select-label">知识点</InputLabel>
                 <Select
                   labelId="knowledge_node-select-label"
@@ -439,6 +454,8 @@ const QuestionEdit = ({ onSubmit, onCancel, isDialog = false }) => {
                 initialSchoolLevel={questionData.gradeInfo.school}
                 initialGrade={questionData.gradeInfo.grade}
                 error={errors.school || errors.grade}
+                disabled={true}
+                readOnly={true}
               />
             </Box>
 

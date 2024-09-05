@@ -640,6 +640,10 @@ const EditExam = () => {
               onSubmit={handleNewQuestionSubmit}
               onCancel={handleCloseNewQuestionDialog}
               isDialog={true}
+              initialCategory={exam.category}
+              initialSchool={exam.gradeInfo.school}
+              initialGrade={exam.gradeInfo.grade}
+              initialKn={exam.kn} // 添加这一行，传入选中的知识点
             />
           </DialogContent>
         </Dialog>
