@@ -374,24 +374,29 @@ const EditExam = () => {
                         sx={{ width: "100%" }}
                       />
                     </Box>
+                    <IconButton
+                      onClick={() => moveSection(index, -1)}
+                      disabled={index === 0}
+                      size="small"
+                    >
+                      <ArrowUpwardIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => moveSection(index, 1)}
+                      disabled={index === exam.sections.length - 1}
+                      size="small"
+                    >
+                      <ArrowDownwardIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => deleteSection(index)}
+                      size="small"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </Box>
                 </CardContent>
-                <CardActions>
-                  <IconButton
-                    onClick={() => moveSection(index, -1)}
-                    disabled={index === 0}
-                  >
-                    <ArrowUpwardIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => moveSection(index, 1)}
-                    disabled={index === exam.sections.length - 1}
-                  >
-                    <ArrowDownwardIcon />
-                  </IconButton>
-                  <IconButton onClick={() => deleteSection(index)}>
-                    <DeleteIcon />
-                  </IconButton>
+                <CardActions sx={{ justifyContent: "flex-start" }}>
                   <Button
                     onClick={() =>
                       setExpandedSection(
@@ -400,8 +405,7 @@ const EditExam = () => {
                     }
                     aria-expanded={expandedSection === index}
                     aria-label="显示更多"
-                    endIcon={<ExpandMoreIcon />}
-                    sx={{ marginLeft: "auto" }}
+                    startIcon={<ExpandMoreIcon />}
                   >
                     {expandedSection === index
                       ? "收起问题列表"
@@ -414,9 +418,6 @@ const EditExam = () => {
                   unmountOnExit
                 >
                   <CardContent>
-                    <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                      题目列表
-                    </Typography>
                     <TableContainer component={Paper}>
                       <Table size="small">
                         <TableHead>
