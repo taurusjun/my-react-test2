@@ -229,7 +229,6 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
           {
             uuid: "question-1",
             digest: "这是第一道选择题，考察基本物理概念。",
-            rate: 1,
             content: "以下哪个是力的单位？",
             options: ["A. 米(m)", "B. 牛顿(N)", "C. 焦耳(J)", "D. 瓦特(W)"],
             answer: "B",
@@ -240,7 +239,6 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
           {
             uuid: "question-2",
             digest: "这是第二道选择题，考察运动学知识。",
-            rate: 2,
             content: "一个物体做匀速直线运动，以下哪个物理量保持不变？",
             options: ["A. 位移", "B. 速度", "C. 加速度", "D. 时间"],
             answer: "B",
@@ -258,7 +256,6 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
           {
             uuid: "question-3",
             digest: "这是一道填空题，考察能量转换。",
-            rate: 2,
             content: "物体从高处自由落下，重力势能转化为 ______ 能。",
             answer: "动能",
             score: 10,
@@ -275,7 +272,6 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
           {
             uuid: "question-4",
             digest: "这是一道计算题，考察牛顿运动定律的应用。",
-            rate: 3,
             content:
               "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
             answer:

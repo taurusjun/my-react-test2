@@ -251,7 +251,7 @@ const EditExam = () => {
         message: "考试更新成功！",
         severity: "success",
       });
-      // 延迟导航，以���用户能看到成功消息
+      // 延迟导航，以用户能看到成功消息
       setTimeout(() => navigate("/exams"), 2000);
     } catch (error) {
       console.error("更新考试失败:", error);
@@ -465,7 +465,6 @@ const EditExam = () => {
                           <TableRow>
                             <TableCell>顺序</TableCell>
                             <TableCell>摘要</TableCell>
-                            <TableCell>难度</TableCell>
                             <TableCell>知识点</TableCell>
                             <TableCell align="right">操作</TableCell>
                           </TableRow>
@@ -481,7 +480,6 @@ const EditExam = () => {
                                   {question.order_in_section}
                                 </TableCell>
                                 <TableCell>{question.digest}</TableCell>
-                                <TableCell>{question.rate}</TableCell>
                                 <TableCell>{question.kn}</TableCell>
                                 <TableCell align="right">
                                   <IconButton
