@@ -492,7 +492,11 @@ const EditExam = () => {
                                 <TableCell>{question.kn}</TableCell>
                                 <TableCell>
                                   <InlineEdit
-                                    value={question.score || ""}
+                                    value={
+                                      question.score !== undefined
+                                        ? question.score.toString()
+                                        : ""
+                                    }
                                     onSave={(newScore) =>
                                       updateQuestionScore(
                                         index,
@@ -500,8 +504,8 @@ const EditExam = () => {
                                         newScore
                                       )
                                     }
-                                    type="number"
-                                    sx={{ width: "60px" }}
+                                    isNumber={true}
+                                    width="60px"
                                   />
                                 </TableCell>
                                 <TableCell align="right">

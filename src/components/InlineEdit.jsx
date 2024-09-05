@@ -8,12 +8,13 @@ import {
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import EditIcon from "@mui/icons-material/Edit";
 
-const InlineEdit = ({ value, onSave }) => {
+const InlineEdit = ({ value, onSave, isNumber = false, width = "auto" }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
 
   const handleSave = () => {
-    onSave(editValue);
+    const newValue = isNumber ? parseFloat(editValue) || 0 : editValue;
+    onSave(newValue);
     setIsEditing(false);
   };
 
@@ -31,6 +32,7 @@ const InlineEdit = ({ value, onSave }) => {
         onKeyDown={handleKeyDown}
         fullWidth
         variant="standard"
+        type={isNumber ? "number" : "text"}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -42,6 +44,7 @@ const InlineEdit = ({ value, onSave }) => {
         }}
         autoFocus
         onBlur={handleSave}
+        sx={{ width }}
       />
     );
   }
@@ -49,7 +52,7 @@ const InlineEdit = ({ value, onSave }) => {
   return (
     <Typography
       onClick={() => setIsEditing(true)}
-      sx={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+      sx={{ cursor: "pointer", display: "flex", alignItems: "center", width }}
     >
       {value}
       <EditIcon sx={{ ml: 1, fontSize: "small", color: "action.active" }} />
