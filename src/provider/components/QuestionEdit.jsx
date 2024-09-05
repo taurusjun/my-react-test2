@@ -265,12 +265,15 @@ const QuestionEdit = ({
       school: questionData.gradeInfo.school === "",
       grade: questionData.gradeInfo.grade === "",
       digest: questionData.digest.trim() === "",
-      questionDetails: questionData.questionDetails.map((detail) => ({
-        questionContent: detail.questionContent.value.trim() === "",
-        rows: detail.rows.map((row) => row.value.trim() === ""),
-        answer: !detail.answer || detail.answer.length === 0,
-        rate: detail.rate === 0,
-      })),
+      questionDetails:
+        questionData.questionDetails.length === 0
+          ? [{ isEmpty: true }]
+          : questionData.questionDetails.map((detail) => ({
+              questionContent: detail.questionContent.value.trim() === "",
+              rows: detail.rows.map((row) => row.value.trim() === ""),
+              answer: !detail.answer || detail.answer.length === 0,
+              rate: detail.rate === 0,
+            })),
     };
 
     console.log("检查错误:", newErrors);
@@ -286,6 +289,11 @@ const QuestionEdit = ({
     }
 
     // 检查 questionDetails
+    if (newErrors.questionDetails[0]?.isEmpty) {
+      console.log("问题详情为空");
+      return "请至少添加一个问题详情";
+    }
+
     for (let i = 0; i < newErrors.questionDetails.length; i++) {
       const detail = newErrors.questionDetails[i];
       if (detail.questionContent) {
@@ -632,55 +640,61 @@ const QuestionEdit = ({
           {/* 问题详情部分 */}
           <Grid item xs={12}>
             <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-              {questionData.questionDetails.map((detail, index) => (
-                <Box key={index} sx={{ mb: 3, position: "relative" }}>
-                  <QuestionDetailEdit
-                    questionDetail={detail}
-                    onQuestionDetailChange={(updatedDetail) =>
-                      handleQuestionDetailChange(updatedDetail, index)
-                    }
-                    errors={errors.questionDetails[index]}
-                  />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      display: "flex",
-                      gap: 1,
-                    }}
-                  >
-                    {index > 0 && (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => moveQuestionDetail(index, "up")}
-                      >
-                        上移
-                      </Button>
-                    )}
-                    {index < questionData.questionDetails.length - 1 && (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => moveQuestionDetail(index, "down")}
-                      >
-                        下移
-                      </Button>
-                    )}
-                    {questionData.questionDetails.length > 1 && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => removeQuestionDetail(index)}
-                      >
-                        删除
-                      </Button>
-                    )}
+              {questionData.questionDetails.length === 0 ? (
+                <Typography color="error" sx={{ mt: 2, mb: 2 }}>
+                  请至少添加一个问题详情
+                </Typography>
+              ) : (
+                questionData.questionDetails.map((detail, index) => (
+                  <Box key={index} sx={{ mb: 3, position: "relative" }}>
+                    <QuestionDetailEdit
+                      questionDetail={detail}
+                      onQuestionDetailChange={(updatedDetail) =>
+                        handleQuestionDetailChange(updatedDetail, index)
+                      }
+                      errors={errors.questionDetails[index]}
+                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        display: "flex",
+                        gap: 1,
+                      }}
+                    >
+                      {index > 0 && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => moveQuestionDetail(index, "up")}
+                        >
+                          上移
+                        </Button>
+                      )}
+                      {index < questionData.questionDetails.length - 1 && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => moveQuestionDetail(index, "down")}
+                        >
+                          下移
+                        </Button>
+                      )}
+                      {questionData.questionDetails.length > 1 && (
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => removeQuestionDetail(index)}
+                        >
+                          删除
+                        </Button>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              ))}
+                ))
+              )}
               <Button
                 variant="contained"
                 color="primary"
