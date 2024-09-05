@@ -268,7 +268,7 @@ const QuestionList = ({
                 <BodyTableCell>
                   {dictionaries.CategoryDict[question.category]}
                 </BodyTableCell>
-                <BodyTableCell>{question.KN}</BodyTableCell>
+                <BodyTableCell>{question.kn}</BodyTableCell>
                 <BodyTableCell>
                   {question.relatedSources
                     .map((source) => source.name)
