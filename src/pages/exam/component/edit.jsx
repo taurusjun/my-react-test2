@@ -573,15 +573,16 @@ const EditExam = () => {
           open={snackbar.open}
           autoHideDuration={6000}
           onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "center", horizontal: "center" }}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <Alert
             onClose={handleCloseSnackbar}
             severity={snackbar.severity}
             sx={{
               width: "100%",
-              maxWidth: "400px", // 限制最大宽度
-              boxShadow: 3, // 添加阴影效果
+              maxWidth: "400px",
+              boxShadow: 3,
+              marginTop: "200px", // 从顶部往下移动 200px
             }}
             variant="filled"
           >
