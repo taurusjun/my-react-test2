@@ -101,7 +101,7 @@ const EditExam = () => {
           ...sections,
           {
             id: Date.now(),
-            name: "新部分",
+            name: "新模块",
             questions: [],
             order_in_exam: newOrder,
           },
@@ -351,7 +351,7 @@ const EditExam = () => {
         </Box>
 
         <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-          考试部分
+          模块
         </Typography>
         {exam.sections && exam.sections.length > 0 ? (
           exam.sections
@@ -487,7 +487,7 @@ const EditExam = () => {
               </Card>
             ))
         ) : (
-          <Typography>暂无考试部分</Typography>
+          <Typography>暂无模块</Typography>
         )}
         <Button
           startIcon={<AddIcon />}
@@ -495,7 +495,7 @@ const EditExam = () => {
           variant="outlined"
           fullWidth
         >
-          添加新部分
+          添加新模块
         </Button>
 
         <Dialog
