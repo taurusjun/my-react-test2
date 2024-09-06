@@ -697,3 +697,55 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
 
   return [200, mockExam];
 });
+
+// 模拟提交考试答案的请求
+mock.onPost(/\/api\/exams\/.*\/submit/).reply((config) => {
+  const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
+  const submittedAnswers = JSON.parse(config.data);
+
+  console.log(`提交考试 ${uuid} 的答案:`, submittedAnswers);
+
+  // 这里可以添加一些模拟的处理逻辑，比如检查答案格式等
+
+  // 模拟服务器处理时间
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        200,
+        {
+          message: "考试答案提交成功",
+          examUuid: uuid,
+          submissionTime: new Date().toISOString(),
+          // 可以添加更多的返回信息，比如得分等
+          // score: 85, // 示例：模拟的得分
+        },
+      ]);
+    }, 1000); // 模拟 1 秒的处理时间
+  });
+});
+
+// 模拟保存考试答案的请求
+mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
+  const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
+  const savedAnswers = JSON.parse(config.data);
+
+  console.log(`保存考试 ${uuid} 的答案:`, savedAnswers);
+
+  // 这里可以添加一些模拟的处理逻辑，比如验证答案格式等
+
+  // 模拟服务器处理时间
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        200,
+        {
+          message: "考试答案已成功保存",
+          examUuid: uuid,
+          saveTime: new Date().toISOString(),
+          // 可以添加更多的返回信息
+          savedQuestionCount: Object.keys(savedAnswers.answers).length,
+        },
+      ]);
+    }, 500); // 模拟 0.5 秒的处理时间
+  });
+});

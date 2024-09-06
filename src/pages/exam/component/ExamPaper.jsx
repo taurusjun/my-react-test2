@@ -420,7 +420,7 @@ const ExamPaper = () => {
       {/* Snackbar 消息提示 */}
       <Snackbar
         anchorOrigin={{
-          vertical: "bottom",
+          vertical: "top",
           horizontal: "center",
         }}
         open={snackbar.open}
@@ -437,6 +437,12 @@ const ExamPaper = () => {
             <CloseIcon fontSize="small" />
           </IconButton>
         }
+        sx={{
+          top: "100px !important",
+          "& .MuiSnackbarContent-root": {
+            backgroundColor: snackbar.severity === "success" ? "green" : "red",
+          },
+        }}
       />
 
       {/* 加载指示器 */}
