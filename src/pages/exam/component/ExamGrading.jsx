@@ -128,6 +128,7 @@ const ExamGrading = () => {
   };
 
   const handleSubmitGrades = async () => {
+    console.log("grades", grades);
     // 检查是否存在未评分的题目
     const hasUngradedQuestions = Object.values(grades).some((question) =>
       Object.values(question).some((score) => score === -1)
