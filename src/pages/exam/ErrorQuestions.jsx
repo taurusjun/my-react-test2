@@ -14,6 +14,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExamMainLayout from "./component/layouts/ExamMainLayout";
 
 const ErrorQuestions = () => {
   const { examId } = useParams();
@@ -26,11 +27,9 @@ const ErrorQuestions = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 获取用户的所有考试
         const examsResponse = await axios.get("/api/my-exams");
         setExams(examsResponse.data);
 
-        // 获取错题
         const errorQuestionsResponse = await axios.get(
           `/api/error-questions/${filter}`
         );
@@ -50,15 +49,8 @@ const ErrorQuestions = () => {
     return question.errorCount === parseInt(errorCount);
   });
 
-  if (loading) {
-    return <CircularProgress />;
-  }
-
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        错题查看
-      </Typography>
+  const content = (
+    <Box>
       <Box sx={{ display: "flex", mb: 2 }}>
         <FormControl sx={{ minWidth: 120, mr: 2 }}>
           <InputLabel>考试筛选</InputLabel>
@@ -84,20 +76,26 @@ const ErrorQuestions = () => {
           </Select>
         </FormControl>
       </Box>
-      {filteredQuestions.map((question) => (
-        <Accordion key={question.id}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>{question.content}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography>正确答案: {question.correctAnswer}</Typography>
-            <Typography>你的答案: {question.userAnswer}</Typography>
-            <Typography>解释: {question.explanation}</Typography>
-          </AccordionDetails>
-        </Accordion>
-      ))}
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        filteredQuestions.map((question) => (
+          <Accordion key={question.id}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>{question.content}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>正确答案: {question.correctAnswer}</Typography>
+              <Typography>你的答案: {question.userAnswer}</Typography>
+              <Typography>解释: {question.explanation}</Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))
+      )}
     </Box>
   );
+
+  return <ExamMainLayout currentPage="错题查看">{content}</ExamMainLayout>;
 };
 
 export default ErrorQuestions;
