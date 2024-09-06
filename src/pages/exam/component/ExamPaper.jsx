@@ -422,16 +422,6 @@ const ExamPaper = () => {
           <Box>
             <Button
               color="inherit"
-              onClick={handlePreviousQuestion}
-              sx={{ mr: 1 }}
-            >
-              上一题
-            </Button>
-            <Button color="inherit" onClick={handleNextQuestion} sx={{ mr: 1 }}>
-              下一题
-            </Button>
-            <Button
-              color="inherit"
               onClick={handleTemporarySave}
               sx={{ mr: 1 }}
             >
@@ -533,6 +523,32 @@ const ExamPaper = () => {
               )}
             </Box>
           </Paper>
+          {/* 添加上一题/下一题按钮 */}
+          <Box sx={{ display: "flex", mt: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handlePreviousQuestion}
+              disabled={
+                currentSection === 0 &&
+                currentQuestion === 0 &&
+                currentDetail === 0
+              }
+              sx={{ mr: 2 }} // 添加右边距
+            >
+              上一题
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleNextQuestion}
+              disabled={
+                currentSection === exam.sections.length - 1 &&
+                currentQuestion === currentSectionData.questions.length - 1 &&
+                currentDetail === currentQuestionData.questionDetails.length - 1
+              }
+            >
+              下一题
+            </Button>
+          </Box>
         </Box>
       </Box>
 
