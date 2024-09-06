@@ -28,6 +28,10 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import HomeIcon from "@mui/icons-material/Home";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import SaveIcon from "@mui/icons-material/Save";
+import SendIcon from "@mui/icons-material/Send";
 
 const ExamPaper = () => {
   const { uuid } = useParams();
@@ -414,19 +418,49 @@ const ExamPaper = () => {
       {/* 导航栏 */}
       <AppBar position="static">
         <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h6" component="div">
-            {exam.name}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate("/")}
+              sx={{ mr: 1 }}
+            >
+              <HomeIcon />
+            </IconButton>
+            <Typography variant="h6" component="div">
+              {exam.name}
+            </Typography>
+          </Box>
           <Box>
             <Button
-              color="inherit"
+              variant="contained"
+              color="secondary"
               onClick={handleTemporarySave}
-              sx={{ mr: 1 }}
+              startIcon={<SaveIcon />}
+              sx={{ mr: 1, fontWeight: "bold" }}
             >
               暂时保存
             </Button>
-            <Button color="inherit" onClick={handleSubmit}>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              startIcon={<SendIcon />}
+              sx={{
+                mr: 1,
+                fontWeight: "bold",
+                backgroundColor: "error.main",
+                "&:hover": {
+                  backgroundColor: "error.dark",
+                },
+              }}
+            >
               交卷
+            </Button>
+            <Button
+              color="inherit"
+              onClick={() => navigate("/exam-list")}
+              startIcon={<ListAltIcon />}
+            >
+              考卷列表
             </Button>
           </Box>
         </Toolbar>
@@ -482,7 +516,7 @@ const ExamPaper = () => {
           ))}
         </Box>
 
-        {/* 右侧题目内容 */}
+        {/* 右侧目内容 */}
         <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
