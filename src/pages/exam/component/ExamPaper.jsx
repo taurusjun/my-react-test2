@@ -22,6 +22,8 @@ import {
   DialogTitle,
   Snackbar,
   IconButton,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -91,6 +93,8 @@ const ExamPaper = () => {
 
   const renderQuestionOptions = (detail, questionUuid) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
+    const isSingleChoice = detail.uiType === "single_selection";
+    const isFillInBlank = detail.uiType === "fill_in_blank";
     const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
 
     if (isMultipleChoice) {
@@ -119,7 +123,7 @@ const ExamPaper = () => {
           ))}
         </FormGroup>
       );
-    } else {
+    } else if (isSingleChoice) {
       return (
         <RadioGroup
           value={currentAnswer[0] || ""}
@@ -136,6 +140,34 @@ const ExamPaper = () => {
             />
           ))}
         </RadioGroup>
+      );
+    } else if (isFillInBlank) {
+      return (
+        <TextField
+          fullWidth
+          variant="standard"
+          value={currentAnswer[0] || ""}
+          onChange={(e) =>
+            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
+          }
+          placeholder="在此输入您的答案"
+          InputProps={{
+            disableUnderline: true,
+            startAdornment: (
+              <InputAdornment position="start">答：</InputAdornment>
+            ),
+          }}
+          sx={{
+            mt: 2,
+            "& .MuiInputBase-root": {
+              borderBottom: "1px solid #000",
+              paddingBottom: "4px",
+            },
+            "& .MuiInputBase-input": {
+              padding: "0 0 4px",
+            },
+          }}
+        />
       );
     }
   };
