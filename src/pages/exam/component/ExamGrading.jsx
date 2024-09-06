@@ -69,21 +69,23 @@ const ExamGrading = () => {
           const studentAnswer =
             answers.answers[question.uuid]?.[detail.uuid] || [];
           const correctAnswer = detail.answer;
-          let score = 0;
+          let score = -1; // 默认分数设为 -1
 
-          if (studentAnswer.length > 0) {
-            if (
-              detail.uiType === "single_selection" ||
-              detail.uiType === "multi_selection"
-            ) {
-              score =
-                JSON.stringify(studentAnswer.sort()) ===
-                JSON.stringify(correctAnswer.sort())
-                  ? detail.score
-                  : 0;
-            } else {
-              // 对于其他类型的题目，暂时给一半分数，后续可以根据需求调整
-              score = detail.score / 2;
+          if (
+            detail.uiType === "single_selection" ||
+            detail.uiType === "multi_selection"
+          ) {
+            if (Array.isArray(studentAnswer) && Array.isArray(correctAnswer)) {
+              const studentSet = new Set(studentAnswer);
+              const correctSet = new Set(correctAnswer);
+              if (
+                studentSet.size === correctSet.size &&
+                [...studentSet].every((value) => correctSet.has(value))
+              ) {
+                score = detail.score;
+              } else {
+                score = 0; // 选择题答错设为 0 分
+              }
             }
           }
 
@@ -91,7 +93,7 @@ const ExamGrading = () => {
             ...newGrades[question.uuid],
             [detail.uuid]: score,
           };
-          newTotalScore += score;
+          if (score >= 0) newTotalScore += score; // 只计算已评分的题目
         });
       });
     });
@@ -115,13 +117,30 @@ const ExamGrading = () => {
     const total = Object.values(grades).reduce(
       (acc, question) =>
         acc +
-        Object.values(question).reduce((sum, score) => sum + Number(score), 0),
+        Object.values(question).reduce(
+          (sum, score) => sum + (score >= 0 ? Number(score) : 0),
+          0
+        ),
       0
     );
     setTotalScore(total);
   };
 
   const handleSubmitGrades = async () => {
+    // 检查是否存在未评分的题目
+    const hasUngradedQuestions = Object.values(grades).some((question) =>
+      Object.values(question).some((score) => score === -1)
+    );
+
+    if (hasUngradedQuestions) {
+      setSnackbar({
+        open: true,
+        message: "存在未评分的题目，请完成所有评分后再提交",
+        severity: "warning",
+      });
+      return;
+    }
+
     try {
       await axios.post(`/api/exams/${uuid}/grades`, { grades, totalScore });
       setSnackbar({ open: true, message: "成绩提交成功", severity: "success" });
@@ -199,7 +218,11 @@ const ExamGrading = () => {
                       <TextField
                         type="number"
                         inputProps={{ min: 0, max: detail.score }}
-                        value={grades[question.uuid]?.[detail.uuid] || 0}
+                        value={
+                          grades[question.uuid]?.[detail.uuid] === -1
+                            ? ""
+                            : grades[question.uuid]?.[detail.uuid]
+                        }
                         onChange={(e) =>
                           handleGradeChange(
                             question.uuid,
@@ -208,6 +231,12 @@ const ExamGrading = () => {
                           )
                         }
                         onBlur={calculateTotalScore}
+                        error={grades[question.uuid]?.[detail.uuid] === -1}
+                        helperText={
+                          grades[question.uuid]?.[detail.uuid] === -1
+                            ? "请评分"
+                            : ""
+                        }
                       />
                       / {detail.score}
                     </TableCell>
