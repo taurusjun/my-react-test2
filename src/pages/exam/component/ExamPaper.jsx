@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ExamPaper = () => {
   const { uuid } = useParams();
@@ -44,6 +45,7 @@ const ExamPaper = () => {
     message: "",
     severity: "info",
   });
+  const fileInputRefs = useRef({});
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -115,6 +117,29 @@ const ExamPaper = () => {
         });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDeleteImage = (questionUuid, detailUuid) => {
+    setAnswers((prevAnswers) => {
+      const currentAnswer = prevAnswers.answers[questionUuid]?.[detailUuid] || [
+        "",
+        "",
+      ];
+      return {
+        ...prevAnswers,
+        answers: {
+          ...prevAnswers.answers,
+          [questionUuid]: {
+            ...prevAnswers.answers[questionUuid],
+            [detailUuid]: [currentAnswer[0], ""], // 保留文本答案，删除图片
+          },
+        },
+      };
+    });
+    // 重置文件输入
+    if (fileInputRefs.current[`${questionUuid}-${detailUuid}`]) {
+      fileInputRefs.current[`${questionUuid}-${detailUuid}`].value = "";
     }
   };
 
@@ -221,6 +246,9 @@ const ExamPaper = () => {
               id={`upload-image-${detail.uuid}`}
               type="file"
               onChange={(e) => handleImageUpload(e, questionUuid, detail.uuid)}
+              ref={(el) =>
+                (fileInputRefs.current[`${questionUuid}-${detail.uuid}`] = el)
+              }
             />
             <label htmlFor={`upload-image-${detail.uuid}`}>
               <Button
@@ -232,7 +260,7 @@ const ExamPaper = () => {
               </Button>
             </label>
             {currentAnswer[1] && (
-              <Box sx={{ ml: 2 }}>
+              <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
                 <img
                   src={currentAnswer[1]}
                   alt="解题图片"
@@ -242,6 +270,12 @@ const ExamPaper = () => {
                     objectFit: "cover",
                   }}
                 />
+                <IconButton
+                  onClick={() => handleDeleteImage(questionUuid, detail.uuid)}
+                  sx={{ ml: 1 }}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </Box>
             )}
           </Box>
