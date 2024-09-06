@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   Box,
@@ -16,6 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,7 +24,9 @@ const Login = () => {
       const response = await axios.post("/api/login", { username, password });
       const { token } = response.data;
       setToken(token);
-      navigate("/exam/list");
+      // 重定向到之前尝试访问的页面，如果没有则默认到 "/exam/list"
+      const from = location.state?.from?.pathname || "/exam/list";
+      navigate(from, { replace: true });
     } catch (err) {
       setError("登录失败，请检查用户名和密码");
     }

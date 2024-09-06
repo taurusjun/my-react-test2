@@ -66,6 +66,31 @@ mock.onPost("/api/login").reply((config) => {
   }
 });
 
+// 模拟获取用户信息
+mock.onGet("/api/user").reply(200, {
+  id: 1,
+  username: "testuser",
+  nickname: "测试用户",
+  role: "student",
+});
+
+// 模拟更新用户信息
+mock.onPut("/api/user").reply((config) => {
+  const { nickname, newPassword } = JSON.parse(config.data);
+  console.log("更新用户信息:", { nickname, newPassword });
+
+  // 这里可以添加一些验证逻辑
+  if (nickname.length < 2) {
+    return [400, { message: "昵称长度不能少于2个字符" }];
+  }
+
+  if (newPassword && newPassword.length < 6) {
+    return [400, { message: "密码长度不能少于6个字符" }];
+  }
+
+  return [200, { message: "用户信息更新成功" }];
+});
+
 // 模拟问题数据的API响应
 mock.onGet(/\/api\/questions\/.*/).reply(200, {
   uuid: "uuid-question-1",
