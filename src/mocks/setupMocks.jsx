@@ -16,6 +16,20 @@ import { format, addDays } from "date-fns";
 // 创建一个新的MockAdapter实例
 const mock = new MockAdapter(axios, { onNoMatch: "passthrough" });
 
+// mock场景下，该拦截器会造成后续的mock请求无法正常进行，故删除
+// 添加一个请求拦截器来打印请求头中的token
+// mock.onAny().reply(function (config) {
+//   const token = config.headers["Authorization"];
+//   if (token) {
+//     console.log("请求头中的token:", token);
+//   } else {
+//     console.log("请求头中没有token");
+//   }
+
+//   // 继续处理请求
+//   return this.axiosAdapter(config);
+// });
+
 // 模拟字典数据的API响应
 mock.onGet("/api/dictionaries").reply(200, {
   TypeDict,
@@ -278,7 +292,7 @@ mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
         questions: [
           {
             uuid: "question-3",
-            digest: "这是一道填空题，考察��转换。",
+            digest: "这是一道填空题，考察能量转换。",
             content: "物体从高处自由落下，重力势能转化为 ______ 能。",
             answer: "动能",
             score: 10,
