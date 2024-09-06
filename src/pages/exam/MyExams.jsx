@@ -14,6 +14,7 @@ import {
   Paper,
   CircularProgress,
 } from "@mui/material";
+import ExamMainLayout from "./component/layouts/ExamMainLayout";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -36,76 +37,75 @@ const MyExams = () => {
   }, []);
 
   const handleStartExam = (examId) => {
-    navigate(`/exam/paper/${examId}`);
+    navigate(`/exam/${examId}`);
   };
 
   const handleViewErrors = (examId) => {
     navigate(`/error-questions/${examId}`);
   };
 
-  if (loading) {
-    return <CircularProgress />;
-  }
-
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        我的考试
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>考试名称</TableCell>
-              <TableCell>状态</TableCell>
-              <TableCell>分数</TableCell>
-              <TableCell>考试时间</TableCell>
-              <TableCell>操作</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {exams.map((exam) => (
-              <TableRow key={exam.id}>
-                <TableCell>{exam.name}</TableCell>
-                <TableCell>{exam.status}</TableCell>
-                <TableCell>{exam.score || "-"}</TableCell>
-                <TableCell>{exam.examTime || "-"}</TableCell>
-                <TableCell>
-                  {exam.status === "未参加" ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleStartExam(exam.id)}
-                    >
-                      开始考试
-                    </Button>
-                  ) : (
-                    <>
+  const content = (
+    <Box>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>考试名称</TableCell>
+                <TableCell>状态</TableCell>
+                <TableCell>分数</TableCell>
+                <TableCell>考试时间</TableCell>
+                <TableCell>操作</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {exams.map((exam) => (
+                <TableRow key={exam.id}>
+                  <TableCell>{exam.name}</TableCell>
+                  <TableCell>{exam.status}</TableCell>
+                  <TableCell>{exam.score || "-"}</TableCell>
+                  <TableCell>{exam.examTime || "-"}</TableCell>
+                  <TableCell>
+                    {exam.status === "未参加" ? (
                       <Button
                         variant="contained"
                         color="primary"
                         onClick={() => handleStartExam(exam.id)}
-                        sx={{ mr: 1 }}
                       >
-                        再次参加
+                        开始考试
                       </Button>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => handleViewErrors(exam.id)}
-                      >
-                        查看错题
-                      </Button>
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    ) : (
+                      <>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleStartExam(exam.id)}
+                          sx={{ mr: 1 }}
+                        >
+                          再次参加
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => handleViewErrors(exam.id)}
+                        >
+                          查看错题
+                        </Button>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Box>
   );
+
+  return <ExamMainLayout currentPage="我的考试">{content}</ExamMainLayout>;
 };
 
 export default MyExams;
