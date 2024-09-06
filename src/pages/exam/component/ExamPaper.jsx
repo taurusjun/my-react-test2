@@ -13,6 +13,8 @@ import {
   FormControlLabel,
   RadioGroup,
   FormGroup,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
 
 const ExamPaper = () => {
@@ -185,123 +187,123 @@ const ExamPaper = () => {
   );
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      {/* 左侧答题卡 */}
-      <Box
-        sx={{
-          width: "200px",
-          borderRight: "1px solid #ccc",
-          p: 2,
-          overflowY: "auto",
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          答题卡
-        </Typography>
-        {exam.sections.map((section, sectionIndex) => (
-          <Box key={section.uuid} sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              {`第${section.order_in_exam}部分 ${section.name}`}
-            </Typography>
-            <Grid container spacing={1}>
-              {section.questions.flatMap((question, questionIndex) =>
-                question.questionDetails.map((detail, detailIndex) => {
-                  const detailNumber = calculateGlobalDetailCount(
-                    sectionIndex,
-                    questionIndex,
-                    detailIndex
-                  );
-                  return (
-                    <Grid item key={`${question.uuid}-${detailIndex}`} xs={6}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                          setCurrentSection(sectionIndex);
-                          setCurrentQuestion(questionIndex);
-                          setCurrentDetail(detailIndex);
-                        }}
-                        sx={{ width: "100%", minWidth: "30px" }}
-                      >
-                        {detailNumber}
-                      </Button>
-                    </Grid>
-                  );
-                })
-              )}
-            </Grid>
-          </Box>
-        ))}
-      </Box>
-
-      {/* 右侧主要内容 */}
-      <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
-        <Typography variant="h5" gutterBottom>
-          {exam.name}
-        </Typography>
-        {/* 导航按钮 */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      {/* 导航栏 */}
+      <AppBar position="static">
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography variant="h6" component="div">
+            {exam.name}
+          </Typography>
           <Box>
             <Button
-              variant="contained"
+              color="inherit"
               onClick={handlePreviousQuestion}
               sx={{ mr: 1 }}
             >
               上一题
             </Button>
-            <Button variant="contained" onClick={handleNextQuestion}>
+            <Button color="inherit" onClick={handleNextQuestion} sx={{ mr: 1 }}>
               下一题
             </Button>
-          </Box>
-          <Box>
-            <Button variant="contained" color="secondary" sx={{ mr: 1 }}>
+            <Button color="inherit" sx={{ mr: 1 }}>
               暂时保存
             </Button>
-            <Button variant="contained" color="primary">
-              交卷
-            </Button>
+            <Button color="inherit">提交</Button>
           </Box>
+        </Toolbar>
+      </AppBar>
+
+      {/* 主要内容 */}
+      <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
+        {/* 左侧答题卡 */}
+        <Box
+          sx={{
+            width: "200px",
+            borderRight: "1px solid #ccc",
+            p: 2,
+            overflowY: "auto",
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            答题卡
+          </Typography>
+          {exam.sections.map((section, sectionIndex) => (
+            <Box key={section.uuid} sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                {`第${section.order_in_exam}部分 ${section.name}`}
+              </Typography>
+              <Grid container spacing={1}>
+                {section.questions.flatMap((question, questionIndex) =>
+                  question.questionDetails.map((detail, detailIndex) => {
+                    const detailNumber = calculateGlobalDetailCount(
+                      sectionIndex,
+                      questionIndex,
+                      detailIndex
+                    );
+                    return (
+                      <Grid item key={`${question.uuid}-${detailIndex}`} xs={6}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => {
+                            setCurrentSection(sectionIndex);
+                            setCurrentQuestion(questionIndex);
+                            setCurrentDetail(detailIndex);
+                          }}
+                          sx={{ width: "100%", minWidth: "30px" }}
+                        >
+                          {detailNumber}
+                        </Button>
+                      </Grid>
+                    );
+                  })
+                )}
+              </Grid>
+            </Box>
+          ))}
         </Box>
 
-        {/* 题目内容 */}
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            {`第${currentSectionData.order_in_exam}部分 ${currentSectionData.name}`}
-          </Typography>
-          <Box sx={{ mt: 3, mb: 2 }}>
-            {currentQuestionData.material && (
-              <Typography
-                variant="body1"
-                sx={{
-                  fontStyle: "italic",
-                  mb: 1,
-                  fontSize: "1.1rem",
-                }}
-              >
-                {currentQuestionData.material}
-              </Typography>
-            )}
-            <Typography variant="body1">
-              <strong>{globalDetailCount}. </strong>
-              {currentDetailData.questionContent.value}
-              <span style={{ marginLeft: "8px", color: "gray" }}>
-                ({currentDetailData.score} 分)
-              </span>
+        {/* 右侧题目内容 */}
+        <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              {`第${currentSectionData.order_in_exam}部分 ${currentSectionData.name}`}
             </Typography>
-            {currentDetailData.questionContent.image && (
-              <img
-                src={currentDetailData.questionContent.image}
-                alt="问题图片"
-                style={{ maxWidth: "100%", marginTop: "8px" }}
-              />
-            )}
-            {renderQuestionOptions(
-              currentDetailData,
-              currentQuestionData.uuid,
-              currentDetail
-            )}
-          </Box>
-        </Paper>
+            <Box sx={{ mt: 3, mb: 2 }}>
+              {currentQuestionData.material && (
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontStyle: "italic",
+                    mb: 1,
+                    fontSize: "1.1rem",
+                  }}
+                >
+                  {currentQuestionData.material}
+                </Typography>
+              )}
+              <Typography variant="body1">
+                <strong>{globalDetailCount}. </strong>
+                {currentDetailData.questionContent.value}
+                <span style={{ marginLeft: "8px", color: "gray" }}>
+                  ({currentDetailData.score} 分)
+                </span>
+              </Typography>
+              {currentDetailData.questionContent.image && (
+                <img
+                  src={currentDetailData.questionContent.image}
+                  alt="问题图片"
+                  style={{ maxWidth: "100%", marginTop: "8px" }}
+                />
+              )}
+              {renderQuestionOptions(
+                currentDetailData,
+                currentQuestionData.uuid,
+                currentDetail
+              )}
+            </Box>
+          </Paper>
+        </Box>
       </Box>
     </Box>
   );
