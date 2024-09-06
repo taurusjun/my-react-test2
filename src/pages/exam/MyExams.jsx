@@ -15,8 +15,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CommonLayout from "../../layouts/CommonLayout";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import { menuItems } from "../../config/menuItems";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -108,7 +106,7 @@ const MyExams = () => {
   );
 
   return (
-    <CommonLayout currentPage="我的考试" menuItems={menuItems} maxWidth="lg">
+    <CommonLayout currentPage="我的考试" maxWidth="lg">
       {content}
     </CommonLayout>
   );

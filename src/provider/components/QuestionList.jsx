@@ -3,7 +3,6 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CommonLayout from "../../layouts/CommonLayout";
-import { menuItems } from "../../config/menuItems";
 import {
   Table,
   TableBody,
@@ -323,7 +322,6 @@ const QuestionList = ({
     <CommonLayout
       currentPage="题目列表"
       maxWidth={isFromExamEdit ? "lg" : "xl"}
-      menuItems={menuItems}
       rightNavItems={rightNavItems}
     >
       {content}

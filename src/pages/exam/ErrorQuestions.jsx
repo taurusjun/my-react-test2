@@ -14,7 +14,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExamMainLayout from "./component/layouts/ExamMainLayout";
+import CommonLayout from "../../layouts/CommonLayout";
 
 const ErrorQuestions = () => {
   const { examId } = useParams();
@@ -95,7 +95,7 @@ const ErrorQuestions = () => {
     </Box>
   );
 
-  return <ExamMainLayout currentPage="错题查看">{content}</ExamMainLayout>;
+  return <CommonLayout currentPage="错题查看">{content}</CommonLayout>;
 };
 
 export default ErrorQuestions;

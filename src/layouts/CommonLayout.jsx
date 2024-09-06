@@ -19,6 +19,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserContext } from "../contexts/UserContext";
+import { menuItems as defaultMenuItems } from "../config/menuItems"; // 导入默认菜单项
 
 const drawerWidth = 240;
 
@@ -26,7 +27,7 @@ const CommonLayout = ({
   children,
   currentPage,
   maxWidth = "lg",
-  menuItems = [],
+  menuItems = [], // 默认值设为空数组
   rightNavItems = [],
   showBreadcrumbs = false,
   BreadcrumbsComponent = null,
@@ -41,11 +42,13 @@ const CommonLayout = ({
     setMobileOpen(!mobileOpen);
   };
 
+  const finalMenuItems = menuItems.length > 0 ? menuItems : defaultMenuItems;
+
   const drawer = (
     <Box>
       <Toolbar />
       <List>
-        {menuItems.map((item, index) => (
+        {finalMenuItems.map((item, index) => (
           <ListItemButton key={index} component={RouterLink} to={item.link}>
             {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
             <ListItemText primary={item.text} />
@@ -129,14 +132,17 @@ const CommonLayout = ({
           marginTop: "64px", // 添加顶部边距，与 AppBar 高度相同
         }}
       >
-        <Toolbar />
+        {/* 移除 <Toolbar /> */}
         {showBreadcrumbs && BreadcrumbsComponent && (
-          <BreadcrumbsComponent currentPage={currentPage} />
+          <Box sx={{ mb: 2 }}>
+            <BreadcrumbsComponent />
+          </Box>
         )}
-        <Container maxWidth={maxWidth}>
-          <Typography variant="h4" gutterBottom>
+        <Container maxWidth={maxWidth} sx={{ pt: 2 }}>
+          {/* 添加少量顶部内边距 */}
+          {/* <Typography variant="h6" gutterBottom>
             {currentPage}
-          </Typography>
+          </Typography> */}
           {children}
         </Container>
       </Box>

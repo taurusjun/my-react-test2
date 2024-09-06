@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -12,16 +12,20 @@ import {
   Button,
   Box,
   TablePagination,
+  Typography,
+  Breadcrumbs,
+  Link,
 } from "@mui/material";
 import {
   Edit as EditIcon,
   Visibility as VisibilityIcon,
   Search as SearchIcon,
   Add as AddIcon,
+  Home as HomeIcon,
 } from "@mui/icons-material";
 import axios from "axios";
 import { styled, alpha } from "@mui/material/styles";
-import ExamMainLayout from "./layouts/ExamMainLayout";
+import CommonLayout from "../../../layouts/CommonLayout"; // 导入 CommonLayout
 
 // 添加以下样式组件
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -34,6 +38,22 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 const BodyTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 16,
 }));
+
+// 添加面包屑组件
+const ExamBreadcrumbs = ({ currentPage }) => (
+  <Breadcrumbs aria-label="breadcrumb">
+    <Link
+      component={RouterLink}
+      to="/"
+      color="inherit"
+      sx={{ display: "flex", alignItems: "center" }}
+    >
+      <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+      首页
+    </Link>
+    <Typography color="text.primary">{currentPage}</Typography>
+  </Breadcrumbs>
+);
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
@@ -72,8 +92,16 @@ const ExamList = () => {
     setPage(0);
   };
 
+  const rightNavItems = [];
+
   return (
-    <ExamMainLayout currentPage="考试列表" maxWidth="xl">
+    <CommonLayout
+      currentPage="考试列表"
+      maxWidth="xl"
+      rightNavItems={rightNavItems}
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={ExamBreadcrumbs}
+    >
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         <TextField
           label="搜索名称"
@@ -151,7 +179,7 @@ const ExamList = () => {
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </ExamMainLayout>
+    </CommonLayout>
   );
 };
 

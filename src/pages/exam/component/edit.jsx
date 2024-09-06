@@ -44,6 +44,8 @@ import MultiLevelSelect from "../../../provider/components/MultiLevelSelect";
 import { styled } from "@mui/material/styles";
 import NarrowSelect from "../../../components/NarrowSelect";
 import { useDictionaries } from "../../../provider/hooks/useDictionaries";
+import CommonLayout from "../../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -367,6 +369,11 @@ const EditExam = () => {
     }));
   };
 
+  const breadcrumbPaths = [
+    { name: "考卷中心", url: "/exam/list" },
+    { name: "考卷编辑", url: "" },
+  ];
+
   if (loading || !exam) {
     return <CircularProgress />;
   }
@@ -384,7 +391,12 @@ const EditExam = () => {
   }
 
   return (
-    <ExamMainLayout currentPage="编辑考试">
+    <CommonLayout
+      currentPage="考卷编辑"
+      maxWidth="xl"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => <CommonBreadcrumbs paths={breadcrumbPaths} />}
+    >
       <Box sx={{ maxWidth: 800, mt: 2 }}>
         <Grid container spacing={2}>
           {/* 名称占满第一行 */}
@@ -782,7 +794,7 @@ const EditExam = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ExamMainLayout>
+    </CommonLayout>
   );
 };
 
