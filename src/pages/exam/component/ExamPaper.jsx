@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Typography,
@@ -15,16 +15,32 @@ import {
   FormGroup,
   AppBar,
   Toolbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  IconButton,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const ExamPaper = () => {
   const { uuid } = useParams();
+  const navigate = useNavigate();
   const [exam, setExam] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentSection, setCurrentSection] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentDetail, setCurrentDetail] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState({ examUuid: uuid, answers: {} });
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogType, setDialogType] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -34,6 +50,11 @@ const ExamPaper = () => {
         initializeAnswers(response.data);
       } catch (error) {
         console.error("获取考试数据失败", error);
+        setSnackbar({
+          open: true,
+          message: "获取考试数据失败",
+          severity: "error",
+        });
       } finally {
         setLoading(false);
       }
@@ -46,26 +67,31 @@ const ExamPaper = () => {
     const initialAnswers = {};
     examData.sections.forEach((section) => {
       section.questions.forEach((question) => {
-        initialAnswers[question.uuid] = question.questionDetails.map(() => []);
+        initialAnswers[question.uuid] = {};
+        question.questionDetails.forEach((detail) => {
+          initialAnswers[question.uuid][detail.uuid] = [];
+        });
       });
     });
-    setAnswers(initialAnswers);
+    setAnswers({ examUuid: uuid, answers: initialAnswers });
   };
 
-  const handleAnswerChange = (questionUuid, detailIndex, value) => {
+  const handleAnswerChange = (questionUuid, detailUuid, value) => {
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
-      [questionUuid]: prevAnswers[questionUuid].map((answer, index) =>
-        index === detailIndex ? value : answer
-      ),
+      answers: {
+        ...prevAnswers.answers,
+        [questionUuid]: {
+          ...prevAnswers.answers[questionUuid],
+          [detailUuid]: value,
+        },
+      },
     }));
   };
 
-  const renderQuestionOptions = (detail, questionUuid, detailIndex) => {
+  const renderQuestionOptions = (detail, questionUuid) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
-    const currentAnswer = answers[questionUuid]
-      ? answers[questionUuid][detailIndex] || []
-      : [];
+    const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
 
     if (isMultipleChoice) {
       return (
@@ -84,7 +110,7 @@ const ExamPaper = () => {
                       : currentAnswer.filter(
                           (item) => item !== String.fromCharCode(65 + rowIndex)
                         );
-                    handleAnswerChange(questionUuid, detailIndex, newAnswer);
+                    handleAnswerChange(questionUuid, detail.uuid, newAnswer);
                   }}
                 />
               }
@@ -98,7 +124,7 @@ const ExamPaper = () => {
         <RadioGroup
           value={currentAnswer[0] || ""}
           onChange={(e) =>
-            handleAnswerChange(questionUuid, detailIndex, [e.target.value])
+            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
           }
         >
           {detail.rows.map((row, rowIndex) => (
@@ -150,7 +176,6 @@ const ExamPaper = () => {
     }
   };
 
-  // 计算全局 questionDetail 编号的函数
   const calculateGlobalDetailCount = (
     targetSection,
     targetQuestion,
@@ -166,6 +191,62 @@ const ExamPaper = () => {
       count += exam.sections[targetSection].questions[q].questionDetails.length;
     }
     return count + targetDetail + 1;
+  };
+
+  const handleTemporarySave = async () => {
+    try {
+      setLoading(true);
+      await axios.post(`/api/exams/${uuid}/save`, answers);
+      setLoading(false);
+      setSnackbar({
+        open: true,
+        message: "答案已暂时保存",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("保存答案失败", error);
+      setLoading(false);
+      setSnackbar({
+        open: true,
+        message: "保存答案失败，请重试",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleSubmit = async () => {
+    setDialogType("submit");
+    setOpenDialog(true);
+  };
+
+  const confirmSubmit = async () => {
+    try {
+      console.log(answers);
+      setLoading(true);
+      await axios.post(`/api/exams/${uuid}/submit`, answers);
+      setLoading(false);
+      navigate(`/exam-result/${uuid}`);
+    } catch (error) {
+      console.error("提交答案失败", error);
+      setLoading(false);
+      setSnackbar({
+        open: true,
+        message: "提交答案失败，请重试",
+        severity: "error",
+      });
+    }
+    setOpenDialog(false);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
   };
 
   if (loading) {
@@ -205,10 +286,16 @@ const ExamPaper = () => {
             <Button color="inherit" onClick={handleNextQuestion} sx={{ mr: 1 }}>
               下一题
             </Button>
-            <Button color="inherit" sx={{ mr: 1 }}>
+            <Button
+              color="inherit"
+              onClick={handleTemporarySave}
+              sx={{ mr: 1 }}
+            >
               暂时保存
             </Button>
-            <Button color="inherit">提交</Button>
+            <Button color="inherit" onClick={handleSubmit}>
+              交卷
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>
@@ -298,13 +385,79 @@ const ExamPaper = () => {
               )}
               {renderQuestionOptions(
                 currentDetailData,
-                currentQuestionData.uuid,
-                currentDetail
+                currentQuestionData.uuid
               )}
             </Box>
           </Paper>
         </Box>
       </Box>
+
+      {/* 确认对话框 */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {dialogType === "submit" ? "确认交卷" : "确认操作"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {dialogType === "submit"
+              ? "您确定要交卷吗？交卷后将无法再修改答案。"
+              : "您确定要执行此操作吗？"}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>取消</Button>
+          <Button onClick={confirmSubmit} autoFocus>
+            确认
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar 消息提示 */}
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleCloseSnackbar}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+      />
+
+      {/* 加载指示器 */}
+      {loading && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
     </Box>
   );
 };
