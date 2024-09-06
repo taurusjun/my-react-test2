@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Home } from "./exam/Home";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
@@ -15,11 +15,13 @@ import {
   ExamGrading,
   ExamResult,
 } from "./pages/exam";
+import Login from "./pages/auth/Login";
 
 function App() {
   return (
     <div>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/questions" element={<QuestionList />} />
         <Route path="about/:id" element={<About />} />
