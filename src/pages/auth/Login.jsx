@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
@@ -10,6 +10,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import { setToken } from "../../utils/auth";
+import { UserContext } from "../../contexts/UserContext"; // 导入 UserContext
 
 const Login = () => {
   const [username, setUsername] = useState("testuser");
@@ -17,13 +18,15 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(UserContext); // 从 UserContext 中获取 login 函数
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post("/api/login", { username, password });
-      const { token } = response.data;
+      const { token, user } = response.data; // 假设后端返回了 token 和 user 信息
       setToken(token);
+      login(user); // 使用 login 函数将用户信息添加到 UserContext 中
       // 重定向到之前尝试访问的页面，如果没有则默认到 "/exam/list"
       const from = location.state?.from?.pathname || "/exam/list";
       navigate(from, { replace: true });

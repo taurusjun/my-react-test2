@@ -43,7 +43,7 @@ mock.onGet("/api/dictionaries").reply(200, {
   CategoryKNMapping,
 });
 
-// 添加模拟登录的请求处理
+// 更新模拟登录的请求处理
 mock.onPost("/api/login").reply((config) => {
   const { username, password } = JSON.parse(config.data);
 
@@ -62,7 +62,7 @@ mock.onPost("/api/login").reply((config) => {
       },
     ];
   } else {
-    return [401, { message: "用户名或密码错误" }];
+    return [401, { message: "登录失败，请检查用户名和密码" }];
   }
 });
 
@@ -696,7 +696,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
                 uuid: "question_detail-14",
                 order_in_question: 1,
                 questionContent: {
-                  value: "若忽略摩擦，计算物体到达斜面底端时的速度。",
+                  value: "若忽略摩擦，计算物体到达斜面底端���的速度。",
                   image: null,
                 },
                 rows: [],
