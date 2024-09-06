@@ -17,7 +17,10 @@ import {
 import Login from "./pages/auth/Login";
 import UserCenter from "./pages/UserCenter";
 import Landing from "./pages/Landing";
+import MyExams from "./pages/exam/MyExams";
+import ErrorQuestions from "./pages/exam/ErrorQuestions";
 
+// 保留现有的路由配置
 export const routeConfig = [
   { path: "/login", element: Login, protected: false },
   { path: "/", element: Landing, protected: true }, // 新的 landing 页面
@@ -36,4 +39,19 @@ export const routeConfig = [
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true },
   { path: "/exam-result/:uuid", element: ExamResult, protected: true },
+  {
+    path: "/my-exams",
+    element: MyExams,
+    protected: true, // 假设这是一个需要保护的路由
+  },
+  {
+    path: "/exam/:uuid",
+    element: ExamPaper,
+    protected: true,
+  },
+  {
+    path: "/error-questions/:examId",
+    element: ErrorQuestions,
+    protected: true,
+  },
 ];

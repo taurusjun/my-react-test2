@@ -91,6 +91,84 @@ mock.onPut("/api/user").reply((config) => {
   return [200, { message: "用户信息更新成功" }];
 });
 
+// 添加 /api/my-exams 的模拟数据
+mock.onGet("/api/my-exams").reply(() => {
+  const mockMyExams = [
+    {
+      id: "exam-1",
+      name: "2024年物理期中考试",
+      status: "未参加",
+      score: null,
+      examTime: null,
+    },
+    {
+      id: "exam-2",
+      name: "2023年物理期末考试",
+      status: "已完成",
+      score: 85,
+      examTime: "2023-12-20 14:30:00",
+    },
+    {
+      id: "exam-3",
+      name: "2024年数学模拟考试",
+      status: "未参加",
+      score: null,
+      examTime: null,
+    },
+    {
+      id: "exam-4",
+      name: "2023年化学期中考试",
+      status: "已完成",
+      score: 92,
+      examTime: "2023-10-15 09:00:00",
+    },
+    {
+      id: "exam-5",
+      name: "2024年综合科学测试",
+      status: "未参加",
+      score: null,
+      examTime: null,
+    },
+  ];
+
+  return [200, mockMyExams];
+});
+
+mock.onGet(/\/api\/error-questions\/.*/).reply((config) => {
+  const examId = config.url.split("/").pop();
+
+  // 模拟错题数据
+  const mockErrorQuestions = [
+    {
+      id: 1,
+      content: "什么是牛顿第一定律?",
+      correctAnswer: "物体在没有外力作用下,会保持静止或匀速直线运动状态。",
+      userAnswer: "物体总是会停下来。",
+      explanation:
+        "牛顿第一定律也称为惯性定律,描述了物体在没有外力作用时的运动状态。",
+      errorCount: 1,
+    },
+    {
+      id: 2,
+      content: "光速是多少?",
+      correctAnswer: "299,792,458 米/秒",
+      userAnswer: "300,000,000 米/秒",
+      explanation:
+        "光速在真空中的精确值是 299,792,458 米/秒,通常近似为 3×10^8 米/秒。",
+      errorCount: 2,
+    },
+    // 可以添加更多模拟错题...
+  ];
+
+  // 如果 examId 不是 'all',可以根据 examId 筛选错题
+  const filteredQuestions =
+    examId === "all"
+      ? mockErrorQuestions
+      : mockErrorQuestions.filter((q) => q.examId === examId);
+
+  return [200, filteredQuestions];
+});
+
 // 模拟问题数据的API响应
 mock.onGet(/\/api\/questions\/.*/).reply(200, {
   uuid: "uuid-question-1",
