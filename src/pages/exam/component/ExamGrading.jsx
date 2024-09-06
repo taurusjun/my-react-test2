@@ -19,6 +19,7 @@ import {
   Dialog,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import ExamMainLayout from "./layouts/ExamMainLayout";
 
 const ExamGrading = () => {
   const { uuid } = useParams();
@@ -175,15 +176,32 @@ const ExamGrading = () => {
   };
 
   if (loading) {
-    return <CircularProgress />;
+    return (
+      <ExamMainLayout currentPage="试卷批改">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </ExamMainLayout>
+    );
   }
 
   if (!exam || !answers) {
-    return <Typography>未找到试卷或答案信息</Typography>;
+    return (
+      <ExamMainLayout currentPage="试卷批改">
+        <Typography>未找到试卷或答案信息</Typography>
+      </ExamMainLayout>
+    );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <ExamMainLayout currentPage={`${exam.name} - 批改`} maxWidth="xl">
       <Typography variant="h4" gutterBottom>
         {exam.name} - 批改
       </Typography>
@@ -277,7 +295,7 @@ const ExamGrading = () => {
           />
         </Dialog>
       )}
-    </Box>
+    </ExamMainLayout>
   );
 };
 
