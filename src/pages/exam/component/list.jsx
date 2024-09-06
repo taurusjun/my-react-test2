@@ -48,7 +48,7 @@ const ExamList = () => {
 
   const fetchExams = async () => {
     try {
-      const response = await axios.get("/api/exams", {
+      const response = await axios.get("/api/exam/list", {
         params: {
           page: page + 1,
           pageSize: rowsPerPage,

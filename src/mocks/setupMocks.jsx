@@ -158,7 +158,7 @@ mock.onGet("/api/questionlist").reply((config) => {
 });
 
 // 更新模拟考试数据
-mock.onGet("/api/exams").reply((config) => {
+mock.onGet("/api/exam/list").reply((config) => {
   const { page = 1, pageSize = 10, name, category } = config.params;
 
   // 模拟的考试列表

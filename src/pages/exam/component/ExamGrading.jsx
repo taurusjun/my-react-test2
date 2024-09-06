@@ -202,10 +202,7 @@ const ExamGrading = () => {
   }
 
   return (
-    <ExamMainLayout currentPage={`${exam.name} - 批改`} maxWidth="xl">
-      <Typography variant="h4" gutterBottom>
-        {exam.name} - 批改
-      </Typography>
+    <ExamMainLayout currentPage={`${exam?.name || "试卷"} - 批改`}>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

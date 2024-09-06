@@ -98,10 +98,7 @@ const ExamResult = () => {
   }
 
   return (
-    <ExamMainLayout currentPage={`${exam.name} - 结果`}>
-      <Typography variant="h4" gutterBottom>
-        {exam.name} - 考试结果
-      </Typography>
+    <ExamMainLayout currentPage={`${exam?.name || "考试"} - 结果`}>
       <Typography variant="h6" gutterBottom>
         总分: {grades.totalScore} / {exam.totalScore}
       </Typography>
