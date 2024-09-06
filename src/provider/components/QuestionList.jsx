@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-import QuestionMainLayout from "../layouts/QuestionMainLayout"; // 确保路径正确
+import CommonLayout from "../../layouts/CommonLayout";
+import { menuItems } from "../../config/menuItems";
 import {
   Table,
   TableBody,
@@ -22,17 +23,17 @@ import {
   Checkbox,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // 确保已安装 axios
+import axios from "axios";
 import { styled, alpha } from "@mui/material/styles";
-import { format } from "date-fns"; // 导入 date-fns 库来格式化日期
-import { useDictionaries } from "../hooks/useDictionaries"; // 确保正确导入
+import { format } from "date-fns";
+import { useDictionaries } from "../hooks/useDictionaries";
 import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   backgroundColor: alpha(theme.palette.info.light, 0.1),
   color: theme.palette.common.black,
-  fontSize: 18, // 增加头文字大小
+  fontSize: 18,
   fontWeight: "bold",
 }));
 
@@ -57,15 +58,15 @@ const QuestionList = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const { dictionaries, loading, error } = useDictionaries();
-  const [inputValue, setInputValue] = useState(""); // 添加 inputValue 状态
-  const [relatedSourceOptions, setRelatedSourceOptions] = useState([]); // 添加 relatedSourceOptions 状态
+  const [inputValue, setInputValue] = useState("");
+  const [relatedSourceOptions, setRelatedSourceOptions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   const [searchParams, setSearchParams] = useState({
     category: "",
     kn: "",
     type: "",
-    relatedSources: [], // 添加 relatedSources 字段
+    relatedSources: [],
   });
 
   const handleRelatedSourcesChange = (event, newValue) => {
@@ -93,7 +94,7 @@ const QuestionList = ({
 
   useEffect(() => {
     fetchQuestions();
-    fetchRelatedSourceOptions(""); // 初始化时获取关联资源选项
+    fetchRelatedSourceOptions("");
   }, [
     page,
     rowsPerPage,
@@ -110,18 +111,17 @@ const QuestionList = ({
           category: fixedCategory,
           searchType: searchType,
           searchTerm: searchTerm,
-          page: page + 1, // 后端通常从1开始计数
+          page: page + 1,
           pageSize: rowsPerPage,
           relatedSources: searchParams.relatedSources.map(
             (source) => source.uuid
-          ), // 添加关联资源参数
+          ),
         },
       });
       setQuestions(response.data.items);
       setTotalCount(response.data.totalCount);
     } catch (error) {
       console.error("获取问题列表时出错:", error);
-      // 这里可以添加错误处理，比如显示一个错误提示
     }
   };
 
@@ -138,7 +138,7 @@ const QuestionList = ({
   };
 
   const handleNewQuestion = () => {
-    navigate("/question-edit"); // 假设新建问题的路由是 "/new-question"
+    navigate("/question-edit");
   };
 
   const handleResetSearch = () => {
@@ -149,7 +149,7 @@ const QuestionList = ({
       ...prevParams,
       relatedSources: [],
     }));
-    setInputValue(""); // 清空 Autocomplete 的输入值
+    setInputValue("");
   };
 
   const handleEdit = (uuid) => {
@@ -174,11 +174,10 @@ const QuestionList = ({
 
   const showIcons = isFromExamEdit || maxWidth === "lg";
 
-  return (
-    <QuestionMainLayout
-      currentPage="题目列表"
-      maxWidth={isFromExamEdit ? "lg" : "xl"}
-    >
+  const rightNavItems = [];
+
+  const content = (
+    <>
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         {!isFromExamEdit && (
           <Button
@@ -313,7 +312,22 @@ const QuestionList = ({
           }
         />
       </TableContainer>
-    </QuestionMainLayout>
+    </>
+  );
+
+  if (isFromExamEdit) {
+    return content;
+  }
+
+  return (
+    <CommonLayout
+      currentPage="题目列表"
+      maxWidth={isFromExamEdit ? "lg" : "xl"}
+      menuItems={menuItems}
+      rightNavItems={rightNavItems}
+    >
+      {content}
+    </CommonLayout>
   );
 };
 
