@@ -25,6 +25,7 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
 
 const ExamPaper = () => {
@@ -78,23 +79,50 @@ const ExamPaper = () => {
     setAnswers({ examUuid: uuid, answers: initialAnswers });
   };
 
-  const handleAnswerChange = (questionUuid, detailUuid, value) => {
+  const handleAnswerChange = (questionUuid, detailUuid, newAnswer) => {
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
       answers: {
         ...prevAnswers.answers,
         [questionUuid]: {
           ...prevAnswers.answers[questionUuid],
-          [detailUuid]: value,
+          [detailUuid]: newAnswer,
         },
       },
     }));
+  };
+
+  const handleImageUpload = (event, questionUuid, detailUuid) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageDataUrl = reader.result;
+        setAnswers((prevAnswers) => {
+          const currentAnswer = prevAnswers.answers[questionUuid]?.[
+            detailUuid
+          ] || ["", ""];
+          return {
+            ...prevAnswers,
+            answers: {
+              ...prevAnswers.answers,
+              [questionUuid]: {
+                ...prevAnswers.answers[questionUuid],
+                [detailUuid]: [currentAnswer[0], imageDataUrl],
+              },
+            },
+          };
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const renderQuestionOptions = (detail, questionUuid) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
     const isSingleChoice = detail.uiType === "single_selection";
     const isFillInBlank = detail.uiType === "fill_in_blank";
+    const isCalculation = detail.uiType === "calculation";
     const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
 
     if (isMultipleChoice) {
@@ -168,6 +196,56 @@ const ExamPaper = () => {
             },
           }}
         />
+      );
+    } else if (isCalculation) {
+      return (
+        <Box sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={currentAnswer[0] || ""}
+            onChange={(e) =>
+              handleAnswerChange(questionUuid, detail.uuid, [
+                e.target.value,
+                currentAnswer[1] || "",
+              ])
+            }
+            placeholder="在此输入您的计算过程和答案"
+          />
+          <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
+            <input
+              accept="image/*"
+              style={{ display: "none" }}
+              id={`upload-image-${detail.uuid}`}
+              type="file"
+              onChange={(e) => handleImageUpload(e, questionUuid, detail.uuid)}
+            />
+            <label htmlFor={`upload-image-${detail.uuid}`}>
+              <Button
+                variant="contained"
+                component="span"
+                startIcon={<CloudUploadIcon />}
+              >
+                上传解题图片
+              </Button>
+            </label>
+            {currentAnswer[1] && (
+              <Box sx={{ ml: 2 }}>
+                <img
+                  src={currentAnswer[1]}
+                  alt="解题图片"
+                  style={{
+                    maxWidth: "100px",
+                    maxHeight: "100px",
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+        </Box>
       );
     }
   };
