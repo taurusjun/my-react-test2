@@ -29,6 +29,29 @@ mock.onGet("/api/dictionaries").reply(200, {
   CategoryKNMapping,
 });
 
+// 添加模拟登录的请求处理
+mock.onPost("/api/login").reply((config) => {
+  const { username, password } = JSON.parse(config.data);
+
+  // 模拟用户验证
+  if (username === "testuser" && password === "password123") {
+    return [
+      200,
+      {
+        token: "mock-jwt-token-12345",
+        user: {
+          id: 1,
+          username: "testuser",
+          name: "测试用户",
+          role: "student",
+        },
+      },
+    ];
+  } else {
+    return [401, { message: "用户名或密码错误" }];
+  }
+});
+
 // 模拟问题数据的API响应
 mock.onGet(/\/api\/questions\/.*/).reply(200, {
   uuid: "uuid-question-1",

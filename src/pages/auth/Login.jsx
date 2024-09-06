@@ -12,8 +12,8 @@ import {
 import { setToken } from "../../utils/auth";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("testuser");
+  const [password, setPassword] = useState("password123");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const Login = () => {
       const response = await axios.post("/api/login", { username, password });
       const { token } = response.data;
       setToken(token);
-      navigate("/exam-list");
+      navigate("/exam/list");
     } catch (err) {
       setError("登录失败，请检查用户名和密码");
     }
