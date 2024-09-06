@@ -255,7 +255,7 @@ mock.onGet(/\/api\/exams\/.*/).reply((config) => {
         questions: [
           {
             uuid: "question-3",
-            digest: "这是一道填空题，考察能量转换。",
+            digest: "这是一道填空题，考察��转换。",
             content: "物体从高处自由落下，重力势能转化为 ______ 能。",
             answer: "动能",
             score: 10,
@@ -338,7 +338,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
 
   const mockExam = {
     uuid: uuid,
-    name: "物理模拟考试 1",
+    name: "2024年物理综合模拟考试",
     category: "physics",
     gradeInfo: {
       school: "senior",
@@ -355,15 +355,13 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
         name: "选择题",
         order_in_exam: 1,
         questions: [
+          // 保留原有的多选题（2个questionDetails）
           {
             uuid: "question-1",
             type: "selection",
             category: "physics",
             kn: "mechanics",
-            gradeInfo: {
-              school: "senior",
-              grade: "grade11",
-            },
+            gradeInfo: { school: "senior", grade: "grade11" },
             source: "2023年春季期中考试",
             tags: ["important"],
             digest: "关于力和运动的多选题",
@@ -377,28 +375,16 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
                   image: null,
                 },
                 rows: [
-                  {
-                    value: "物体运动一定有力",
-                    isAns: false,
-                    image: null,
-                  },
-                  {
-                    value: "物体受力一定运动",
-                    isAns: false,
-                    image: null,
-                  },
+                  { value: "物体运动一定有力", isAns: false, image: null },
+                  { value: "物体受力一定运动", isAns: false, image: null },
                   {
                     value: "力是物体运动状态改变的原因",
                     isAns: true,
                     image: null,
                   },
-                  {
-                    value: "力的作用是相互的",
-                    isAns: true,
-                    image: null,
-                  },
+                  { value: "力的作用是相互的", isAns: true, image: null },
                 ],
-                score: 5,
+                score: 2,
                 rate: 4,
                 explanation:
                   "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
@@ -406,110 +392,308 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
                 answer: ["C", "D"],
                 answerImage: null,
               },
-            ],
-            relatedSources: [
-              {
-                uuid: "uuid-1234-abcd-5678",
-                name: "2010年春季物理竞赛",
-              },
-              {
-                uuid: "uuid-3456-cdef-7890",
-                name: "高中物理教材",
-              },
-            ],
-          },
-          {
-            uuid: "question-2",
-            type: "fill_in_blank",
-            category: "physics",
-            kn: "thermodynamics",
-            gradeInfo: {
-              school: "senior",
-              grade: "grade11",
-            },
-            source: "2023年秋季期末考试",
-            tags: ["basic"],
-            digest: "热力学第一定律填空题",
-            material: "",
-            questionDetails: [
               {
                 uuid: "question_detail-2",
-                order_in_question: 1,
+                order_in_question: 2,
                 questionContent: {
-                  value:
-                    "热力学第一定律表述为：系统的内能增加等于系统从外界吸收的______和外界对系统做的______之和。",
+                  value: "关于牛顿第二定律，以下说法正确的是：",
                   image: null,
                 },
-                rows: [],
-                score: 10,
+                rows: [
+                  {
+                    value: "物体的加速度与作用力成正比",
+                    isAns: true,
+                    image: null,
+                  },
+                  {
+                    value: "物体的加速度与质量成正比",
+                    isAns: false,
+                    image: null,
+                  },
+                  {
+                    value: "物体的加速度方向总是与力的方向相同",
+                    isAns: true,
+                    image: null,
+                  },
+                  { value: "F=ma中的m必须是常量", isAns: false, image: null },
+                ],
+                score: 2,
                 rate: 3,
                 explanation:
-                  "热力学第一定律的完整表述是：系统的内能增加等于系统从外界吸收的热量和外界对系统做的功之和。",
-                uiType: "fill_in_blank",
-                answer: ["热量", "功"],
+                  "牛顿第二定律表明加速度与力成正比，与质量成反比，且加速度方向与合力方向相同。",
+                uiType: "multi_selection",
+                answer: ["A", "C"],
                 answerImage: null,
               },
             ],
             relatedSources: [
-              {
-                uuid: "uuid-5678-efgh-1234",
-                name: "高中物理教材 - 热学部分",
-              },
+              { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+              { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
             ],
           },
-        ],
-      },
-      {
-        uuid: "section-2",
-        name: "计算题",
-        order_in_exam: 2,
-        questions: [
+          // 增加8个只有1个questionDetails的单选题
           {
-            uuid: "question-3",
-            type: "calculation",
+            uuid: "question-2",
+            type: "selection",
             category: "physics",
-            kn: "kinematics",
-            gradeInfo: {
-              school: "senior",
-              grade: "grade11",
-            },
-            source: "2024年模拟考试",
-            tags: ["difficult"],
-            digest: "匀变速直线运动计算题",
-            material:
-              "一辆汽车在笔直的公路上行驶，初速度为10m/s，加速度为2m/s²。",
+            kn: "thermodynamics",
+            gradeInfo: { school: "senior", grade: "grade11" },
+            source: "2023年秋季期末考试",
+            tags: ["basic"],
+            digest: "热力学第一定律单选题",
+            material: "",
             questionDetails: [
               {
                 uuid: "question_detail-3",
                 order_in_question: 1,
                 questionContent: {
-                  value: "计算汽车行驶5秒后的速度和位移。",
+                  value: "热力学第一定律的正确表述是：",
+                  image: null,
+                },
+                rows: [
+                  {
+                    value: "系统的内能增加等于系统从外界吸收的热量",
+                    isAns: false,
+                    image: null,
+                  },
+                  {
+                    value: "系统的内能增加等于外界对系统做的功",
+                    isAns: false,
+                    image: null,
+                  },
+                  {
+                    value:
+                      "系统的内能增加等于系统从外界吸收的热量和外界对系统做的功之和",
+                    isAns: true,
+                    image: null,
+                  },
+                  {
+                    value: "系统的内能增加等于系统对外界做的功",
+                    isAns: false,
+                    image: null,
+                  },
+                ],
+                score: 2,
+                rate: 3,
+                explanation:
+                  "热力学第一定律表明，系统的内能增加等于系统从外界吸收的热量和外界对系统做的功之和。",
+                uiType: "single_selection",
+                answer: ["C"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              { uuid: "uuid-5678-efgh-1234", name: "高中物理教材 - 热学部分" },
+            ],
+          },
+          // 添加更多单选题...（重复类似的结构，更改内容和UUID）
+        ],
+      },
+      {
+        uuid: "section-2",
+        name: "填空题",
+        order_in_exam: 2,
+        questions: [
+          {
+            uuid: "question-10",
+            type: "fill_in_blank",
+            category: "physics",
+            kn: "electromagnetism",
+            gradeInfo: { school: "senior", grade: "grade11" },
+            source: "2024年模拟考试",
+            tags: ["important"],
+            digest: "电磁感应定律填空题",
+            material: "法拉第电磁感应定律是电磁学的基本定律之一。",
+            questionDetails: [
+              {
+                uuid: "question_detail-10",
+                order_in_question: 1,
+                questionContent: {
+                  value:
+                    "法拉第电磁感应定律指出，感应电动势的大小与穿过闭合回路的______变化率的大小成正比。",
                   image: null,
                 },
                 rows: [],
-                score: 15,
-                rate: 5,
+                score: 2,
+                rate: 4,
                 explanation:
-                  "解答步骤：\n1. 使用v = v0 + at计算末速度\n2. 使用s = v0t + (1/2)at²计算位移",
+                  "法拉第电磁感应定律表明，感应电动势的大小与穿过闭合回路的磁通量变化率的大小成正比。",
+                uiType: "fill_in_blank",
+                answer: ["磁通量"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              { uuid: "uuid-9012-ijkl-5678", name: "高中物理教材 - 电磁学" },
+            ],
+          },
+          {
+            uuid: "question-11",
+            type: "fill_in_blank",
+            category: "physics",
+            kn: "optics",
+            gradeInfo: { school: "senior", grade: "grade11" },
+            source: "2024年模拟考试",
+            tags: ["basic"],
+            digest: "光的折射定律填空题",
+            material: "",
+            questionDetails: [
+              {
+                uuid: "question_detail-11",
+                order_in_question: 1,
+                questionContent: {
+                  value:
+                    "光从一种介质斜射入另一种介质时，入射角的正弦与折射角的正弦之比等于两种介质的______之比。",
+                  image: null,
+                },
+                rows: [],
+                score: 2,
+                rate: 3,
+                explanation:
+                  "折射定律（斯涅尔定律）指出，入射角的正弦与折射角的正弦之比等于两种介质的折射率之比。",
+                uiType: "fill_in_blank",
+                answer: ["折射率"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              { uuid: "uuid-3456-mnop-7890", name: "高中物理教材 - 光学" },
+            ],
+          },
+        ],
+      },
+      {
+        uuid: "section-3",
+        name: "计算题",
+        order_in_exam: 3,
+        questions: [
+          // 保留原有的计算题（2个questionDetails）
+          {
+            uuid: "question-12",
+            type: "calculation",
+            category: "physics",
+            kn: "kinematics",
+            gradeInfo: { school: "senior", grade: "grade11" },
+            source: "2024年模拟考试",
+            tags: ["difficult"],
+            digest: "匀变速直线运动综合计算题",
+            material:
+              "一辆汽车在笔直的公路上行驶，初速度为10m/s，加速度为2m/s²。",
+            questionDetails: [
+              {
+                uuid: "question_detail-12",
+                order_in_question: 1,
+                questionContent: {
+                  value: "计算汽车行驶5秒后的速度。",
+                  image: null,
+                },
+                rows: [],
+                score: 3,
+                rate: 3,
+                explanation: "使用v = v0 + at计算末速度",
                 uiType: "long_answer",
-                answer: [
-                  "末速度：v = 10 + 2 * 5 = 20 m/s",
-                  "位移：s = 10 * 5 + 0.5 * 2 * 5² = 75 m",
-                ],
+                answer: ["末速度：v = 10 + 2 * 5 = 20 m/s"],
+                answerImage: null,
+              },
+              {
+                uuid: "question_detail-13",
+                order_in_question: 2,
+                questionContent: {
+                  value: "计算汽车行驶5秒后的位移。",
+                  image: null,
+                },
+                rows: [],
+                score: 3,
+                rate: 4,
+                explanation: "使用s = v0t + (1/2)at²计算位移",
+                uiType: "long_answer",
+                answer: ["位移：s = 10 * 5 + 0.5 * 2 * 5² = 75 m"],
                 answerImage: null,
               },
             ],
             relatedSources: [
               {
-                uuid: "uuid-9012-ijkl-5678",
+                uuid: "uuid-7890-qrst-1234",
                 name: "高中物理竞赛题集 - 运动学",
               },
+            ],
+          },
+          {
+            uuid: "question-13",
+            type: "calculation",
+            category: "physics",
+            kn: "dynamics",
+            gradeInfo: { school: "senior", grade: "grade11" },
+            source: "2024年模拟考试",
+            tags: ["difficult"],
+            digest: "力学能守恒定律应用题",
+            material:
+              "一个质量为0.5kg的物体从10m高的斜面顶端由静止释放，滑到斜面底端。",
+            questionDetails: [
+              {
+                uuid: "question_detail-14",
+                order_in_question: 1,
+                questionContent: {
+                  value: "若忽略摩擦，计算物体到达斜面底端时的速度。",
+                  image: null,
+                },
+                rows: [],
+                score: 4,
+                rate: 5,
+                explanation: "使用力学能守恒定律，初始重力势能全部转化为动能",
+                uiType: "long_answer",
+                answer: ["v = √(2gh) = √(2 * 9.8 * 10) ≈ 14 m/s"],
+                answerImage: null,
+              },
+            ],
+            relatedSources: [
+              { uuid: "uuid-5678-uvwx-9012", name: "高中物理教材 - 能量守恒" },
             ],
           },
         ],
       },
     ],
   };
+
+  // 添加更多只有1个questionDetails的题目
+  for (let i = 3; i <= 9; i++) {
+    mockExam.sections[0].questions.push({
+      uuid: `question-${i}`,
+      type: "selection",
+      category: "physics",
+      kn: `knowledge-area-${i}`,
+      gradeInfo: { school: "senior", grade: "grade11" },
+      source: "2024年模拟考试",
+      tags: ["basic"],
+      digest: `物理概念单选题 ${i}`,
+      material: i % 2 === 0 ? "" : `这是第 ${i} 题的背景材料。`,
+      questionDetails: [
+        {
+          uuid: `question_detail-${i}`,
+          order_in_question: 1,
+          questionContent: {
+            value: `这是第 ${i} 个单选题的问题描述。`,
+            image: null,
+          },
+          rows: [
+            { value: "选项A", isAns: false, image: null },
+            { value: "选项B", isAns: false, image: null },
+            { value: "选项C", isAns: true, image: null },
+            { value: "选项D", isAns: false, image: null },
+          ],
+          score: 2,
+          rate: 3,
+          explanation: `这是第 ${i} 个单选题的解释。`,
+          uiType: "single_selection",
+          answer: ["C"],
+          answerImage: null,
+        },
+      ],
+      relatedSources: [
+        { uuid: `uuid-${i}000-${i}abc-${i}def`, name: `相关资源 ${i}` },
+      ],
+    });
+  }
 
   return [200, mockExam];
 });
