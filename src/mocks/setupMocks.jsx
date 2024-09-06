@@ -811,3 +811,62 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
 
   return [200, mockAnswers];
 });
+
+mock.onGet(/\/api\/exams\/.*\/grades/).reply((config) => {
+  const uuid = config.url.split("/")[3];
+  return [
+    200,
+    {
+      examUuid: uuid,
+      totalScore: 85,
+      maxScore: 100,
+      grades: {
+        "question-1": {
+          "question_detail-1": 5,
+          "question_detail-2": 5,
+        },
+        "question-2": {
+          "question_detail-3": 10,
+        },
+        "question-3": {
+          "question_detail-4": 8,
+        },
+        "question-4": {
+          "question_detail-5": 7,
+        },
+        "question-5": {
+          "question_detail-6": 10,
+        },
+        "question-6": {
+          "question_detail-7": 9,
+        },
+        "question-7": {
+          "question_detail-8": 6,
+        },
+        "question-8": {
+          "question_detail-9": 5,
+        },
+        "question-9": {
+          "question_detail-10": 8,
+        },
+        "question-10": {
+          "question_detail-11": 4,
+        },
+        "question-11": {
+          "question_detail-12": 3,
+        },
+        "question-12": {
+          "question_detail-13": 5,
+        },
+      },
+      submissionTime: "2024-03-15T10:30:00Z",
+      gradingTime: "2024-03-16T14:45:00Z",
+      grader: "Teacher Smith",
+      comments: "良好的表现，但在某些概念上还需要加强理解。",
+      passingScore: 60,
+      percentile: 75,
+      rank: 15,
+      totalParticipants: 100,
+    },
+  ];
+});

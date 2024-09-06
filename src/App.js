@@ -13,6 +13,7 @@ import {
   ViewExam,
   ExamPaper,
   ExamGrading,
+  ExamResult,
 } from "./pages/exam";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/exam/view/:uuid" element={<ViewExam />} />
         <Route path="/exam/paper/:uuid" element={<ExamPaper />} />
         <Route path="/exam/grading/:uuid" element={<ExamGrading />} />
+        <Route path="/exam-result/:uuid" element={<ExamResult />} />
       </Routes>
     </div>
   );
