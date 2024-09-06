@@ -16,10 +16,13 @@ import {
 } from "./pages/exam";
 import Login from "./pages/auth/Login";
 import UserCenter from "./pages/UserCenter";
+import Landing from "./pages/Landing";
 
 export const routeConfig = [
-  { path: "/", element: Home, protected: true },
   { path: "/login", element: Login, protected: false },
+  { path: "/", element: Landing, protected: true }, // 新的 landing 页面
+  { path: "/exam/list", element: ExamList, protected: true },
+  { path: "/user-center", element: UserCenter, protected: true },
   { path: "/questions", element: QuestionList, protected: true },
   { path: "/about/:id", element: About, protected: false },
   { path: "/exam/:uuid", element: ExamDetail, protected: true },
@@ -33,6 +36,4 @@ export const routeConfig = [
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true },
   { path: "/exam-result/:uuid", element: ExamResult, protected: true },
-  { path: "/user-center", element: UserCenter, protected: true },
-  { path: "/exam/list", element: ExamList, protected: true },
 ];
