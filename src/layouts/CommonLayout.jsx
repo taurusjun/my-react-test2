@@ -125,6 +125,8 @@ const CommonLayout = ({
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
+          marginLeft: { sm: `${drawerWidth}px` }, // 添加左边距
+          marginTop: "64px", // 添加顶部边距，与 AppBar 高度相同
         }}
       >
         <Toolbar />
