@@ -320,20 +320,18 @@ const ExamPaper = () => {
     }
   };
 
-  const calculateGlobalDetailCount = (
+  const calculateSectionDetailCount = (
     targetSection,
     targetQuestion,
     targetDetail
   ) => {
     let count = 0;
-    for (let s = 0; s < targetSection; s++) {
-      for (let q = 0; q < exam.sections[s].questions.length; q++) {
-        count += exam.sections[s].questions[q].questionDetails.length;
-      }
-    }
+    const currentSectionQuestions = exam.sections[targetSection].questions;
+
     for (let q = 0; q < targetQuestion; q++) {
-      count += exam.sections[targetSection].questions[q].questionDetails.length;
+      count += currentSectionQuestions[q].questionDetails.length;
     }
+
     return count + targetDetail + 1;
   };
 
@@ -405,7 +403,7 @@ const ExamPaper = () => {
   const currentQuestionData = currentSectionData.questions[currentQuestion];
   const currentDetailData = currentQuestionData.questionDetails[currentDetail];
 
-  const globalDetailCount = calculateGlobalDetailCount(
+  const globalDetailCount = calculateSectionDetailCount(
     currentSection,
     currentQuestion,
     currentDetail
@@ -456,7 +454,7 @@ const ExamPaper = () => {
               <Grid container spacing={1}>
                 {section.questions.flatMap((question, questionIndex) =>
                   question.questionDetails.map((detail, detailIndex) => {
-                    const detailNumber = calculateGlobalDetailCount(
+                    const detailNumber = calculateSectionDetailCount(
                       sectionIndex,
                       questionIndex,
                       detailIndex
@@ -504,7 +502,15 @@ const ExamPaper = () => {
                 </Typography>
               )}
               <Typography variant="body1">
-                <strong>{globalDetailCount}. </strong>
+                <strong>
+                  {`${
+                    currentSectionData.order_in_exam
+                  }.${calculateSectionDetailCount(
+                    currentSection,
+                    currentQuestion,
+                    currentDetail
+                  )}`}{" "}
+                </strong>
                 {currentDetailData.questionContent.value}
                 <span style={{ marginLeft: "8px", color: "gray" }}>
                   ({currentDetailData.score} 分)
