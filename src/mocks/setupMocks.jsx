@@ -204,7 +204,7 @@ mock.onGet("/api/exams").reply((config) => {
 });
 
 // 修改获取单个考试数据的模拟
-mock.onGet(/\/api\/exams\/.*/).reply((config) => {
+mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
   const uuid = config.url.split("/").pop();
 
   const mockExam = {
@@ -748,4 +748,66 @@ mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
       ]);
     }, 500); // 模拟 0.5 秒的处理时间
   });
+});
+
+// 在文件的适当位置添加以下代码
+
+// 模拟获取考试答案的请求
+mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
+  const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
+
+  // 创建模拟的答案数据
+  const mockAnswers = {
+    examUuid: uuid,
+    answers: {
+      "question-1": {
+        "question_detail-1": ["C", "D"],
+        "question_detail-2": ["A", "B"],
+      },
+      "question-2": {
+        "question_detail-3": ["B"],
+      },
+      "question-3": {
+        "question_detail-4": ["动能"],
+      },
+      "question-4": {
+        "question_detail-5": ["25 m/s"],
+      },
+      // 为其他题目添加模拟答案
+      "question-5": {
+        "question_detail-6": ["C"],
+      },
+      "question-6": {
+        "question_detail-7": ["A"],
+      },
+      "question-7": {
+        "question_detail-8": ["D"],
+      },
+      "question-8": {
+        "question_detail-9": ["B"],
+      },
+      "question-9": {
+        "question_detail-10": ["C"],
+      },
+      "question-10": {
+        "question_detail-11": ["A"],
+      },
+      "question-11": {
+        "question_detail-12": ["这是一个填空题的答案"],
+      },
+      "question-12": {
+        "question_detail-13": ["这是另一个填空题的答案"],
+      },
+      "question-13": {
+        "question_detail-14": [
+          "14 m/s",
+          "这里可以是计算过程或额外解释",
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // 这是一个1x1像素的透明PNG图片的base64编码，您应该替换为实际的图片数据
+        ],
+      },
+    },
+    submissionTime: "2024-03-15T10:30:00Z", // 模拟的提交时间
+  };
+
+  return [200, mockAnswers];
 });

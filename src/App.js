@@ -6,7 +6,14 @@ import { List } from "./components/List";
 import { ExamDetail } from "./exam/ExamDetail";
 import QuestionList from "./provider/components/QuestionList";
 import QuestionEdit from "./provider/components/QuestionEdit";
-import { ExamList, NewExam, EditExam, ViewExam, ExamPaper } from "./pages/exam";
+import {
+  ExamList,
+  NewExam,
+  EditExam,
+  ViewExam,
+  ExamPaper,
+  ExamGrading,
+} from "./pages/exam";
 
 function App() {
   return (
@@ -25,6 +32,7 @@ function App() {
         <Route path="/exam/edit/:uuid" element={<EditExam />} />
         <Route path="/exam/view/:uuid" element={<ViewExam />} />
         <Route path="/exam/paper/:uuid" element={<ExamPaper />} />
+        <Route path="/exam/grading/:uuid" element={<ExamGrading />} />
       </Routes>
     </div>
   );
