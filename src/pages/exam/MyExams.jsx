@@ -37,7 +37,7 @@ const MyExams = () => {
   }, []);
 
   const handleStartExam = (examId) => {
-    navigate(`/exam/${examId}`);
+    navigate(`/exam/paper/${examId}`);
   };
 
   const handleViewErrors = (examId) => {

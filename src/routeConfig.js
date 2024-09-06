@@ -15,7 +15,7 @@ import {
   ExamResult,
 } from "./pages/exam";
 import Login from "./pages/auth/Login";
-import UserCenter from "./pages/UserCenter";
+import UserCenter from "./pages/user/UserCenter";
 import Landing from "./pages/Landing";
 import MyExams from "./pages/exam/MyExams";
 import ErrorQuestions from "./pages/exam/ErrorQuestions";
@@ -39,16 +39,9 @@ export const routeConfig = [
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true },
   { path: "/exam-result/:uuid", element: ExamResult, protected: true },
-  {
-    path: "/my-exams",
-    element: MyExams,
-    protected: true, // 假设这是一个需要保护的路由
-  },
-  {
-    path: "/exam/:uuid",
-    element: ExamPaper,
-    protected: true,
-  },
+  { path: "/my-exam/list", element: MyExams, protected: true },
+  { path: "/exam/:uuid", element: ExamPaper, protected: true },
+  { path: "/error-questions/", element: ErrorQuestions, protected: true },
   {
     path: "/error-questions/:examId",
     element: ErrorQuestions,
