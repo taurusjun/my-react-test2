@@ -19,7 +19,9 @@ import {
   Dialog,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
-import ExamMainLayout from "./layouts/ExamMainLayout";
+import CommonLayout from "../../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 
 const ExamGrading = () => {
   const { uuid } = useParams();
@@ -34,6 +36,8 @@ const ExamGrading = () => {
     severity: "info",
   });
   const [enlargedImage, setEnlargedImage] = useState(null);
+
+  const breadcrumbPaths = getBreadcrumbPaths().examGrading;
 
   useEffect(() => {
     const fetchExamAndAnswers = async () => {
@@ -178,7 +182,13 @@ const ExamGrading = () => {
 
   if (loading) {
     return (
-      <ExamMainLayout currentPage="试卷批改">
+      <CommonLayout
+        currentPage="试卷批改"
+        showBreadcrumbs={true}
+        BreadcrumbsComponent={() => (
+          <CommonBreadcrumbs paths={breadcrumbPaths} />
+        )}
+      >
         <Box
           sx={{
             display: "flex",
@@ -189,20 +199,33 @@ const ExamGrading = () => {
         >
           <CircularProgress />
         </Box>
-      </ExamMainLayout>
+      </CommonLayout>
     );
   }
 
   if (!exam || !answers) {
     return (
-      <ExamMainLayout currentPage="试卷批改">
+      <CommonLayout
+        currentPage="试卷批改"
+        showBreadcrumbs={true}
+        BreadcrumbsComponent={() => (
+          <CommonBreadcrumbs paths={breadcrumbPaths} />
+        )}
+      >
         <Typography>未找到试卷或答案信息</Typography>
-      </ExamMainLayout>
+      </CommonLayout>
     );
   }
 
   return (
-    <ExamMainLayout currentPage={`${exam?.name || "试卷"} - 批改`}>
+    <CommonLayout
+      currentPage={`${exam?.name || "试卷"} - 批改`}
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => <CommonBreadcrumbs paths={breadcrumbPaths} />}
+    >
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: "#1976d2" }}>
+        {exam?.name || "试卷"} - 批改
+      </Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -293,7 +316,7 @@ const ExamGrading = () => {
           />
         </Dialog>
       )}
-    </ExamMainLayout>
+    </CommonLayout>
   );
 };
 

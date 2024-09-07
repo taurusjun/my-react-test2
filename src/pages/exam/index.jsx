@@ -5,6 +5,7 @@ import EditExam from "./component/edit";
 import ExamPaper from "./component/ExamPaper";
 import ExamGrading from "./component/ExamGrading";
 import ExamResult from "./component/ExamResult";
+import GradingCenter from "./component/GradingCenter";
 
 export {
   ExamList,
@@ -14,4 +15,5 @@ export {
   ExamPaper,
   ExamGrading,
   ExamResult,
+  GradingCenter,
 };

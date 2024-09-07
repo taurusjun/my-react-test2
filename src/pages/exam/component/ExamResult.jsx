@@ -16,7 +16,9 @@ import {
   IconButton,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
-import ExamMainLayout from "./layouts/ExamMainLayout";
+import CommonLayout from "../../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 
 const ExamResult = () => {
   const { uuid } = useParams();
@@ -72,9 +74,17 @@ const ExamResult = () => {
     return <Typography>{answer}</Typography>;
   };
 
+  const breadcrumbPaths = getBreadcrumbPaths().examResult;
+
   if (loading) {
     return (
-      <ExamMainLayout currentPage="考试结果">
+      <CommonLayout
+        currentPage="考试结果"
+        showBreadcrumbs={true}
+        BreadcrumbsComponent={() => (
+          <CommonBreadcrumbs paths={breadcrumbPaths} />
+        )}
+      >
         <Box
           sx={{
             display: "flex",
@@ -85,20 +95,33 @@ const ExamResult = () => {
         >
           <CircularProgress />
         </Box>
-      </ExamMainLayout>
+      </CommonLayout>
     );
   }
 
   if (!exam || !answers || !grades) {
     return (
-      <ExamMainLayout currentPage="考试结果">
+      <CommonLayout
+        currentPage="考试结果"
+        showBreadcrumbs={true}
+        BreadcrumbsComponent={() => (
+          <CommonBreadcrumbs paths={breadcrumbPaths} />
+        )}
+      >
         <Typography>未找到考试结果信息</Typography>
-      </ExamMainLayout>
+      </CommonLayout>
     );
   }
 
   return (
-    <ExamMainLayout currentPage={`${exam?.name || "考试"} - 结果`}>
+    <CommonLayout
+      currentPage={`${exam?.name || "考试"} - 结果`}
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => <CommonBreadcrumbs paths={breadcrumbPaths} />}
+    >
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: "#1976d2" }}>
+        {exam?.name || "考试"} - 结果
+      </Typography>
       <Typography variant="h6" gutterBottom>
         总分: {grades.totalScore} / {exam.totalScore}
       </Typography>
@@ -149,7 +172,7 @@ const ExamResult = () => {
           />
         </Dialog>
       )}
-    </ExamMainLayout>
+    </CommonLayout>
   );
 };
 

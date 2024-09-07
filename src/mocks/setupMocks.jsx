@@ -697,6 +697,166 @@ mock.onGet("/api/error-questions").reply((config) => {
   return [200, filteredQuestions];
 });
 
+// 模拟考试提交列表
+mock.onGet("/api/exam-submissions").reply(() => {
+  const mockSubmissions = [
+    {
+      uuid: "submission-1",
+      examName: "2024年物理期中考试",
+      studentName: "张三",
+      score: 85,
+      submissionTime: "2024-03-15 14:30:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-2",
+      examName: "2024年化学模拟考试",
+      studentName: "李四",
+      score: null,
+      submissionTime: "2024-03-16 10:15:00",
+      isGraded: false,
+    },
+    {
+      uuid: "submission-3",
+      examName: "2024年数学期末考试",
+      studentName: "王五",
+      score: 92,
+      submissionTime: "2024-03-17 09:45:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-4",
+      examName: "2024年英语听力测试",
+      studentName: "赵六",
+      score: null,
+      submissionTime: "2024-03-18 11:20:00",
+      isGraded: false,
+    },
+  ];
+
+  return [200, mockSubmissions];
+});
+
+// 模拟获取单个考试答案的请求
+mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
+  const uuid = config.url.split("/")[3];
+
+  const mockAnswers = {
+    examUuid: uuid,
+    answers: {
+      "question-1": {
+        "question_detail-1": ["C", "D"],
+        "question_detail-2": ["A", "B"],
+      },
+      "question-2": {
+        "question_detail-3": ["B"],
+      },
+      "question-3": {
+        "question_detail-4": ["动能"],
+      },
+      "question-4": {
+        "question_detail-5": ["25 m/s"],
+      },
+      "question-5": {
+        "question_detail-6": ["C"],
+      },
+      "question-6": {
+        "question_detail-7": ["A"],
+      },
+      "question-7": {
+        "question_detail-8": ["D"],
+      },
+      "question-8": {
+        "question_detail-9": ["B"],
+      },
+      "question-9": {
+        "question_detail-10": ["C"],
+      },
+      "question-10": {
+        "question_detail-11": ["折射率"],
+      },
+      "question-11": {
+        "question_detail-12": ["20 m/s"],
+      },
+      "question-12": {
+        "question_detail-13": ["75 m"],
+      },
+      "question-13": {
+        "question_detail-14": ["14 m/s"],
+      },
+    },
+    submissionTime: "2024-03-15T10:30:00Z",
+  };
+
+  return [200, mockAnswers];
+});
+
+// 模拟获取单个考试成绩的请求
+mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
+  const uuid = config.url.split("/")[3];
+
+  const mockGrades = {
+    examUuid: uuid,
+    totalScore: 85,
+    maxScore: 100,
+    grades: {
+      "question-1": {
+        "question_detail-1": 5,
+        "question_detail-2": 5,
+      },
+      "question-2": {
+        "question_detail-3": 10,
+      },
+      "question-3": {
+        "question_detail-4": 8,
+      },
+      "question-4": {
+        "question_detail-5": 7,
+      },
+      "question-5": {
+        "question_detail-6": 10,
+      },
+      "question-6": {
+        "question_detail-7": 9,
+      },
+      "question-7": {
+        "question_detail-8": 6,
+      },
+      "question-8": {
+        "question_detail-9": 5,
+      },
+      "question-9": {
+        "question_detail-10": 8,
+      },
+      "question-10": {
+        "question_detail-11": 4,
+      },
+      "question-11": {
+        "question_detail-12": 3,
+      },
+      "question-12": {
+        "question_detail-13": 5,
+      },
+    },
+    submissionTime: "2024-03-15T10:30:00Z",
+    gradingTime: "2024-03-16T14:45:00Z",
+    grader: "Teacher Smith",
+    comments: "良好的表现，但在某些概念上还需要加强理解。",
+  };
+
+  return [200, mockGrades];
+});
+
+// 模拟提交考试成绩的请求
+mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
+  const uuid = config.url.split("/")[3];
+  const submittedGrades = JSON.parse(config.data);
+
+  console.log(`提交考试 ${uuid} 的成绩:`, submittedGrades);
+
+  return [200, { message: "成绩提交成功" }];
+});
+
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();
@@ -1115,13 +1275,50 @@ mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
   });
 });
 
-// 在文件的适当位置添加以下代码
+// // 模拟考试提交列表
+// mock.onGet("/api/exam-submissions").reply(() => {
+//   const mockSubmissions = [
+//     {
+//       uuid: "submission-1",
+//       examName: "2024年物理期中考试",
+//       studentName: "张三",
+//       score: 85,
+//       submissionTime: "2024-03-15 14:30:00",
+//       isGraded: true,
+//     },
+//     {
+//       uuid: "submission-2",
+//       examName: "2024年化学模拟考试",
+//       studentName: "李四",
+//       score: null,
+//       submissionTime: "2024-03-16 10:15:00",
+//       isGraded: false,
+//     },
+//     {
+//       uuid: "submission-3",
+//       examName: "2024年数学期末考试",
+//       studentName: "王五",
+//       score: 92,
+//       submissionTime: "2024-03-17 09:45:00",
+//       isGraded: true,
+//     },
+//     {
+//       uuid: "submission-4",
+//       examName: "2024年英语听力测试",
+//       studentName: "赵六",
+//       score: null,
+//       submissionTime: "2024-03-18 11:20:00",
+//       isGraded: false,
+//     },
+//   ];
 
-// 模拟获取考试答案的请求
+//   return [200, mockSubmissions];
+// });
+
+// 模拟获取单个考试答案的请求
 mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
-  const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
+  const uuid = config.url.split("/")[3];
 
-  // 创建模拟的答案数据
   const mockAnswers = {
     examUuid: uuid,
     answers: {
@@ -1138,7 +1335,6 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
       "question-4": {
         "question_detail-5": ["25 m/s"],
       },
-      // 为其他题目添加模拟答案
       "question-5": {
         "question_detail-6": ["C"],
       },
@@ -1155,13 +1351,13 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
         "question_detail-10": ["C"],
       },
       "question-10": {
-        "question_detail-11": ["A"],
+        "question_detail-11": ["折射率"],
       },
       "question-11": {
-        "question_detail-12": ["这是一个填空题的答案"],
+        "question_detail-12": ["20 m/s"],
       },
       "question-12": {
-        "question_detail-13": ["这是另一个填空题的答案"],
+        "question_detail-13": ["75 m"],
       },
       "question-13": {
         "question_detail-14": [
@@ -1171,67 +1367,74 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
         ],
       },
     },
-    submissionTime: "2024-03-15T10:30:00Z", // 模拟的提交时间
+    submissionTime: "2024-03-15T10:30:00Z",
   };
 
   return [200, mockAnswers];
 });
 
-mock.onGet(/\/api\/exams\/.*\/grades/).reply((config) => {
+// 模拟获取单个考试成绩的请求
+mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
   const uuid = config.url.split("/")[3];
-  return [
-    200,
-    {
-      examUuid: uuid,
-      totalScore: 85,
-      maxScore: 100,
-      grades: {
-        "question-1": {
-          "question_detail-1": 5,
-          "question_detail-2": 5,
-        },
-        "question-2": {
-          "question_detail-3": 10,
-        },
-        "question-3": {
-          "question_detail-4": 8,
-        },
-        "question-4": {
-          "question_detail-5": 7,
-        },
-        "question-5": {
-          "question_detail-6": 10,
-        },
-        "question-6": {
-          "question_detail-7": 9,
-        },
-        "question-7": {
-          "question_detail-8": 6,
-        },
-        "question-8": {
-          "question_detail-9": 5,
-        },
-        "question-9": {
-          "question_detail-10": 8,
-        },
-        "question-10": {
-          "question_detail-11": 4,
-        },
-        "question-11": {
-          "question_detail-12": 3,
-        },
-        "question-12": {
-          "question_detail-13": 5,
-        },
+
+  const mockGrades = {
+    examUuid: uuid,
+    totalScore: 85,
+    maxScore: 100,
+    grades: {
+      "question-1": {
+        "question_detail-1": 5,
+        "question_detail-2": 5,
       },
-      submissionTime: "2024-03-15T10:30:00Z",
-      gradingTime: "2024-03-16T14:45:00Z",
-      grader: "Teacher Smith",
-      comments: "良好的表现，但在某些概念上还需要加强理解。",
-      passingScore: 60,
-      percentile: 75,
-      rank: 15,
-      totalParticipants: 100,
+      "question-2": {
+        "question_detail-3": 10,
+      },
+      "question-3": {
+        "question_detail-4": 8,
+      },
+      "question-4": {
+        "question_detail-5": 7,
+      },
+      "question-5": {
+        "question_detail-6": 10,
+      },
+      "question-6": {
+        "question_detail-7": 9,
+      },
+      "question-7": {
+        "question_detail-8": 6,
+      },
+      "question-8": {
+        "question_detail-9": 5,
+      },
+      "question-9": {
+        "question_detail-10": 8,
+      },
+      "question-10": {
+        "question_detail-11": 4,
+      },
+      "question-11": {
+        "question_detail-12": 3,
+      },
+      "question-12": {
+        "question_detail-13": 5,
+      },
     },
-  ];
+    submissionTime: "2024-03-15T10:30:00Z",
+    gradingTime: "2024-03-16T14:45:00Z",
+    grader: "Teacher Smith",
+    comments: "良好的表现，但在某些概念上还需要加强理解。",
+  };
+
+  return [200, mockGrades];
+});
+
+// 模拟提交考试成绩的请求
+mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
+  const uuid = config.url.split("/")[3];
+  const submittedGrades = JSON.parse(config.data);
+
+  console.log(`提交考试 ${uuid} 的成绩:`, submittedGrades);
+
+  return [200, { message: "成绩提交成功" }];
 });

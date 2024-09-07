@@ -31,5 +31,16 @@ export const getBreadcrumbPaths = () => ({
     { name: "错题练习", url: "" },
   ],
 
+  // 添加阅卷中心路径
+  gradingCenter: [{ name: "阅卷中心", url: "/grading-center" }],
+  examGrading: [
+    { name: "阅卷中心", url: "/grading-center" },
+    { name: "试卷批改", url: "" },
+  ],
+  examResult: [
+    { name: "阅卷中心", url: "/grading-center" },
+    { name: "批改结果", url: "" },
+  ],
+
   // 可以添加其他页面的路径
 });

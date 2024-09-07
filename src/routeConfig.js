@@ -13,6 +13,7 @@ import {
   ExamPaper,
   ExamGrading,
   ExamResult,
+  GradingCenter,
 } from "./pages/exam";
 import Login from "./pages/auth/Login";
 import UserCenter from "./pages/user/UserCenter";
@@ -25,7 +26,7 @@ import {
   ErrorQuestionPractice,
 } from "./pages/errorQuestions";
 
-// 保留现有的路由配置并添加新的错题集路由
+// 保留现有的路由配置并添加新的错题集路由和阅卷中心路由
 export const routeConfig = [
   { path: "/login", element: Login, protected: false },
   { path: "/", element: Landing, protected: true },
@@ -43,7 +44,7 @@ export const routeConfig = [
   { path: "/exam/view/:uuid", element: ViewExam, protected: true },
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true },
-  { path: "/exam-result/:uuid", element: ExamResult, protected: true },
+  { path: "/exam/result/:uuid", element: ExamResult, protected: true },
   { path: "/my-exam/list", element: MyExams, protected: true },
   { path: "/exam/:uuid", element: ExamPaper, protected: true },
 
@@ -71,4 +72,7 @@ export const routeConfig = [
     element: ErrorQuestionsBak,
     protected: true,
   },
+
+  // 新增阅卷中心路由
+  { path: "/grading-center", element: GradingCenter, protected: true },
 ];

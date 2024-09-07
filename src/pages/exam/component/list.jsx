@@ -12,7 +12,6 @@ import {
   Button,
   Box,
   TablePagination,
-  Typography,
 } from "@mui/material";
 import {
   Edit as EditIcon,
