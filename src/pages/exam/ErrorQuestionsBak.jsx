@@ -18,7 +18,7 @@ import CommonLayout from "../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 
-const ErrorQuestions = () => {
+const ErrorQuestionsBak = () => {
   const { examId } = useParams();
   const [errorQuestions, setErrorQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,4 +113,4 @@ const ErrorQuestions = () => {
   );
 };
 
-export default ErrorQuestions;
+export default ErrorQuestionsBak;

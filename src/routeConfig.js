@@ -18,12 +18,17 @@ import Login from "./pages/auth/Login";
 import UserCenter from "./pages/user/UserCenter";
 import Landing from "./pages/Landing";
 import MyExams from "./pages/exam/MyExams";
-import ErrorQuestions from "./pages/exam/ErrorQuestions";
+import ErrorQuestionsBak from "./pages/exam/ErrorQuestionsBak";
+import {
+  ErrorQuestionList,
+  ErrorQuestionView,
+  ErrorQuestionPractice,
+} from "./pages/errorQuestions";
 
-// 保留现有的路由配置
+// 保留现有的路由配置并添加新的错题集路由
 export const routeConfig = [
   { path: "/login", element: Login, protected: false },
-  { path: "/", element: Landing, protected: true }, // 新的 landing 页面
+  { path: "/", element: Landing, protected: true },
   { path: "/exam/list", element: ExamList, protected: true },
   { path: "/user-center", element: UserCenter, protected: true },
   { path: "/questions", element: QuestionList, protected: true },
@@ -41,10 +46,29 @@ export const routeConfig = [
   { path: "/exam-result/:uuid", element: ExamResult, protected: true },
   { path: "/my-exam/list", element: MyExams, protected: true },
   { path: "/exam/:uuid", element: ExamPaper, protected: true },
-  { path: "/error-questions/", element: ErrorQuestions, protected: true },
+
+  // 新的错题集路由
+  { path: "/error-questions", element: ErrorQuestionList, protected: true },
   {
-    path: "/error-questions/:examId",
-    element: ErrorQuestions,
+    path: "/error-questions/view/:questionId",
+    element: ErrorQuestionView,
+    protected: true,
+  },
+  {
+    path: "/error-questions/practice",
+    element: ErrorQuestionPractice,
+    protected: true,
+  },
+
+  // 保留旧的错题路由，以防需要
+  {
+    path: "/error-questions-old/",
+    element: ErrorQuestionsBak,
+    protected: true,
+  },
+  {
+    path: "/error-questions-old/:examId",
+    element: ErrorQuestionsBak,
     protected: true,
   },
 ];

@@ -19,5 +19,17 @@ export const getBreadcrumbPaths = () => ({
     { name: "新建题目", url: "" },
   ],
   userCenter: [{ name: "用户中心", url: "/user-center" }],
+
+  // 添加错题集路径
+  errorQuestionList: [{ name: "错题集", url: "/error-questions" }],
+  errorQuestionView: [
+    { name: "错题集", url: "/error-questions" },
+    { name: "错题查看", url: "" },
+  ],
+  errorQuestionPractice: [
+    { name: "错题集", url: "/error-questions" },
+    { name: "错题练习", url: "" },
+  ],
+
   // 可以添加其他页面的路径
 });
