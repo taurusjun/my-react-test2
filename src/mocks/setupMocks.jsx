@@ -620,6 +620,59 @@ mock.onPost("/api/error-questions-practice/submit").reply((config) => {
   return [200, mockResults];
 });
 
+// 添加获取考试列表的 mock
+mock.onGet("/api/exams").reply(200, [
+  { uuid: "exam-1", name: "2024年物理期中考试" },
+  { uuid: "exam-2", name: "2023年物理期末考试" },
+  { uuid: "exam-3", name: "2024年数学模拟考试" },
+  { uuid: "exam-4", name: "2023年化学期中考试" },
+  { uuid: "exam-5", name: "2024年综合科学测试" },
+]);
+
+// 修改错题列表的 mock 数据，使用 examUuid 进行筛选
+mock.onGet("/api/error-questions").reply((config) => {
+  const { examUuid, errorCountFilter } = config.params;
+
+  const mockErrorQuestions = [
+    {
+      uuid: "error-question-1",
+      examUuid: "exam-1",
+      examName: "2024年物理期中考试",
+      digest: "关于牛顿第二定律的应用题",
+      errorCount: 2,
+    },
+    {
+      uuid: "error-question-2",
+      examUuid: "exam-3",
+      examName: "2024年数学模拟考试",
+      digest: "三角函数的图像问题",
+      errorCount: 1,
+    },
+    // ... 其他错题数据
+  ];
+
+  let filteredQuestions = [...mockErrorQuestions];
+
+  if (examUuid) {
+    filteredQuestions = filteredQuestions.filter(
+      (q) => q.examUuid === examUuid
+    );
+  }
+
+  if (errorCountFilter) {
+    const count = parseInt(errorCountFilter);
+    if (count === 3) {
+      filteredQuestions = filteredQuestions.filter((q) => q.errorCount >= 3);
+    } else {
+      filteredQuestions = filteredQuestions.filter(
+        (q) => q.errorCount === count
+      );
+    }
+  }
+
+  return [200, filteredQuestions];
+});
+
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();

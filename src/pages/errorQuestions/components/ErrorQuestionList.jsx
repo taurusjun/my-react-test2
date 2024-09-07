@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -27,27 +27,36 @@ const ErrorQuestionList = () => {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [examFilter, setExamFilter] = useState("");
   const [errorCountFilter, setErrorCountFilter] = useState("");
+  const [examList, setExamList] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // 从API获取错题列表
-    fetchErrorQuestions();
-  }, [examFilter, errorCountFilter]);
+  const fetchExamList = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/exams");
+      setExamList(response.data);
+    } catch (error) {
+      console.error("获取考试列表失败:", error);
+    }
+  }, []);
 
-  const fetchErrorQuestions = async () => {
+  const fetchErrorQuestions = useCallback(async () => {
     try {
       const response = await axios.get("/api/error-questions", {
         params: {
-          examFilter,
+          examUuid: examFilter,
           errorCountFilter,
         },
       });
       setErrorQuestions(response.data);
     } catch (error) {
       console.error("获取错题列表失败:", error);
-      // 这里可以添加错误处理，比如显示一个错误提示
     }
-  };
+  }, [examFilter, errorCountFilter]);
+
+  useEffect(() => {
+    fetchExamList();
+    fetchErrorQuestions();
+  }, [fetchExamList, fetchErrorQuestions]);
 
   const handleCheckboxChange = (questionUuid) => {
     setSelectedQuestions((prev) =>
@@ -88,7 +97,11 @@ const ErrorQuestionList = () => {
             onChange={(e) => setExamFilter(e.target.value)}
           >
             <MenuItem value="">全部</MenuItem>
-            {/* 添加考试选项 */}
+            {examList.map((exam) => (
+              <MenuItem key={exam.uuid} value={exam.uuid}>
+                {exam.name}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         <FormControl sx={{ minWidth: 120, mr: 2 }}>
