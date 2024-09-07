@@ -1275,46 +1275,6 @@ mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
   });
 });
 
-// // 模拟考试提交列表
-// mock.onGet("/api/exam-submissions").reply(() => {
-//   const mockSubmissions = [
-//     {
-//       uuid: "submission-1",
-//       examName: "2024年物理期中考试",
-//       studentName: "张三",
-//       score: 85,
-//       submissionTime: "2024-03-15 14:30:00",
-//       isGraded: true,
-//     },
-//     {
-//       uuid: "submission-2",
-//       examName: "2024年化学模拟考试",
-//       studentName: "李四",
-//       score: null,
-//       submissionTime: "2024-03-16 10:15:00",
-//       isGraded: false,
-//     },
-//     {
-//       uuid: "submission-3",
-//       examName: "2024年数学期末考试",
-//       studentName: "王五",
-//       score: 92,
-//       submissionTime: "2024-03-17 09:45:00",
-//       isGraded: true,
-//     },
-//     {
-//       uuid: "submission-4",
-//       examName: "2024年英语听力测试",
-//       studentName: "赵六",
-//       score: null,
-//       submissionTime: "2024-03-18 11:20:00",
-//       isGraded: false,
-//     },
-//   ];
-
-//   return [200, mockSubmissions];
-// });
-
 // 模拟获取单个考试答案的请求
 mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
   const uuid = config.url.split("/")[3];
@@ -1387,7 +1347,7 @@ mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
         "question_detail-2": 5,
       },
       "question-2": {
-        "question_detail-3": 10,
+        "question_detail-3": 1,
       },
       "question-3": {
         "question_detail-4": 8,

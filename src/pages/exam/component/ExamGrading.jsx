@@ -396,7 +396,6 @@ const ExamGrading = () => {
 
 const headerCellStyle = {
   fontWeight: "bold",
-  textAlign: "center",
   whiteSpace: "nowrap",
 };
 
