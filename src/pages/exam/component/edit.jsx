@@ -38,7 +38,6 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InlineEdit from "../../../components/InlineEdit";
 import QuestionList from "../../../provider/components/QuestionList";
-import ExamMainLayout from "./layouts/ExamMainLayout";
 import QuestionEdit from "../../../provider/components/QuestionEdit";
 import MultiLevelSelect from "../../../provider/components/MultiLevelSelect";
 import { styled } from "@mui/material/styles";
