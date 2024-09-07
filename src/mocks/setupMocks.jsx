@@ -863,7 +863,6 @@ mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
 
   return [200, { message: "成绩提交成功" }];
 });
-
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();

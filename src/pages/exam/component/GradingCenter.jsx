@@ -16,6 +16,7 @@ import {
   TextField,
   MenuItem,
   TablePagination,
+  Grid, // 确保已导入 Grid
 } from "@mui/material";
 import CommonLayout from "../../../layouts/CommonLayout"; // 更新导入
 import { menuItems } from "../../../config/menuItems"; // 导入菜单项
@@ -31,6 +32,7 @@ const GradingCenter = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
+  const [studentNameFilter, setStudentNameFilter] = useState("");
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -52,6 +54,7 @@ const GradingCenter = () => {
         const response = await axios.get("/api/exam-submissions", {
           params: {
             examUuid: examFilter,
+            studentName: studentNameFilter,
             page: page + 1,
             pageSize: rowsPerPage,
           },
@@ -66,7 +69,7 @@ const GradingCenter = () => {
     };
 
     fetchSubmissions();
-  }, [examFilter, page, rowsPerPage]);
+  }, [examFilter, studentNameFilter, page, rowsPerPage]);
 
   const handleStartGrading = (uuid) => {
     navigate(`/exam/grading/${uuid}`);
@@ -110,20 +113,34 @@ const GradingCenter = () => {
         阅卷中心
       </Typography>
       <Box sx={{ mb: 3 }}>
-        <TextField
-          select
-          label="选择考试"
-          value={examFilter}
-          onChange={(e) => setExamFilter(e.target.value)}
-          sx={{ minWidth: 200 }}
-        >
-          <MenuItem value="">所有考试</MenuItem>
-          {exams.map((exam) => (
-            <MenuItem key={exam.uuid} value={exam.uuid}>
-              {exam.name}
-            </MenuItem>
-          ))}
-        </TextField>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="选择考试"
+              value={examFilter}
+              onChange={(e) => setExamFilter(e.target.value)}
+            >
+              <MenuItem value="">所有考试</MenuItem>
+              {exams.map((exam) => (
+                <MenuItem key={exam.uuid} value={exam.uuid}>
+                  {exam.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <TextField
+              fullWidth
+              label="搜索考生姓名"
+              value={studentNameFilter}
+              onChange={(e) => setStudentNameFilter(e.target.value)}
+              size="small"
+            />
+          </Grid>
+        </Grid>
       </Box>
       <TableContainer component={Paper} elevation={3}>
         <Table>
