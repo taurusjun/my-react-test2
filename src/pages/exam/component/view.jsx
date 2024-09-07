@@ -123,7 +123,7 @@ const ViewExam = () => {
     const root = ReactDOM.createRoot(
       printWindow.document.getElementById("print-root")
     );
-    root.render(<AnswerSheet exam={exam} />);
+    root.render(<AnswerSheet uuid={uuid} />);
 
     printWindow.onload = () => {
       printWindow.print();

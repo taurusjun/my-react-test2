@@ -1533,3 +1533,42 @@ mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
 
   return [200, { message: "成绩提交成功" }];
 });
+
+// 添加新的模拟数据用于答题纸打印
+mock.onGet(/\/api\/exam-print\/.*/).reply((config) => {
+  const uuid = config.url.split("/").pop();
+
+  const mockExamPrint = {
+    uuid: uuid,
+    name: "2024年物理期中考试",
+    subject: "物理",
+    sections: [
+      {
+        uuid: "section-1",
+        name: "选择题",
+        type: "choice",
+        pointsPerQuestion: 5,
+        totalPoints: 40,
+        questionCount: 8,
+      },
+      {
+        uuid: "section-2",
+        name: "填空题",
+        type: "fillBlank",
+        pointsPerQuestion: 3,
+        totalPoints: 24,
+        questionCount: 8,
+      },
+      {
+        uuid: "section-3",
+        name: "计算题",
+        type: "shortAnswer",
+        pointsPerQuestion: 12,
+        totalPoints: 36,
+        questionCount: 3,
+      },
+    ],
+  };
+
+  return [200, mockExamPrint];
+});

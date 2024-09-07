@@ -20,6 +20,9 @@
 
   .print-content {
     display: block !important;
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
   }
 
   .page-break {
@@ -73,5 +76,22 @@
   .MuiTypography-subtitle1,
   .MuiChip-root {
     white-space: nowrap !important;
+  }
+
+  .MuiPaper-root {
+    box-shadow: none !important;
+  }
+
+  .MuiTableCell-root {
+    padding: 8px;
+    border: 1px solid #000;
+  }
+
+  .MuiTypography-root {
+    margin-bottom: 8px;
+  }
+
+  .MuiBox-root {
+    page-break-inside: avoid;
   }
 }
