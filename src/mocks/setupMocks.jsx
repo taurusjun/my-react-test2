@@ -91,47 +91,62 @@ mock.onPut("/api/user").reply((config) => {
   return [200, { message: "用户信息更新成功" }];
 });
 
-// 添加 /api/my-exams 的模拟数据
-mock.onGet("/api/my-exams").reply(() => {
-  const mockMyExams = [
-    {
-      id: "exam-1",
-      name: "2024年物理期中考试",
-      status: "未参加",
-      score: null,
-      examTime: null,
-    },
-    {
-      id: "exam-2",
-      name: "2023年物理期末考试",
-      status: "已完成",
-      score: 85,
-      examTime: "2023-12-20 14:30:00",
-    },
-    {
-      id: "exam-3",
-      name: "2024年数学模拟考试",
-      status: "未参加",
-      score: null,
-      examTime: null,
-    },
-    {
-      id: "exam-4",
-      name: "2023年化学期中考试",
-      status: "已完成",
-      score: 92,
-      examTime: "2023-10-15 09:00:00",
-    },
-    {
-      id: "exam-5",
-      name: "2024年综合科学测试",
-      status: "未参加",
-      score: null,
-      examTime: null,
-    },
-  ];
+// 修改 /api/my-exams 的模拟数据
+mock.onGet("/api/my-exams").reply((config) => {
+  const {
+    page = 1,
+    pageSize = 10,
+    examUuid, // 使用 examUuid 替代 name
+    status,
+    minScore,
+    maxScore,
+  } = config.params;
 
-  return [200, mockMyExams];
+  // 生成更多的模拟数据
+  const mockMyExams = Array(100)
+    .fill()
+    .map((_, index) => ({
+      id: `exam-${index + 1}`,
+      uuid: `uuid-exam-${index + 1}`, // 添加 uuid 字段
+      name: `${2024 - Math.floor(index / 4)}年${
+        ["物理", "化学", "生物", "数学"][index % 4]
+      }${["期中", "期末"][index % 2]}考试`,
+      status: index % 3 === 0 ? "未参加" : "已完成",
+      score: index % 3 === 0 ? null : Math.floor(Math.random() * 41) + 60, // 60-100的随机分数
+      examTime:
+        index % 3 === 0
+          ? null
+          : new Date(Date.now() - Math.random() * 10000000000)
+              .toISOString()
+              .split("T")[0],
+    }));
+
+  // 应用过滤器
+  let filteredExams = mockMyExams;
+  if (examUuid) {
+    filteredExams = filteredExams.filter((exam) => exam.uuid === examUuid);
+  }
+  if (status) {
+    filteredExams = filteredExams.filter((exam) => exam.status === status);
+  }
+  if (minScore !== undefined && minScore !== "") {
+    filteredExams = filteredExams.filter(
+      (exam) => exam.score && exam.score >= parseInt(minScore)
+    );
+  }
+  if (maxScore !== undefined && maxScore !== "") {
+    filteredExams = filteredExams.filter(
+      (exam) => exam.score && exam.score <= parseInt(maxScore)
+    );
+  }
+
+  // 应用分页
+  const totalCount = filteredExams.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + parseInt(pageSize);
+  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+
+  return [200, { exams: paginatedExams, totalCount }];
 });
 
 mock.onGet(/\/api\/error-questions\/.*/).reply((config) => {
@@ -587,7 +602,7 @@ mock.onGet("/api/error-questions-practice").reply((config) => {
     {
       uuid: "error-question-1",
       content:
-        "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后��体的速度。",
+        "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
       options: ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
       correctAnswer: "25 m/s",
       explanation:
@@ -695,6 +710,33 @@ mock.onGet("/api/error-questions").reply((config) => {
   }
 
   return [200, filteredQuestions];
+});
+
+// 添加模拟考试名称搜索的 API
+mock.onGet("/api/exam-names").reply((config) => {
+  const { query } = config.params;
+
+  const allExamNames = [
+    { uuid: "uuid-exam-1", name: "2024年物理期中考试" },
+    { uuid: "uuid-exam-2", name: "2023年物理期末考试" },
+    { uuid: "uuid-exam-3", name: "2024年数学模拟考试" },
+    { uuid: "uuid-exam-4", name: "2023年化学期中考试" },
+    { uuid: "uuid-exam-5", name: "2024年综合科学测试" },
+    { uuid: "uuid-exam-6", name: "2023年生物学期末考试" },
+    { uuid: "uuid-exam-7", name: "2024年英语听力考试" },
+    { uuid: "uuid-exam-8", name: "2023年地理知识竞赛" },
+    { uuid: "uuid-exam-9", name: "2024年信息技术能力测试" },
+    { uuid: "uuid-exam-10", name: "2023年历史学科能力评估" },
+  ];
+
+  let filteredExamNames = allExamNames;
+  if (query) {
+    filteredExamNames = allExamNames.filter((exam) =>
+      exam.name.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  return [200, filteredExamNames];
 });
 
 // 模拟考试提交列表
@@ -872,7 +914,11 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
         "question_detail-13": ["75 m"],
       },
       "question-13": {
-        "question_detail-14": ["14 m/s"],
+        "question_detail-14": [
+          "14 m/s",
+          "这里可以是计算过程或额外解释",
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // 这是一个1x1像素的透明PNG图片的base64编码，您应该替换为实际的图片数据
+        ],
       },
     },
     submissionTime: "2024-03-15T10:30:00Z",
@@ -895,7 +941,7 @@ mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
         "question_detail-2": 5,
       },
       "question-2": {
-        "question_detail-3": 10,
+        "question_detail-3": 1,
       },
       "question-3": {
         "question_detail-4": 8,
@@ -1338,7 +1384,7 @@ mock.onPost(/\/api\/exams\/.*\/submit/).reply((config) => {
   });
 });
 
-// 模拟保存考试答案的请��
+// 模拟保存考试答案的请求
 mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
   const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
   const savedAnswers = JSON.parse(config.data);
