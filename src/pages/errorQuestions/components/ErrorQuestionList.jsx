@@ -8,7 +8,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField,
   Button,
   Box,
   Checkbox,
@@ -16,11 +15,14 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Modal,
+  Typography,
 } from "@mui/material";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import axios from "axios";
+import ErrorQuestionDetail from "./ErrorQuestionDetail"; // 新建这个组件
 
 const ErrorQuestionList = () => {
   const [errorQuestions, setErrorQuestions] = useState([]);
@@ -29,6 +31,8 @@ const ErrorQuestionList = () => {
   const [errorCountFilter, setErrorCountFilter] = useState("");
   const [examList, setExamList] = useState([]);
   const navigate = useNavigate();
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedQuestionUuid, setSelectedQuestionUuid] = useState(null);
 
   const fetchExamList = useCallback(async () => {
     try {
@@ -67,7 +71,13 @@ const ErrorQuestionList = () => {
   };
 
   const handleViewErrorQuestion = (questionUuid) => {
-    navigate(`/error-questions/view/${questionUuid}`);
+    setSelectedQuestionUuid(questionUuid);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedQuestionUuid(null);
   };
 
   const handleStartPractice = () => {
@@ -168,6 +178,36 @@ const ErrorQuestionList = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="错题详情"
+        aria-describedby="显示选中错题的详细信息"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            maxHeight: "90vh",
+            overflowY: "auto",
+          }}
+        >
+          <Typography variant="h6" component="h2" gutterBottom>
+            错题详情
+          </Typography>
+          {selectedQuestionUuid && (
+            <ErrorQuestionDetail questionUuid={selectedQuestionUuid} />
+          )}
+          <Button onClick={handleCloseModal}>关闭</Button>
+        </Box>
+      </Modal>
     </CommonLayout>
   );
 };

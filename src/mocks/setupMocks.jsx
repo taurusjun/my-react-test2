@@ -211,6 +211,30 @@ mock.onGet(/\/api\/questions\/.*/).reply(200, {
   ],
 });
 
+// 修改为新的 URL 路径
+mock.onGet(/\/api\/error-questions-detail\/[a-zA-Z0-9-]+$/).reply((config) => {
+  const uuid = config.url.split("/").pop();
+
+  // 模拟错题详情数据
+  const mockQuestionDetails = {
+    uuid: uuid,
+    examName: "2024年物理期中考试",
+    content:
+      "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
+    correctAnswer:
+      "解答步骤：\n1. 根据牛顿第二定律，F = ma\n2. a = F/m = 5N / 2kg = 2.5 m/s²\n3. 由于初速度为0，使用v = at\n4. v = 2.5 m/s² * 10s = 25 m/s\n所以，10秒后物体的速度为25 m/s。",
+    userAnswer: "20 m/s",
+    explanation:
+      "这道题目考察了牛顿第二定律的应用。关键是要正确计算加速度，然后使用匀加速直线运动的公式计算最终速度。你的答案没有考虑到加速度的计算，直接使用了错误的速度值。",
+    errorCount: 2,
+    category: "physics",
+    knowledgePoint: "牛顿运动定律",
+    difficulty: "中等",
+  };
+
+  return [200, mockQuestionDetails];
+});
+
 // 添加对 /api/related-sources 的模拟
 mock.onGet("/api/related-sources").reply((config) => {
   const query = config.params.query.toLowerCase();
