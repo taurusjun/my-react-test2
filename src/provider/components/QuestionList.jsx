@@ -3,6 +3,8 @@ import { useMediaQuery, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CommonLayout from "../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 import {
   Table,
   TableBody,
@@ -175,6 +177,8 @@ const QuestionList = ({
 
   const rightNavItems = [];
 
+  const breadcrumbPaths = getBreadcrumbPaths();
+
   const content = (
     <>
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
@@ -323,6 +327,10 @@ const QuestionList = ({
       currentPage="题目列表"
       maxWidth={isFromExamEdit ? "lg" : "xl"}
       rightNavItems={rightNavItems}
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.questionList} />
+      )}
     >
       {content}
     </CommonLayout>

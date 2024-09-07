@@ -15,6 +15,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CommonLayout from "../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -43,6 +45,8 @@ const MyExams = () => {
   const handleViewErrors = (examId) => {
     navigate(`/error-questions/${examId}`);
   };
+
+  const breadcrumbPaths = getBreadcrumbPaths();
 
   const content = (
     <Box>
@@ -106,7 +110,14 @@ const MyExams = () => {
   );
 
   return (
-    <CommonLayout currentPage="我的考试" maxWidth="lg">
+    <CommonLayout
+      currentPage="我的考试"
+      maxWidth="lg"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.myExams} />
+      )}
+    >
       {content}
     </CommonLayout>
   );

@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CommonLayout from "../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 
 const ErrorQuestions = () => {
   const { examId } = useParams();
@@ -48,6 +50,8 @@ const ErrorQuestions = () => {
     if (errorCount === "all") return true;
     return question.errorCount === parseInt(errorCount);
   });
+
+  const breadcrumbPaths = getBreadcrumbPaths();
 
   const content = (
     <Box>
@@ -95,7 +99,18 @@ const ErrorQuestions = () => {
     </Box>
   );
 
-  return <CommonLayout currentPage="错题查看">{content}</CommonLayout>;
+  return (
+    <CommonLayout
+      currentPage="错题查看"
+      maxWidth="lg"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.errorQuestions} />
+      )}
+    >
+      {content}
+    </CommonLayout>
+  );
 };
 
 export default ErrorQuestions;

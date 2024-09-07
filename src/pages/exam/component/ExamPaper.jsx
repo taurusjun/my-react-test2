@@ -464,10 +464,10 @@ const ExamPaper = () => {
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate("/exam-list")}
+              onClick={() => navigate("/my-exam/list")}
               startIcon={<ListAltIcon />}
             >
-              考卷列表
+              我的考试
             </Button>
           </Box>
         </Toolbar>

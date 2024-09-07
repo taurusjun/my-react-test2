@@ -24,7 +24,9 @@ import QuestionDetailEdit from "./QuestionDetailEdit";
 import QuestionPreview from "./QuestionPreview";
 import { useDictionaries } from "../hooks/useDictionaries";
 import axios from "axios";
-import QuestionMainLayout from "../layouts/QuestionMainLayout";
+import CommonLayout from "../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 import NarrowSelect from "../../components/NarrowSelect";
 
 const QuestionEdit = ({
@@ -393,6 +395,8 @@ const QuestionEdit = ({
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const breadcrumbPaths = getBreadcrumbPaths();
+
   const content = (
     <Box
       sx={{
@@ -705,9 +709,17 @@ const QuestionEdit = ({
   }
 
   return (
-    <QuestionMainLayout
+    <CommonLayout
       currentPage={uuid ? "编辑题目" : "新建题目"}
       maxWidth="lg"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs
+          paths={
+            uuid ? breadcrumbPaths.questionEdit : breadcrumbPaths.questionNew
+          }
+        />
+      )}
     >
       {content}
       <SubmitModal
@@ -737,7 +749,7 @@ const QuestionEdit = ({
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </QuestionMainLayout>
+    </CommonLayout>
   );
 };
 

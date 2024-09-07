@@ -1,0 +1,22 @@
+export const getBreadcrumbPaths = () => ({
+  examList: [{ name: "考卷中心", url: "/exam/list" }],
+  examEdit: [
+    { name: "考卷中心", url: "/exam/list" },
+    { name: "考卷编辑", url: "" },
+  ],
+  myExams: [{ name: "我的考试", url: "/my-exams" }],
+  errorQuestions: [
+    { name: "我的考试", url: "/my-exams" },
+    { name: "错题查看", url: "" },
+  ],
+  questionList: [{ name: "题目列表", url: "/questions" }],
+  questionEdit: [
+    { name: "题目列表", url: "/questions" },
+    { name: "编辑题目", url: "" },
+  ],
+  questionNew: [
+    { name: "题目列表", url: "/questions" },
+    { name: "新建题目", url: "" },
+  ],
+  // 可以添加其他页面的路径
+});

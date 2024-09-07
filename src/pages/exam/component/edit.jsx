@@ -46,6 +46,7 @@ import NarrowSelect from "../../../components/NarrowSelect";
 import { useDictionaries } from "../../../provider/hooks/useDictionaries";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 
 const EditExam = () => {
   const { uuid } = useParams();
@@ -369,10 +370,7 @@ const EditExam = () => {
     }));
   };
 
-  const breadcrumbPaths = [
-    { name: "考卷中心", url: "/exam/list" },
-    { name: "考卷编辑", url: "" },
-  ];
+  const breadcrumbPaths = getBreadcrumbPaths();
 
   if (loading || !exam) {
     return <CircularProgress />;
@@ -395,7 +393,9 @@ const EditExam = () => {
       currentPage="考卷编辑"
       maxWidth="xl"
       showBreadcrumbs={true}
-      BreadcrumbsComponent={() => <CommonBreadcrumbs paths={breadcrumbPaths} />}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.examEdit} />
+      )}
     >
       <Box sx={{ maxWidth: 800, mt: 2 }}>
         <Grid container spacing={2}>
@@ -707,7 +707,7 @@ const EditExam = () => {
         <Dialog open={openDuplicateDialog} onClose={handleCloseDuplicateDialog}>
           <DialogTitle>重复的问题</DialogTitle>
           <DialogContent>
-            <Typography>以下问题已经存在于考试中，无法重复添加：</Typography>
+            <Typography>以下问已经存在于考试中，无法重复添加：</Typography>
             <ul>
               {duplicateQuestions.map((q) => (
                 <li key={q.uuid}>{q.digest}</li>
