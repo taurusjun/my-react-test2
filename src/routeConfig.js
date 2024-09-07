@@ -51,7 +51,12 @@ export const routeConfig = [
   // 新的错题集路由
   { path: "/error-questions", element: ErrorQuestionList, protected: true },
   {
-    path: "/error-questions/view/:questionId",
+    path: "/error-questions/:uuid",
+    element: ErrorQuestionList,
+    protected: true,
+  },
+  {
+    path: "/error-questions/view/:uuid",
     element: ErrorQuestionView,
     protected: true,
   },
