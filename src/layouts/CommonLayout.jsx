@@ -21,7 +21,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { UserContext } from "../contexts/UserContext";
 import { menuItems as defaultMenuItems } from "../config/menuItems"; // 导入默认菜单项
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const CommonLayout = ({
   children,

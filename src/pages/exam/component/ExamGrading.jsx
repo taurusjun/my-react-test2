@@ -158,26 +158,37 @@ const ExamGrading = () => {
 
   const renderAnswer = (answer) => {
     if (Array.isArray(answer)) {
-      return answer.map((item, index) => (
-        <Box key={index}>
-          {item.startsWith("data:image") ? (
-            <Box>
-              <img
-                src={item}
-                alt="答案图片"
-                style={{ maxWidth: "100px", maxHeight: "100px" }}
-              />
-              <IconButton onClick={() => setEnlargedImage(item)}>
-                <ZoomInIcon />
-              </IconButton>
+      return (
+        <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+          {answer.map((item, index) => (
+            <Box key={index} sx={{ mr: 1, mb: 1 }}>
+              {item.startsWith("data:image") ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <img
+                    src={item}
+                    alt="答案图片"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={() => setEnlargedImage(item)}
+                  >
+                    <ZoomInIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ) : (
+                <Typography variant="body2">{item}</Typography>
+              )}
             </Box>
-          ) : (
-            <Typography>{item}</Typography>
-          )}
+          ))}
         </Box>
-      ));
+      );
     }
-    return <Typography>{answer}</Typography>;
+    return <Typography variant="body2">{answer}</Typography>;
   };
 
   if (loading) {
@@ -223,81 +234,126 @@ const ExamGrading = () => {
       showBreadcrumbs={true}
       BreadcrumbsComponent={() => <CommonBreadcrumbs paths={breadcrumbPaths} />}
     >
-      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: "#1976d2" }}>
-        {exam?.name || "试卷"} - 批改
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>题号</TableCell>
-              <TableCell>题目</TableCell>
-              <TableCell>标准答案</TableCell>
-              <TableCell>学生答案</TableCell>
-              <TableCell>分数</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {exam.sections.map((section) =>
-              section.questions.map((question) =>
-                question.questionDetails.map((detail, index) => (
-                  <TableRow key={`${question.uuid}-${detail.uuid}`}>
-                    <TableCell>{`${section.order_in_exam}.${
-                      index + 1
-                    }`}</TableCell>
-                    <TableCell>{detail.questionContent.value}</TableCell>
-                    <TableCell>{renderAnswer(detail.answer)}</TableCell>
-                    <TableCell>
-                      {renderAnswer(
-                        answers.answers[question.uuid]?.[detail.uuid] ||
-                          "未作答"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        inputProps={{ min: 0, max: detail.score }}
-                        value={
-                          grades[question.uuid]?.[detail.uuid] === -1
-                            ? ""
-                            : grades[question.uuid]?.[detail.uuid]
-                        }
-                        onChange={(e) =>
-                          handleGradeChange(
-                            question.uuid,
-                            detail.uuid,
-                            e.target.value
-                          )
-                        }
-                        onBlur={calculateTotalScore}
-                        error={grades[question.uuid]?.[detail.uuid] === -1}
-                        helperText={
-                          grades[question.uuid]?.[detail.uuid] === -1
-                            ? "请评分"
-                            : ""
-                        }
-                      />
-                      / {detail.score}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ mb: 3, color: "#1976d2", fontWeight: "bold" }}
+        >
+          {exam?.name || "试卷"} - 批改
+        </Typography>
+        <TableContainer>
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={headerCellStyle}>题号</TableCell>
+                <TableCell sx={headerCellStyle}>题目</TableCell>
+                <TableCell sx={headerCellStyle}>标准答案</TableCell>
+                <TableCell sx={headerCellStyle}>学生答案</TableCell>
+                <TableCell sx={headerCellStyle}>分数</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {exam.sections.map((section) =>
+                section.questions.map((question) =>
+                  question.questionDetails.map((detail, index) => (
+                    <TableRow
+                      key={`${question.uuid}-${detail.uuid}`}
+                      sx={{
+                        "&:nth-of-type(odd)": { backgroundColor: "#fafafa" },
+                      }}
+                    >
+                      <TableCell>{`${section.order_in_exam}.${
+                        index + 1
+                      }`}</TableCell>
+                      <TableCell>{detail.questionContent.value}</TableCell>
+                      <TableCell>{renderAnswer(detail.answer)}</TableCell>
+                      <TableCell>
+                        {renderAnswer(
+                          answers.answers[question.uuid]?.[detail.uuid] ||
+                            "未作答"
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            flexWrap: "nowrap",
+                          }}
+                        >
+                          <TextField
+                            type="number"
+                            inputProps={{ min: 0, max: detail.score }}
+                            value={
+                              grades[question.uuid]?.[detail.uuid] === -1
+                                ? ""
+                                : grades[question.uuid]?.[detail.uuid]
+                            }
+                            onChange={(e) =>
+                              handleGradeChange(
+                                question.uuid,
+                                detail.uuid,
+                                e.target.value
+                              )
+                            }
+                            onBlur={calculateTotalScore}
+                            error={grades[question.uuid]?.[detail.uuid] === -1}
+                            size="small"
+                            sx={{
+                              width: "60px",
+                              mr: 1,
+                              "& .MuiFormHelperText-root": {
+                                position: "absolute",
+                                top: "100%",
+                                left: 0,
+                                whiteSpace: "nowrap",
+                              },
+                            }}
+                            helperText={
+                              grades[question.uuid]?.[detail.uuid] === -1
+                                ? "请评分"
+                                : " "
+                            }
+                          />
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            / {detail.score}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
       <Box
         sx={{
           mt: 2,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          p: 2,
+          backgroundColor: "#e3f2fd",
+          borderRadius: 2,
         }}
       >
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           总分: {totalScore} / {exam.totalScore}
         </Typography>
-        <Button variant="contained" onClick={handleSubmitGrades}>
+        <Button
+          variant="contained"
+          onClick={handleSubmitGrades}
+          sx={{
+            backgroundColor: "#2196f3",
+            "&:hover": { backgroundColor: "#1565c0" },
+          }}
+        >
           提交成绩
         </Button>
       </Box>
@@ -318,6 +374,12 @@ const ExamGrading = () => {
       )}
     </CommonLayout>
   );
+};
+
+const headerCellStyle = {
+  fontWeight: "bold",
+  textAlign: "center",
+  whiteSpace: "nowrap",
 };
 
 export default ExamGrading;
