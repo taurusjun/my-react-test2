@@ -14,16 +14,18 @@ import {
   TableRow,
   Paper,
   Modal,
-  Typography,
   Fade,
   Grid,
   Chip,
+  Checkbox,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import ErrorQuestionDetail from "./ErrorQuestionDetail";
 import CommonLayout from "../../../layouts/CommonLayout";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   "&.MuiTableCell-head": {
@@ -49,6 +51,7 @@ const ErrorQuestionList = () => {
   const [examList, setExamList] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedQuestionUuid, setSelectedQuestionUuid] = useState(null);
+  const [selectAll, setSelectAll] = useState(false);
   const navigate = useNavigate();
 
   const fetchExamList = useCallback(async () => {
@@ -79,6 +82,12 @@ const ErrorQuestionList = () => {
     fetchErrorQuestions();
   }, [fetchExamList, fetchErrorQuestions]);
 
+  const handleSelectAll = (event) => {
+    const checked = event.target.checked;
+    setSelectAll(checked);
+    setSelectedQuestions(checked ? errorQuestions.map((q) => q.uuid) : []);
+  };
+
   const handleSelectQuestion = (questionUuid) => {
     setSelectedQuestions((prev) =>
       prev.includes(questionUuid)
@@ -105,12 +114,18 @@ const ErrorQuestionList = () => {
     }
   };
 
+  const breadcrumbPaths = getBreadcrumbPaths();
+
   return (
-    <CommonLayout currentPage="错题列表" maxWidth="lg">
+    <CommonLayout
+      currentPage="错题列表"
+      maxWidth="lg"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.errorQuestionList} />
+      )}
+    >
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          错题列表
-        </Typography>
         <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
           <Grid item xs={12} sm="auto">
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -168,7 +183,16 @@ const ErrorQuestionList = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <StyledTableCell>选择</StyledTableCell>
+              <StyledTableCell>
+                <Checkbox
+                  checked={selectAll}
+                  onChange={handleSelectAll}
+                  indeterminate={
+                    selectedQuestions.length > 0 &&
+                    selectedQuestions.length < errorQuestions.length
+                  }
+                />
+              </StyledTableCell>
               <StyledTableCell>考试名称</StyledTableCell>
               <StyledTableCell>题目摘要</StyledTableCell>
               <StyledTableCell>错误次数</StyledTableCell>
@@ -179,8 +203,7 @@ const ErrorQuestionList = () => {
             {errorQuestions.map((question) => (
               <StyledTableRow key={question.uuid}>
                 <TableCell>
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedQuestions.includes(question.uuid)}
                     onChange={() => handleSelectQuestion(question.uuid)}
                   />
