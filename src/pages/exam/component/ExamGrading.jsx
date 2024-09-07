@@ -17,6 +17,7 @@ import {
   Snackbar,
   IconButton,
   Dialog,
+  Alert,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import CommonLayout from "../../../layouts/CommonLayout";
@@ -149,10 +150,18 @@ const ExamGrading = () => {
 
     try {
       await axios.post(`/api/exams/${uuid}/grades`, { grades, totalScore });
-      setSnackbar({ open: true, message: "成绩提交成功", severity: "success" });
+      setSnackbar({
+        open: true,
+        message: "成绩提交成功",
+        severity: "success",
+      });
     } catch (error) {
       console.error("Error submitting grades:", error);
-      setSnackbar({ open: true, message: "成绩提交失败", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "成绩提交失败",
+        severity: "error",
+      });
     }
   };
 
@@ -361,8 +370,17 @@ const ExamGrading = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        message={snackbar.message}
-      />
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{ top: "150px !important" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       {enlargedImage && (
         <Dialog open={!!enlargedImage} onClose={() => setEnlargedImage(null)}>
           <img
