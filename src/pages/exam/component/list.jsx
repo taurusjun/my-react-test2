@@ -3,11 +3,8 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Table,
   TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TextField,
   Button,
   Box,
@@ -20,35 +17,18 @@ import {
   Search as SearchIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
+import {
+  StyledTableCell,
+  BodyTableCell,
+  StyledTableRow,
+  StyledPaper,
+  StyledTableContainer,
+} from "../../../styles/TableStyles";
 import axios from "axios";
 import { styled, alpha } from "@mui/material/styles";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
-
-// 添加以下样式组件
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.info.light, 0.1),
-  color: theme.palette.common.black,
-  fontSize: 18,
-  fontWeight: "bold",
-}));
-
-const BodyTableCell = styled(TableCell)(({ theme }) => ({
-  fontSize: 16,
-}));
-
-// 添加新的样式组件
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.shadows[3],
-}));
-
-const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius,
-  overflow: "hidden",
-}));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
@@ -109,9 +89,6 @@ const ExamList = () => {
     >
       <StyledPaper elevation={0}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            考试列表
-          </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
               label="搜索名称"
@@ -149,18 +126,18 @@ const ExamList = () => {
         <StyledTableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <StyledTableRow>
                 <StyledTableCell>名称</StyledTableCell>
                 <StyledTableCell>科目</StyledTableCell>
                 <StyledTableCell>创建时间</StyledTableCell>
                 <StyledTableCell align="center">操作</StyledTableCell>
-              </TableRow>
+              </StyledTableRow>
             </TableHead>
             <TableBody>
               {exams
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((exam) => (
-                  <TableRow key={exam.uuid}>
+                  <StyledTableRow key={exam.uuid}>
                     <BodyTableCell>{exam.name}</BodyTableCell>
                     <BodyTableCell>{exam.category}</BodyTableCell>
                     <BodyTableCell>{exam.createdAt}</BodyTableCell>
@@ -178,7 +155,7 @@ const ExamList = () => {
                         查看
                       </Button>
                     </BodyTableCell>
-                  </TableRow>
+                  </StyledTableRow>
                 ))}
             </TableBody>
           </Table>

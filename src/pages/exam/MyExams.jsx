@@ -7,11 +7,8 @@ import {
   Button,
   Table,
   TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   CircularProgress,
 } from "@mui/material";
 import CommonLayout from "../../layouts/CommonLayout";
@@ -20,6 +17,13 @@ import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ReplayIcon from "@mui/icons-material/Replay";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import {
+  StyledTableCell,
+  BodyTableCell,
+  StyledTableRow,
+  StyledPaper,
+  StyledTableContainer,
+} from "../../styles/TableStyles";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -62,29 +66,29 @@ const MyExams = () => {
           <CircularProgress />
         </Box>
       ) : exams.length === 0 ? (
-        <Paper elevation={3} sx={{ p: 3, textAlign: "center" }}>
+        <StyledPaper elevation={3} sx={{ p: 3, textAlign: "center" }}>
           <Typography variant="h6">暂无考试记录</Typography>
           <Typography variant="body2" color="textSecondary">
             当有新的考试安排时，将会显示在这里。
           </Typography>
-        </Paper>
+        </StyledPaper>
       ) : (
-        <TableContainer component={Paper} elevation={3}>
+        <StyledTableContainer>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>考试名称</TableCell>
-                <TableCell align="center">状态</TableCell>
-                <TableCell align="center">分数</TableCell>
-                <TableCell align="center">考试时间</TableCell>
-                <TableCell>操作</TableCell>
-              </TableRow>
+              <StyledTableRow>
+                <StyledTableCell>考试名称</StyledTableCell>
+                <StyledTableCell align="center">状态</StyledTableCell>
+                <StyledTableCell align="center">分数</StyledTableCell>
+                <StyledTableCell align="center">考试时间</StyledTableCell>
+                <StyledTableCell>操作</StyledTableCell>
+              </StyledTableRow>
             </TableHead>
             <TableBody>
               {exams.map((exam) => (
-                <TableRow key={exam.id} hover>
-                  <TableCell>{exam.name}</TableCell>
-                  <TableCell align="center">
+                <StyledTableRow key={exam.id}>
+                  <BodyTableCell>{exam.name}</BodyTableCell>
+                  <BodyTableCell align="center">
                     <Typography
                       variant="body2"
                       sx={{
@@ -97,10 +101,14 @@ const MyExams = () => {
                     >
                       {exam.status}
                     </Typography>
-                  </TableCell>
-                  <TableCell align="center">{exam.score || "-"}</TableCell>
-                  <TableCell align="center">{exam.examTime || "-"}</TableCell>
-                  <TableCell>
+                  </BodyTableCell>
+                  <BodyTableCell align="center">
+                    {exam.score || "-"}
+                  </BodyTableCell>
+                  <BodyTableCell align="center">
+                    {exam.examTime || "-"}
+                  </BodyTableCell>
+                  <BodyTableCell>
                     {exam.status === "未参加" ? (
                       <Button
                         variant="contained"
@@ -131,12 +139,12 @@ const MyExams = () => {
                         </Button>
                       </Box>
                     )}
-                  </TableCell>
-                </TableRow>
+                  </BodyTableCell>
+                </StyledTableRow>
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </StyledTableContainer>
       )}
     </Box>
   );
@@ -150,7 +158,7 @@ const MyExams = () => {
         <CommonBreadcrumbs paths={breadcrumbPaths.myExams} />
       )}
     >
-      {content}
+      <StyledPaper>{content}</StyledPaper>
     </CommonLayout>
   );
 };

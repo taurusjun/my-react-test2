@@ -30,17 +30,13 @@ import { format } from "date-fns";
 import { useDictionaries } from "../hooks/useDictionaries";
 import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.info.light, 0.1),
-  color: theme.palette.common.black,
-  fontSize: 18,
-  fontWeight: "bold",
-}));
-
-const BodyTableCell = styled(TableCell)(({ theme }) => ({
-  fontSize: 16,
-}));
+import {
+  StyledTableCell,
+  BodyTableCell,
+  StyledTableRow,
+  StyledPaper,
+  StyledTableContainer,
+} from "../../styles/TableStyles";
 
 const QuestionList = ({
   fixedCategory,
@@ -249,58 +245,63 @@ const QuestionList = ({
           sx={{ flex: showIcons ? 1 : 2 }}
         />
       </Stack>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>摘要</StyledTableCell>
-              <StyledTableCell>科目</StyledTableCell>
-              <StyledTableCell>知识点</StyledTableCell>
-              <StyledTableCell>关联资源</StyledTableCell>
-              <StyledTableCell>更新时间</StyledTableCell>
-              <StyledTableCell align="center">
-                {isFromExamEdit ? "选择" : "操作"}
-              </StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {questions.map((question) => (
-              <TableRow key={question.uuid}>
-                <BodyTableCell>{question.digest}</BodyTableCell>
-                <BodyTableCell>
-                  {dictionaries.CategoryDict[question.category]}
-                </BodyTableCell>
-                <BodyTableCell>{question.kn}</BodyTableCell>
-                <BodyTableCell>
-                  {question.relatedSources
-                    .map((source) => source.name)
-                    .join(", ")}
-                </BodyTableCell>
-                <BodyTableCell>
-                  {format(new Date(question.updatedAt), "yyyy-MM-dd HH:mm:ss")}
-                </BodyTableCell>
-                <BodyTableCell align="center">
-                  {isFromExamEdit ? (
-                    <Checkbox
-                      checked={selectedQuestions.some(
-                        (q) => q.uuid === question.uuid
-                      )}
-                      onChange={() => handleQuestionSelect(question)}
-                    />
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleEdit(question.uuid)}
-                    >
-                      编辑
-                    </Button>
-                  )}
-                </BodyTableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <StyledPaper>
+        <StyledTableContainer>
+          <Table>
+            <TableHead>
+              <StyledTableRow>
+                <StyledTableCell>摘要</StyledTableCell>
+                <StyledTableCell>科目</StyledTableCell>
+                <StyledTableCell>知识点</StyledTableCell>
+                <StyledTableCell>关联资源</StyledTableCell>
+                <StyledTableCell>更新时间</StyledTableCell>
+                <StyledTableCell align="center">
+                  {isFromExamEdit ? "选择" : "操作"}
+                </StyledTableCell>
+              </StyledTableRow>
+            </TableHead>
+            <TableBody>
+              {questions.map((question) => (
+                <StyledTableRow key={question.uuid}>
+                  <BodyTableCell>{question.digest}</BodyTableCell>
+                  <BodyTableCell>
+                    {dictionaries.CategoryDict[question.category]}
+                  </BodyTableCell>
+                  <BodyTableCell>{question.kn}</BodyTableCell>
+                  <BodyTableCell>
+                    {question.relatedSources
+                      .map((source) => source.name)
+                      .join(", ")}
+                  </BodyTableCell>
+                  <BodyTableCell>
+                    {format(
+                      new Date(question.updatedAt),
+                      "yyyy-MM-dd HH:mm:ss"
+                    )}
+                  </BodyTableCell>
+                  <BodyTableCell align="center">
+                    {isFromExamEdit ? (
+                      <Checkbox
+                        checked={selectedQuestions.some(
+                          (q) => q.uuid === question.uuid
+                        )}
+                        onChange={() => handleQuestionSelect(question)}
+                      />
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleEdit(question.uuid)}
+                      >
+                        编辑
+                      </Button>
+                    )}
+                  </BodyTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </StyledTableContainer>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
@@ -314,7 +315,7 @@ const QuestionList = ({
             `第 ${page + 1} 页，${from}-${to} 共 ${count}`
           }
         />
-      </TableContainer>
+      </StyledPaper>
     </>
   );
 

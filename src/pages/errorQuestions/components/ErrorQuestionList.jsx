@@ -8,40 +8,27 @@ import {
   MenuItem,
   Table,
   TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Modal,
   Fade,
   Grid,
   Chip,
   Checkbox,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import {
+  StyledTableCell,
+  BodyTableCell,
+  StyledTableRow,
+  StyledPaper,
+  StyledTableContainer,
+} from "../../../styles/TableStyles";
 import ErrorQuestionDetail from "./ErrorQuestionDetail";
 import CommonLayout from "../../../layouts/CommonLayout";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  "&.MuiTableCell-head": {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-  },
-}));
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  "&:nth-of-type(odd)": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  "&:last-child td, &:last-child th": {
-    border: 0,
-  },
-}));
 
 const ErrorQuestionList = () => {
   const [errorQuestions, setErrorQuestions] = useState([]);
@@ -119,13 +106,13 @@ const ErrorQuestionList = () => {
   return (
     <CommonLayout
       currentPage="错题列表"
-      maxWidth="lg"
+      maxWidth="xl"
       showBreadcrumbs={true}
       BreadcrumbsComponent={() => (
         <CommonBreadcrumbs paths={breadcrumbPaths.errorQuestionList} />
       )}
     >
-      <Box sx={{ mb: 4 }}>
+      <StyledPaper>
         <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
           <Grid item xs={12} sm="auto">
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -178,11 +165,11 @@ const ErrorQuestionList = () => {
             </Button>
           </Grid>
         </Grid>
-      </Box>
-      <TableContainer component={Paper} elevation={3}>
+      </StyledPaper>
+      <StyledTableContainer>
         <Table>
           <TableHead>
-            <TableRow>
+            <StyledTableRow>
               <StyledTableCell>
                 <Checkbox
                   checked={selectAll}
@@ -197,38 +184,38 @@ const ErrorQuestionList = () => {
               <StyledTableCell>题目摘要</StyledTableCell>
               <StyledTableCell>错误次数</StyledTableCell>
               <StyledTableCell>操作</StyledTableCell>
-            </TableRow>
+            </StyledTableRow>
           </TableHead>
           <TableBody>
             {errorQuestions.map((question) => (
               <StyledTableRow key={question.uuid}>
-                <TableCell>
+                <BodyTableCell>
                   <Checkbox
                     checked={selectedQuestions.includes(question.uuid)}
                     onChange={() => handleSelectQuestion(question.uuid)}
                   />
-                </TableCell>
-                <TableCell>{question.examName}</TableCell>
-                <TableCell>{question.digest}</TableCell>
-                <TableCell>
+                </BodyTableCell>
+                <BodyTableCell>{question.examName}</BodyTableCell>
+                <BodyTableCell>{question.digest}</BodyTableCell>
+                <BodyTableCell>
                   <Chip
                     label={question.errorCount}
                     color={question.errorCount > 2 ? "error" : "warning"}
                   />
-                </TableCell>
-                <TableCell>
+                </BodyTableCell>
+                <BodyTableCell>
                   <Button
                     variant="outlined"
                     onClick={() => handleViewErrorQuestion(question.uuid)}
                   >
                     查看错题
                   </Button>
-                </TableCell>
+                </BodyTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </StyledTableContainer>
       <Modal
         open={openModal}
         onClose={handleCloseModal}
