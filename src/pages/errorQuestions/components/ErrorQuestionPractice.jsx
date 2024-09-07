@@ -7,6 +7,10 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
@@ -19,6 +23,8 @@ const ErrorQuestionPractice = () => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
+  const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState(null);
 
   useEffect(() => {
     const uuids = location.state?.uuids || [];
@@ -60,9 +66,25 @@ const ErrorQuestionPractice = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // 实现提交答案的逻辑
-    // 可以跳转到结果页面或显示正确答案
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(
+        "/api/error-questions-practice/submit",
+        {
+          answers: userAnswers,
+        }
+      );
+      setResults(response.data);
+      setShowResults(true);
+    } catch (error) {
+      console.error("提交答案失败:", error);
+      // 这里可以添加错误处理逻辑，比如显示错误消息
+    }
+  };
+
+  const handleCloseResults = () => {
+    setShowResults(false);
+    navigate("/error-questions");
   };
 
   const breadcrumbPaths = getBreadcrumbPaths();
@@ -118,6 +140,30 @@ const ErrorQuestionPractice = () => {
           </Box>
         </Box>
       )}
+
+      <Dialog open={showResults} onClose={handleCloseResults}>
+        <DialogTitle>练习结果</DialogTitle>
+        <DialogContent>
+          {results && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                得分: {results.score}/{results.totalScore}
+              </Typography>
+              {results.questions.map((question, index) => (
+                <Box key={index} mt={2}>
+                  <Typography variant="subtitle1">问题 {index + 1}</Typography>
+                  <Typography>你的答案: {question.userAnswer}</Typography>
+                  <Typography>正确答案: {question.correctAnswer}</Typography>
+                  <Typography>解释: {question.explanation}</Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseResults}>关闭</Button>
+        </DialogActions>
+      </Dialog>
     </CommonLayout>
   );
 };

@@ -591,6 +591,35 @@ mock.onGet("/api/error-questions-practice").reply((config) => {
   return [200, requestedQuestions];
 });
 
+// 添加新的 mock 数据
+mock.onPost("/api/error-questions-practice/submit").reply((config) => {
+  const { answers } = JSON.parse(config.data);
+
+  // 模拟的结果数据
+  const mockResults = {
+    score: 3,
+    totalScore: 5,
+    questions: [
+      {
+        uuid: "error-question-1",
+        userAnswer: answers["error-question-1"],
+        correctAnswer: "25 m/s",
+        explanation:
+          "使用牛顿第二定律和匀加速运动公式可以解决这个问题。F = ma，a = F/m = 5N / 2kg = 2.5 m/s²。v = at，v = 2.5 m/s² * 10s = 25 m/s。",
+      },
+      {
+        uuid: "error-question-2",
+        userAnswer: answers["error-question-2"],
+        correctAnswer: "氯化钠溶液",
+        explanation: "氯化钠溶液中含有自由移动的离子，因此能够导电。",
+      },
+      // ... 可以根据需要添加更多问题的结果
+    ],
+  };
+
+  return [200, mockResults];
+});
+
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();
