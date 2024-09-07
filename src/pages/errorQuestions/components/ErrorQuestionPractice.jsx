@@ -126,7 +126,14 @@ const ErrorQuestionPractice = () => {
               />
             ))}
           </RadioGroup>
-          <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "flex-start",
+              gap: 2,
+            }}
+          >
             <Button
               onClick={handlePreviousQuestion}
               disabled={currentQuestionIndex === 0}
