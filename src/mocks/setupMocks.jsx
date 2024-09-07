@@ -699,7 +699,7 @@ mock.onGet("/api/error-questions").reply((config) => {
 
 // 模拟考试提交列表
 mock.onGet("/api/exam-submissions").reply((config) => {
-  const { examUuid, page = 1, pageSize = 10 } = config.params;
+  const { examUuid, page = 1, pageSize = 10, studentName } = config.params;
 
   const mockSubmissions = [
     {
@@ -727,6 +727,11 @@ mock.onGet("/api/exam-submissions").reply((config) => {
   if (examUuid) {
     filteredSubmissions = filteredSubmissions.filter(
       (s) => s.examUuid === examUuid
+    );
+  }
+  if (studentName) {
+    filteredSubmissions = filteredSubmissions.filter((s) =>
+      s.studentName.toLowerCase().includes(studentName.toLowerCase())
     );
   }
 
