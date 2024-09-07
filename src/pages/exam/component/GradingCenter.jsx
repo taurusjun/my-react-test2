@@ -15,6 +15,7 @@ import {
   CircularProgress,
   TextField,
   MenuItem,
+  TablePagination,
 } from "@mui/material";
 import CommonLayout from "../../../layouts/CommonLayout"; // 更新导入
 import { menuItems } from "../../../config/menuItems"; // 导入菜单项
@@ -26,26 +27,46 @@ const GradingCenter = () => {
   const [loading, setLoading] = useState(true);
   const [examFilter, setExamFilter] = useState("");
   const [exams, setExams] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchExams = async () => {
       try {
-        const [submissionsResponse, examsResponse] = await Promise.all([
-          axios.get("/api/exam-submissions"),
-          axios.get("/api/exams"),
-        ]);
-        setSubmissions(submissionsResponse.data);
-        setExams(examsResponse.data);
+        const response = await axios.get("/api/exams");
+        setExams(response.data);
+      } catch (error) {
+        console.error("获取考试列表失败:", error);
+      }
+    };
+
+    fetchExams();
+  }, []);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("/api/exam-submissions", {
+          params: {
+            examUuid: examFilter,
+            page: page + 1,
+            pageSize: rowsPerPage,
+          },
+        });
+        setSubmissions(response.data.submissions);
+        setTotalCount(response.data.totalCount);
         setLoading(false);
       } catch (error) {
-        console.error("获取数据失败:", error);
+        console.error("获取提交数据失败:", error);
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchSubmissions();
+  }, [examFilter, page, rowsPerPage]);
 
   const handleStartGrading = (uuid) => {
     navigate(`/exam/grading/${uuid}`);
@@ -55,9 +76,14 @@ const GradingCenter = () => {
     navigate(`/exam/result/${uuid}`);
   };
 
-  const filteredSubmissions = examFilter
-    ? submissions.filter((submission) => submission.examUuid === examFilter)
-    : submissions;
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   if (loading) {
     return (
@@ -112,7 +138,7 @@ const GradingCenter = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredSubmissions.map((submission) => (
+            {submissions.map((submission) => (
               <TableRow key={submission.uuid} hover>
                 <TableCell>{submission.examName}</TableCell>
                 <TableCell>{submission.studentName}</TableCell>
@@ -151,6 +177,15 @@ const GradingCenter = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={totalCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </CommonLayout>
   );
 };

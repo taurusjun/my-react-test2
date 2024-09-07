@@ -698,10 +698,13 @@ mock.onGet("/api/error-questions").reply((config) => {
 });
 
 // 模拟考试提交列表
-mock.onGet("/api/exam-submissions").reply(() => {
+mock.onGet("/api/exam-submissions").reply((config) => {
+  const { examUuid, page = 1, pageSize = 10 } = config.params;
+
   const mockSubmissions = [
     {
       uuid: "submission-1",
+      examUuid: "exam-1",
       examName: "2024年物理期中考试",
       studentName: "张三",
       score: 85,
@@ -710,31 +713,35 @@ mock.onGet("/api/exam-submissions").reply(() => {
     },
     {
       uuid: "submission-2",
+      examUuid: "exam-2",
       examName: "2024年化学模拟考试",
       studentName: "李四",
       score: null,
       submissionTime: "2024-03-16 10:15:00",
       isGraded: false,
     },
-    {
-      uuid: "submission-3",
-      examName: "2024年数学期末考试",
-      studentName: "王五",
-      score: 92,
-      submissionTime: "2024-03-17 09:45:00",
-      isGraded: true,
-    },
-    {
-      uuid: "submission-4",
-      examName: "2024年英语听力测试",
-      studentName: "赵六",
-      score: null,
-      submissionTime: "2024-03-18 11:20:00",
-      isGraded: false,
-    },
+    // ... 添加更多模拟数据 ...
   ];
 
-  return [200, mockSubmissions];
+  let filteredSubmissions = mockSubmissions;
+  if (examUuid) {
+    filteredSubmissions = filteredSubmissions.filter(
+      (s) => s.examUuid === examUuid
+    );
+  }
+
+  const totalCount = filteredSubmissions.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedSubmissions = filteredSubmissions.slice(startIndex, endIndex);
+
+  return [
+    200,
+    {
+      submissions: paginatedSubmissions,
+      totalCount: totalCount,
+    },
+  ];
 });
 
 // 模拟获取单个考试答案的请求
