@@ -192,20 +192,23 @@ const ErrorQuestionList = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: "80%",
+            maxWidth: "800px", // 添加最大宽度
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
             maxHeight: "90vh",
             overflowY: "auto",
+            borderRadius: 2, // 添加圆角
           }}
         >
-          <Typography variant="h6" component="h2" gutterBottom>
-            错题详情
-          </Typography>
           {selectedQuestionUuid && (
             <ErrorQuestionDetail questionUuid={selectedQuestionUuid} />
           )}
-          <Button onClick={handleCloseModal}>关闭</Button>
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button onClick={handleCloseModal} variant="contained">
+              关闭
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </CommonLayout>
