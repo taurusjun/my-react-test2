@@ -33,6 +33,7 @@ const GradingCenter = () => {
   const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
   const [studentNameFilter, setStudentNameFilter] = useState("");
+  const [classFilter, setClassFilter] = useState("");
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -55,6 +56,7 @@ const GradingCenter = () => {
           params: {
             examUuid: examFilter,
             studentName: studentNameFilter,
+            class: classFilter, // 添加班级过滤参数
             page: page + 1,
             pageSize: rowsPerPage,
           },
@@ -69,7 +71,7 @@ const GradingCenter = () => {
     };
 
     fetchSubmissions();
-  }, [examFilter, studentNameFilter, page, rowsPerPage]);
+  }, [examFilter, studentNameFilter, classFilter, page, rowsPerPage]);
 
   const handleStartGrading = (uuid) => {
     navigate(`/exam/grading/${uuid}`);
@@ -140,6 +142,15 @@ const GradingCenter = () => {
               size="small"
             />
           </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <TextField
+              fullWidth
+              label="搜索班级"
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+              size="small"
+            />
+          </Grid>
         </Grid>
       </Box>
       <TableContainer component={Paper} elevation={3}>
@@ -147,6 +158,7 @@ const GradingCenter = () => {
           <TableHead>
             <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ fontWeight: "bold" }}>考试名称</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>考生班级</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>考生姓名</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>分数</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>提交时间</TableCell>
@@ -158,6 +170,7 @@ const GradingCenter = () => {
             {submissions.map((submission) => (
               <TableRow key={submission.uuid} hover>
                 <TableCell>{submission.examName}</TableCell>
+                <TableCell>{submission.studentClass}</TableCell>
                 <TableCell>{submission.studentName}</TableCell>
                 <TableCell>
                   {submission.isGraded ? submission.score : "未批改"}

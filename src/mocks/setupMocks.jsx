@@ -699,7 +699,13 @@ mock.onGet("/api/error-questions").reply((config) => {
 
 // 模拟考试提交列表
 mock.onGet("/api/exam-submissions").reply((config) => {
-  const { examUuid, page = 1, pageSize = 10, studentName } = config.params;
+  const {
+    examUuid,
+    page = 1,
+    pageSize = 10,
+    studentName,
+    class: classFilter,
+  } = config.params;
 
   const mockSubmissions = [
     {
@@ -707,6 +713,7 @@ mock.onGet("/api/exam-submissions").reply((config) => {
       examUuid: "exam-1",
       examName: "2024年物理期中考试",
       studentName: "张三",
+      studentClass: "高二(1)班",
       score: 85,
       submissionTime: "2024-03-15 14:30:00",
       isGraded: true,
@@ -716,11 +723,71 @@ mock.onGet("/api/exam-submissions").reply((config) => {
       examUuid: "exam-2",
       examName: "2024年化学模拟考试",
       studentName: "李四",
+      studentClass: "高二(2)班",
       score: null,
       submissionTime: "2024-03-16 10:15:00",
       isGraded: false,
     },
-    // ... 添加更多模拟数据 ...
+    {
+      uuid: "submission-3",
+      examUuid: "exam-1",
+      examName: "2024年物理期中考试",
+      studentName: "王五",
+      studentClass: "高二(3)班",
+      score: 92,
+      submissionTime: "2024-03-15 15:00:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-4",
+      examUuid: "exam-3",
+      examName: "2024年数学期末考试",
+      studentName: "赵六",
+      studentClass: "高二(1)班",
+      score: 78,
+      submissionTime: "2024-03-17 09:45:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-5",
+      examUuid: "exam-2",
+      examName: "2024年化学模拟考试",
+      studentName: "钱七",
+      studentClass: "高二(2)班",
+      score: null,
+      submissionTime: "2024-03-16 11:30:00",
+      isGraded: false,
+    },
+    {
+      uuid: "submission-6",
+      examUuid: "exam-3",
+      examName: "2024年数学期末考试",
+      studentName: "孙八",
+      studentClass: "高二(3)班",
+      score: 88,
+      submissionTime: "2024-03-17 10:20:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-7",
+      examUuid: "exam-1",
+      examName: "2024年物理期中考试",
+      studentName: "周九",
+      studentClass: "高二(1)班",
+      score: 76,
+      submissionTime: "2024-03-15 16:15:00",
+      isGraded: true,
+    },
+    {
+      uuid: "submission-8",
+      examUuid: "exam-4",
+      examName: "2024年英语口语测试",
+      studentName: "吴十",
+      studentClass: "高二(2)班",
+      score: null,
+      submissionTime: "2024-03-18 14:00:00",
+      isGraded: false,
+    },
   ];
 
   let filteredSubmissions = mockSubmissions;
@@ -732,6 +799,11 @@ mock.onGet("/api/exam-submissions").reply((config) => {
   if (studentName) {
     filteredSubmissions = filteredSubmissions.filter((s) =>
       s.studentName.toLowerCase().includes(studentName.toLowerCase())
+    );
+  }
+  if (classFilter) {
+    filteredSubmissions = filteredSubmissions.filter((s) =>
+      s.studentClass.toLowerCase().includes(classFilter.toLowerCase())
     );
   }
 
