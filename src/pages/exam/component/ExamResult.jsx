@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
   Typography,
@@ -22,6 +22,11 @@ import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 
 const ExamResult = () => {
   const { uuid } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const studentClass = searchParams.get("class");
+  const studentName = searchParams.get("name");
+
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState(null);
   const [grades, setGrades] = useState(null);
@@ -138,6 +143,14 @@ const ExamResult = () => {
         >
           {exam?.name || "考试"} - 结果
         </Typography>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1">
+            考生班级：{studentClass || "未知"}
+          </Typography>
+          <Typography variant="subtitle1">
+            考生姓名：{studentName || "未知"}
+          </Typography>
+        </Box>
         <TableContainer>
           <Table sx={{ minWidth: 650 }}>
             <TableHead>

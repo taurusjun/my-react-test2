@@ -73,12 +73,20 @@ const GradingCenter = () => {
     fetchSubmissions();
   }, [examFilter, studentNameFilter, classFilter, page, rowsPerPage]);
 
-  const handleStartGrading = (uuid) => {
-    navigate(`/exam/grading/${uuid}`);
+  const handleStartGrading = (uuid, studentClass, studentName) => {
+    navigate(
+      `/exam/grading/${uuid}?class=${encodeURIComponent(
+        studentClass
+      )}&name=${encodeURIComponent(studentName)}`
+    );
   };
 
-  const handleViewResult = (uuid) => {
-    navigate(`/exam/result/${uuid}`);
+  const handleViewResult = (uuid, studentClass, studentName) => {
+    navigate(
+      `/exam/result/${uuid}?class=${encodeURIComponent(
+        studentClass
+      )}&name=${encodeURIComponent(studentName)}`
+    );
   };
 
   const handleChangePage = (event, newPage) => {
@@ -188,7 +196,13 @@ const GradingCenter = () => {
                     <Button
                       variant="outlined"
                       color="primary"
-                      onClick={() => handleViewResult(submission.uuid)}
+                      onClick={() =>
+                        handleViewResult(
+                          submission.uuid,
+                          submission.studentClass,
+                          submission.studentName
+                        )
+                      }
                     >
                       查看考卷
                     </Button>
@@ -196,7 +210,13 @@ const GradingCenter = () => {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => handleStartGrading(submission.uuid)}
+                      onClick={() =>
+                        handleStartGrading(
+                          submission.uuid,
+                          submission.studentClass,
+                          submission.studentName
+                        )
+                      }
                     >
                       开始阅卷
                     </Button>
