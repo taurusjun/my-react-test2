@@ -587,7 +587,7 @@ mock.onGet("/api/error-questions-practice").reply((config) => {
     {
       uuid: "error-question-1",
       content:
-        "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
+        "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后��体的速度。",
       options: ["15 m/s", "20 m/s", "25 m/s", "30 m/s"],
       correctAnswer: "25 m/s",
       explanation:
@@ -705,6 +705,7 @@ mock.onGet("/api/exam-submissions").reply((config) => {
     pageSize = 10,
     studentName,
     class: classFilter,
+    status, // 添加状态过滤
   } = config.params;
 
   const mockSubmissions = [
@@ -804,6 +805,11 @@ mock.onGet("/api/exam-submissions").reply((config) => {
   if (classFilter) {
     filteredSubmissions = filteredSubmissions.filter((s) =>
       s.studentClass.toLowerCase().includes(classFilter.toLowerCase())
+    );
+  }
+  if (status) {
+    filteredSubmissions = filteredSubmissions.filter((s) =>
+      status === "graded" ? s.isGraded : !s.isGraded
     );
   }
 
@@ -1332,7 +1338,7 @@ mock.onPost(/\/api\/exams\/.*\/submit/).reply((config) => {
   });
 });
 
-// 模拟保存考试答案的请求
+// 模拟保存考试答案的请��
 mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
   const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
   const savedAnswers = JSON.parse(config.data);

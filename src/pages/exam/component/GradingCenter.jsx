@@ -34,6 +34,7 @@ const GradingCenter = () => {
   const navigate = useNavigate();
   const [studentNameFilter, setStudentNameFilter] = useState("");
   const [classFilter, setClassFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(""); // 添加状态过滤器状态
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -56,7 +57,8 @@ const GradingCenter = () => {
           params: {
             examUuid: examFilter,
             studentName: studentNameFilter,
-            class: classFilter, // 添加班级过滤参数
+            class: classFilter,
+            status: statusFilter, // 添加状态过滤参数
             page: page + 1,
             pageSize: rowsPerPage,
           },
@@ -71,7 +73,14 @@ const GradingCenter = () => {
     };
 
     fetchSubmissions();
-  }, [examFilter, studentNameFilter, classFilter, page, rowsPerPage]);
+  }, [
+    examFilter,
+    studentNameFilter,
+    classFilter,
+    statusFilter,
+    page,
+    rowsPerPage,
+  ]); // 添加 statusFilter 到依赖数组
 
   const handleStartGrading = (uuid, studentClass, studentName) => {
     navigate(
@@ -119,9 +128,6 @@ const GradingCenter = () => {
         <CommonBreadcrumbs paths={breadcrumbPaths.examGrading} />
       )}
     >
-      <Typography variant="h4" gutterBottom sx={{ mb: 3, color: "#1976d2" }}>
-        阅卷中心
-      </Typography>
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -158,6 +164,20 @@ const GradingCenter = () => {
               onChange={(e) => setClassFilter(e.target.value)}
               size="small"
             />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="状态"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <MenuItem value="">所有状态</MenuItem>
+              <MenuItem value="graded">已批改</MenuItem>
+              <MenuItem value="ungraded">未批改</MenuItem>
+            </TextField>
           </Grid>
         </Grid>
       </Box>
