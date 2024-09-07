@@ -99,11 +99,15 @@ const ErrorQuestionPractice = () => {
       )}
     >
       {questions.length > 0 && (
-        <Box>
-          <Typography variant="h5" gutterBottom>
+        <Box sx={{ backgroundColor: "#f5f5f5", padding: 3, borderRadius: 2 }}>
+          <Typography variant="h5" gutterBottom sx={{ color: "#1976d2" }}>
             问题 {currentQuestionIndex + 1} / {questions.length}
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography
+            variant="body1"
+            paragraph
+            sx={{ fontWeight: "bold", mb: 2 }}
+          >
             {questions[currentQuestionIndex].content}
           </Typography>
           <RadioGroup
@@ -114,20 +118,26 @@ const ErrorQuestionPractice = () => {
               <FormControlLabel
                 key={index}
                 value={option}
-                control={<Radio />}
-                label={option}
+                control={<Radio color="primary" />}
+                label={
+                  <Typography sx={{ fontSize: "1.1rem" }}>{option}</Typography>
+                }
+                sx={{ mb: 1 }}
               />
             ))}
           </RadioGroup>
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+          <Box sx={{ mt: 3, display: "flex", justifyContent: "space-between" }}>
             <Button
               onClick={handlePreviousQuestion}
               disabled={currentQuestionIndex === 0}
+              variant="outlined"
             >
               上一题
             </Button>
             {currentQuestionIndex < questions.length - 1 ? (
-              <Button onClick={handleNextQuestion}>下一题</Button>
+              <Button onClick={handleNextQuestion} variant="outlined">
+                下一题
+              </Button>
             ) : (
               <Button
                 onClick={handleSubmit}
@@ -141,27 +151,66 @@ const ErrorQuestionPractice = () => {
         </Box>
       )}
 
-      <Dialog open={showResults} onClose={handleCloseResults}>
-        <DialogTitle>练习结果</DialogTitle>
+      <Dialog
+        open={showResults}
+        onClose={handleCloseResults}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ backgroundColor: "#1976d2", color: "white" }}>
+          练习结果
+        </DialogTitle>
         <DialogContent>
           {results && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h6" gutterBottom sx={{ color: "#1976d2" }}>
                 得分: {results.score}/{results.totalScore}
               </Typography>
               {results.questions.map((question, index) => (
-                <Box key={index} mt={2}>
-                  <Typography variant="subtitle1">问题 {index + 1}</Typography>
-                  <Typography>你的答案: {question.userAnswer}</Typography>
-                  <Typography>正确答案: {question.correctAnswer}</Typography>
-                  <Typography>解释: {question.explanation}</Typography>
+                <Box
+                  key={index}
+                  mt={3}
+                  p={2}
+                  sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}
+                >
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    问题 {index + 1}
+                  </Typography>
+                  <Typography>
+                    你的答案:{" "}
+                    <span
+                      style={{
+                        color:
+                          question.userAnswer === question.correctAnswer
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {question.userAnswer}
+                    </span>
+                  </Typography>
+                  <Typography>
+                    正确答案:{" "}
+                    <span style={{ color: "green" }}>
+                      {question.correctAnswer}
+                    </span>
+                  </Typography>
+                  <Typography sx={{ mt: 1, fontStyle: "italic" }}>
+                    解释: {question.explanation}
+                  </Typography>
                 </Box>
               ))}
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseResults}>关闭</Button>
+          <Button
+            onClick={handleCloseResults}
+            variant="contained"
+            color="primary"
+          >
+            关闭
+          </Button>
         </DialogActions>
       </Dialog>
     </CommonLayout>
