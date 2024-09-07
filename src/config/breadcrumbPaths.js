@@ -4,6 +4,10 @@ export const getBreadcrumbPaths = () => ({
     { name: "考卷中心", url: "/exam/list" },
     { name: "考卷编辑", url: "" },
   ],
+  examView: [
+    { name: "考卷中心", url: "/exam/list" },
+    { name: "考卷查看", url: "" },
+  ],
   myExams: [{ name: "我的考试", url: "/my-exams" }],
   errorQuestions: [
     { name: "我的考试", url: "/my-exams" },
