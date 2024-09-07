@@ -63,6 +63,7 @@ const CommonLayout = ({
       <AppBar
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        className="no-print" // 添加这个类
       >
         <Toolbar>
           <IconButton
@@ -109,6 +110,7 @@ const CommonLayout = ({
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
         }}
+        className="no-print" // 添加这个类
       >
         {drawer}
       </Drawer>
@@ -119,6 +121,7 @@ const CommonLayout = ({
           "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
         }}
         open
+        className="no-print" // 添加这个类
       >
         {drawer}
       </Drawer>
@@ -134,11 +137,15 @@ const CommonLayout = ({
       >
         {/* 移除 <Toolbar /> */}
         {showBreadcrumbs && BreadcrumbsComponent && (
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 2 }} className="no-print">
+            {" "}
+            {/* 添加这个类 */}
             <BreadcrumbsComponent />
           </Box>
         )}
-        <Container maxWidth={maxWidth} sx={{ pt: 2 }}>
+        <Container maxWidth={maxWidth} sx={{ pt: 2 }} className="print-content">
+          {" "}
+          {/* 添加这个类 */}
           {/* 添加少量顶部内边距 */}
           {/* <Typography variant="h6" gutterBottom>
             {currentPage}

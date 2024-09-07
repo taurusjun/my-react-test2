@@ -1,0 +1,77 @@
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-content {
+    display: block !important;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* 隐藏不需要打印的元素 */
+  header, nav, footer, .MuiAppBar-root, .MuiBreadcrumbs-root {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+  #printable-content, #printable-content * {
+    visibility: visible;
+  }
+  #printable-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* 其他打印样式保持不变 */
+
+  .MuiTypography-subtitle1 {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .MuiChip-root {
+    position: static !important;
+    display: inline-flex !important;
+    height: auto !important;
+    padding: 0 !important;
+    background-color: transparent !important;
+    border: none !important;
+  }
+
+  .MuiChip-label {
+    padding: 0 !important;
+    font-size: inherit !important;
+  }
+
+  .MuiTypography-subtitle1 .MuiChip-root {
+    margin-left: 0.5em !important;
+  }
+
+  /* 确保分值不会换行到下一行 */
+  .MuiTypography-subtitle1,
+  .MuiChip-root {
+    white-space: nowrap !important;
+  }
+}
