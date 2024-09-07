@@ -1,6 +1,8 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "../../contexts/UserContext";
-import MainLayout from "./layouts/MainLayout";
+import CommonLayout from "../../layouts/CommonLayout";
+import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
+import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
 import {
   Typography,
   TextField,
@@ -8,7 +10,6 @@ import {
   Box,
   Snackbar,
   Alert,
-  Container,
 } from "@mui/material";
 import { menuItems } from "../../config/menuItems";
 
@@ -57,66 +58,74 @@ const UserCenter = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const breadcrumbPaths = getBreadcrumbPaths();
+
   return (
-    <MainLayout menuItems={menuItems}>
-      <Container maxWidth="sm">
-        <Typography variant="h4" gutterBottom align="center">
-          用户中心
-        </Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          noValidate
-          sx={{
-            mt: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
+    <CommonLayout
+      menuItems={menuItems}
+      currentPage="用户中心"
+      maxWidth="sm"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs paths={breadcrumbPaths.userCenter} />
+      )}
+    >
+      <Typography variant="h4" gutterBottom align="center">
+        用户中心
+      </Typography>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
+        sx={{
+          mt: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <TextField
+          margin="normal"
+          required
+          id="nickname"
+          label="昵称"
+          name="nickname"
+          autoComplete="nickname"
+          autoFocus
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          sx={{ width: "100%", maxWidth: "400px" }}
+        />
+        <TextField
+          margin="normal"
+          name="newPassword"
+          label="新密码"
+          type="password"
+          id="newPassword"
+          autoComplete="new-password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          sx={{ width: "100%", maxWidth: "400px" }}
+        />
+        <TextField
+          margin="normal"
+          name="confirmPassword"
+          label="确认新密码"
+          type="password"
+          id="confirmPassword"
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          sx={{ width: "100%", maxWidth: "400px" }}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{ mt: 3, mb: 2, width: "100%", maxWidth: "400px" }}
         >
-          <TextField
-            margin="normal"
-            required
-            id="nickname"
-            label="昵称"
-            name="nickname"
-            autoComplete="nickname"
-            autoFocus
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            sx={{ width: "100%", maxWidth: "400px" }}
-          />
-          <TextField
-            margin="normal"
-            name="newPassword"
-            label="新密码"
-            type="password"
-            id="newPassword"
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            sx={{ width: "100%", maxWidth: "400px" }}
-          />
-          <TextField
-            margin="normal"
-            name="confirmPassword"
-            label="确认新密码"
-            type="password"
-            id="confirmPassword"
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            sx={{ width: "100%", maxWidth: "400px" }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 3, mb: 2, width: "100%", maxWidth: "400px" }}
-          >
-            更新信息
-          </Button>
-        </Box>
-      </Container>
+          更新信息
+        </Button>
+      </Box>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -130,7 +139,7 @@ const UserCenter = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </MainLayout>
+    </CommonLayout>
   );
 };
 

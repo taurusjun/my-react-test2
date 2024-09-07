@@ -18,5 +18,6 @@ export const getBreadcrumbPaths = () => ({
     { name: "题目列表", url: "/questions" },
     { name: "新建题目", url: "" },
   ],
+  userCenter: [{ name: "用户中心", url: "/user-center" }],
   // 可以添加其他页面的路径
 });
