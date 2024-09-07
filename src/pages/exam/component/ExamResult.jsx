@@ -143,13 +143,58 @@ const ExamResult = () => {
         >
           {exam?.name || "考试"} - 结果
         </Typography>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle1">
-            考生班级：{studentClass || "未知"}
-          </Typography>
-          <Typography variant="subtitle1">
-            考生姓名：{studentName || "未知"}
-          </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 4 }}>
+            <Paper
+              elevation={1}
+              sx={{ p: 2, backgroundColor: "#f0f4f8", borderRadius: 2 }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", color: "#546e7a" }}
+              >
+                考生班级：
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 1, color: "#263238" }}>
+                {studentClass || "未知"}
+              </Typography>
+            </Paper>
+            <Paper
+              elevation={1}
+              sx={{ p: 2, backgroundColor: "#f0f4f8", borderRadius: 2 }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", color: "#546e7a" }}
+              >
+                考生姓名：
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 1, color: "#263238" }}>
+                {studentName || "未知"}
+              </Typography>
+            </Paper>
+          </Box>
+          <Box
+            sx={{
+              mt: 2,
+              display: "flex",
+              alignItems: "center",
+              p: 2,
+              backgroundColor: "#e3f2fd",
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              总分: {grades.totalScore} / {exam.totalScore}
+            </Typography>
+          </Box>
         </Box>
         <TableContainer>
           <Table sx={{ minWidth: 650 }}>
@@ -198,21 +243,6 @@ const ExamResult = () => {
           </Table>
         </TableContainer>
       </Paper>
-      <Box
-        sx={{
-          mt: 2,
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          p: 2,
-          backgroundColor: "#e3f2fd",
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          总分: {grades.totalScore} / {exam.totalScore}
-        </Typography>
-      </Box>
       {enlargedImage && (
         <Dialog open={!!enlargedImage} onClose={() => setEnlargedImage(null)}>
           <img
