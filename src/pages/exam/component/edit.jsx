@@ -30,6 +30,7 @@ import {
   Snackbar,
   Alert,
   Grid,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -46,10 +47,12 @@ import { useDictionaries } from "../../../provider/hooks/useDictionaries";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
+import { alpha } from "@mui/material/styles";
 
 const EditExam = () => {
   const { uuid } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState({
     name: "",
@@ -277,7 +280,7 @@ const EditExam = () => {
         severity: "success",
       });
       // 延迟导航，以用户能看到成功消息
-      setTimeout(() => navigate("/exams"), 2000);
+      setTimeout(() => navigate("/exam/list"), 2000);
     } catch (error) {
       console.error("更新考试失败:", error);
       setSnackbar({
@@ -396,289 +399,340 @@ const EditExam = () => {
         <CommonBreadcrumbs paths={breadcrumbPaths.examEdit} />
       )}
     >
-      <Box sx={{ maxWidth: 800, mt: 2 }}>
-        <Grid container spacing={2}>
-          {/* 名称占满第一行 */}
-          <Grid item xs={12}>
-            <TextField
-              label="名称"
-              value={exam.name}
-              onChange={handleExamNameChange}
-              variant="outlined"
-              fullWidth
-            />
-          </Grid>
+      <Box sx={{ maxWidth: 1000, mx: "auto", mt: 4, mb: 8 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ mb: 4, fontWeight: "bold", color: "primary.main" }}
+          >
+            编辑考卷
+          </Typography>
 
-          {/* 科目、学习阶段、年级、时长在第二行 */}
-          <Grid item xs={12} sm={3}>
-            <FormControl fullWidth disabled>
-              <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
-                科目
-              </InputLabel>
-              <NarrowSelect
-                value={exam.category}
-                label="科目"
-                inputProps={{
-                  readOnly: true,
-                  style: { color: "rgba(0, 0, 0, 0.38)" },
-                }}
+          <Grid container spacing={3}>
+            {/* 名称占满第一行 */}
+            <Grid item xs={12}>
+              <TextField
+                label="名称"
+                value={exam.name}
+                onChange={handleExamNameChange}
+                variant="outlined"
+                fullWidth
+                sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+              />
+            </Grid>
+
+            {/* 科目、学习阶段、年级、时长在第二行 */}
+            <Grid item xs={12} sm={3}>
+              <FormControl fullWidth disabled>
+                <InputLabel style={{ color: "rgba(0, 0, 0, 0.38)" }}>
+                  科目
+                </InputLabel>
+                <NarrowSelect
+                  value={exam.category}
+                  label="科目"
+                  inputProps={{
+                    readOnly: true,
+                    style: { color: "rgba(0, 0, 0, 0.38)" },
+                  }}
+                  sx={{
+                    "& .MuiSelect-icon": { color: "rgba(0, 0, 0, 0.38)" },
+                    "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                  }}
+                >
+                  {Object.entries(dictionaries.CategoryDict).map(
+                    ([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    )
+                  )}
+                </NarrowSelect>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <MultiLevelSelect
+                onMultiSelectChange={handleGradeInfoChange}
+                initialSchoolLevel={exam.gradeInfo.school}
+                initialGrade={exam.gradeInfo.grade}
+                error={false}
+                disabled={true}
+                readOnly={true}
+                inline={true}
+              />
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Box
                 sx={{
-                  "& .MuiSelect-icon": {
-                    color: "rgba(0, 0, 0, 0.38)",
-                  },
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "56px", // 保持与其他输入框一致的高度
                 }}
               >
-                {Object.entries(dictionaries.CategoryDict).map(
-                  ([key, value]) => (
-                    <MenuItem key={key} value={key}>
-                      {value}
-                    </MenuItem>
-                  )
-                )}
-              </NarrowSelect>
-            </FormControl>
+                <Typography
+                  variant="caption"
+                  sx={{ mb: 0.5, color: "text.secondary" }}
+                >
+                  时长
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: 1,
+                    borderColor: "divider",
+                    borderRadius: 1,
+                    px: 2,
+                    flexGrow: 1,
+                  }}
+                >
+                  <InlineEdit
+                    value={exam.duration ? exam.duration.toString() : ""}
+                    onSave={handleDurationChange}
+                    isNumber={true}
+                    sx={{
+                      flexGrow: 1,
+                      "& input": {
+                        textAlign: "right",
+                        width: "100%",
+                        pr: 1,
+                        border: "none",
+                        outline: "none",
+                        fontSize: "1rem",
+                      },
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ flexShrink: 0, ml: 1 }}>
+                    分钟
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+
+            {/* 统计信息在第三行 */}
+            <Grid item xs={12}>
+              <Paper
+                sx={{
+                  p: 2,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: "bold", color: "text.primary" }}
+                >
+                  共 {examStats.sectionCount} 个模块 | 总分值:{" "}
+                  {examStats.totalScore} 分
+                </Typography>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <MultiLevelSelect
-              onMultiSelectChange={handleGradeInfoChange}
-              initialSchoolLevel={exam.gradeInfo.school}
-              initialGrade={exam.gradeInfo.grade}
-              error={false}
-              disabled={true}
-              readOnly={true}
-              inline={true}
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                height: "100%",
-                whiteSpace: "nowrap",
-              }}
+
+          <Box sx={{ mt: 4, mb: 3, display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={loading}
+              sx={{ borderRadius: 2, px: 4 }}
             >
-              <Typography variant="body1" sx={{ mr: 1, flexShrink: 0 }}>
-                时长:
-              </Typography>
-              <InlineEdit
-                value={exam.duration ? exam.duration.toString() : ""}
-                onSave={handleDurationChange}
-                isNumber={true}
-                width="100px"
-              />
-              <Typography variant="body1" sx={{ ml: 1, flexShrink: 0 }}>
-                分钟
-              </Typography>
-            </Box>
-          </Grid>
-
-          {/* 统计信息在第三行 */}
-          <Grid item xs={12}>
-            <Typography
-              variant="body1"
-              sx={{ fontWeight: "bold", color: "text.secondary" }}
+              提交
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleRestore}
+              disabled={loading}
+              sx={{ borderRadius: 2, px: 4 }}
             >
-              共 {examStats.sectionCount} 个模块 | 总分值:{" "}
-              {examStats.totalScore} 分
-            </Typography>
-          </Grid>
-        </Grid>
+              还原
+            </Button>
+          </Box>
 
-        <Box sx={{ mt: 3, mb: 2, display: "flex", gap: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            提交
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleRestore}
-            disabled={loading}
-          >
-            还原
-          </Button>
-        </Box>
-
-        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-          模块
-        </Typography>
-        {exam.sections && exam.sections.length > 0 ? (
-          exam.sections
-            .sort((a, b) => a.order_in_exam - b.order_in_exam)
-            .map((section, index) => (
-              <Card key={section.id} sx={{ mb: 2 }}>
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      sx={{ mr: 2, minWidth: "80px" }}
-                    >
-                      第 {section.order_in_exam} 部分
-                    </Typography>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <InlineEdit
-                        value={section.name}
-                        onSave={(newName) => updateSectionName(index, newName)}
-                        sx={{ width: "100%" }}
-                      />
-                    </Box>
-                    <IconButton
-                      onClick={() => moveSection(index, -1)}
-                      disabled={index === 0}
-                      size="small"
-                    >
-                      <ArrowUpwardIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => moveSection(index, 1)}
-                      disabled={index === exam.sections.length - 1}
-                      size="small"
-                    >
-                      <ArrowDownwardIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => deleteSection(index)}
-                      size="small"
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </CardContent>
-                <CardActions sx={{ justifyContent: "flex-start" }}>
-                  <Button
-                    onClick={() =>
-                      setExpandedSection(
-                        expandedSection === index ? null : index
-                      )
-                    }
-                    aria-expanded={expandedSection === index}
-                    aria-label="显示更多"
-                    startIcon={<ExpandMoreIcon />}
-                  >
-                    {expandedSection === index
-                      ? "收起问题列表"
-                      : "展开问题列表"}
-                  </Button>
-                </CardActions>
-                <Collapse
-                  in={expandedSection === index}
-                  timeout="auto"
-                  unmountOnExit
+          <Typography variant="h5" sx={{ mt: 4, mb: 2, fontWeight: "bold" }}>
+            模块
+          </Typography>
+          {exam.sections && exam.sections.length > 0 ? (
+            exam.sections
+              .sort((a, b) => a.order_in_exam - b.order_in_exam)
+              .map((section, index) => (
+                <Card
+                  key={section.id}
+                  sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}
                 >
                   <CardContent>
-                    <TableContainer component={Paper}>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>顺序</TableCell>
-                            <TableCell>摘要</TableCell>
-                            <TableCell>知识点</TableCell>
-                            <TableCell>分值</TableCell>
-                            <TableCell align="right">操作</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {section.questions
-                            .sort(
-                              (a, b) => a.order_in_section - b.order_in_section
-                            )
-                            .map((question, qIndex) => (
-                              <TableRow key={question.uuid}>
-                                <TableCell>
-                                  {question.order_in_section}
-                                </TableCell>
-                                <TableCell>{question.digest}</TableCell>
-                                <TableCell>
-                                  {dictionaries.KNDict[question.kn]}
-                                </TableCell>
-                                <TableCell>
-                                  <InlineEdit
-                                    value={
-                                      question.score !== undefined
-                                        ? question.score.toString()
-                                        : ""
-                                    }
-                                    onSave={(newScore) =>
-                                      updateQuestionScore(
-                                        index,
-                                        qIndex,
-                                        newScore
-                                      )
-                                    }
-                                    isNumber={true}
-                                    width="60px"
-                                  />
-                                </TableCell>
-                                <TableCell align="right">
-                                  <IconButton
-                                    onClick={() =>
-                                      moveQuestion(index, qIndex, -1)
-                                    }
-                                    disabled={qIndex === 0}
-                                    size="small"
-                                  >
-                                    <ArrowUpwardIcon />
-                                  </IconButton>
-                                  <IconButton
-                                    onClick={() =>
-                                      moveQuestion(index, qIndex, 1)
-                                    }
-                                    disabled={
-                                      qIndex === section.questions.length - 1
-                                    }
-                                    size="small"
-                                  >
-                                    <ArrowDownwardIcon />
-                                  </IconButton>
-                                  <IconButton
-                                    onClick={() =>
-                                      deleteQuestion(index, qIndex)
-                                    }
-                                    size="small"
-                                  >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                    <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-                      <Button
-                        startIcon={<AddIcon />}
-                        onClick={() => handleOpenNewQuestionDialog(index)}
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        sx={{ mr: 2, minWidth: "80px" }}
                       >
-                        新建问题
-                      </Button>
-                      <Button
-                        startIcon={<AddIcon />}
-                        onClick={() => handleSelectQuestions(index)}
+                        第 {section.order_in_exam} 部分
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <InlineEdit
+                          value={section.name}
+                          onSave={(newName) =>
+                            updateSectionName(index, newName)
+                          }
+                          sx={{ width: "100%" }}
+                        />
+                      </Box>
+                      <IconButton
+                        onClick={() => moveSection(index, -1)}
+                        disabled={index === 0}
+                        size="small"
                       >
-                        选择问题
-                      </Button>
+                        <ArrowUpwardIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => moveSection(index, 1)}
+                        disabled={index === exam.sections.length - 1}
+                        size="small"
+                      >
+                        <ArrowDownwardIcon />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => deleteSection(index)}
+                        size="small"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </Box>
                   </CardContent>
-                </Collapse>
-              </Card>
-            ))
-        ) : (
-          <Typography>暂无模块</Typography>
-        )}
-        <Button
-          startIcon={<AddIcon />}
-          onClick={addSection}
-          variant="outlined"
-          fullWidth
-        >
-          添加新模块
-        </Button>
+                  <CardActions sx={{ justifyContent: "flex-start" }}>
+                    <Button
+                      onClick={() =>
+                        setExpandedSection(
+                          expandedSection === index ? null : index
+                        )
+                      }
+                      aria-expanded={expandedSection === index}
+                      aria-label="显示更多"
+                      startIcon={<ExpandMoreIcon />}
+                    >
+                      {expandedSection === index
+                        ? "收起问题列表"
+                        : "展开问题列表"}
+                    </Button>
+                  </CardActions>
+                  <Collapse
+                    in={expandedSection === index}
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    <CardContent>
+                      <TableContainer component={Paper}>
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>顺序</TableCell>
+                              <TableCell>摘要</TableCell>
+                              <TableCell>知识点</TableCell>
+                              <TableCell>分值</TableCell>
+                              <TableCell align="right">操作</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {section.questions
+                              .sort(
+                                (a, b) =>
+                                  a.order_in_section - b.order_in_section
+                              )
+                              .map((question, qIndex) => (
+                                <TableRow key={question.uuid}>
+                                  <TableCell>
+                                    {question.order_in_section}
+                                  </TableCell>
+                                  <TableCell>{question.digest}</TableCell>
+                                  <TableCell>
+                                    {dictionaries.KNDict[question.kn]}
+                                  </TableCell>
+                                  <TableCell>
+                                    <InlineEdit
+                                      value={
+                                        question.score !== undefined
+                                          ? question.score.toString()
+                                          : ""
+                                      }
+                                      onSave={(newScore) =>
+                                        updateQuestionScore(
+                                          index,
+                                          qIndex,
+                                          newScore
+                                        )
+                                      }
+                                      isNumber={true}
+                                      width="60px"
+                                    />
+                                  </TableCell>
+                                  <TableCell align="right">
+                                    <IconButton
+                                      onClick={() =>
+                                        moveQuestion(index, qIndex, -1)
+                                      }
+                                      disabled={qIndex === 0}
+                                      size="small"
+                                    >
+                                      <ArrowUpwardIcon />
+                                    </IconButton>
+                                    <IconButton
+                                      onClick={() =>
+                                        moveQuestion(index, qIndex, 1)
+                                      }
+                                      disabled={
+                                        qIndex === section.questions.length - 1
+                                      }
+                                      size="small"
+                                    >
+                                      <ArrowDownwardIcon />
+                                    </IconButton>
+                                    <IconButton
+                                      onClick={() =>
+                                        deleteQuestion(index, qIndex)
+                                      }
+                                      size="small"
+                                    >
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                        <Button
+                          startIcon={<AddIcon />}
+                          onClick={() => handleOpenNewQuestionDialog(index)}
+                        >
+                          新建问题
+                        </Button>
+                        <Button
+                          startIcon={<AddIcon />}
+                          onClick={() => handleSelectQuestions(index)}
+                        >
+                          选择问题
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Collapse>
+                </Card>
+              ))
+          ) : (
+            <Typography>暂无模块</Typography>
+          )}
+          <Button
+            startIcon={<AddIcon />}
+            onClick={addSection}
+            variant="outlined"
+            fullWidth
+            sx={{ mt: 2, borderRadius: 2, py: 1 }}
+          >
+            添加新模块
+          </Button>
+        </Paper>
 
         <Dialog
           open={openQuestionList}
