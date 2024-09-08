@@ -28,6 +28,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
 import Autocomplete from "@mui/material/Autocomplete";
+import Chip from "@mui/material/Chip";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -42,6 +43,7 @@ const MyExams = () => {
     maxScore: "",
   });
   const [examOptions, setExamOptions] = useState([]);
+  const [selectedExams, setSelectedExams] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,12 +95,22 @@ const MyExams = () => {
     navigate(`/error-questions/${examId}`);
   };
 
+  const handleExamChange = (event, newValue) => {
+    setSelectedExams(newValue);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      examUuids: newValue.map((exam) => exam.uuid),
+    }));
+    setPage(1); // 重置页码
+  };
+
   const breadcrumbPaths = getBreadcrumbPaths();
 
   const content = (
     <Box>
       <Box display="flex" flexWrap="wrap" alignItems="center" mb={2}>
         <Autocomplete
+          multiple
           options={examOptions}
           getOptionLabel={(option) => option.name}
           renderInput={(params) => (
@@ -112,12 +124,17 @@ const MyExams = () => {
           onInputChange={(event, newInputValue) => {
             fetchExamNames(newInputValue);
           }}
-          onChange={(event, newValue) => {
-            setFilters((prevFilters) => ({
-              ...prevFilters,
-              examUuid: newValue ? newValue.uuid : "",
-            }));
-          }}
+          onChange={handleExamChange}
+          value={selectedExams}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                label={option.name}
+                {...getTagProps({ index })}
+                key={option.uuid}
+              />
+            ))
+          }
           sx={{ width: 300, mr: 1, mb: 1 }}
         />
         <TextField

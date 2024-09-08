@@ -96,7 +96,7 @@ mock.onGet("/api/my-exams").reply((config) => {
   const {
     page = 1,
     pageSize = 10,
-    examUuid, // 使用 examUuid 替代 name
+    examUuids, // 使用 examUuids 替代 examUuid
     status,
     minScore,
     maxScore,
@@ -123,8 +123,10 @@ mock.onGet("/api/my-exams").reply((config) => {
 
   // 应用过滤器
   let filteredExams = mockMyExams;
-  if (examUuid) {
-    filteredExams = filteredExams.filter((exam) => exam.uuid === examUuid);
+  if (examUuids && examUuids.length > 0) {
+    filteredExams = filteredExams.filter((exam) =>
+      examUuids.includes(exam.uuid)
+    );
   }
   if (status) {
     filteredExams = filteredExams.filter((exam) => exam.status === status);
