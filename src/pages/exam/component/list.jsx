@@ -16,6 +16,8 @@ import {
   MenuItem,
   Chip,
   IconButton,
+  Dialog,
+  DialogContent,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -36,6 +38,7 @@ import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import { CategoryDict } from "../../../provider/utils/dictionaries";
 import { styled } from "@mui/material/styles";
+import NewExam from "./new"; // 确保导入NewExam组件
 
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
@@ -52,6 +55,7 @@ const ExamList = () => {
   const [selectedExams, setSelectedExams] = useState([]);
   const [category, setCategory] = useState("");
   const navigate = useNavigate();
+  const [openNewExamDialog, setOpenNewExamDialog] = useState(false);
 
   const fetchExamOptions = useCallback(async (inputValue = "") => {
     try {
@@ -117,7 +121,20 @@ const ExamList = () => {
   };
 
   const handleCreateExam = () => {
-    navigate("/exam/new");
+    setOpenNewExamDialog(true);
+  };
+
+  const handleCloseNewExamDialog = () => {
+    setOpenNewExamDialog(false);
+  };
+
+  const handleExamCreated = (newExamUuid) => {
+    setOpenNewExamDialog(false);
+    if (newExamUuid) {
+      navigate(`/exam/edit/${newExamUuid}`);
+    }
+    // 可能需要刷新考试列表
+    fetchExams();
   };
 
   const breadcrumbPaths = getBreadcrumbPaths();
@@ -250,6 +267,17 @@ const ExamList = () => {
           sx={{ mt: 2 }}
         />
       </StyledPaper>
+
+      <Dialog
+        open={openNewExamDialog}
+        onClose={handleCloseNewExamDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent>
+          <NewExam onExamCreated={handleExamCreated} />
+        </DialogContent>
+      </Dialog>
     </CommonLayout>
   );
 };

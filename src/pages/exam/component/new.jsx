@@ -9,13 +9,23 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
 
-const NewExam = () => {
+const NewExam = ({ onExamCreated }) => {
   const { control, handleSubmit } = useForm();
 
-  const onSubmit = (data) => {
-    // 处理表单提交
-    console.log("提交的值:", data);
+  const onSubmit = async (data) => {
+    try {
+      // 发送创建考试的请求
+      const response = await axios.post("/api/exam/create", data);
+      const newExamUuid = response.data.uuid;
+
+      // 调用父组件传入的回调函数，传递新创建的考试UUID
+      onExamCreated(newExamUuid);
+    } catch (error) {
+      console.error("创建考试失败:", error);
+      // 这里可以添加错误处理，比如显示一个错误提示
+    }
   };
 
   return (

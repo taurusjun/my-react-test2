@@ -322,6 +322,35 @@ mock.onGet("/api/questionlist").reply((config) => {
   ];
 });
 
+// 添加创建考试的模拟数据
+mock.onPost("/api/exam/create").reply((config) => {
+  const newExam = JSON.parse(config.data);
+
+  // 生成一个新的UUID
+  const newUuid = `exam-${Date.now()}`;
+
+  // 创建模拟的新考试数据
+  const createdExam = {
+    ...newExam,
+    uuid: newUuid,
+    createdAt: new Date().toISOString(),
+    sections: [],
+    status: "未开始",
+    totalScore: 0,
+  };
+
+  console.log("创建的新考试:", createdExam);
+
+  // 返回创建成功的响应，包含新创建的考试UUID
+  return [
+    201,
+    {
+      uuid: newUuid,
+      message: "考试创建成功",
+    },
+  ];
+});
+
 // 更新模拟考试数据
 mock.onGet("/api/exam/list").reply((config) => {
   const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
