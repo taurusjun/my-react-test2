@@ -51,6 +51,103 @@ const generateMockMaterials = (count) => {
   return materials;
 };
 
+const questions = [
+  {
+    digest: "关于力和运动的多步骤问题",
+    material: "以下是一系列关于力和运动的问题，请仔细阅读并回答。",
+    questionDetails: [
+      {
+        questionContent: {
+          value: "1. 下列关于力和运动的说法，正确的是：",
+          image: null,
+        },
+        rows: [
+          { value: "物体运动一定有力", isAns: false, image: null },
+          { value: "物体受力一定运动", isAns: false, image: null },
+          { value: "力是物体运动状态改变的原因", isAns: true, image: null },
+          { value: "力的作用是相互的", isAns: true, image: null },
+        ],
+        explanation:
+          "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
+        answer: ["C", "D"],
+      },
+      {
+        questionContent: {
+          value: "2. 一个物体在光滑平面上以恒定速度运动，下列说法正确的是：",
+          image: null,
+        },
+        rows: [
+          { value: "物体受到的合力为零", isAns: true, image: null },
+          { value: "物体一定不受力", isAns: false, image: null },
+          { value: "物体受到的摩擦力等于推力", isAns: false, image: null },
+          { value: "物体的加速度不为零", isAns: false, image: null },
+        ],
+        explanation:
+          "物体以恒定速度运动时，其受到的合力为零，但这并不意味着物体不受力，可能是各个力相互抵消。",
+        answer: ["A"],
+      },
+    ],
+  },
+  {
+    digest: "能量转换与守恒多步骤问题",
+    material: "以下是关于能量转换与守恒的一系列问题，请仔细思考后回答。",
+    questionDetails: [
+      {
+        questionContent: {
+          value: "1. 以下哪种情况不涉及能量转换？",
+          image: null,
+        },
+        rows: [
+          { value: "电灯发光", isAns: false, image: null },
+          { value: "汽车行驶", isAns: false, image: null },
+          { value: "静止的水", isAns: true, image: null },
+          { value: "太阳能电池板工作", isAns: false, image: null },
+        ],
+        explanation: "静止的水没有发生能量转换，其他选项都涉及能量形式的转换。",
+        answer: ["C"],
+      },
+      {
+        questionContent: {
+          value: "2. 关于能量守恒定律，以下说法正确的是：",
+          image: null,
+        },
+        rows: [
+          { value: "能量可以凭空产生", isAns: false, image: null },
+          { value: "能量可以完全消失", isAns: false, image: null },
+          {
+            value: "能量可以从一种形式转化为另一种形式",
+            isAns: true,
+            image: null,
+          },
+          {
+            value: "在任何过程中，能量的总量保持不变",
+            isAns: true,
+            image: null,
+          },
+        ],
+        explanation:
+          "能量守恒定律指出，能量不能被创造或销毁，只能从一种形式转换为另一种形式，而在任何过程中，能量的总量保持不变。",
+        answer: ["C", "D"],
+      },
+      {
+        questionContent: {
+          value: "3. 一个重物从高处自由落下，在落地瞬间：",
+          image: null,
+        },
+        rows: [
+          { value: "重物的重力势能完全转化为动能", isAns: true, image: null },
+          { value: "重物的动能为零", isAns: false, image: null },
+          { value: "重物的重力势能为零", isAns: true, image: null },
+          { value: "重物的总能量为零", isAns: false, image: null },
+        ],
+        explanation:
+          "在落地瞬间，重物的重力势能完全转化为动能，此时重力势能为零，但动能达到最大值，总能量保持不变。",
+        answer: ["A", "C"],
+      },
+    ],
+  },
+];
+
 export const setupLearningMocks = (mock) => {
   const allMaterials = generateMockMaterials(100);
 
@@ -103,6 +200,8 @@ export const setupLearningMocks = (mock) => {
     .reply((config) => {
       const [, , materialUuid, , sectionUuid, , questionIndex] =
         config.url.split("/");
+      const randomQuestion =
+        questions[Math.floor(Math.random() * questions.length)];
 
       return [
         200,
@@ -117,36 +216,22 @@ export const setupLearningMocks = (mock) => {
           },
           source: "2023年春季期中考试",
           tags: ["frequentlyTested", "important"],
-          digest: "关于力和运动的多选题",
-          material: "以下是关于力和运动的一些描述。",
           sectionUuid: sectionUuid,
           order_in_section: parseInt(questionIndex),
-          questionDetails: [
-            {
+          ...randomQuestion,
+          questionDetails: randomQuestion.questionDetails.map(
+            (detail, index) => ({
+              ...detail,
               uuid: generateUUID("question-detail"),
-              order_in_question: 1,
-              questionContent: {
-                value: "下列关于力和运动的说法，正确的是：",
-                image: null,
-              },
-              rows: [
-                { value: "物体运动一定有力", isAns: false, image: null },
-                { value: "物体受力一定运动", isAns: false, image: null },
-                {
-                  value: "力是物体运动状态改变的原因",
-                  isAns: true,
-                  image: null,
-                },
-                { value: "力的作用是相互的", isAns: true, image: null },
-              ],
+              order_in_question: index + 1,
               rate: 3,
-              explanation:
-                "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
-              uiType: "multi_selection",
-              answer: ["C", "D"],
+              uiType:
+                detail.answer.length > 1
+                  ? "multi_selection"
+                  : "single_selection",
               answerImage: null,
-            },
-          ],
+            })
+          ),
         },
       ];
     });
