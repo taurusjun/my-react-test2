@@ -88,7 +88,7 @@ const QuestionList = ({
 
   const fetchRelatedSourceOptions = async (input) => {
     try {
-      const response = await axios.get("/api/related-sources", {
+      const response = await axios.get("/api/exam-names", {
         params: { query: input },
       });
       setRelatedSourceOptions(response.data);
@@ -288,7 +288,7 @@ const QuestionList = ({
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="关联资源"
+                  label="考试列表"
                   placeholder="选择相关试卷或书籍"
                   variant="outlined"
                   size="small"
@@ -314,7 +314,7 @@ const QuestionList = ({
                 <StyledTableCell>摘要</StyledTableCell>
                 <StyledTableCell>科目</StyledTableCell>
                 <StyledTableCell>知识点</StyledTableCell>
-                <StyledTableCell>关联资源</StyledTableCell>
+                <StyledTableCell>考试名称</StyledTableCell>
                 <StyledTableCell>更新时间</StyledTableCell>
                 <StyledTableCell align="center">
                   {isFromExamEdit ? "选择" : "操作"}

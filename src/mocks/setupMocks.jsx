@@ -250,25 +250,6 @@ mock.onGet(/\/api\/error-questions-detail\/[a-zA-Z0-9-]+$/).reply((config) => {
   return [200, mockQuestionDetails];
 });
 
-// 添加对 /api/related-sources 的模拟
-mock.onGet("/api/related-sources").reply((config) => {
-  const query = config.params.query.toLowerCase();
-  const allOptions = [
-    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
-    { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
-    { uuid: "uuid-3456-cdef-7890", name: "高中理教材" },
-    { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
-    { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
-    { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
-  ];
-
-  const filteredOptions = allOptions.filter((option) =>
-    option.name.toLowerCase().includes(query)
-  );
-
-  return [200, filteredOptions];
-});
-
 mock.onGet("/api/questionlist").reply((config) => {
   const {
     category,
@@ -290,7 +271,10 @@ mock.onGet("/api/questionlist").reply((config) => {
       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
       relatedSources:
         index % 2 === 0
-          ? [{ uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" }]
+          ? [
+              { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+              { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
+            ]
           : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }],
     }));
 
@@ -717,6 +701,12 @@ mock.onGet("/api/exam-names").reply((config) => {
   const { query } = config.params;
 
   const allExamNames = [
+    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+    { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
+    { uuid: "uuid-3456-cdef-7890", name: "高中理教材" },
+    { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
+    { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
+    { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
     { uuid: "uuid-exam-1", name: "2024年物理期中考试" },
     { uuid: "uuid-exam-2", name: "2023年物理期末考试" },
     { uuid: "uuid-exam-3", name: "2024年数学模拟考试" },
