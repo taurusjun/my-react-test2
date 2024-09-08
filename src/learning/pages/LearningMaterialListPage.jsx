@@ -65,8 +65,8 @@ const LearningMaterialListPage = () => {
     }
   };
 
-  const handleStartLearning = (materialId) => {
-    navigate(`/learning/${materialId}`);
+  const handleStartLearning = (materialUuid) => {
+    navigate(`/learning/${materialUuid}`);
   };
 
   const handleSearchChange = (event) => {
@@ -177,7 +177,7 @@ const LearningMaterialListPage = () => {
               </TableHead>
               <TableBody>
                 {materials.map((material) => (
-                  <StyledTableRow key={material.id}>
+                  <StyledTableRow key={material.uuid}>
                     <BodyTableCell>{material.name}</BodyTableCell>
                     <BodyTableCell>
                       {dictionaries.CategoryDict[material.category]}
@@ -210,7 +210,7 @@ const LearningMaterialListPage = () => {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={() => handleStartLearning(material.id)}
+                        onClick={() => handleStartLearning(material.uuid)}
                         startIcon={<PlayArrowIcon />}
                       >
                         {material.status === "未开始" ? "开始学习" : "继续学习"}

@@ -86,5 +86,5 @@ export const routeConfig = [
 
   // 添加新的学习资料路由
   { path: "/learning", element: LearningMaterialListPage, protected: true },
-  { path: "/learning/:materialId", element: LearningPage, protected: true },
+  { path: "/learning/:materialUuid", element: LearningPage, protected: true },
 ];
