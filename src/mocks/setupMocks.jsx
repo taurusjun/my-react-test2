@@ -291,7 +291,7 @@ mock.onGet("/api/questionlist").reply((config) => {
       relatedSources:
         index % 2 === 0
           ? [{ uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" }]
-          : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }], // 使用模拟的关联资源
+          : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }],
     }));
 
   // 根据搜索条件过滤问题
@@ -1177,7 +1177,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
                 score: 2,
                 rate: 4,
                 explanation:
-                  "法拉第电磁感应定律表明，感应电动势的大小与穿过闭合回路的磁通量变化率的大小成正比。",
+                  "法拉第电��感应定律表明，感应电动势的大小与穿过闭合回路的磁通量变化率的大小成正比。",
                 uiType: "fill_in_blank",
                 answer: ["磁通量"],
                 answerImage: null,
@@ -1227,7 +1227,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
         name: "计算题",
         order_in_exam: 3,
         questions: [
-          // 保留原有的计算题（2个questionDetails）
+          // ���留原有的计算题（2个questionDetails）
           {
             uuid: "question-12",
             type: "calculation",

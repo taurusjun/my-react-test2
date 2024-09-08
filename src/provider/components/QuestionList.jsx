@@ -22,6 +22,7 @@ import {
   InputLabel,
   TablePagination,
   Checkbox,
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -37,6 +38,13 @@ import {
   StyledPaper,
   StyledTableContainer,
 } from "../../styles/TableStyles";
+import { IconButton } from "@mui/material";
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 2,
+  textTransform: "none",
+  fontWeight: "bold",
+}));
 
 const QuestionList = ({
   fixedCategory,
@@ -60,7 +68,7 @@ const QuestionList = ({
   const [selectedQuestions, setSelectedQuestions] = useState([]);
 
   const [searchParams, setSearchParams] = useState({
-    category: "",
+    category: fixedCategory || "",
     kn: "",
     type: "",
     relatedSources: [],
@@ -98,6 +106,7 @@ const QuestionList = ({
     fixedCategory,
     searchType,
     searchTerm,
+    searchParams.category,
     searchParams.relatedSources,
   ]);
 
@@ -105,7 +114,7 @@ const QuestionList = ({
     try {
       const response = await axios.get("/api/questionlist", {
         params: {
-          category: fixedCategory,
+          category: searchParams.category || fixedCategory,
           searchType: searchType,
           searchTerm: searchTerm,
           page: page + 1,
@@ -175,77 +184,125 @@ const QuestionList = ({
 
   const breadcrumbPaths = getBreadcrumbPaths();
 
+  const handleCategoryChange = (event) => {
+    setSearchParams((prevParams) => ({
+      ...prevParams,
+      category: event.target.value,
+    }));
+  };
+
   const content = (
     <>
-      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-        {!isFromExamEdit && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleNewQuestion}
-            sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
+      <StyledPaper elevation={0}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+            }}
           >
-            {showIcons ? <AddIcon /> : "新建题目"}
-          </Button>
-        )}
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleResetSearch}
-          sx={{ width: showIcons ? "56px" : "150px", height: "56px" }}
-        >
-          {showIcons ? <RestartAltIcon /> : "重置搜索"}
-        </Button>
-        <FormControl sx={{ flex: 1 }}>
-          <Autocomplete
-            multiple
-            id="related-sources"
-            options={relatedSourceOptions}
-            value={searchParams.relatedSources}
-            onChange={handleRelatedSourcesChange}
-            onInputChange={handleInputChange}
-            inputValue={inputValue}
-            getOptionLabel={(option) => option.name}
-            isOptionEqualToValue={(option, value) => option.uuid === value.uuid}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="关联资源"
-                placeholder="选择相关试卷或书籍"
-                variant="standard"
-              />
+            {!isFromExamEdit && (
+              <StyledButton
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleNewQuestion}
+              >
+                新建题目
+              </StyledButton>
             )}
-            renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  label={option.name}
-                  {...getTagProps({ index })}
-                  key={option.uuid}
+            {isFromExamEdit ? (
+              <IconButton
+                color="secondary"
+                onClick={handleResetSearch}
+                size="small"
+              >
+                <RestartAltIcon />
+              </IconButton>
+            ) : (
+              <StyledButton
+                variant="contained"
+                color="secondary"
+                startIcon={<RestartAltIcon />}
+                onClick={handleResetSearch}
+              >
+                重置搜索
+              </StyledButton>
+            )}
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>搜索类型</InputLabel>
+              <Select
+                value={searchType}
+                label="搜索类型"
+                onChange={(e) => setSearchType(e.target.value)}
+                size="small"
+              >
+                <MenuItem value="digest">摘要</MenuItem>
+                <MenuItem value="knowledge">知识点</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label={searchType === "digest" ? "搜索摘要" : "搜索知识点"}
+              variant="outlined"
+              size="small"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>科目</InputLabel>
+              <Select
+                value={searchParams.category}
+                label="科目"
+                onChange={handleCategoryChange}
+                size="small"
+                disabled={!!fixedCategory}
+              >
+                <MenuItem value="">全部</MenuItem>
+                {Object.entries(dictionaries.CategoryDict).map(
+                  ([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+            <Autocomplete
+              multiple
+              id="related-sources"
+              options={relatedSourceOptions}
+              value={searchParams.relatedSources}
+              onChange={handleRelatedSourcesChange}
+              onInputChange={handleInputChange}
+              inputValue={inputValue}
+              getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.uuid === value.uuid
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="关联资源"
+                  placeholder="选择相关试卷或书籍"
+                  variant="outlined"
+                  size="small"
                 />
-              ))
-            }
-          />
-        </FormControl>
-        <FormControl sx={{ minWidth: showIcons ? 100 : 140 }}>
-          <InputLabel>搜索类型</InputLabel>
-          <Select
-            value={searchType}
-            label="搜索类型"
-            onChange={(e) => setSearchType(e.target.value)}
-          >
-            <MenuItem value="digest">摘要</MenuItem>
-            <MenuItem value="knowledge">知识点</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          label={searchType === "digest" ? "搜索摘要" : "搜索知识点"}
-          variant="outlined"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flex: showIcons ? 1 : 2 }}
-        />
-      </Stack>
-      <StyledPaper>
+              )}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option.name}
+                    {...getTagProps({ index })}
+                    key={option.uuid}
+                  />
+                ))
+              }
+              sx={{ minWidth: 200, flexGrow: 1 }}
+            />
+          </Box>
+        </Box>
         <StyledTableContainer>
           <Table>
             <TableHead>
