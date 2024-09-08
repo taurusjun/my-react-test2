@@ -324,29 +324,28 @@ mock.onGet("/api/questionlist").reply((config) => {
 
 // 更新模拟考试数据
 mock.onGet("/api/exam/list").reply((config) => {
-  const { page = 1, pageSize = 10, name, category } = config.params;
+  const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
 
-  // 模拟的考试列表
-  const mockExams = Array(50)
+  const mockExams = Array(100)
     .fill()
     .map((_, index) => ({
-      uuid: `exam-${index + 1}`,
-      name: `模拟考试 ${index + 1}`,
-      category: index % 2 === 0 ? "math" : "physics",
-      createdAt: format(addDays(new Date(), -index), "yyyy-MM-dd HH:mm:ss"),
-      startTime: format(addDays(new Date(), index), "yyyy-MM-dd HH:mm:ss"),
-      duration: 120, // 单位：分
-      totalScore: 100,
-      status:
-        index % 3 === 0 ? "未开始" : index % 3 === 1 ? "进行中" : "已结束",
+      uuid: `uuid-exam-${index + 1}`,
+      name: `${2024 - Math.floor(index / 20)}年${
+        ["物理", "化学", "生物", "数学", "英语"][index % 5]
+      }${["期中", "期末"][index % 2]}考试`,
+      category: ["physics", "chemistry", "biology", "math", "english"][
+        index % 5
+      ],
+      createdAt: new Date(Date.now() - Math.random() * 10000000000)
+        .toISOString()
+        .split("T")[0],
     }));
 
-  // 根据搜索条件过滤考试
   let filteredExams = [...mockExams];
 
-  if (name) {
+  if (examUuids.length > 0) {
     filteredExams = filteredExams.filter((exam) =>
-      exam.name.toLowerCase().includes(name.toLowerCase())
+      examUuids.includes(exam.uuid)
     );
   }
 
@@ -356,7 +355,7 @@ mock.onGet("/api/exam/list").reply((config) => {
 
   const totalCount = filteredExams.length;
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
+  const endIndex = startIndex + parseInt(pageSize);
   const paginatedExams = filteredExams.slice(startIndex, endIndex);
 
   return [
@@ -721,6 +720,9 @@ mock.onGet("/api/exam-names").reply((config) => {
     filteredExamNames = allExamNames.filter((exam) =>
       exam.name.toLowerCase().includes(query.toLowerCase())
     );
+  } else {
+    // 如果没有查询参数，返回前20个考试名称作为默认选项
+    filteredExamNames = allExamNames.slice(0, 20);
   }
 
   return [200, filteredExamNames];

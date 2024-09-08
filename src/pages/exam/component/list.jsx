@@ -1,20 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
   TableHead,
   TableRow,
-  TextField,
   Button,
   Box,
-  Typography,
   TablePagination,
+  Autocomplete,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from "@mui/material";
 import {
   Edit as EditIcon,
   Visibility as VisibilityIcon,
-  Search as SearchIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
 import {
@@ -25,44 +29,56 @@ import {
   StyledTableContainer,
 } from "../../../styles/TableStyles";
 import axios from "axios";
-import { styled, alpha } from "@mui/material/styles";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 2,
-  textTransform: "none",
-  fontWeight: "bold",
-}));
+import { CategoryDict } from "../../../provider/utils/dictionaries";
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchParams, setSearchParams] = useState({ name: "", category: "" });
+  const [totalCount, setTotalCount] = useState(0);
+  const [examOptions, setExamOptions] = useState([]);
+  const [selectedExams, setSelectedExams] = useState([]);
+  const [category, setCategory] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchExams();
-  }, [page, rowsPerPage, searchParams]);
+  const fetchExamOptions = useCallback(async (inputValue = "") => {
+    try {
+      const response = await axios.get("/api/exam-names", {
+        params: { query: inputValue },
+      });
+      setExamOptions(response.data);
+    } catch (error) {
+      console.error("获取考试名称失败:", error);
+    }
+  }, []);
 
-  const fetchExams = async () => {
+  const fetchExams = useCallback(async () => {
     try {
       const response = await axios.get("/api/exam/list", {
         params: {
           page: page + 1,
           pageSize: rowsPerPage,
-          name: searchParams.name,
-          category: searchParams.category,
+          examUuids: selectedExams.map((exam) => exam.uuid),
+          category,
         },
       });
       setExams(response.data.exams);
+      setTotalCount(response.data.totalCount);
     } catch (error) {
       console.error("获取考试列表失败:", error);
-      // 这里可以添加错误处理，比如显示一个错误提示
     }
-  };
+  }, [page, rowsPerPage, selectedExams, category]);
+
+  useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
+
+  useEffect(() => {
+    fetchExamOptions();
+  }, [fetchExamOptions]);
 
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
@@ -73,15 +89,22 @@ const ExamList = () => {
     setPage(0);
   };
 
-  const breadcrumbPaths = getBreadcrumbPaths();
+  const handleExamChange = (event, newValue) => {
+    setSelectedExams(newValue);
+    setPage(0);
+  };
 
-  const rightNavItems = [];
+  const handleCategoryChange = (event) => {
+    setCategory(event.target.value);
+    setPage(0);
+  };
+
+  const breadcrumbPaths = getBreadcrumbPaths();
 
   return (
     <CommonLayout
       currentPage="考试列表"
       maxWidth="xl"
-      rightNavItems={rightNavItems}
       showBreadcrumbs={true}
       BreadcrumbsComponent={() => (
         <CommonBreadcrumbs paths={breadcrumbPaths.examList} />
@@ -90,37 +113,60 @@ const ExamList = () => {
       <StyledPaper elevation={0}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 3 }}>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <TextField
-              label="搜索名称"
-              variant="outlined"
-              size="small"
-              onChange={(e) =>
-                setSearchParams({ ...searchParams, name: e.target.value })
+            <Autocomplete
+              multiple
+              options={examOptions}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="考试名称"
+                  variant="outlined"
+                  size="small"
+                />
+              )}
+              onInputChange={(event, newInputValue) => {
+                fetchExamOptions(newInputValue);
+              }}
+              onChange={handleExamChange}
+              value={selectedExams}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option.name}
+                    {...getTagProps({ index })}
+                    key={option.uuid}
+                  />
+                ))
               }
+              sx={{ width: 300 }}
+              loading={examOptions.length === 0}
+              loadingText="加载中..."
+              noOptionsText="没有匹配的考试"
             />
-            <TextField
-              label="搜索科目"
-              variant="outlined"
-              size="small"
-              onChange={(e) =>
-                setSearchParams({ ...searchParams, category: e.target.value })
-              }
-            />
-            <StyledButton
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={fetchExams}
-            >
-              搜索
-            </StyledButton>
-            <StyledButton
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>科目</InputLabel>
+              <Select
+                value={category}
+                onChange={handleCategoryChange}
+                label="科目"
+              >
+                <MenuItem value="">全部</MenuItem>
+                {Object.entries(CategoryDict).map(([key, value]) => (
+                  <MenuItem key={key} value={key}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
               variant="contained"
               color="secondary"
               startIcon={<AddIcon />}
               onClick={() => navigate("/exam/new")}
             >
               创建考试
-            </StyledButton>
+            </Button>
           </Box>
         </Box>
         <StyledTableContainer>
@@ -134,35 +180,33 @@ const ExamList = () => {
               </StyledTableRow>
             </TableHead>
             <TableBody>
-              {exams
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((exam) => (
-                  <StyledTableRow key={exam.uuid}>
-                    <BodyTableCell>{exam.name}</BodyTableCell>
-                    <BodyTableCell>{exam.category}</BodyTableCell>
-                    <BodyTableCell>{exam.createdAt}</BodyTableCell>
-                    <BodyTableCell align="center">
-                      <Button
-                        startIcon={<EditIcon />}
-                        onClick={() => navigate(`/exam/edit/${exam.uuid}`)}
-                      >
-                        编辑
-                      </Button>
-                      <Button
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => navigate(`/exam/view/${exam.uuid}`)}
-                      >
-                        查看
-                      </Button>
-                    </BodyTableCell>
-                  </StyledTableRow>
-                ))}
+              {exams.map((exam) => (
+                <StyledTableRow key={exam.uuid}>
+                  <BodyTableCell>{exam.name}</BodyTableCell>
+                  <BodyTableCell>{CategoryDict[exam.category]}</BodyTableCell>
+                  <BodyTableCell>{exam.createdAt}</BodyTableCell>
+                  <BodyTableCell align="center">
+                    <Button
+                      startIcon={<EditIcon />}
+                      onClick={() => navigate(`/exam/edit/${exam.uuid}`)}
+                    >
+                      编辑
+                    </Button>
+                    <Button
+                      startIcon={<VisibilityIcon />}
+                      onClick={() => navigate(`/exam/view/${exam.uuid}`)}
+                    >
+                      查看
+                    </Button>
+                  </BodyTableCell>
+                </StyledTableRow>
+              ))}
             </TableBody>
           </Table>
         </StyledTableContainer>
         <TablePagination
           component="div"
-          count={exams.length}
+          count={totalCount}
           page={page}
           onPageChange={handleChangePage}
           rowsPerPage={rowsPerPage}
