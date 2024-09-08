@@ -151,40 +151,40 @@ mock.onGet("/api/my-exams").reply((config) => {
   return [200, { exams: paginatedExams, totalCount }];
 });
 
-mock.onGet(/\/api\/error-questions\/.*/).reply((config) => {
-  const examId = config.url.split("/").pop();
+// mock.onGet(/\/api\/error-questions\/.*/).reply((config) => {
+//   const examId = config.url.split("/").pop();
 
-  // 模拟错题数据
-  const mockErrorQuestions = [
-    {
-      id: 1,
-      content: "什么是牛顿第一定律?",
-      correctAnswer: "物体在没有外力作用下,会保持静止或匀速直线运动状态。",
-      userAnswer: "物体总是会停下来。",
-      explanation:
-        "牛顿第一定律也称为惯性定律,描述了物体在没有外力作用时的运动状态。",
-      errorCount: 1,
-    },
-    {
-      id: 2,
-      content: "光速是多少?",
-      correctAnswer: "299,792,458 米/秒",
-      userAnswer: "300,000,000 米/秒",
-      explanation:
-        "光速在真空中的精确值是 299,792,458 米/秒,通常近似为 3×10^8 米/秒。",
-      errorCount: 2,
-    },
-    // 可以添加更多模拟错题...
-  ];
+//   // 模拟错题数据
+//   const mockErrorQuestions = [
+//     {
+//       id: 1,
+//       content: "什么是牛顿第一定律?",
+//       correctAnswer: "物体在没有外力作用下,会保持静止或匀速直线运动状态。",
+//       userAnswer: "物体总是会停下来。",
+//       explanation:
+//         "牛顿第一定律也称为惯性定律,描述了物体在没有外力作用时的运动状态。",
+//       errorCount: 1,
+//     },
+//     {
+//       id: 2,
+//       content: "光速是多少?",
+//       correctAnswer: "299,792,458 米/秒",
+//       userAnswer: "300,000,000 米/秒",
+//       explanation:
+//         "光速在真空中的精确值是 299,792,458 米/秒,通常近似为 3×10^8 米/秒。",
+//       errorCount: 2,
+//     },
+//     // 可以添加更多模拟错题...
+//   ];
 
-  // 如果 examId 不是 'all',可以根据 examId 筛选错题
-  const filteredQuestions =
-    examId === "all"
-      ? mockErrorQuestions
-      : mockErrorQuestions.filter((q) => q.examId === examId);
+//   // 如果 examId 不是 'all',可以根据 examId 筛选错题
+//   const filteredQuestions =
+//     examId === "all"
+//       ? mockErrorQuestions
+//       : mockErrorQuestions.filter((q) => q.examId === examId);
 
-  return [200, filteredQuestions];
-});
+//   return [200, filteredQuestions];
+// });
 
 // 模拟问题数据的API响应
 mock.onGet(/\/api\/questions\/.*/).reply(200, {
@@ -500,46 +500,30 @@ mock.onPut(/\/api\/questions\/.*/).reply((config) => {
 // 在文件的适当位置添加以下代码
 
 mock.onGet("/api/error-questions").reply((config) => {
-  const { examFilter, errorCountFilter } = config.params;
+  const {
+    examUuids = [],
+    errorCountFilter,
+    page = 1,
+    pageSize = 10,
+  } = config.params;
 
-  const mockErrorQuestions = [
-    {
-      uuid: "error-question-1",
-      examName: "2024年物理期中考试",
-      digest: "关于牛顿第二定律的应用题",
-      errorCount: 2,
-    },
-    {
-      uuid: "error-question-2",
-      examName: "2024年化学模拟考试",
-      digest: "有关化学平衡的计算题",
-      errorCount: 1,
-    },
-    {
-      uuid: "error-question-3",
-      examName: "2023年数学期末考试",
-      digest: "三角函数的图像问题",
-      errorCount: 3,
-    },
-    {
-      uuid: "error-question-4",
-      examName: "2024年物理期中考试",
-      digest: "电磁感应定律的应用",
-      errorCount: 1,
-    },
-    {
-      uuid: "error-question-5",
-      examName: "2023年生物学期末考试",
-      digest: "遗传学基本定律题",
-      errorCount: 2,
-    },
-  ];
+  const mockErrorQuestions = Array(100)
+    .fill()
+    .map((_, index) => ({
+      uuid: `error-question-${index + 1}`,
+      examUuid: `uuid-exam-${Math.floor(index / 20) + 1}`,
+      examName: `${2024 - Math.floor(index / 20)}年${
+        ["物理", "化学", "生物", "数学", "英语"][index % 5]
+      }${["期中", "期末"][index % 2]}考试`,
+      digest: `错题摘要 ${index + 1}`,
+      errorCount: Math.floor(Math.random() * 3) + 1,
+    }));
 
   let filteredQuestions = [...mockErrorQuestions];
 
-  if (examFilter) {
-    filteredQuestions = filteredQuestions.filter(
-      (q) => q.examName === examFilter
+  if (examUuids.length > 0) {
+    filteredQuestions = filteredQuestions.filter((q) =>
+      examUuids.includes(q.examUuid)
     );
   }
 
@@ -554,7 +538,18 @@ mock.onGet("/api/error-questions").reply((config) => {
     }
   }
 
-  return [200, filteredQuestions];
+  const totalCount = filteredQuestions.length;
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + parseInt(pageSize);
+  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  return [
+    200,
+    {
+      items: paginatedQuestions,
+      totalCount: totalCount,
+    },
+  ];
 });
 
 // 添加以下代码来模拟获取单个错题详情的 API
@@ -655,48 +650,48 @@ mock.onGet("/api/exams").reply(200, [
 ]);
 
 // 修改错题列表的 mock 数据，使用 examUuid 进行筛选
-mock.onGet("/api/error-questions").reply((config) => {
-  const { examUuid, errorCountFilter } = config.params;
+// mock.onGet("/api/error-questions").reply((config) => {
+//   const { examUuid, errorCountFilter } = config.params;
 
-  const mockErrorQuestions = [
-    {
-      uuid: "error-question-1",
-      examUuid: "exam-1",
-      examName: "2024年物理期中考试",
-      digest: "关于牛顿第二定律的应用题",
-      errorCount: 2,
-    },
-    {
-      uuid: "error-question-2",
-      examUuid: "exam-3",
-      examName: "2024年数学模拟考试",
-      digest: "三角函数的图像问题",
-      errorCount: 1,
-    },
-    // ... 其他错题数据
-  ];
+//   const mockErrorQuestions = [
+//     {
+//       uuid: "error-question-1",
+//       examUuid: "exam-1",
+//       examName: "2024年物理期中考试",
+//       digest: "关于牛顿第二定律的应用题",
+//       errorCount: 2,
+//     },
+//     {
+//       uuid: "error-question-2",
+//       examUuid: "exam-3",
+//       examName: "2024年数学模拟考试",
+//       digest: "三角函数的图像问题",
+//       errorCount: 1,
+//     },
+//     // ... 其他错题数据
+//   ];
 
-  let filteredQuestions = [...mockErrorQuestions];
+//   let filteredQuestions = [...mockErrorQuestions];
 
-  if (examUuid) {
-    filteredQuestions = filteredQuestions.filter(
-      (q) => q.examUuid === examUuid
-    );
-  }
+//   if (examUuid) {
+//     filteredQuestions = filteredQuestions.filter(
+//       (q) => q.examUuid === examUuid
+//     );
+//   }
 
-  if (errorCountFilter) {
-    const count = parseInt(errorCountFilter);
-    if (count === 3) {
-      filteredQuestions = filteredQuestions.filter((q) => q.errorCount >= 3);
-    } else {
-      filteredQuestions = filteredQuestions.filter(
-        (q) => q.errorCount === count
-      );
-    }
-  }
+//   if (errorCountFilter) {
+//     const count = parseInt(errorCountFilter);
+//     if (count === 3) {
+//       filteredQuestions = filteredQuestions.filter((q) => q.errorCount >= 3);
+//     } else {
+//       filteredQuestions = filteredQuestions.filter(
+//         (q) => q.errorCount === count
+//       );
+//     }
+//   }
 
-  return [200, filteredQuestions];
-});
+//   return [200, filteredQuestions];
+// });
 
 // 添加模拟考试名称搜索的 API
 mock.onGet("/api/exam-names").reply((config) => {

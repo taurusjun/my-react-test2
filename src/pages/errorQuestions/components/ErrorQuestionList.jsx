@@ -15,6 +15,9 @@ import {
   Grid,
   Chip,
   Checkbox,
+  TablePagination,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import {
   StyledTableCell,
@@ -33,20 +36,25 @@ import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 const ErrorQuestionList = () => {
   const [errorQuestions, setErrorQuestions] = useState([]);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [examFilter, setExamFilter] = useState("");
+  const [examOptions, setExamOptions] = useState([]);
+  const [selectedExams, setSelectedExams] = useState([]);
   const [errorCountFilter, setErrorCountFilter] = useState("");
-  const [examList, setExamList] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedQuestionUuid, setSelectedQuestionUuid] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
 
-  const fetchExamList = useCallback(async () => {
+  const fetchExamOptions = useCallback(async (inputValue = "") => {
     try {
-      const response = await axios.get("/api/exams");
-      setExamList(response.data);
+      const response = await axios.get("/api/exam-names", {
+        params: { query: inputValue },
+      });
+      setExamOptions(response.data);
     } catch (error) {
-      console.error("获取考试列表失败:", error);
+      console.error("获取考试名称失败:", error);
     }
   }, []);
 
@@ -54,20 +62,28 @@ const ErrorQuestionList = () => {
     try {
       const response = await axios.get("/api/error-questions", {
         params: {
-          examUuid: examFilter,
+          examUuids: selectedExams.map((exam) => exam.uuid),
           errorCountFilter,
+          page: page + 1,
+          pageSize: rowsPerPage,
         },
       });
-      setErrorQuestions(response.data);
+      setErrorQuestions(response.data.items);
+      setTotalCount(response.data.totalCount);
     } catch (error) {
       console.error("获取错题列表失败:", error);
     }
-  }, [examFilter, errorCountFilter]);
+  }, [selectedExams, errorCountFilter, page, rowsPerPage]);
 
   useEffect(() => {
-    fetchExamList();
+    fetchExamOptions();
     fetchErrorQuestions();
-  }, [fetchExamList, fetchErrorQuestions]);
+  }, [fetchExamOptions, fetchErrorQuestions]);
+
+  const handleExamChange = (event, newValue) => {
+    setSelectedExams(newValue);
+    setPage(0);
+  };
 
   const handleSelectAll = (event) => {
     const checked = event.target.checked;
@@ -101,6 +117,15 @@ const ErrorQuestionList = () => {
     }
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   const breadcrumbPaths = getBreadcrumbPaths();
 
   return (
@@ -115,20 +140,34 @@ const ErrorQuestionList = () => {
       <StyledPaper>
         <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
           <Grid item xs={12} sm="auto">
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>考试</InputLabel>
-              <Select
-                value={examFilter}
-                onChange={(e) => setExamFilter(e.target.value)}
-              >
-                <MenuItem value="">全部</MenuItem>
-                {examList.map((exam) => (
-                  <MenuItem key={exam.uuid} value={exam.uuid}>
-                    {exam.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              multiple
+              options={examOptions}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="考试名称"
+                  variant="outlined"
+                  size="small"
+                />
+              )}
+              onInputChange={(event, newInputValue) => {
+                fetchExamOptions(newInputValue);
+              }}
+              onChange={handleExamChange}
+              value={selectedExams}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip
+                    label={option.name}
+                    {...getTagProps({ index })}
+                    key={option.uuid}
+                  />
+                ))
+              }
+              sx={{ minWidth: 200 }}
+            />
           </Grid>
           <Grid item xs={12} sm="auto">
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -165,57 +204,66 @@ const ErrorQuestionList = () => {
             </Button>
           </Grid>
         </Grid>
-      </StyledPaper>
-      <StyledTableContainer>
-        <Table>
-          <TableHead>
-            <StyledTableRow>
-              <StyledTableCell>
-                <Checkbox
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                  indeterminate={
-                    selectedQuestions.length > 0 &&
-                    selectedQuestions.length < errorQuestions.length
-                  }
-                />
-              </StyledTableCell>
-              <StyledTableCell>考试名称</StyledTableCell>
-              <StyledTableCell>题目摘要</StyledTableCell>
-              <StyledTableCell>错误次数</StyledTableCell>
-              <StyledTableCell>操作</StyledTableCell>
-            </StyledTableRow>
-          </TableHead>
-          <TableBody>
-            {errorQuestions.map((question) => (
-              <StyledTableRow key={question.uuid}>
-                <BodyTableCell>
+        <StyledTableContainer>
+          <Table>
+            <TableHead>
+              <StyledTableRow>
+                <StyledTableCell>
                   <Checkbox
-                    checked={selectedQuestions.includes(question.uuid)}
-                    onChange={() => handleSelectQuestion(question.uuid)}
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    indeterminate={
+                      selectedQuestions.length > 0 &&
+                      selectedQuestions.length < errorQuestions.length
+                    }
                   />
-                </BodyTableCell>
-                <BodyTableCell>{question.examName}</BodyTableCell>
-                <BodyTableCell>{question.digest}</BodyTableCell>
-                <BodyTableCell>
-                  <Chip
-                    label={question.errorCount}
-                    color={question.errorCount > 2 ? "error" : "warning"}
-                  />
-                </BodyTableCell>
-                <BodyTableCell>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleViewErrorQuestion(question.uuid)}
-                  >
-                    查看错题
-                  </Button>
-                </BodyTableCell>
+                </StyledTableCell>
+                <StyledTableCell>考试名称</StyledTableCell>
+                <StyledTableCell>题目摘要</StyledTableCell>
+                <StyledTableCell>错误次数</StyledTableCell>
+                <StyledTableCell>操作</StyledTableCell>
               </StyledTableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </StyledTableContainer>
+            </TableHead>
+            <TableBody>
+              {errorQuestions.map((question) => (
+                <StyledTableRow key={question.uuid}>
+                  <BodyTableCell>
+                    <Checkbox
+                      checked={selectedQuestions.includes(question.uuid)}
+                      onChange={() => handleSelectQuestion(question.uuid)}
+                    />
+                  </BodyTableCell>
+                  <BodyTableCell>{question.examName}</BodyTableCell>
+                  <BodyTableCell>{question.digest}</BodyTableCell>
+                  <BodyTableCell>
+                    <Chip
+                      label={question.errorCount}
+                      color={question.errorCount > 2 ? "error" : "warning"}
+                    />
+                  </BodyTableCell>
+                  <BodyTableCell>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleViewErrorQuestion(question.uuid)}
+                    >
+                      查看错题
+                    </Button>
+                  </BodyTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </StyledTableContainer>
+        <TablePagination
+          component="div"
+          count={totalCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 25]}
+        />
+      </StyledPaper>
       <Modal
         open={openModal}
         onClose={handleCloseModal}
