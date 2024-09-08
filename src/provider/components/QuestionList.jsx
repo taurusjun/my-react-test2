@@ -39,7 +39,6 @@ import {
   StyledPaper,
   StyledTableContainer,
 } from "../../styles/TableStyles";
-import { StyledSelect } from "../../styles/StyledFormComponents";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
@@ -256,7 +255,7 @@ const QuestionList = ({
             />
             <FormControl sx={{ minWidth: 120 }}>
               <InputLabel shrink>科目</InputLabel>
-              <StyledSelect
+              <Select
                 value={searchParams.category}
                 label="科目"
                 onChange={handleCategoryChange}
@@ -264,9 +263,7 @@ const QuestionList = ({
                 disabled={!!fixedCategory}
                 displayEmpty
               >
-                <MenuItem value="">
-                  <em>全部</em>
-                </MenuItem>
+                <MenuItem value="">全部</MenuItem>
                 {Object.entries(dictionaries.CategoryDict).map(
                   ([key, value]) => (
                     <MenuItem key={key} value={key}>
@@ -274,7 +271,7 @@ const QuestionList = ({
                     </MenuItem>
                   )
                 )}
-              </StyledSelect>
+              </Select>
             </FormControl>
             <Autocomplete
               multiple
