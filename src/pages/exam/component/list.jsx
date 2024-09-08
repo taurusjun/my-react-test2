@@ -271,7 +271,7 @@ const ExamList = () => {
       <Dialog
         open={openNewExamDialog}
         onClose={handleCloseNewExamDialog}
-        maxWidth="md"
+        maxWidth="sm"
         fullWidth
       >
         <DialogContent>

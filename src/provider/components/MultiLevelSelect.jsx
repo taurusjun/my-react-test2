@@ -2,16 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useDictionaries } from "../hooks/useDictionaries";
-
-// 创建一个自定义的 Select 组件
-const NarrowSelect = styled(Select)(({ theme }) => ({
-  height: "56px", // 设置固定高度
-  "& .MuiSelect-select": {
-    paddingTop: "15px", // 调整内边距以垂直居中文本
-    paddingBottom: "15px",
-    paddingRight: "24px !important",
-  },
-}));
+import NarrowSelect from "../../components/NarrowSelect";
 
 const MultiLevelSelect = ({
   onMultiSelectChange,
@@ -36,7 +27,7 @@ const MultiLevelSelect = ({
   const handleSchoolLevelChange = (event) => {
     const newSchoolLevel = event.target.value;
     setSchoolLevel(newSchoolLevel);
-    setGrade("");
+    setGrade(""); // 重置年级
     onMultiSelectChange(newSchoolLevel, "");
   };
 
@@ -53,6 +44,9 @@ const MultiLevelSelect = ({
   if (dictionariesError) {
     return <div>加载字典时出错: {dictionariesError.message}</div>;
   }
+
+  // 获取当前学习阶段可选的年级列表
+  const availableGrades = dictionaries.SchoolGradeMapping[schoolLevel] || [];
 
   return (
     <Box display="flex" alignItems="flex-start" gap={2}>
@@ -84,9 +78,9 @@ const MultiLevelSelect = ({
               readOnly: readOnly,
             }}
           >
-            {Object.entries(dictionaries.GradeDict).map(([key, value]) => (
-              <MenuItem key={key} value={key}>
-                {value}
+            {availableGrades.map((gradeKey) => (
+              <MenuItem key={gradeKey} value={gradeKey}>
+                {dictionaries.GradeDict[gradeKey]}
               </MenuItem>
             ))}
           </NarrowSelect>

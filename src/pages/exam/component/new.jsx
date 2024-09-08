@@ -10,6 +10,7 @@ import {
   Grid,
   Typography,
   Paper,
+  FormHelperText,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
@@ -21,10 +22,19 @@ const NewExam = ({ onExamCreated }) => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    setValue,
+    watch,
+  } = useForm({
+    defaultValues: {
+      name: "",
+      category: "",
+      gradeInfo: { school: "", grade: "" },
+    },
+  });
   const { dictionaries } = useDictionaries();
 
   const onSubmit = async (data) => {
+    console.log("提交的数据:", data); // 打印提交的数据
     try {
       const response = await axios.post("/api/exam/create", data);
       const newExamUuid = response.data.uuid;
@@ -35,13 +45,21 @@ const NewExam = ({ onExamCreated }) => {
     }
   };
 
+  const gradeInfo = watch("gradeInfo");
+
   return (
     <Box
       component="form"
       onSubmit={handleSubmit(onSubmit)}
-      sx={{ maxWidth: 600, mt: 2 }}
+      sx={{
+        maxWidth: 600,
+        width: "100%",
+        mt: 2,
+        mx: "auto", // 添加这行来使表单居中
+      }}
     >
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+        {/* 移除 mb: 3 */}
         <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
           创建新考试
         </Typography>
@@ -86,6 +104,7 @@ const NewExam = ({ onExamCreated }) => {
                       )
                     )}
                   </Select>
+                  {error && <FormHelperText>{error.message}</FormHelperText>}
                 </FormControl>
               )}
             />
@@ -95,24 +114,44 @@ const NewExam = ({ onExamCreated }) => {
               name="gradeInfo"
               control={control}
               defaultValue={{ school: "", grade: "" }}
-              rules={{ required: "请选择学习阶段" }}
+              rules={{
+                validate: (value) => {
+                  if (!value.school || !value.grade) {
+                    return "请选择完整的学习阶段和年级";
+                  }
+                  // 确���选择的年级在对应的学习阶段中是有效的
+                  const validGrades =
+                    dictionaries.SchoolGradeMapping[value.school] || [];
+                  if (!validGrades.includes(value.grade)) {
+                    return "请选择有效的学习阶段和年级组合";
+                  }
+                  return true;
+                },
+              }}
               render={({ field, fieldState: { error } }) => (
-                <MultiLevelSelect
-                  onMultiSelectChange={(schoolLevel, grade) => {
-                    field.onChange({ school: schoolLevel, grade });
-                  }}
-                  initialSchoolLevel={field.value.school}
-                  initialGrade={field.value.grade}
-                  error={!!error}
-                  inline={true}
-                  fullWidth
-                />
+                <FormControl fullWidth error={!!error}>
+                  <MultiLevelSelect
+                    onMultiSelectChange={(school, grade) => {
+                      setValue(
+                        "gradeInfo",
+                        { school, grade },
+                        { shouldValidate: true }
+                      );
+                    }}
+                    initialSchoolLevel={gradeInfo.school}
+                    initialGrade={gradeInfo.grade}
+                    error={!!error}
+                    inline={true}
+                    fullWidth
+                  />
+                  {error && <FormHelperText>{error.message}</FormHelperText>}
+                </FormControl>
               )}
             />
           </Grid>
         </Grid>
       </Paper>
-      <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+      <Button type="submit" variant="contained" sx={{ mt: 2, width: "100%" }}>
         创建考试
       </Button>
     </Box>
