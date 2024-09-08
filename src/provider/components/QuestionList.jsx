@@ -23,6 +23,7 @@ import {
   TablePagination,
   Checkbox,
   Box,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -38,7 +39,7 @@ import {
   StyledPaper,
   StyledTableContainer,
 } from "../../styles/TableStyles";
-import { IconButton } from "@mui/material";
+import { StyledSelect } from "../../styles/StyledFormComponents";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius * 2,
@@ -153,6 +154,7 @@ const QuestionList = ({
     setPage(0);
     setSearchParams((prevParams) => ({
       ...prevParams,
+      category: fixedCategory || "",
       relatedSources: [],
     }));
     setInputValue("");
@@ -185,10 +187,12 @@ const QuestionList = ({
   const breadcrumbPaths = getBreadcrumbPaths();
 
   const handleCategoryChange = (event) => {
+    const newCategory = event.target.value;
     setSearchParams((prevParams) => ({
       ...prevParams,
-      category: event.target.value,
+      category: newCategory,
     }));
+    setPage(0); // 重置页码
   };
 
   const content = (
@@ -251,15 +255,18 @@ const QuestionList = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>科目</InputLabel>
-              <Select
+              <InputLabel shrink>科目</InputLabel>
+              <StyledSelect
                 value={searchParams.category}
                 label="科目"
                 onChange={handleCategoryChange}
                 size="small"
                 disabled={!!fixedCategory}
+                displayEmpty
               >
-                <MenuItem value="">全部</MenuItem>
+                <MenuItem value="">
+                  <em>全部</em>
+                </MenuItem>
                 {Object.entries(dictionaries.CategoryDict).map(
                   ([key, value]) => (
                     <MenuItem key={key} value={key}>
@@ -267,7 +274,7 @@ const QuestionList = ({
                     </MenuItem>
                   )
                 )}
-              </Select>
+              </StyledSelect>
             </FormControl>
             <Autocomplete
               multiple
