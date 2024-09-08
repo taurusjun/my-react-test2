@@ -1,4 +1,5 @@
 import axios from "axios";
+import setupLearningMocks from "./setupLearningMocks.js";
 import MockAdapter from "axios-mock-adapter";
 import {
   TypeDict,
@@ -15,6 +16,9 @@ import { format, addDays } from "date-fns";
 
 // 创建一个新的MockAdapter实例
 const mock = new MockAdapter(axios, { onNoMatch: "passthrough" });
+
+// 设置学习资料相关的模拟数据
+setupLearningMocks(mock);
 
 // mock场景下，该拦截器会造成后续的mock请求无法正常进行，故删除
 // 添加一个请求拦截器来打印请求头中的token

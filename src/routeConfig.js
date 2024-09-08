@@ -25,6 +25,9 @@ import {
   ErrorQuestionView,
   ErrorQuestionPractice,
 } from "./pages/errorQuestions";
+// 导入新的学习相关组件
+import LearningMaterialListPage from "./learning/pages/LearningMaterialListPage";
+import LearningPage from "./learning/pages/LearningPage";
 
 // 保留现有的路由配置并添加新的错题集路由和阅卷中心路由
 export const routeConfig = [
@@ -80,4 +83,8 @@ export const routeConfig = [
 
   // 新增阅卷中心路由
   { path: "/grading-center", element: GradingCenter, protected: true },
+
+  // 添加新的学习资料路由
+  { path: "/learning", element: LearningMaterialListPage, protected: true },
+  { path: "/learning/:materialId", element: LearningPage, protected: true },
 ];

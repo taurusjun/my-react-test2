@@ -47,4 +47,13 @@ export const getBreadcrumbPaths = () => ({
   ],
 
   // 可以添加其他页面的路径
+
+  // 添加学习资料相关的面包屑路径
+  learningMaterialList: [{ name: "我的学习", url: "/learning" }],
+  learningMaterial: [
+    { name: "我的学习", url: "/learning" },
+    { name: "学习资料", url: "" },
+  ],
+
+  // ... 其他路径保持不变 ...
 });
