@@ -1,21 +1,14 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
   Typography,
-  TextField,
   Paper,
-  Radio,
-  Checkbox,
-  FormControlLabel,
-  RadioGroup,
   FormGroup,
-  InputAdornment,
-  IconButton,
-  Grid,
+  FormControlLabel,
+  Checkbox,
+  CircularProgress,
 } from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 const LearningMaterial = ({
   material,
@@ -24,210 +17,89 @@ const LearningMaterial = ({
   onNext,
   onPrevious,
   onSubmitAnswer,
+  isNavigating,
 }) => {
-  const [answer, setAnswer] = useState("");
-  const [multiAnswer, setMultiAnswer] = useState([]);
-  const [imageAnswer, setImageAnswer] = useState("");
-  const fileInputRef = useRef(null);
+  const [answers, setAnswers] = useState([]);
 
-  const handleAnswerChange = (newAnswer) => {
-    if (currentQuestion.uiType === "multi_selection") {
-      setMultiAnswer(newAnswer);
-    } else {
-      setAnswer(newAnswer);
-    }
-  };
+  useEffect(() => {
+    setAnswers([]); // 清空答案当问题改变时
+  }, [currentQuestion]);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageAnswer(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDeleteImage = () => {
-    setImageAnswer("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  const handleAnswerChange = (option) => {
+    setAnswers((prev) => {
+      if (prev.includes(option)) {
+        return prev.filter((a) => a !== option);
+      } else {
+        return [...prev, option];
+      }
+    });
   };
 
   const handleSubmit = () => {
-    const submittedAnswer =
-      currentQuestion.uiType === "multi_selection" ? multiAnswer : answer;
-    onSubmitAnswer(submittedAnswer, imageAnswer);
-    setAnswer("");
-    setMultiAnswer([]);
-    setImageAnswer("");
+    onSubmitAnswer(answers);
   };
 
-  const renderQuestionOptions = () => {
-    const { uiType, rows } = currentQuestion;
+  const isFirstQuestion =
+    currentSection === 0 && currentQuestion.order_in_section === 0;
+  const isLastQuestion =
+    currentSection === material.sections.length - 1 &&
+    currentQuestion.order_in_section ===
+      material.sections[currentSection].questionCount - 1;
 
-    switch (uiType) {
-      case "fill_in_blank":
-      case "calculation":
-        return (
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              variant="standard"
-              value={answer}
-              onChange={(e) => handleAnswerChange(e.target.value)}
-              placeholder="在此输入您的答案"
-              InputProps={{
-                disableUnderline: true,
-                startAdornment: (
-                  <InputAdornment position="start">答：</InputAdornment>
-                ),
-              }}
-              sx={{
-                "& .MuiInputBase-root": {
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "4px",
-                },
-                "& .MuiInputBase-input": {
-                  padding: "0 0 4px",
-                },
-              }}
-            />
-            {uiType === "calculation" && (
-              <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
-                <input
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  id="upload-image"
-                  type="file"
-                  onChange={handleImageUpload}
-                  ref={fileInputRef}
-                />
-                <label htmlFor="upload-image">
-                  <Button
-                    variant="contained"
-                    component="span"
-                    startIcon={<CloudUploadIcon />}
-                  >
-                    上传解题图片
-                  </Button>
-                </label>
-                {imageAnswer && (
-                  <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
-                    <img
-                      src={imageAnswer}
-                      alt="解题图片"
-                      style={{
-                        maxWidth: "100px",
-                        maxHeight: "100px",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <IconButton onClick={handleDeleteImage} sx={{ ml: 1 }}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                )}
-              </Box>
-            )}
-          </Box>
-        );
-      case "single_selection":
-        return (
-          <RadioGroup
-            value={answer}
-            onChange={(e) => handleAnswerChange(e.target.value)}
-          >
-            {rows.map((row, index) => (
-              <FormControlLabel
-                key={index}
-                value={String.fromCharCode(65 + index)}
-                control={<Radio />}
-                label={`${String.fromCharCode(65 + index)}. ${row.value}`}
-              />
-            ))}
-          </RadioGroup>
-        );
-      case "multi_selection":
-        return (
-          <FormGroup>
-            {rows.map((row, index) => (
-              <FormControlLabel
-                key={index}
-                control={
-                  <Checkbox
-                    checked={multiAnswer.includes(
-                      String.fromCharCode(65 + index)
-                    )}
-                    onChange={(e) => {
-                      const value = String.fromCharCode(65 + index);
-                      const newAnswer = e.target.checked
-                        ? [...multiAnswer, value]
-                        : multiAnswer.filter((item) => item !== value);
-                      handleAnswerChange(newAnswer);
-                    }}
-                  />
-                }
-                label={`${String.fromCharCode(65 + index)}. ${row.value}`}
-              />
-            ))}
-          </FormGroup>
-        );
-      default:
-        return null;
-    }
-  };
+  if (isNavigating) {
+    return <CircularProgress />;
+  }
 
-  if (!material || !currentQuestion) return null;
+  const questionDetail = currentQuestion.questionDetails[0]; // 假设只有一个questionDetail
 
   return (
     <Box>
-      <Paper sx={{ p: 2 }}>
+      <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="h6" gutterBottom>
           {`第${material.sections[currentSection].order_in_material}部分 ${material.sections[currentSection].name}`}
         </Typography>
-        <Box sx={{ mt: 3, mb: 2 }}>
-          {currentQuestion.material && (
-            <Typography
-              variant="body1"
-              sx={{
-                fontStyle: "italic",
-                mb: 1,
-                fontSize: "1.1rem",
-              }}
-            >
-              {currentQuestion.material}
-            </Typography>
-          )}
-          <Typography variant="body1">
-            <strong>
-              {`${material.sections[currentSection].order_in_material}.${currentQuestion.order_in_section}`}
-            </strong>
-            {currentQuestion.questionContent.value}
-            <span style={{ marginLeft: "8px", color: "gray" }}>
-              ({currentQuestion.score} 分)
-            </span>
+        {currentQuestion.material && (
+          <Typography variant="body2" sx={{ mb: 2, fontStyle: "italic" }}>
+            {currentQuestion.material}
           </Typography>
-          {currentQuestion.questionContent.image && (
-            <img
-              src={currentQuestion.questionContent.image}
-              alt="问题图片"
-              style={{ maxWidth: "100%", marginTop: "8px" }}
+        )}
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          <strong>
+            {`${material.sections[currentSection].order_in_material}.${
+              currentQuestion.order_in_section + 1
+            }`}{" "}
+          </strong>
+          {questionDetail.questionContent.value}
+        </Typography>
+        <FormGroup>
+          {questionDetail.rows.map((row, index) => (
+            <FormControlLabel
+              key={index}
+              control={
+                <Checkbox
+                  checked={answers.includes(String.fromCharCode(65 + index))}
+                  onChange={() =>
+                    handleAnswerChange(String.fromCharCode(65 + index))
+                  }
+                />
+              }
+              label={`${String.fromCharCode(65 + index)}. ${row.value}`}
             />
-          )}
-          {renderQuestionOptions()}
-        </Box>
+          ))}
+        </FormGroup>
       </Paper>
-      <Box sx={{ display: "flex", mt: 2 }}>
-        <Button variant="contained" onClick={onPrevious} sx={{ mr: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Button
+          variant="contained"
+          onClick={onPrevious}
+          disabled={isFirstQuestion}
+        >
           上一题
         </Button>
-        <Button variant="contained" onClick={handleSubmit} sx={{ mr: 2 }}>
+        <Button variant="contained" onClick={handleSubmit}>
           提交答案
         </Button>
-        <Button variant="contained" onClick={onNext}>
+        <Button variant="contained" onClick={onNext} disabled={isLastQuestion}>
           下一题
         </Button>
       </Box>

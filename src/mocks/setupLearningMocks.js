@@ -2,8 +2,7 @@ import MockAdapter from "axios-mock-adapter";
 import { v4 as uuidv4 } from "uuid";
 
 const generateUUID = (prefix) => {
-  const randomNum = Math.floor(Math.random() * 10000) % 100;
-  return `uuid-${prefix}-${randomNum.toString().padStart(4, "0")}`;
+  return `uuid-${prefix}-${uuidv4().substr(0, 8)}`;
 };
 
 const generateMockMaterials = (count) => {
@@ -65,10 +64,10 @@ export const setupLearningMocks = (mock) => {
       material = {
         uuid: uuid,
         name: `学习资料 ${uuid.substr(0, 8)}`,
-        category: "math",
+        category: "physics",
         gradeInfo: {
           school: "primary",
-          grade: "grade1",
+          grade: "grade5",
         },
         publishDate: new Date().toISOString().split("T")[0],
         lastStudyDate: null,
@@ -84,15 +83,13 @@ export const setupLearningMocks = (mock) => {
           {
             uuid: generateUUID("section"),
             name: "第一章：基础概念",
-            order_in_material: 1, // 添加这个字段
-            order_in_exam: 1,
+            order_in_material: 1,
             questionCount: 3,
           },
           {
             uuid: generateUUID("section"),
             name: "第二章：进阶内容",
-            order_in_material: 2, // 添加这个字段
-            order_in_exam: 2,
+            order_in_material: 2,
             questionCount: 3,
           },
         ],
@@ -107,69 +104,51 @@ export const setupLearningMocks = (mock) => {
       const [, , materialUuid, , sectionUuid, , questionIndex] =
         config.url.split("/");
 
-      // 随机决定是否返回多个子问题
-      const hasMultipleSubQuestions = Math.random() > 0.7;
-
-      if (hasMultipleSubQuestions) {
-        return [
-          200,
-          {
-            uuid: generateUUID("question"),
-            sectionUuid: sectionUuid,
-            order_in_section: parseInt(questionIndex),
-            material: "这是包含多个子问题的问题背景材料。",
-            subQuestions: [
-              {
-                uuid: generateUUID("subQuestion"),
-                order_in_question: 0,
-                questionContent: {
-                  value: "这是第一个子问题的内容。",
-                  image: null,
-                },
-                score: 3,
-                uiType: "single_selection",
-                rows: [
-                  { value: "选项1" },
-                  { value: "选项2" },
-                  { value: "选项3" },
-                ],
-              },
-              {
-                uuid: generateUUID("subQuestion"),
-                order_in_question: 1,
-                questionContent: {
-                  value: "这是第二个子问题的内容。",
-                  image: null,
-                },
-                score: 2,
-                uiType: "fill_in_blank",
-              },
-            ],
+      return [
+        200,
+        {
+          uuid: generateUUID("question"),
+          type: "selection",
+          category: "physics",
+          kn: "mechanics",
+          gradeInfo: {
+            school: "primary",
+            grade: "grade5",
           },
-        ];
-      } else {
-        return [
-          200,
-          {
-            uuid: generateUUID("question"),
-            sectionUuid: sectionUuid,
-            order_in_section: parseInt(questionIndex), // 这里已经有了，保持不变
-            material: "这是问题的背景材料（如果有的话）。",
-            questionContent: {
-              value: "这是问题的内容。请选择正确的答案。",
-              image: null,
+          source: "2023年春季期中考试",
+          tags: ["frequentlyTested", "important"],
+          digest: "关于力和运动的多选题",
+          material: "以下是关于力和运动的一些描述。",
+          sectionUuid: sectionUuid,
+          order_in_section: parseInt(questionIndex),
+          questionDetails: [
+            {
+              uuid: generateUUID("question-detail"),
+              order_in_question: 1,
+              questionContent: {
+                value: "下列关于力和运动的说法，正确的是：",
+                image: null,
+              },
+              rows: [
+                { value: "物体运动一定有力", isAns: false, image: null },
+                { value: "物体受力一定运动", isAns: false, image: null },
+                {
+                  value: "力是物体运动状态改变的原因",
+                  isAns: true,
+                  image: null,
+                },
+                { value: "力的作用是相互的", isAns: true, image: null },
+              ],
+              rate: 3,
+              explanation:
+                "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
+              uiType: "multi_selection",
+              answer: ["C", "D"],
+              answerImage: null,
             },
-            score: 5,
-            uiType: "single_selection",
-            rows: [
-              { value: "选项1" },
-              { value: "选项2" },
-              { value: "选项3" },
-              { value: "选项4" },
-            ],
-          },
-        ];
-      }
+          ],
+        },
+      ];
     });
 
   // 提交答案
@@ -179,16 +158,18 @@ export const setupLearningMocks = (mock) => {
     )
     .reply((config) => {
       const { answer } = JSON.parse(config.data);
-      const isCorrect = Math.random() > 0.5;
+      const correctAnswer = ["C", "D"];
+      const isCorrect =
+        JSON.stringify(answer.sort()) === JSON.stringify(correctAnswer);
 
       return [
         200,
         {
           correct: isCorrect,
-          correctAnswer: isCorrect ? answer : "正确答案",
+          correctAnswer: correctAnswer,
           explanation: isCorrect
-            ? `恭喜你答对了！正确答案是 ${answer}。`
-            : `很遗憾，你答错了。正确答案是 "正确答案"。请仔细阅读题目并重新尝试。`,
+            ? "恭喜你答对了！力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。"
+            : "很遗憾，你答错了。正确答案是C和D。力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。请仔细阅读题目并重新尝试。",
         },
       ];
     });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -20,12 +20,19 @@ const LearningPage = () => {
   const navigate = useNavigate();
   const [material, setMaterial] = useState(null);
   const [currentSection, setCurrentSection] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const cancelTokenRef = useRef(null);
 
   useEffect(() => {
     fetchMaterialStructure();
+    return () => {
+      if (cancelTokenRef.current) {
+        cancelTokenRef.current.cancel("组件卸载");
+      }
+    };
   }, [materialUuid]);
 
   const fetchMaterialStructure = async () => {
@@ -36,80 +43,98 @@ const LearningPage = () => {
       setMaterial(response.data);
       fetchQuestion(response.data.sections[0].uuid, 0);
     } catch (error) {
-      console.error("获取学习资料结构失败", error);
-      setError(error);
+      if (!axios.isCancel(error)) {
+        console.error("获取学习资料结构失败", error);
+        setError(error);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchQuestion = async (sectionUuid, questionIndex) => {
-    try {
+  const fetchQuestion = useCallback(
+    async (sectionUuid, questionIndex) => {
+      if (cancelTokenRef.current) {
+        cancelTokenRef.current.cancel("新请求开始");
+      }
+      cancelTokenRef.current = axios.CancelToken.source();
+
+      setIsNavigating(true);
       setLoading(true);
-      const response = await axios.get(
-        `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`
-      );
-      setCurrentQuestion(response.data);
-    } catch (error) {
-      console.error("获取问题失败", error);
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const response = await axios.get(
+          `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`,
+          { cancelToken: cancelTokenRef.current.token }
+        );
+        setCurrentQuestion(response.data);
+      } catch (error) {
+        if (!axios.isCancel(error)) {
+          console.error("获取问题失败", error);
+          setError(error);
+        }
+      } finally {
+        setLoading(false);
+        setIsNavigating(false);
+      }
+    },
+    [materialUuid]
+  );
 
-  const handleQuestionClick = (sectionIndex, questionIndex) => {
-    setCurrentSection(sectionIndex);
-    fetchQuestion(material.sections[sectionIndex].uuid, questionIndex);
-  };
+  const handleQuestionClick = useCallback(
+    (sectionIndex, questionIndex) => {
+      setCurrentSection(sectionIndex);
+      fetchQuestion(material.sections[sectionIndex].uuid, questionIndex);
+    },
+    [material, fetchQuestion]
+  );
 
-  const handleNextQuestion = async () => {
+  const handleNextQuestion = useCallback(() => {
     const currentSectionData = material.sections[currentSection];
     if (
       currentQuestion.order_in_section <
       currentSectionData.questionCount - 1
     ) {
-      await fetchQuestion(
+      fetchQuestion(
         currentSectionData.uuid,
         currentQuestion.order_in_section + 1
       );
     } else if (currentSection < material.sections.length - 1) {
       setCurrentSection(currentSection + 1);
-      await fetchQuestion(material.sections[currentSection + 1].uuid, 0);
+      fetchQuestion(material.sections[currentSection + 1].uuid, 0);
     }
-  };
+  }, [material, currentSection, currentQuestion, fetchQuestion]);
 
-  const handlePreviousQuestion = async () => {
+  const handlePreviousQuestion = useCallback(() => {
     if (currentQuestion.order_in_section > 0) {
-      await fetchQuestion(
+      fetchQuestion(
         material.sections[currentSection].uuid,
         currentQuestion.order_in_section - 1
       );
     } else if (currentSection > 0) {
       setCurrentSection(currentSection - 1);
       const prevSectionData = material.sections[currentSection - 1];
-      await fetchQuestion(
-        prevSectionData.uuid,
-        prevSectionData.questionCount - 1
-      );
+      fetchQuestion(prevSectionData.uuid, prevSectionData.questionCount - 1);
     }
-  };
+  }, [currentSection, currentQuestion, material, fetchQuestion]);
 
-  const handleSubmitAnswer = async (answer, imageAnswer) => {
-    try {
-      setLoading(true);
-      await axios.post(
-        `/api/learning-material/${materialUuid}/section/${currentQuestion.sectionUuid}/question/${currentQuestion.uuid}/answer`,
-        { answer, imageAnswer }
-      );
-      // 可以在这里添加提交成功后的逻辑，比如显示正确答案或解释
-    } catch (error) {
-      console.error("提交答案失败", error);
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSubmitAnswer = useCallback(
+    async (answer) => {
+      setIsNavigating(true);
+      try {
+        await axios.post(
+          `/api/learning-material/${materialUuid}/section/${currentQuestion.sectionUuid}/question/${currentQuestion.uuid}/answer`,
+          { answer }
+        );
+        // 可以在这里添加提交成功后的逻辑，比如显示正确答案或解释
+      } catch (error) {
+        console.error("提交答案失败", error);
+        setError(error);
+      } finally {
+        setIsNavigating(false);
+      }
+    },
+    [materialUuid, currentQuestion]
+  );
 
   const renderMaterialStructure = () => {
     if (!material) return null;
@@ -202,6 +227,7 @@ const LearningPage = () => {
             onNext={handleNextQuestion}
             onPrevious={handlePreviousQuestion}
             onSubmitAnswer={handleSubmitAnswer}
+            isNavigating={isNavigating}
           />
         </Box>
       </Box>
