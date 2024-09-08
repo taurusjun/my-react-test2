@@ -15,11 +15,13 @@ import {
   Select,
   MenuItem,
   Chip,
+  IconButton,
 } from "@mui/material";
 import {
   Edit as EditIcon,
   Visibility as VisibilityIcon,
   Add as AddIcon,
+  RestartAlt as RestartAltIcon,
 } from "@mui/icons-material";
 import {
   StyledTableCell,
@@ -33,6 +35,13 @@ import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import { CategoryDict } from "../../../provider/utils/dictionaries";
+import { styled } from "@mui/material/styles";
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 2,
+  textTransform: "none",
+  fontWeight: "bold",
+}));
 
 const ExamList = () => {
   const [exams, setExams] = useState([]);
@@ -99,6 +108,18 @@ const ExamList = () => {
     setPage(0);
   };
 
+  const handleResetSearch = () => {
+    setSelectedExams([]);
+    setCategory("");
+    setPage(0);
+    fetchExamOptions();
+    fetchExams();
+  };
+
+  const handleCreateExam = () => {
+    navigate("/exam/new");
+  };
+
   const breadcrumbPaths = getBreadcrumbPaths();
 
   return (
@@ -112,7 +133,30 @@ const ExamList = () => {
     >
       <StyledPaper elevation={0}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 3 }}>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+            }}
+          >
+            <StyledButton
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleCreateExam}
+            >
+              创建考试
+            </StyledButton>
+            <StyledButton
+              variant="contained"
+              color="secondary"
+              startIcon={<RestartAltIcon />}
+              onClick={handleResetSearch}
+            >
+              重置搜索
+            </StyledButton>
             <Autocomplete
               multiple
               options={examOptions}
@@ -159,14 +203,6 @@ const ExamList = () => {
                 ))}
               </Select>
             </FormControl>
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<AddIcon />}
-              onClick={() => navigate("/exam/new")}
-            >
-              创建考试
-            </Button>
           </Box>
         </Box>
         <StyledTableContainer>
