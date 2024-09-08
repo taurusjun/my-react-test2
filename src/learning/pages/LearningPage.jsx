@@ -25,6 +25,7 @@ const LearningPage = () => {
   const [error, setError] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const cancelTokenRef = useRef(null);
+  const [answerCache, setAnswerCache] = useState({});
 
   useEffect(() => {
     fetchMaterialStructure();
@@ -53,7 +54,7 @@ const LearningPage = () => {
   };
 
   const fetchQuestion = useCallback(
-    async (sectionUuid, questionIndex) => {
+    async (sectionUuid, questionIndex, newAnswer = null) => {
       if (cancelTokenRef.current) {
         cancelTokenRef.current.cancel("新请求开始");
       }
@@ -62,10 +63,12 @@ const LearningPage = () => {
       setIsNavigating(true);
       setLoading(true);
       try {
-        const response = await axios.get(
-          `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`,
-          { cancelToken: cancelTokenRef.current.token }
-        );
+        const url = `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`;
+        const config = {
+          cancelToken: cancelTokenRef.current.token,
+          params: newAnswer ? { answer: newAnswer } : {},
+        };
+        const response = await axios.get(url, config);
         setCurrentQuestion(response.data);
       } catch (error) {
         if (!axios.isCancel(error)) {
@@ -80,12 +83,28 @@ const LearningPage = () => {
     [materialUuid]
   );
 
-  const handleQuestionClick = useCallback(
-    (sectionIndex, questionIndex) => {
-      setCurrentSection(sectionIndex);
-      fetchQuestion(material.sections[sectionIndex].uuid, questionIndex);
+  const handleAnswerChange = useCallback(
+    (newAnswer) => {
+      setAnswerCache((prev) => ({
+        ...prev,
+        [currentQuestion.uuid]: newAnswer,
+      }));
     },
-    [material, fetchQuestion]
+    [currentQuestion]
+  );
+
+  const handleNavigation = useCallback(
+    (sectionUuid, questionIndex) => {
+      const currentAnswer = answerCache[currentQuestion.uuid];
+      const cachedAnswer = answerCache[currentQuestion.uuid];
+
+      if (currentAnswer !== cachedAnswer) {
+        fetchQuestion(sectionUuid, questionIndex, currentAnswer);
+      } else {
+        fetchQuestion(sectionUuid, questionIndex);
+      }
+    },
+    [currentQuestion, answerCache, fetchQuestion]
   );
 
   const handleNextQuestion = useCallback(() => {
@@ -94,46 +113,35 @@ const LearningPage = () => {
       currentQuestion.order_in_section <
       currentSectionData.questionCount - 1
     ) {
-      fetchQuestion(
+      handleNavigation(
         currentSectionData.uuid,
         currentQuestion.order_in_section + 1
       );
     } else if (currentSection < material.sections.length - 1) {
       setCurrentSection(currentSection + 1);
-      fetchQuestion(material.sections[currentSection + 1].uuid, 0);
+      handleNavigation(material.sections[currentSection + 1].uuid, 0);
     }
-  }, [material, currentSection, currentQuestion, fetchQuestion]);
+  }, [material, currentSection, currentQuestion, handleNavigation]);
 
   const handlePreviousQuestion = useCallback(() => {
     if (currentQuestion.order_in_section > 0) {
-      fetchQuestion(
+      handleNavigation(
         material.sections[currentSection].uuid,
         currentQuestion.order_in_section - 1
       );
     } else if (currentSection > 0) {
       setCurrentSection(currentSection - 1);
       const prevSectionData = material.sections[currentSection - 1];
-      fetchQuestion(prevSectionData.uuid, prevSectionData.questionCount - 1);
+      handleNavigation(prevSectionData.uuid, prevSectionData.questionCount - 1);
     }
-  }, [currentSection, currentQuestion, material, fetchQuestion]);
+  }, [currentSection, currentQuestion, material, handleNavigation]);
 
-  const handleSubmitAnswer = useCallback(
-    async (answer) => {
-      setIsNavigating(true);
-      try {
-        await axios.post(
-          `/api/learning-material/${materialUuid}/section/${currentQuestion.sectionUuid}/question/${currentQuestion.uuid}/answer`,
-          { answer }
-        );
-        // 可以在这里添加提交成功后的逻辑，比如显示正确答案或解释
-      } catch (error) {
-        console.error("提交答案失败", error);
-        setError(error);
-      } finally {
-        setIsNavigating(false);
-      }
+  const handleQuestionClick = useCallback(
+    (sectionIndex, questionIndex) => {
+      setCurrentSection(sectionIndex);
+      handleNavigation(material.sections[sectionIndex].uuid, questionIndex);
     },
-    [materialUuid, currentQuestion]
+    [material, handleNavigation]
   );
 
   const renderMaterialStructure = () => {
@@ -226,7 +234,8 @@ const LearningPage = () => {
             currentQuestion={currentQuestion}
             onNext={handleNextQuestion}
             onPrevious={handlePreviousQuestion}
-            onSubmitAnswer={handleSubmitAnswer}
+            onAnswerChange={handleAnswerChange}
+            cachedAnswer={answerCache[currentQuestion?.uuid]}
             isNavigating={isNavigating}
           />
         </Box>

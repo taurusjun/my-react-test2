@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -16,27 +16,25 @@ const LearningMaterial = ({
   currentQuestion,
   onNext,
   onPrevious,
-  onSubmitAnswer,
+  onAnswerChange,
+  cachedAnswer,
   isNavigating,
 }) => {
-  const [answers, setAnswers] = useState([]);
-
   useEffect(() => {
-    setAnswers([]); // 清空答案当问题改变时
-  }, [currentQuestion]);
+    if (cachedAnswer) {
+      onAnswerChange(cachedAnswer);
+    } else {
+      onAnswerChange([]);
+    }
+  }, [currentQuestion, cachedAnswer, onAnswerChange]);
 
   const handleAnswerChange = (option) => {
-    setAnswers((prev) => {
-      if (prev.includes(option)) {
-        return prev.filter((a) => a !== option);
-      } else {
-        return [...prev, option];
-      }
-    });
-  };
-
-  const handleSubmit = () => {
-    onSubmitAnswer(answers);
+    const newAnswers = cachedAnswer ? [...cachedAnswer] : [];
+    if (newAnswers.includes(option)) {
+      onAnswerChange(newAnswers.filter((a) => a !== option));
+    } else {
+      onAnswerChange([...newAnswers, option]);
+    }
   };
 
   const isFirstQuestion =
@@ -77,7 +75,9 @@ const LearningMaterial = ({
               key={index}
               control={
                 <Checkbox
-                  checked={answers.includes(String.fromCharCode(65 + index))}
+                  checked={cachedAnswer?.includes(
+                    String.fromCharCode(65 + index)
+                  )}
                   onChange={() =>
                     handleAnswerChange(String.fromCharCode(65 + index))
                   }
@@ -95,9 +95,6 @@ const LearningMaterial = ({
           disabled={isFirstQuestion}
         >
           上一题
-        </Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          提交答案
         </Button>
         <Button variant="contained" onClick={onNext} disabled={isLastQuestion}>
           下一题
