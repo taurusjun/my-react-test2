@@ -27,27 +27,17 @@ const LearningPage = () => {
     error,
     isNavigating,
     answerCache,
+    statusCache,
+    setAnswerCache,
+    setStatusCache,
     nextQuestionDetail,
     previousQuestionDetail,
     handleAnswerChange,
     handleNavigation,
-    handleStatusChange, // 添加这一行
+    getCurrentQuestionIndex, // 确保这行存在
   } = useLearningMaterial(materialUuid);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-
-  const getCurrentQuestionIndex = useCallback(() => {
-    if (!material || !currentQuestion || !currentQuestionDetail) return 0;
-
-    let index = 0;
-    for (const question of material.sections[currentSectionIndex].questions) {
-      if (question.uuid === currentQuestion.uuid) {
-        return index + currentQuestionDetail.order_in_question;
-      }
-      index += question.questionDetailCount;
-    }
-    return index;
-  }, [material, currentQuestion, currentQuestionDetail, currentSectionIndex]);
 
   useEffect(() => {
     if (currentQuestionDetail && material) {
@@ -63,6 +53,16 @@ const LearningPage = () => {
     currentSectionIndex,
     getCurrentQuestionIndex,
   ]);
+
+  const handleStatusChange = useCallback(
+    (newStatus) => {
+      const key = `${
+        material.sections[currentSectionIndex].uuid
+      }_${getCurrentQuestionIndex()}`;
+      setStatusCache((prev) => ({ ...prev, [key]: newStatus }));
+    },
+    [material, currentSectionIndex, getCurrentQuestionIndex, setStatusCache]
+  );
 
   const renderMaterialStructure = () => {
     if (!material) return null;
@@ -89,11 +89,13 @@ const LearningPage = () => {
                     const isAnswered =
                       answerCache[detailKey] &&
                       answerCache[detailKey].length > 0;
-                    const isGraded = false; // 这里需要根据您的数据结构来判断是否已批改
+                    const status = statusCache[detailKey];
 
                     let statusSymbol = "";
-                    if (isAnswered) {
-                      statusSymbol = isGraded ? " ✅" : " ⏳";
+                    if (status === "completed") {
+                      statusSymbol = " ✅";
+                    } else if (status === "in_progress") {
+                      statusSymbol = " ⏳";
                     }
 
                     return (
@@ -187,9 +189,16 @@ const LearningPage = () => {
             onNext={nextQuestionDetail}
             onPrevious={previousQuestionDetail}
             onAnswerChange={handleAnswerChange}
-            onStatusChange={handleStatusChange} // 添加这一行
+            onStatusChange={handleStatusChange}
             cachedAnswer={
               answerCache[
+                `${
+                  material.sections[currentSectionIndex].uuid
+                }_${getCurrentQuestionIndex()}`
+              ]
+            }
+            cachedStatus={
+              statusCache[
                 `${
                   material.sections[currentSectionIndex].uuid
                 }_${getCurrentQuestionIndex()}`

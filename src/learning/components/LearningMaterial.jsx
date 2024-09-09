@@ -20,6 +20,7 @@ const LearningMaterial = ({
   onAnswerChange,
   onStatusChange,
   cachedAnswer,
+  cachedStatus,
   isNavigating,
 }) => {
   const [showAnswer, setShowAnswer] = useState(false);
@@ -27,16 +28,8 @@ const LearningMaterial = ({
 
   useEffect(() => {
     setLocalAnswer(cachedAnswer || []);
-    setShowAnswer(false);
-  }, [currentQuestionDetail, cachedAnswer]);
-
-  useEffect(() => {
-    console.log("LearningMaterial: localAnswer 更新", localAnswer);
-  }, [localAnswer]);
-
-  useEffect(() => {
-    console.log("LearningMaterial: showAnswer 更新", showAnswer);
-  }, [showAnswer]);
+    setShowAnswer(cachedStatus === "completed");
+  }, [currentQuestionDetail, cachedAnswer, cachedStatus]);
 
   const handleAnswerChange = useCallback(
     (option) => {
@@ -45,19 +38,17 @@ const LearningMaterial = ({
         : [...localAnswer, option];
       setLocalAnswer(newAnswers);
       onAnswerChange(newAnswers);
+      // 当用户回答题目时，将状态更新为 "in_progress"
+      onStatusChange("in_progress");
     },
-    [localAnswer, onAnswerChange]
+    [localAnswer, onAnswerChange, onStatusChange]
   );
 
   const handleShowAnswer = useCallback(() => {
-    console.log("handleShowAnswer 被调用", { localAnswer });
-    if (localAnswer.length > 0) {
-      console.log("设置 showAnswer 为 true");
-      setShowAnswer(true);
-      console.log("调用 onStatusChange");
-      onStatusChange("completed");
-    }
-  }, [localAnswer, onStatusChange]);
+    const newShowAnswer = !showAnswer;
+    setShowAnswer(newShowAnswer);
+    onStatusChange(newShowAnswer ? "completed" : "in_progress");
+  }, [showAnswer, onStatusChange]);
 
   const handleAddToMistakes = () => {
     console.log("添加到错题集:", currentQuestionDetail);
@@ -142,7 +133,7 @@ const LearningMaterial = ({
           disabled={localAnswer.length === 0}
           sx={{ mt: 2, mr: 2 }}
         >
-          查看答案
+          {showAnswer ? "隐藏答案" : "查看答案"}
         </Button>
         {showAnswer && (
           <Box sx={{ mt: 2 }}>

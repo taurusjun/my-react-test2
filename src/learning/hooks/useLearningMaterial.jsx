@@ -41,6 +41,10 @@ export const useLearningMaterial = (materialUuid) => {
     }
   }, [materialUuid]);
 
+  useEffect(() => {
+    fetchMaterialStructure();
+  }, [fetchMaterialStructure]);
+
   const fetchQuestionDetail = useCallback(
     async (
       materialData,
@@ -130,37 +134,34 @@ export const useLearningMaterial = (materialUuid) => {
     [materialUuid]
   );
 
-  useEffect(() => {
-    console.log("useEffect 触发，开始获取学习资料结构");
-    fetchMaterialStructure();
+  const getCurrentQuestionIndex = useCallback(() => {
+    if (!material || !currentQuestion || !currentQuestionDetail) return 0;
 
-    return () => {
-      if (cancelTokenRef.current) {
-        cancelTokenRef.current.cancel("组件卸载");
+    let index = 0;
+    for (const question of material.sections[currentSectionIndex].questions) {
+      if (question.uuid === currentQuestion.uuid) {
+        return index + currentQuestionDetail.order_in_question;
       }
-    };
-  }, [fetchMaterialStructure]);
+      index += question.questionDetailCount;
+    }
+    return index;
+  }, [material, currentQuestion, currentQuestionDetail, currentSectionIndex]);
 
   const handleAnswerChange = useCallback(
     (newAnswer) => {
-      if (!currentQuestion || !currentQuestionDetail) return;
-
-      const currentSection = material.sections[currentSectionIndex];
-      let questionIndex = 0;
-      for (const question of currentSection.questions) {
-        if (question.uuid === currentQuestion.uuid) {
-          questionIndex += currentQuestionDetail.order_in_question;
-          break;
-        }
-        questionIndex += question.questionDetailCount;
-      }
-
-      setAnswerCache((prev) => ({
-        ...prev,
-        [`${currentSection.uuid}_${questionIndex}`]: newAnswer,
-      }));
+      const key = `${
+        material.sections[currentSectionIndex].uuid
+      }_${getCurrentQuestionIndex()}`;
+      setAnswerCache((prev) => ({ ...prev, [key]: newAnswer }));
+      setStatusCache((prev) => ({ ...prev, [key]: "in_progress" }));
     },
-    [material, currentSectionIndex, currentQuestion, currentQuestionDetail]
+    [
+      material,
+      currentSectionIndex,
+      getCurrentQuestionIndex,
+      setAnswerCache,
+      setStatusCache,
+    ]
   );
 
   const handleNavigation = useCallback(
@@ -330,5 +331,10 @@ export const useLearningMaterial = (materialUuid) => {
       },
       [material, fetchQuestionDetail]
     ),
+    setAnswerCache,
+    setStatusCache,
+    getCurrentQuestionIndex,
   };
 };
+
+export default useLearningMaterial;
