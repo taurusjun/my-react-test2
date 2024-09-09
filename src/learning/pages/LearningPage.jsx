@@ -43,6 +43,19 @@ const LearningPage = () => {
     }
   }, [currentQuestionDetail, currentQuestion]);
 
+  const getCurrentQuestionIndex = () => {
+    if (!material || !currentQuestion || !currentQuestionDetail) return 0;
+
+    let index = 0;
+    for (const question of material.sections[currentSectionIndex].questions) {
+      if (question.uuid === currentQuestion.uuid) {
+        return index + currentQuestionDetail.order_in_question;
+      }
+      index += question.questionDetailCount;
+    }
+    return index;
+  };
+
   const renderMaterialStructure = () => {
     if (!material) return null;
 
@@ -158,7 +171,9 @@ const LearningPage = () => {
             onAnswerChange={handleAnswerChange}
             cachedAnswer={
               answerCache[
-                `${currentQuestion.uuid}_${currentQuestionDetail.order_in_question}`
+                `${
+                  material.sections[currentSectionIndex].uuid
+                }_${getCurrentQuestionIndex()}`
               ]
             }
             isNavigating={isNavigating}

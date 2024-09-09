@@ -110,38 +110,64 @@ export const useLearningMaterial = (materialUuid) => {
 
   const handleAnswerChange = useCallback(
     (newAnswer) => {
+      if (!currentQuestion || !currentQuestionDetail) return;
+
+      const currentSection = material.sections[currentSectionIndex];
+      let questionIndex = 0;
+      for (const question of currentSection.questions) {
+        if (question.uuid === currentQuestion.uuid) {
+          questionIndex += currentQuestionDetail.order_in_question;
+          break;
+        }
+        questionIndex += question.questionDetailCount;
+      }
+
       setAnswerCache((prev) => ({
         ...prev,
-        [`${currentQuestion.uuid}_${currentQuestionDetail.order_in_question}`]:
-          newAnswer,
+        [`${currentSection.uuid}_${questionIndex}`]: newAnswer,
       }));
     },
-    [currentQuestion, currentQuestionDetail]
+    [material, currentSectionIndex, currentQuestion, currentQuestionDetail]
   );
 
   const handleNavigation = useCallback(
     (sectionUuid, questionIndex) => {
       if (!material) return;
 
+      // 保存当前问题的答案
+      const currentSection = material.sections[currentSectionIndex];
+      let currentQuestionIndex = 0;
+      for (const question of currentSection.questions) {
+        if (question.uuid === currentQuestion?.uuid) {
+          currentQuestionIndex += currentQuestionDetail?.order_in_question || 0;
+          break;
+        }
+        currentQuestionIndex += question.questionDetailCount;
+      }
+
       const currentAnswer =
-        answerCache[
-          `${currentQuestion?.uuid}_${currentQuestionDetail?.order_in_question}`
-        ];
+        answerCache[`${currentSection.uuid}_${currentQuestionIndex}`];
+      if (currentAnswer !== undefined) {
+        setAnswerCache((prev) => ({
+          ...prev,
+          [`${currentSection.uuid}_${currentQuestionIndex}`]: currentAnswer,
+        }));
+      }
+
+      // 获取缓存的答案（如果有）
       const cachedAnswer = answerCache[`${sectionUuid}_${questionIndex}`];
 
-      if (currentAnswer !== cachedAnswer) {
-        fetchQuestionDetail(
-          material,
-          sectionUuid,
-          questionIndex,
-          currentAnswer
-        );
-      } else {
-        fetchQuestionDetail(material, sectionUuid, questionIndex);
-      }
+      // 使用当前答案或缓存的答案进行导航
+      fetchQuestionDetail(
+        material,
+        sectionUuid,
+        questionIndex,
+        currentAnswer !== undefined ? currentAnswer : cachedAnswer
+      );
     },
     [
       material,
+      currentSectionIndex,
       currentQuestion,
       currentQuestionDetail,
       answerCache,
