@@ -88,7 +88,7 @@ const LearningMaterial = ({
           ))}
         </FormGroup>
       </Paper>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 2 }}>
         <Button
           variant="contained"
           onClick={onPrevious}

@@ -202,7 +202,7 @@ const LearningPage = () => {
           </Box>
           <Button
             color="inherit"
-            onClick={() => navigate("/my-learning/list")}
+            onClick={() => navigate("/learning/")}
             startIcon={<ListAltIcon />}
           >
             我的学习
