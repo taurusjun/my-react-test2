@@ -62,8 +62,7 @@ const LearningPage = () => {
                   const isSelected = selectedQuestion === questionKey;
                   const isAnswered =
                     answerCache[questionKey] &&
-                    typeof answerCache[questionKey] === "string" &&
-                    answerCache[questionKey].trim() !== "";
+                    answerCache[questionKey].length > 0;
                   return (
                     <Grid item key={questionIndex} xs={6}>
                       <Button
