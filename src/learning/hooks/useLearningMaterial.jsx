@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 
 export const useLearningMaterial = (materialUuid) => {
@@ -8,99 +8,135 @@ export const useLearningMaterial = (materialUuid) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [answerCache, setAnswerCache] = useState({});
+  const cancelTokenRef = useRef(null);
 
   useEffect(() => {
-    const fetchMaterial = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `/api/learning-materials/${materialUuid}`
-        );
-        setMaterial(response.data);
-        if (
-          response.data.sections.length > 0 &&
-          response.data.sections[0].questions.length > 0
-        ) {
-          await fetchQuestion(response.data.sections[0].questions[0].uuid);
-        }
-      } catch (err) {
-        setError("获取学习资料失败");
-      } finally {
-        setLoading(false);
+    fetchMaterialStructure();
+    return () => {
+      if (cancelTokenRef.current) {
+        cancelTokenRef.current.cancel("组件卸载");
       }
     };
-
-    fetchMaterial();
   }, [materialUuid]);
 
-  const fetchQuestion = async (questionUuid) => {
+  const fetchMaterialStructure = async () => {
     try {
-      const response = await axios.get(`/api/questions/${questionUuid}`);
-      setCurrentQuestion(response.data);
-    } catch (err) {
-      setError("获取题目失败");
+      const response = await axios.get(
+        `/api/learning-material/${materialUuid}/structure`
+      );
+      setMaterial(response.data);
+      fetchQuestion(response.data.sections[0].uuid, 0);
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        console.error("获取学习资料结构失败", error);
+        setError(error);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const nextQuestion = async () => {
-    if (!material) return;
+  const fetchQuestion = useCallback(
+    async (sectionUuid, questionIndex, newAnswer = null) => {
+      if (cancelTokenRef.current) {
+        cancelTokenRef.current.cancel("新请求开始");
+      }
+      cancelTokenRef.current = axios.CancelToken.source();
 
-    const currentSection = material.sections[currentSectionIndex];
-    if (currentQuestionIndex < currentSection.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      await fetchQuestion(
-        currentSection.questions[currentQuestionIndex + 1].uuid
-      );
+      setIsNavigating(true);
+      setLoading(true);
+      try {
+        const url = `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`;
+        const config = {
+          cancelToken: cancelTokenRef.current.token,
+          params: newAnswer ? { answer: newAnswer } : {},
+        };
+        const response = await axios.get(url, config);
+        setCurrentQuestion(response.data);
+
+        // 只有当 material 不为 null 时才更新 currentSectionIndex
+        if (material) {
+          setCurrentSectionIndex(
+            material.sections.findIndex((s) => s.uuid === sectionUuid)
+          );
+        }
+        setCurrentQuestionIndex(questionIndex);
+      } catch (error) {
+        if (!axios.isCancel(error)) {
+          console.error("获取问题失败", error);
+          setError(error);
+        }
+      } finally {
+        setLoading(false);
+        setIsNavigating(false);
+      }
+    },
+    [materialUuid, material]
+  );
+
+  const handleAnswerChange = useCallback(
+    (newAnswer) => {
+      setAnswerCache((prev) => ({
+        ...prev,
+        [`${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`]:
+          newAnswer,
+      }));
+    },
+    [currentQuestion]
+  );
+
+  const handleNavigation = useCallback(
+    (sectionUuid, questionIndex) => {
+      const currentAnswer =
+        answerCache[
+          `${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`
+        ];
+      const cachedAnswer = answerCache[`${sectionUuid}_${questionIndex}`];
+
+      if (currentAnswer !== cachedAnswer) {
+        fetchQuestion(sectionUuid, questionIndex, currentAnswer);
+      } else {
+        fetchQuestion(sectionUuid, questionIndex);
+      }
+    },
+    [currentQuestion, answerCache, fetchQuestion]
+  );
+
+  const nextQuestion = useCallback(() => {
+    const currentSectionData = material.sections[currentSectionIndex];
+    if (currentQuestionIndex < currentSectionData.questionCount - 1) {
+      handleNavigation(currentSectionData.uuid, currentQuestionIndex + 1);
     } else if (currentSectionIndex < material.sections.length - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1);
-      setCurrentQuestionIndex(0);
-      await fetchQuestion(
-        material.sections[currentSectionIndex + 1].questions[0].uuid
-      );
+      handleNavigation(material.sections[currentSectionIndex + 1].uuid, 0);
     }
-  };
+  }, [material, currentSectionIndex, currentQuestionIndex, handleNavigation]);
 
-  const previousQuestion = async () => {
-    if (!material) return;
-
+  const previousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      await fetchQuestion(
-        material.sections[currentSectionIndex].questions[
-          currentQuestionIndex - 1
-        ].uuid
+      handleNavigation(
+        material.sections[currentSectionIndex].uuid,
+        currentQuestionIndex - 1
       );
     } else if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1);
-      const prevSection = material.sections[currentSectionIndex - 1];
-      setCurrentQuestionIndex(prevSection.questions.length - 1);
-      await fetchQuestion(
-        prevSection.questions[prevSection.questions.length - 1].uuid
-      );
+      const prevSectionData = material.sections[currentSectionIndex - 1];
+      handleNavigation(prevSectionData.uuid, prevSectionData.questionCount - 1);
     }
-  };
-
-  const submitAnswer = async (answer) => {
-    if (!currentQuestion) return;
-
-    try {
-      const response = await axios.post(
-        `/api/questions/${currentQuestion.uuid}/answer`,
-        { answer }
-      );
-      return response.data;
-    } catch (err) {
-      setError("提交答案失败");
-    }
-  };
+  }, [currentSectionIndex, currentQuestionIndex, material, handleNavigation]);
 
   return {
     material,
     currentQuestion,
+    currentSectionIndex,
+    currentQuestionIndex,
     loading,
     error,
+    isNavigating,
+    answerCache,
     nextQuestion,
     previousQuestion,
-    submitAnswer,
+    handleAnswerChange,
+    handleNavigation,
   };
 };

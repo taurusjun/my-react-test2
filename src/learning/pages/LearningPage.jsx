@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   Typography,
   Box,
@@ -14,135 +13,24 @@ import {
 import HomeIcon from "@mui/icons-material/Home";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import LearningMaterial from "../components/LearningMaterial";
+import { useLearningMaterial } from "../hooks/useLearningMaterial";
 
 const LearningPage = () => {
   const { materialUuid } = useParams();
   const navigate = useNavigate();
-  const [material, setMaterial] = useState(null);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isNavigating, setIsNavigating] = useState(false);
-  const cancelTokenRef = useRef(null);
-  const [answerCache, setAnswerCache] = useState({});
-
-  useEffect(() => {
-    fetchMaterialStructure();
-    return () => {
-      if (cancelTokenRef.current) {
-        cancelTokenRef.current.cancel("组件卸载");
-      }
-    };
-  }, [materialUuid]);
-
-  const fetchMaterialStructure = async () => {
-    try {
-      const response = await axios.get(
-        `/api/learning-material/${materialUuid}/structure`
-      );
-      setMaterial(response.data);
-      fetchQuestion(response.data.sections[0].uuid, 0);
-    } catch (error) {
-      if (!axios.isCancel(error)) {
-        console.error("获取学习资料结构失败", error);
-        setError(error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchQuestion = useCallback(
-    async (sectionUuid, questionIndex, newAnswer = null) => {
-      if (cancelTokenRef.current) {
-        cancelTokenRef.current.cancel("新请求开始");
-      }
-      cancelTokenRef.current = axios.CancelToken.source();
-
-      setIsNavigating(true);
-      setLoading(true);
-      try {
-        const url = `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionIndex}`;
-        const config = {
-          cancelToken: cancelTokenRef.current.token,
-          params: newAnswer ? { answer: newAnswer } : {},
-        };
-        const response = await axios.get(url, config);
-        setCurrentQuestion(response.data);
-      } catch (error) {
-        if (!axios.isCancel(error)) {
-          console.error("获取问题失败", error);
-          setError(error);
-        }
-      } finally {
-        setLoading(false);
-        setIsNavigating(false);
-      }
-    },
-    [materialUuid]
-  );
-
-  const handleAnswerChange = useCallback(
-    (newAnswer) => {
-      setAnswerCache((prev) => ({
-        ...prev,
-        [currentQuestion.uuid]: newAnswer,
-      }));
-    },
-    [currentQuestion]
-  );
-
-  const handleNavigation = useCallback(
-    (sectionUuid, questionIndex) => {
-      const currentAnswer = answerCache[currentQuestion.uuid];
-      const cachedAnswer = answerCache[currentQuestion.uuid];
-
-      if (currentAnswer !== cachedAnswer) {
-        fetchQuestion(sectionUuid, questionIndex, currentAnswer);
-      } else {
-        fetchQuestion(sectionUuid, questionIndex);
-      }
-    },
-    [currentQuestion, answerCache, fetchQuestion]
-  );
-
-  const handleNextQuestion = useCallback(() => {
-    const currentSectionData = material.sections[currentSection];
-    if (
-      currentQuestion.order_in_section <
-      currentSectionData.questionCount - 1
-    ) {
-      handleNavigation(
-        currentSectionData.uuid,
-        currentQuestion.order_in_section + 1
-      );
-    } else if (currentSection < material.sections.length - 1) {
-      setCurrentSection(currentSection + 1);
-      handleNavigation(material.sections[currentSection + 1].uuid, 0);
-    }
-  }, [material, currentSection, currentQuestion, handleNavigation]);
-
-  const handlePreviousQuestion = useCallback(() => {
-    if (currentQuestion.order_in_section > 0) {
-      handleNavigation(
-        material.sections[currentSection].uuid,
-        currentQuestion.order_in_section - 1
-      );
-    } else if (currentSection > 0) {
-      setCurrentSection(currentSection - 1);
-      const prevSectionData = material.sections[currentSection - 1];
-      handleNavigation(prevSectionData.uuid, prevSectionData.questionCount - 1);
-    }
-  }, [currentSection, currentQuestion, material, handleNavigation]);
-
-  const handleQuestionClick = useCallback(
-    (sectionIndex, questionIndex) => {
-      setCurrentSection(sectionIndex);
-      handleNavigation(material.sections[sectionIndex].uuid, questionIndex);
-    },
-    [material, handleNavigation]
-  );
+  const {
+    material,
+    currentQuestion,
+    currentSectionIndex,
+    loading,
+    error,
+    isNavigating,
+    answerCache,
+    nextQuestion,
+    previousQuestion,
+    handleAnswerChange,
+    handleNavigation,
+  } = useLearningMaterial(materialUuid);
 
   const renderMaterialStructure = () => {
     if (!material) return null;
@@ -163,9 +51,17 @@ const LearningPage = () => {
                       variant="outlined"
                       size="small"
                       onClick={() =>
-                        handleQuestionClick(sectionIndex, questionIndex)
+                        handleNavigation(section.uuid, questionIndex)
                       }
-                      sx={{ width: "100%", minWidth: "30px" }}
+                      sx={{
+                        width: "100%",
+                        minWidth: "30px",
+                        backgroundColor: answerCache[
+                          `${section.uuid}_${questionIndex}`
+                        ]
+                          ? "#e0f7fa"
+                          : "inherit",
+                      }}
                     >
                       {questionIndex + 1}
                     </Button>
@@ -230,12 +126,16 @@ const LearningPage = () => {
         <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
           <LearningMaterial
             material={material}
-            currentSection={currentSection}
+            currentSection={currentSectionIndex}
             currentQuestion={currentQuestion}
-            onNext={handleNextQuestion}
-            onPrevious={handlePreviousQuestion}
+            onNext={nextQuestion}
+            onPrevious={previousQuestion}
             onAnswerChange={handleAnswerChange}
-            cachedAnswer={answerCache[currentQuestion?.uuid]}
+            cachedAnswer={
+              answerCache[
+                `${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`
+              ]
+            }
             isNavigating={isNavigating}
           />
         </Box>

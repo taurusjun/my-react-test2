@@ -198,7 +198,7 @@ export const setupLearningMocks = (mock) => {
   mock
     .onGet(/\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/\d+/)
     .reply((config) => {
-      const [, , materialUuid, , sectionUuid, , questionIndex] =
+      const [, , , materialUuid, , sectionUuid, , questionIndex] =
         config.url.split("/");
       const randomQuestion =
         questions[Math.floor(Math.random() * questions.length)];
