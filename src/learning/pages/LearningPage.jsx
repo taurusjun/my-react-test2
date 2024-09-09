@@ -31,6 +31,7 @@ const LearningPage = () => {
     previousQuestionDetail,
     handleAnswerChange,
     handleNavigation,
+    handleStatusChange, // 添加这一行
   } = useLearningMaterial(materialUuid);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
@@ -186,6 +187,7 @@ const LearningPage = () => {
             onNext={nextQuestionDetail}
             onPrevious={previousQuestionDetail}
             onAnswerChange={handleAnswerChange}
+            onStatusChange={handleStatusChange} // 添加这一行
             cachedAnswer={
               answerCache[
                 `${

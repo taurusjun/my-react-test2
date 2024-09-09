@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -18,24 +18,49 @@ const LearningMaterial = ({
   onNext,
   onPrevious,
   onAnswerChange,
+  onStatusChange,
   cachedAnswer,
   isNavigating,
 }) => {
-  useEffect(() => {
-    if (cachedAnswer) {
-      onAnswerChange(cachedAnswer);
-    } else {
-      onAnswerChange([]);
-    }
-  }, [currentQuestionDetail, cachedAnswer, onAnswerChange]);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [localAnswer, setLocalAnswer] = useState(cachedAnswer || []);
 
-  const handleAnswerChange = (option) => {
-    const newAnswers = cachedAnswer ? [...cachedAnswer] : [];
-    if (newAnswers.includes(option)) {
-      onAnswerChange(newAnswers.filter((a) => a !== option));
-    } else {
-      onAnswerChange([...newAnswers, option]);
+  useEffect(() => {
+    setLocalAnswer(cachedAnswer || []);
+    setShowAnswer(false);
+  }, [currentQuestionDetail, cachedAnswer]);
+
+  useEffect(() => {
+    console.log("LearningMaterial: localAnswer 更新", localAnswer);
+  }, [localAnswer]);
+
+  useEffect(() => {
+    console.log("LearningMaterial: showAnswer 更新", showAnswer);
+  }, [showAnswer]);
+
+  const handleAnswerChange = useCallback(
+    (option) => {
+      const newAnswers = localAnswer.includes(option)
+        ? localAnswer.filter((a) => a !== option)
+        : [...localAnswer, option];
+      setLocalAnswer(newAnswers);
+      onAnswerChange(newAnswers);
+    },
+    [localAnswer, onAnswerChange]
+  );
+
+  const handleShowAnswer = useCallback(() => {
+    console.log("handleShowAnswer 被调用", { localAnswer });
+    if (localAnswer.length > 0) {
+      console.log("设置 showAnswer 为 true");
+      setShowAnswer(true);
+      console.log("调用 onStatusChange");
+      onStatusChange("completed");
     }
+  }, [localAnswer, onStatusChange]);
+
+  const handleAddToMistakes = () => {
+    console.log("添加到错题集:", currentQuestionDetail);
   };
 
   const getCurrentQuestionIndex = () => {
@@ -64,6 +89,11 @@ const LearningMaterial = ({
       getCurrentQuestionIndex() === lastDetailIndex
     );
   };
+
+  console.log("Rendering LearningMaterial", {
+    showAnswer,
+    currentQuestionDetail,
+  });
 
   if (isNavigating) {
     return <CircularProgress />;
@@ -94,7 +124,7 @@ const LearningMaterial = ({
               key={index}
               control={
                 <Checkbox
-                  checked={cachedAnswer?.includes(
+                  checked={localAnswer.includes(
                     String.fromCharCode(65 + index)
                   )}
                   onChange={() =>
@@ -106,6 +136,31 @@ const LearningMaterial = ({
             />
           ))}
         </FormGroup>
+        <Button
+          variant="contained"
+          onClick={handleShowAnswer}
+          disabled={localAnswer.length === 0}
+          sx={{ mt: 2, mr: 2 }}
+        >
+          查看答案
+        </Button>
+        {showAnswer && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h6">正确答案：</Typography>
+            <Typography>{currentQuestionDetail.answer.join(", ")}</Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              解释：
+            </Typography>
+            <Typography>{currentQuestionDetail.explanation}</Typography>
+            <Button
+              variant="outlined"
+              onClick={handleAddToMistakes}
+              sx={{ mt: 2 }}
+            >
+              加入错题集
+            </Button>
+          </Box>
+        )}
       </Paper>
       <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 2 }}>
         <Button
@@ -127,4 +182,4 @@ const LearningMaterial = ({
   );
 };
 
-export default LearningMaterial;
+export default React.memo(LearningMaterial);

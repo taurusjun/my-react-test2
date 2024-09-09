@@ -10,21 +10,24 @@ export const useLearningMaterial = (materialUuid) => {
   const [error, setError] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [answerCache, setAnswerCache] = useState({});
+  const [statusCache, setStatusCache] = useState({});
   const cancelTokenRef = useRef(null);
 
   const fetchMaterialStructure = useCallback(async () => {
+    console.log("开始获取学习资料结构");
     try {
       const response = await axios.get(
         `/api/learning-material/${materialUuid}/structure`
       );
       const materialData = response.data;
+      console.log("获取到学习资料结构:", materialData);
       setMaterial(materialData);
 
-      // 确保 material 数据已加载后再获取第一个问题详情
       if (materialData.sections && materialData.sections.length > 0) {
         const firstSection = materialData.sections[0];
         if (firstSection.questions && firstSection.questions.length > 0) {
-          fetchQuestionDetail(materialData, firstSection.uuid, 1);
+          console.log("开始获取第一个问题详情");
+          await fetchQuestionDetail(materialData, firstSection.uuid, 1);
         }
       }
     } catch (error) {
@@ -33,12 +36,25 @@ export const useLearningMaterial = (materialUuid) => {
         setError(error);
       }
     } finally {
+      console.log("学习资料结构加载完成，设置 loading 为 false");
       setLoading(false);
     }
   }, [materialUuid]);
 
   const fetchQuestionDetail = useCallback(
-    async (materialData, sectionUuid, questionIndex, newAnswer = null) => {
+    async (
+      materialData,
+      sectionUuid,
+      questionIndex,
+      newAnswer = null,
+      newStatus = null
+    ) => {
+      console.log("开始获取问题详情", {
+        sectionUuid,
+        questionIndex,
+        newAnswer,
+        newStatus,
+      });
       if (cancelTokenRef.current) {
         cancelTokenRef.current.cancel("新请求开始");
       }
@@ -77,11 +93,25 @@ export const useLearningMaterial = (materialUuid) => {
         const url = `/api/learning-material/${materialUuid}/section/${sectionUuid}/question/${questionUuid}/detail/${detailIndex}`;
         const config = {
           cancelToken: cancelTokenRef.current.token,
-          params: newAnswer ? { answer: newAnswer } : {},
+          params: {
+            ...(newAnswer !== null ? { answer: newAnswer } : {}),
+            ...(newStatus !== null ? { status: newStatus } : {}),
+          },
         };
+        console.log("发送请求获取问题详情", url, config);
         const response = await axios.get(url, config);
+        console.log("获取到问题详情:", response.data);
         setCurrentQuestion(response.data);
         setCurrentQuestionDetail(response.data.currentDetail);
+
+        // 更新 answerCache 和 statusCache
+        const cacheKey = `${sectionUuid}_${questionIndex}`;
+        if (newAnswer !== null) {
+          setAnswerCache((prev) => ({ ...prev, [cacheKey]: newAnswer }));
+        }
+        if (newStatus !== null) {
+          setStatusCache((prev) => ({ ...prev, [cacheKey]: newStatus }));
+        }
 
         setCurrentSectionIndex(
           materialData.sections.findIndex((s) => s.uuid === sectionUuid)
@@ -92,6 +122,7 @@ export const useLearningMaterial = (materialUuid) => {
           setError(error);
         }
       } finally {
+        console.log("问题详情加载完成，设置 loading 和 isNavigating 为 false");
         setLoading(false);
         setIsNavigating(false);
       }
@@ -100,7 +131,9 @@ export const useLearningMaterial = (materialUuid) => {
   );
 
   useEffect(() => {
+    console.log("useEffect 触发，开始获取学习资料结构");
     fetchMaterialStructure();
+
     return () => {
       if (cancelTokenRef.current) {
         cancelTokenRef.current.cancel("组件卸载");
@@ -134,7 +167,7 @@ export const useLearningMaterial = (materialUuid) => {
     (sectionUuid, questionIndex) => {
       if (!material) return;
 
-      // 保存当前问题的答案
+      // 保存当前问题的答案和状态
       const currentSection = material.sections[currentSectionIndex];
       let currentQuestionIndex = 0;
       for (const question of currentSection.questions) {
@@ -145,24 +178,33 @@ export const useLearningMaterial = (materialUuid) => {
         currentQuestionIndex += question.questionDetailCount;
       }
 
-      const currentAnswer =
-        answerCache[`${currentSection.uuid}_${currentQuestionIndex}`];
-      if (currentAnswer !== undefined) {
+      const currentKey = `${currentSection.uuid}_${currentQuestionIndex}`;
+      const currentAnswer = answerCache[currentKey];
+      const currentStatus = statusCache[currentKey];
+
+      if (currentAnswer !== undefined || currentStatus !== undefined) {
         setAnswerCache((prev) => ({
           ...prev,
-          [`${currentSection.uuid}_${currentQuestionIndex}`]: currentAnswer,
+          [currentKey]: currentAnswer,
+        }));
+        setStatusCache((prev) => ({
+          ...prev,
+          [currentKey]: currentStatus,
         }));
       }
 
-      // 获取缓存的答案（如果有）
-      const cachedAnswer = answerCache[`${sectionUuid}_${questionIndex}`];
+      // 获取缓存的答案和状态（如果有）
+      const newKey = `${sectionUuid}_${questionIndex}`;
+      const cachedAnswer = answerCache[newKey];
+      const cachedStatus = statusCache[newKey];
 
-      // 使用当前答案或缓存的答案进行导航
+      // 使用当前答案/状态或缓存的答案/状态进行导航
       fetchQuestionDetail(
         material,
         sectionUuid,
         questionIndex,
-        currentAnswer !== undefined ? currentAnswer : cachedAnswer
+        currentAnswer !== undefined ? currentAnswer : cachedAnswer,
+        currentStatus !== undefined ? currentStatus : cachedStatus
       );
     },
     [
@@ -171,6 +213,7 @@ export const useLearningMaterial = (materialUuid) => {
       currentQuestion,
       currentQuestionDetail,
       answerCache,
+      statusCache,
       fetchQuestionDetail,
     ]
   );
@@ -235,6 +278,32 @@ export const useLearningMaterial = (materialUuid) => {
     handleNavigation,
   ]);
 
+  const handleStatusChange = useCallback(
+    (newStatus) => {
+      if (!currentQuestion || !currentQuestionDetail) return;
+
+      const currentSection = material.sections[currentSectionIndex];
+      let questionIndex = 0;
+      for (const question of currentSection.questions) {
+        if (question.uuid === currentQuestion.uuid) {
+          questionIndex += currentQuestionDetail.order_in_question;
+          break;
+        }
+        questionIndex += question.questionDetailCount;
+      }
+
+      const key = `${currentSection.uuid}_${questionIndex}`;
+      setStatusCache((prev) => ({
+        ...prev,
+        [key]: newStatus,
+      }));
+
+      // 不再调用 fetchQuestionDetail
+      console.log("状态已更新", { key, newStatus });
+    },
+    [material, currentSectionIndex, currentQuestion, currentQuestionDetail]
+  );
+
   return {
     material,
     currentQuestion,
@@ -244,14 +313,22 @@ export const useLearningMaterial = (materialUuid) => {
     error,
     isNavigating,
     answerCache,
+    statusCache,
     nextQuestionDetail,
     previousQuestionDetail,
     handleAnswerChange,
     handleNavigation,
+    handleStatusChange,
     fetchQuestionDetail: useCallback(
-      (sectionUuid, questionIndex, newAnswer = null) => {
+      (sectionUuid, questionIndex, newAnswer = null, newStatus = null) => {
         if (material) {
-          fetchQuestionDetail(material, sectionUuid, questionIndex, newAnswer);
+          fetchQuestionDetail(
+            material,
+            sectionUuid,
+            questionIndex,
+            newAnswer,
+            newStatus
+          );
         }
       },
       [material, fetchQuestionDetail]
