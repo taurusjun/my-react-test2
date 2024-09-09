@@ -14,6 +14,7 @@ const LearningMaterial = ({
   material,
   currentSection,
   currentQuestion,
+  currentQuestionDetail,
   onNext,
   onPrevious,
   onAnswerChange,
@@ -26,7 +27,7 @@ const LearningMaterial = ({
     } else {
       onAnswerChange([]);
     }
-  }, [currentQuestion, cachedAnswer, onAnswerChange]);
+  }, [currentQuestionDetail, cachedAnswer, onAnswerChange]);
 
   const handleAnswerChange = (option) => {
     const newAnswers = cachedAnswer ? [...cachedAnswer] : [];
@@ -37,24 +38,42 @@ const LearningMaterial = ({
     }
   };
 
-  const isFirstQuestion =
-    currentSection === 0 && currentQuestion.order_in_section === 0;
-  const isLastQuestion =
-    currentSection === material.sections.length - 1 &&
-    currentQuestion.order_in_section ===
-      material.sections[currentSection].questionCount - 1;
+  const getCurrentQuestionIndex = () => {
+    let index = 0;
+    for (const question of material.sections[currentSection].questions) {
+      if (question.uuid === currentQuestion.uuid) {
+        return index + currentQuestionDetail.order_in_question;
+      }
+      index += question.questionDetailCount;
+    }
+    return index;
+  };
+
+  const isFirstQuestionDetail =
+    currentSection === 0 && getCurrentQuestionIndex() === 1;
+  const isLastQuestionDetail = () => {
+    const lastSection = material.sections[material.sections.length - 1];
+    const lastQuestion =
+      lastSection.questions[lastSection.questions.length - 1];
+    const lastDetailIndex = lastSection.questions.reduce(
+      (acc, q) => acc + q.questionDetailCount,
+      0
+    );
+    return (
+      currentSection === material.sections.length - 1 &&
+      getCurrentQuestionIndex() === lastDetailIndex
+    );
+  };
 
   if (isNavigating) {
     return <CircularProgress />;
   }
 
-  const questionDetail = currentQuestion.questionDetails[0]; // 假设只有一个questionDetail
-
   return (
     <Box>
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="h6" gutterBottom>
-          {`第${material.sections[currentSection].order_in_material}部分 ${material.sections[currentSection].name}`}
+          {`第${material.sections[currentSection].order_in_exam}部分 ${material.sections[currentSection].name}`}
         </Typography>
         {currentQuestion.material && (
           <Typography variant="body2" sx={{ mb: 2, fontStyle: "italic" }}>
@@ -63,14 +82,14 @@ const LearningMaterial = ({
         )}
         <Typography variant="body1" sx={{ mb: 2 }}>
           <strong>
-            {`${material.sections[currentSection].order_in_material}.${
-              currentQuestion.order_in_section + 1
-            }`}{" "}
+            {`${
+              material.sections[currentSection].order_in_exam
+            }.${getCurrentQuestionIndex()}`}{" "}
           </strong>
-          {questionDetail.questionContent.value}
+          {currentQuestionDetail.questionContent.value}
         </Typography>
         <FormGroup>
-          {questionDetail.rows.map((row, index) => (
+          {currentQuestionDetail.rows.map((row, index) => (
             <FormControlLabel
               key={index}
               control={
@@ -92,11 +111,15 @@ const LearningMaterial = ({
         <Button
           variant="contained"
           onClick={onPrevious}
-          disabled={isFirstQuestion}
+          disabled={isFirstQuestionDetail}
         >
           上一题
         </Button>
-        <Button variant="contained" onClick={onNext} disabled={isLastQuestion}>
+        <Button
+          variant="contained"
+          onClick={onNext}
+          disabled={isLastQuestionDetail()}
+        >
           下一题
         </Button>
       </Box>

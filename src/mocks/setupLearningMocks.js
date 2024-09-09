@@ -54,7 +54,7 @@ const generateMockMaterials = (count) => {
 const questions = [
   {
     digest: "关于力和运动的多步骤问题",
-    material: "以下是一系列关于力和运动的问题，请仔细阅读并回答。",
+    material: "以下是一系列关于力和运动的问题，请仔细读��回答。",
     questionDetails: [
       {
         questionContent: {
@@ -83,7 +83,7 @@ const questions = [
           { value: "物体的加速度不为零", isAns: false, image: null },
         ],
         explanation:
-          "物体以恒定速度运动时，其受到的合力为零，但这并不意味着物体不受力，可能是各个力相互抵消。",
+          "物体以恒定速度运动时，其到的合力为零，但这并不意味着物体不受力，可能是各个力相互抵消。",
         answer: ["A"],
       },
     ],
@@ -146,17 +146,187 @@ const questions = [
       },
     ],
   },
+  {
+    digest: "电学基础知识综合题",
+    material:
+      "以下是一系列关于电学基础知识的问题，包括不同类型的题目请仔细阅读并回答。",
+    questionDetails: [
+      {
+        questionContent: {
+          value: "1. 下列关于电流的说法，正确的是：",
+          image: null,
+        },
+        rows: [
+          { value: "电流的方向是从负极到正极", isAns: false, image: null },
+          { value: "电流的单位是伏特（V）", isAns: false, image: null },
+          { value: "电流是有方向的电荷流动", isAns: true, image: null },
+          { value: "导体中的所有电子都参与电流", isAns: false, image: null },
+        ],
+        explanation:
+          "电流是有方向的电荷流动，其方向规定为从正极到负极，单位是安培（A）。",
+        answer: ["C"],
+        uiType: "single_selection",
+      },
+      {
+        questionContent: {
+          value: "2. 关于欧姆定律，以下说法正确的有：",
+          image: null,
+        },
+        rows: [
+          { value: "电压与电流成正比", isAns: true, image: null },
+          { value: "电阻与电流成反比", isAns: true, image: null },
+          { value: "电阻与电压成正比", isAns: false, image: null },
+          { value: "适用于所有导体", isAns: false, image: null },
+        ],
+        explanation:
+          "欧姆定律指出，在恒温条件下，体两端的电压与通过的电流成正比，电阻与电流成反比。但它并不适用于所有导体。",
+        answer: ["A", "B"],
+        uiType: "multi_selection",
+      },
+      {
+        questionContent: {
+          value: "3. 在电路中，电阻的作用是 ________ 电流。",
+          image: null,
+        },
+        rows: [{ value: "限制", isAns: true, image: null }],
+        explanation: "电阻在电路中的主要作用是限制电流，控制电流的大小。",
+        answer: ["限制"],
+        uiType: "fill_in_blank",
+      },
+      {
+        questionContent: {
+          value:
+            "4. 一个电阻为5Ω的导体，当两端电压为10V时，通过它的电流是多少？",
+          image: null,
+        },
+        rows: [{ value: "2A", isAns: true, image: null }],
+        explanation:
+          "根据欧姆定律，I = U / R，其中I是电流，U是电压，R是电阻。代入数值：I = 10V / 5Ω = 2A",
+        answer: ["2A"],
+        uiType: "calculation",
+      },
+    ],
+  },
+  {
+    digest: "化学反应与能量变化综合题",
+    material:
+      "以下是关于化学反应与能量变化的一系列问题，包括不同类型的题目。请仔细思考后回答。",
+    questionDetails: [
+      {
+        questionContent: {
+          value: "1. 下列反应中，属于吸热反应的是：",
+          image: null,
+        },
+        rows: [
+          { value: "铁与硫粉反应", isAns: false, image: null },
+          { value: "碳酸钙分解", isAns: true, image: null },
+          { value: "镁带燃烧", isAns: false, image: null },
+          { value: "铝与氧气反应", isAns: false, image: null },
+        ],
+        explanation:
+          "碳酸钙分解是一个吸热反应，需要持续加热才能进行。其他选项都是放热反应。",
+        answer: ["B"],
+        uiType: "single_selection",
+      },
+      {
+        questionContent: {
+          value: "2. 关于化学反应的能量变化，以下说法正确的有：",
+          image: null,
+        },
+        rows: [
+          { value: "所有化学反应都伴随能量变化", isAns: true, image: null },
+          {
+            value: "放热反应的生成物总能量低于反应物",
+            isAns: true,
+            image: null,
+          },
+          { value: "吸热反应一定不会自发进行", isAns: false, image: null },
+          { value: "催化剂可以改变反应的热效应", isAns: false, image: null },
+        ],
+        explanation:
+          "所有化学反应都伴随能量变化，放热��应的成物总能量确实低于反应物。但吸热反应在某些条件下也可能自发进行，而催化剂不会改变反应的热效应。",
+        answer: ["A", "B"],
+        uiType: "multi_selection",
+      },
+      {
+        questionContent: {
+          value: "3. 在化学反应方程式中，表示放热反应的符号是 ________。",
+          image: null,
+        },
+        rows: [{ value: "-Q", isAns: true, image: null }],
+        explanation: "在化学反应方程式中，-Q表示放热反应，+Q表示吸热反应。",
+        answer: ["-Q"],
+        uiType: "fill_in_blank",
+      },
+      {
+        questionContent: {
+          value:
+            "4. 某反应的反应热为-285.8 kJ/mol，反应物的总能量为500 kJ/mol，求生成物的总能量。",
+          image: null,
+        },
+        rows: [{ value: "214.2 kJ/mol", isAns: true, image: null }],
+        explanation:
+          "根据能量守恒定律，生成物的总能量 = 反应物的总能量 + 反应热。代入数值：500 kJ/mol + (-285.8 kJ/mol) = 214.2 kJ/mol",
+        answer: ["214.2 kJ/mol"],
+        uiType: "calculation",
+      },
+    ],
+  },
 ];
 
 export const setupLearningMocks = (mock) => {
   const allMaterials = generateMockMaterials(100);
+
+  // 准备多个 section 的模拟数据
+  const mockSections = [
+    {
+      uuid: generateUUID("section"),
+      name: "第一章：力学基础",
+      order_in_exam: 1,
+      questions: [
+        {
+          uuid: generateUUID("question"),
+          order_in_section: 1,
+          ...questions[0], // 力和运动的多步骤问题
+        },
+        {
+          uuid: generateUUID("question"),
+          order_in_section: 2,
+          ...questions[1], // 能量转换与守恒多步骤问题
+        },
+      ],
+    },
+    {
+      uuid: generateUUID("section"),
+      name: "第二章：电学基础",
+      order_in_exam: 2,
+      questions: [
+        {
+          uuid: generateUUID("question"),
+          order_in_section: 1,
+          ...questions[2], // 电学基础知识综合题
+        },
+      ],
+    },
+    {
+      uuid: generateUUID("section"),
+      name: "第三章：化学反应",
+      order_in_exam: 3,
+      questions: [
+        {
+          uuid: generateUUID("question"),
+          order_in_section: 1,
+          ...questions[3], // 化学反应与能量变化综合题
+        },
+      ],
+    },
+  ];
 
   // 获取学习资料结构
   mock.onGet(/\/api\/learning-material\/[\w-]+\/structure/).reply((config) => {
     const uuid = config.url.split("/")[3];
     let material = allMaterials.find((m) => m.uuid === uuid);
 
-    // 如果找不到匹配的材料，创建一个新的
     if (!material) {
       material = {
         uuid: uuid,
@@ -176,37 +346,41 @@ export const setupLearningMocks = (mock) => {
       200,
       {
         ...material,
-        sections: [
-          {
-            uuid: generateUUID("section"),
-            name: "第一章：基础概念",
-            order_in_material: 1,
-            questionCount: 3,
-          },
-          {
-            uuid: generateUUID("section"),
-            name: "第二章：进阶内容",
-            order_in_material: 2,
-            questionCount: 3,
-          },
-        ],
+        sections: mockSections.map(
+          ({ uuid, name, order_in_exam, questions }) => ({
+            uuid,
+            name,
+            order_in_exam,
+            questionCount: questions.length,
+            questions: questions.map((q) => ({
+              questionDetailCount: q.questionDetails.length,
+              uuid: q.uuid,
+              order_in_section: q.order_in_section,
+            })),
+          })
+        ),
       },
     ];
   });
 
   // 获取单个问题
   mock
-    .onGet(/\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/\d+/)
+    .onGet(
+      /\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/[\w-]+\/detail\/\d+/
+    )
     .reply((config) => {
-      const [, , , materialUuid, , sectionUuid, , questionIndex] =
+      const [, , , materialUuid, , sectionUuid, , questionUuid, , detailIndex] =
         config.url.split("/");
-      const randomQuestion =
-        questions[Math.floor(Math.random() * questions.length)];
+
+      const section = mockSections.find((s) => s.uuid === sectionUuid);
+      const question = section.questions.find((q) => q.uuid === questionUuid);
+      const questionDetail =
+        question.questionDetails[parseInt(detailIndex) - 1];
 
       return [
         200,
         {
-          uuid: generateUUID("question"),
+          uuid: questionUuid,
           type: "selection",
           category: "physics",
           kn: "mechanics",
@@ -217,21 +391,16 @@ export const setupLearningMocks = (mock) => {
           source: "2023年春季期中考试",
           tags: ["frequentlyTested", "important"],
           sectionUuid: sectionUuid,
-          order_in_section: parseInt(questionIndex),
-          ...randomQuestion,
-          questionDetails: randomQuestion.questionDetails.map(
-            (detail, index) => ({
-              ...detail,
-              uuid: generateUUID("question-detail"),
-              order_in_question: index + 1,
-              rate: 3,
-              uiType:
-                detail.answer.length > 1
-                  ? "multi_selection"
-                  : "single_selection",
-              answerImage: null,
-            })
-          ),
+          order_in_section: question.order_in_section,
+          ...question,
+          currentDetail: {
+            ...questionDetail,
+            uuid: generateUUID("question-detail"),
+            order_in_question: parseInt(detailIndex),
+            rate: 3,
+            uiType: questionDetail.uiType,
+            answerImage: null,
+          },
         },
       ];
     });

@@ -21,75 +21,79 @@ const LearningPage = () => {
   const {
     material,
     currentQuestion,
+    currentQuestionDetail,
     currentSectionIndex,
     loading,
     error,
     isNavigating,
     answerCache,
-    nextQuestion,
-    previousQuestion,
+    nextQuestionDetail,
+    previousQuestionDetail,
     handleAnswerChange,
     handleNavigation,
   } = useLearningMaterial(materialUuid);
 
-  // 添加一个新的状态来跟踪当前选中的问题
-  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [selectedQuestionDetail, setSelectedQuestionDetail] = useState(null);
 
-  // 在 useEffect 中更新 selectedQuestion
   useEffect(() => {
-    if (currentQuestion) {
-      setSelectedQuestion(
-        `${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`
+    if (currentQuestionDetail) {
+      setSelectedQuestionDetail(
+        `${currentQuestion.uuid}_${currentQuestionDetail.order_in_question}`
       );
     }
-  }, [currentQuestion]);
+  }, [currentQuestionDetail, currentQuestion]);
 
   const renderMaterialStructure = () => {
     if (!material) return null;
 
     return (
       <Box>
-        {material.sections.map((section, sectionIndex) => (
+        {material.sections.map((section) => (
           <Box key={section.uuid} sx={{ mb: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
-              {`第${section.order_in_material}部分 ${section.name}`}
+              {`第${section.order_in_exam}部分 ${section.name}`}
             </Typography>
             <Grid container spacing={1}>
-              {Array.from(
-                { length: section.questionCount },
-                (_, questionIndex) => {
-                  const questionKey = `${section.uuid}_${questionIndex}`;
-                  const isSelected = selectedQuestion === questionKey;
-                  const isAnswered =
-                    answerCache[questionKey] &&
-                    answerCache[questionKey].length > 0;
-                  return (
-                    <Grid item key={questionIndex} xs={6}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                          handleNavigation(section.uuid, questionIndex);
-                          setSelectedQuestion(questionKey);
-                        }}
-                        sx={{
-                          width: "100%",
-                          minWidth: "30px",
-                          color: isAnswered ? "red" : "inherit",
-                          backgroundColor: isSelected
-                            ? "#e0f7fa"
-                            : "transparent",
-                          "&:hover": {
-                            backgroundColor: "#e0f7fa",
-                          },
-                        }}
-                      >
-                        {questionIndex + 1}
-                      </Button>
-                    </Grid>
-                  );
-                }
-              )}
+              {section.questions.flatMap((question, qIndex) => {
+                let detailStartIndex =
+                  section.questions
+                    .slice(0, qIndex)
+                    .reduce((acc, q) => acc + q.questionDetailCount, 0) + 1;
+                return Array.from(
+                  { length: question.questionDetailCount },
+                  (_, dIndex) => {
+                    const detailIndex = detailStartIndex + dIndex;
+                    const detailKey = `${section.uuid}_${detailIndex}`;
+                    const isSelected = selectedQuestionDetail === detailKey;
+                    const isAnswered =
+                      answerCache[detailKey] &&
+                      answerCache[detailKey].length > 0;
+                    return (
+                      <Grid item key={`${question.uuid}_${dIndex}`} xs={4}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => {
+                            handleNavigation(section.uuid, detailIndex);
+                            setSelectedQuestionDetail(detailKey);
+                          }}
+                          sx={{
+                            width: "100%",
+                            minWidth: "30px",
+                            color: isAnswered ? "red" : "inherit",
+                            backgroundColor: isSelected
+                              ? "#e0f7fa"
+                              : "transparent",
+                            "&:hover": { backgroundColor: "#e0f7fa" },
+                          }}
+                        >
+                          {detailIndex}
+                        </Button>
+                      </Grid>
+                    );
+                  }
+                );
+              })}
             </Grid>
           </Box>
         ))}
@@ -99,7 +103,7 @@ const LearningPage = () => {
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography>错误：{error.message}</Typography>;
-  if (!material || !currentQuestion)
+  if (!material || !currentQuestion || !currentQuestionDetail)
     return <Typography>未找到学习资料</Typography>;
 
   return (
@@ -129,7 +133,6 @@ const LearningPage = () => {
       </AppBar>
 
       <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
-        {/* 左侧学习资料结构 */}
         <Box
           sx={{
             width: "250px",
@@ -144,18 +147,18 @@ const LearningPage = () => {
           {renderMaterialStructure()}
         </Box>
 
-        {/* 右侧学习内容 */}
         <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
           <LearningMaterial
             material={material}
             currentSection={currentSectionIndex}
             currentQuestion={currentQuestion}
-            onNext={nextQuestion}
-            onPrevious={previousQuestion}
+            currentQuestionDetail={currentQuestionDetail}
+            onNext={nextQuestionDetail}
+            onPrevious={previousQuestionDetail}
             onAnswerChange={handleAnswerChange}
             cachedAnswer={
               answerCache[
-                `${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`
+                `${currentQuestion.uuid}_${currentQuestionDetail.order_in_question}`
               ]
             }
             isNavigating={isNavigating}
