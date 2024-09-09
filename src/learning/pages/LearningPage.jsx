@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -33,17 +33,9 @@ const LearningPage = () => {
     handleNavigation,
   } = useLearningMaterial(materialUuid);
 
-  const [selectedQuestionDetail, setSelectedQuestionDetail] = useState(null);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
-  useEffect(() => {
-    if (currentQuestionDetail) {
-      setSelectedQuestionDetail(
-        `${currentQuestion.uuid}_${currentQuestionDetail.order_in_question}`
-      );
-    }
-  }, [currentQuestionDetail, currentQuestion]);
-
-  const getCurrentQuestionIndex = () => {
+  const getCurrentQuestionIndex = useCallback(() => {
     if (!material || !currentQuestion || !currentQuestionDetail) return 0;
 
     let index = 0;
@@ -54,7 +46,22 @@ const LearningPage = () => {
       index += question.questionDetailCount;
     }
     return index;
-  };
+  }, [material, currentQuestion, currentQuestionDetail, currentSectionIndex]);
+
+  useEffect(() => {
+    if (currentQuestionDetail && material) {
+      setSelectedQuestion(
+        `${
+          material.sections[currentSectionIndex].uuid
+        }_${getCurrentQuestionIndex()}`
+      );
+    }
+  }, [
+    currentQuestionDetail,
+    material,
+    currentSectionIndex,
+    getCurrentQuestionIndex,
+  ]);
 
   const renderMaterialStructure = () => {
     if (!material) return null;
@@ -77,10 +84,17 @@ const LearningPage = () => {
                   (_, dIndex) => {
                     const detailIndex = detailStartIndex + dIndex;
                     const detailKey = `${section.uuid}_${detailIndex}`;
-                    const isSelected = selectedQuestionDetail === detailKey;
+                    const isSelected = selectedQuestion === detailKey;
                     const isAnswered =
                       answerCache[detailKey] &&
                       answerCache[detailKey].length > 0;
+                    const isGraded = false; // 这里需要根据您的数据结构来判断是否已批改
+
+                    let statusSymbol = "";
+                    if (isAnswered) {
+                      statusSymbol = isGraded ? " ✅" : " ⏳";
+                    }
+
                     return (
                       <Grid item key={`${question.uuid}_${dIndex}`} xs={4}>
                         <Button
@@ -88,19 +102,22 @@ const LearningPage = () => {
                           size="small"
                           onClick={() => {
                             handleNavigation(section.uuid, detailIndex);
-                            setSelectedQuestionDetail(detailKey);
+                            setSelectedQuestion(detailKey);
                           }}
                           sx={{
                             width: "100%",
                             minWidth: "30px",
-                            color: isAnswered ? "red" : "inherit",
+                            color: isAnswered ? "primary.main" : "inherit",
                             backgroundColor: isSelected
-                              ? "#e0f7fa"
+                              ? "primary.light"
                               : "transparent",
-                            "&:hover": { backgroundColor: "#e0f7fa" },
+                            "&:hover": {
+                              backgroundColor: "primary.light",
+                            },
                           }}
                         >
                           {detailIndex}
+                          {statusSymbol}
                         </Button>
                       </Grid>
                     );
