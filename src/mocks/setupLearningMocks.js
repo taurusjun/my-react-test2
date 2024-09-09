@@ -54,7 +54,7 @@ const generateMockMaterials = (count) => {
 const questions = [
   {
     digest: "关于力和运动的多步骤问题",
-    material: "以下是一系列关于力和运动的问题，请仔细读��回答。",
+    material: "以下是一系列关于力和运动的问题，请仔细读回答。",
     questionDetails: [
       {
         questionContent: {
@@ -196,7 +196,7 @@ const questions = [
       {
         questionContent: {
           value:
-            "4. 一个电阻为5Ω的导体，当两端电压为10V时，通过它的电流是多少？",
+            "4. 一个电阻为5Ω的导体，当两端电压为10V时，��过它的电流是多少？",
           image: null,
         },
         rows: [{ value: "2A", isAns: true, image: null }],
@@ -244,7 +244,7 @@ const questions = [
           { value: "催化剂可以改变反应的热效应", isAns: false, image: null },
         ],
         explanation:
-          "所有化学反应都伴随能量变化，放热��应的成物总能量确实低于反应物。但吸热反应在某些条件下也可能自发进行，而催化剂不会改变反应的热效应。",
+          "所有化学反应都伴随能量变化，放热应的成物总能量确实低于反应物。但吸热反应在某些条件下也可能自发进行，而催化剂不会改变反应的热效应。",
         answer: ["A", "B"],
         uiType: "multi_selection",
       },
@@ -377,6 +377,10 @@ export const setupLearningMocks = (mock) => {
       const questionDetail =
         question.questionDetails[parseInt(detailIndex) - 1];
 
+      // 模拟从缓存中获取答案和状态
+      const cachedAnswer = ["A", "B"]; // 这里应该是从某个缓存中获取的数据
+      const cachedStatus = "completed"; // 这里应该是从某个缓存中获取的数据
+
       return [
         200,
         {
@@ -401,6 +405,8 @@ export const setupLearningMocks = (mock) => {
             uiType: questionDetail.uiType,
             answerImage: null,
           },
+          cachedAnswer: cachedAnswer,
+          cachedStatus: cachedStatus,
         },
       ];
     });
@@ -500,6 +506,21 @@ export const setupLearningMocks = (mock) => {
       },
     ];
   });
+
+  // 新增：模拟保存答案和状态的 API
+  mock
+    .onPost(
+      /\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/[\w-]+\/answer/
+    )
+    .reply((config) => {
+      const { answer, status } = JSON.parse(config.data);
+      console.log("保存答案和状态:", { answer, status });
+
+      // 这里可以添加一些逻辑来模拟保存答案和状态
+      // 例如，可以将答案和状态存储在一个对象中，以便后续使用
+
+      return [200, { message: "答案和状态已保存" }];
+    });
 };
 
 export default setupLearningMocks;

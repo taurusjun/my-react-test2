@@ -164,7 +164,7 @@ export const useLearningMaterial = (materialUuid) => {
   );
 
   const handleNavigation = useCallback(
-    (sectionUuid, questionIndex) => {
+    (sectionUuid, questionIndex, direction) => {
       if (!material) return;
 
       // 保存当前问题的答案和状态
@@ -182,30 +182,22 @@ export const useLearningMaterial = (materialUuid) => {
       const currentAnswer = answerCache[currentKey];
       const currentStatus = statusCache[currentKey];
 
-      if (currentAnswer !== undefined || currentStatus !== undefined) {
-        setAnswerCache((prev) => ({
-          ...prev,
-          [currentKey]: currentAnswer,
-        }));
-        setStatusCache((prev) => ({
-          ...prev,
-          [currentKey]: currentStatus,
-        }));
-      }
-
-      // 获取缓存的答案和状态（如果有）
-      const newKey = `${sectionUuid}_${questionIndex}`;
-      const cachedAnswer = answerCache[newKey];
-      const cachedStatus = statusCache[newKey];
-
-      // 使用当前答案/状态或缓存的答案/状态进行导航
-      fetchQuestionDetail(
-        material,
-        sectionUuid,
-        questionIndex,
-        currentAnswer !== undefined ? currentAnswer : cachedAnswer,
-        currentStatus !== undefined ? currentStatus : cachedStatus
-      );
+      // 发送当前答案和状态到后端
+      axios
+        .post(
+          `/api/learning-material/${materialUuid}/section/${currentSection.uuid}/question/${currentQuestion.uuid}/answer`,
+          {
+            answer: currentAnswer,
+            status: currentStatus,
+          }
+        )
+        .then(() => {
+          // 获取新问题的详情
+          fetchQuestionDetail(material, sectionUuid, questionIndex);
+        })
+        .catch((error) => {
+          console.error("保存答案失败", error);
+        });
     },
     [
       material,
@@ -215,6 +207,7 @@ export const useLearningMaterial = (materialUuid) => {
       answerCache,
       statusCache,
       fetchQuestionDetail,
+      materialUuid,
     ]
   );
 
@@ -233,10 +226,10 @@ export const useLearningMaterial = (materialUuid) => {
     }
 
     if (currentQuestionIndex < totalDetails) {
-      handleNavigation(currentSection.uuid, currentQuestionIndex + 1);
+      handleNavigation(currentSection.uuid, currentQuestionIndex + 1, "next");
     } else if (currentSectionIndex < material.sections.length - 1) {
       const nextSection = material.sections[currentSectionIndex + 1];
-      handleNavigation(nextSection.uuid, 1);
+      handleNavigation(nextSection.uuid, 1, "next");
     }
   }, [
     material,
@@ -261,14 +254,18 @@ export const useLearningMaterial = (materialUuid) => {
     }
 
     if (currentQuestionIndex > 1) {
-      handleNavigation(currentSection.uuid, currentQuestionIndex - 1);
+      handleNavigation(
+        currentSection.uuid,
+        currentQuestionIndex - 1,
+        "previous"
+      );
     } else if (currentSectionIndex > 0) {
       const prevSection = material.sections[currentSectionIndex - 1];
       let prevSectionTotalDetails = 0;
       for (const question of prevSection.questions) {
         prevSectionTotalDetails += question.questionDetailCount;
       }
-      handleNavigation(prevSection.uuid, prevSectionTotalDetails);
+      handleNavigation(prevSection.uuid, prevSectionTotalDetails, "previous");
     }
   }, [
     material,
