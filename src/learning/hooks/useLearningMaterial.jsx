@@ -160,7 +160,7 @@ export const useLearningMaterial = (materialUuid) => {
           totalDetails + currentQuestionDetail.order_in_question;
         break;
       }
-      totalDetails += question.questionDetails.length;
+      totalDetails += question.questionDetailCount;
     }
 
     if (currentQuestionIndex < totalDetails) {
@@ -188,7 +188,7 @@ export const useLearningMaterial = (materialUuid) => {
           totalDetails + currentQuestionDetail.order_in_question;
         break;
       }
-      totalDetails += question.questionDetails.length;
+      totalDetails += question.questionDetailCount;
     }
 
     if (currentQuestionIndex > 1) {
@@ -197,7 +197,7 @@ export const useLearningMaterial = (materialUuid) => {
       const prevSection = material.sections[currentSectionIndex - 1];
       let prevSectionTotalDetails = 0;
       for (const question of prevSection.questions) {
-        prevSectionTotalDetails += question.questionDetails.length;
+        prevSectionTotalDetails += question.questionDetailCount;
       }
       handleNavigation(prevSection.uuid, prevSectionTotalDetails);
     }
