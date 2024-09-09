@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -32,6 +32,18 @@ const LearningPage = () => {
     handleNavigation,
   } = useLearningMaterial(materialUuid);
 
+  // 添加一个新的状态来跟踪当前选中的问题
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+
+  // 在 useEffect 中更新 selectedQuestion
+  useEffect(() => {
+    if (currentQuestion) {
+      setSelectedQuestion(
+        `${currentQuestion.sectionUuid}_${currentQuestion.order_in_section}`
+      );
+    }
+  }, [currentQuestion]);
+
   const renderMaterialStructure = () => {
     if (!material) return null;
 
@@ -45,28 +57,39 @@ const LearningPage = () => {
             <Grid container spacing={1}>
               {Array.from(
                 { length: section.questionCount },
-                (_, questionIndex) => (
-                  <Grid item key={questionIndex} xs={6}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() =>
-                        handleNavigation(section.uuid, questionIndex)
-                      }
-                      sx={{
-                        width: "100%",
-                        minWidth: "30px",
-                        backgroundColor: answerCache[
-                          `${section.uuid}_${questionIndex}`
-                        ]
-                          ? "#e0f7fa"
-                          : "inherit",
-                      }}
-                    >
-                      {questionIndex + 1}
-                    </Button>
-                  </Grid>
-                )
+                (_, questionIndex) => {
+                  const questionKey = `${section.uuid}_${questionIndex}`;
+                  const isSelected = selectedQuestion === questionKey;
+                  const isAnswered =
+                    answerCache[questionKey] &&
+                    typeof answerCache[questionKey] === "string" &&
+                    answerCache[questionKey].trim() !== "";
+                  return (
+                    <Grid item key={questionIndex} xs={6}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          handleNavigation(section.uuid, questionIndex);
+                          setSelectedQuestion(questionKey);
+                        }}
+                        sx={{
+                          width: "100%",
+                          minWidth: "30px",
+                          color: isAnswered ? "red" : "inherit",
+                          backgroundColor: isSelected
+                            ? "#e0f7fa"
+                            : "transparent",
+                          "&:hover": {
+                            backgroundColor: "#e0f7fa",
+                          },
+                        }}
+                      >
+                        {questionIndex + 1}
+                      </Button>
+                    </Grid>
+                  );
+                }
               )}
             </Grid>
           </Box>
