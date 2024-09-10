@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: 错题相关 API
+  version: 1.0.0
+  description: 这是错题相关的 API 文档
+
+paths:
+  /api/error-questions:
+    get:
+      summary: 获取错题列表
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: 成功获取错题列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorQuestions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ErrorQuestion"
+                  totalCount:
+                    type: integer
+
+  /api/error-questions/{uuid}:
+    get:
+      summary: 获取单个错题详情
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取错题详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorQuestionDetail"
+
+  /api/error-questions-practice:
+    get:
+      summary: 获取错题练习
+      parameters:
+        - in: query
+          name: count
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: 成功获取错题练习
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Question"
+
+  /api/error-questions-practice/submit:
+    post:
+      summary: 提交错题练习答案
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        "200":
+          description: 成功提交错题练习答案
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: object
+                    additionalProperties:
+                      $ref: "#/components/schemas/QuestionAnswerResult"
+
+components:
+  schemas:
+    ErrorQuestion:
+      type: object
+      properties:
+        uuid:
+          type: string
+        examUuid:
+          type: string
+        examName:
+          type: string
+        digest:
+          type: string
+        errorCount:
+          type: integer
+
+    ErrorQuestionDetail:
+      type: object
+      properties:
+        uuid:
+          type: string
+        examName:
+          type: string
+        content:
+          type: string
+        correctAnswer:
+          type: array
+          items:
+            type: string
+        userAnswer:
+          type: array
+          items:
+            type: string
+        explanation:
+          type: string
+
+    Question:
+      $ref: "./question_api.yaml#/components/schemas/Question"
+
+    QuestionAnswerResult:
+      $ref: "./question_api.yaml#/components/schemas/QuestionAnswerResult"

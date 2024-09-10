@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: 问题相关 API
+  version: 1.0.0
+  description: 这是问题相关的 API 文档
+
+paths:
+  /api/questions:
+    get:
+      summary: 获取问题列表
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: kn
+          schema:
+            type: string
+        - in: query
+          name: gradeInfo
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取问题列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/QuestionListItem"
+                  totalCount:
+                    type: integer
+
+    post:
+      summary: 创建新问题
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionCreate"
+      responses:
+        "200":
+          description: 成功创建问题
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+
+  /api/questions/{uuid}:
+    get:
+      summary: 获取单个问题详情
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取问题详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+
+    put:
+      summary: 更新现有问题
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionUpdate"
+      responses:
+        "200":
+          description: 成功更新问题
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+
+  /api/questions/{uuid}/answer:
+    post:
+      summary: 提交问题答案
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionAnswer"
+      responses:
+        "200":
+          description: 成功提交答案
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionAnswerResult"
+
+components:
+  schemas:
+    QuestionListItem:
+      type: object
+      properties:
+        uuid:
+          type: string
+        digest:
+          type: string
+        category:
+          type: string
+        kn:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        updatedAt:
+          type: string
+          format: date-time
+
+    QuestionCreate:
+      type: object
+      properties:
+        type:
+          type: string
+        category:
+          type: string
+        kn:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        source:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        digest:
+          type: string
+        material:
+          type: string
+        questionDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionDetailContent"
+        relatedSources:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelatedSource"
+
+    QuestionUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+        category:
+          type: string
+        kn:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        source:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        digest:
+          type: string
+        material:
+          type: string
+        questionDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionDetailContent"
+        relatedSources:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelatedSource"
+
+    QuestionAnswer:
+      type: object
+      properties:
+        answers:
+          type: array
+          items:
+            type: string
+
+    QuestionAnswerResult:
+      type: object
+      properties:
+        correct:
+          type: boolean
+        correctAnswer:
+          type: array
+          items:
+            type: string
+        explanation:
+          type: string
+
+    Question:
+      type: object
+      properties:
+        uuid:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        kn:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        source:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        digest:
+          type: string
+        material:
+          type: string
+        questionDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionDetailContent"
+        relatedSources:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelatedSource"
+
+    QuestionDetailContent:
+      type: object
+      properties:
+        uuid:
+          type: string
+        order_in_question:
+          type: integer
+        questionContent:
+          type: object
+          properties:
+            value:
+              type: string
+            image:
+              type: string
+        rows:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              isAns:
+                type: boolean
+              image:
+                type: string
+        explanation:
+          type: string
+        answer:
+          type: array
+          items:
+            type: string
+        rate:
+          type: integer
+        uiType:
+          type: string
+        answerImage:
+          type: string
+
+    RelatedSource:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+
+    GradeInfo:
+      type: object
+      properties:
+        school:
+          type: string
+        grade:
+          type: string

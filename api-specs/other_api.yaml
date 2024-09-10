@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  title: 其他 API
+  version: 1.0.0
+  description: 这是其他相关的 API 文档
+
+paths:
+  /api/exam-names:
+    get:
+      summary: 获取考试名称列表
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: 搜索关键词
+      responses:
+        '200':
+          description: 成功获取考试名称列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamName'
+
+  /api/user:
+    get:
+      summary: 获取用户信息
+      responses:
+        '200':
+          description: 成功获取用户信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      summary: 更新用户信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: 成功更新用户信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/dictionaries:
+    get:
+      summary: 获取字典数据
+      responses:
+        '200':
+          description: 成功获取字典数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  TypeDict:
+                    type: object
+                  CategoryDict:
+                    type: object
+                  KNDict:
+                    type: object
+                  SchoolDict:
+                    type: object
+                  GradeDict:
+                    type: object
+                  SchoolGradeMapping:
+                    type: object
+                  DifficultyDict:
+                    type: object
+                  TagDict:
+                    type: object
+                  CategoryKNMapping:
+                    type: object
+
+  /api/login:
+    post:
+      summary: 用户登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+
+components:
+  schemas:
+    ExamName:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: 考试的唯一标识符
+        name:
+          type: string
+          description: 考试名称
+
+    User:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: 用户的唯一标识符
+        username:
+          type: string
+          description: 用户名
+        email:
+          type: string
+          format: email
+          description: 用户邮箱
+        role:
+          type: string
+          description: 用户角色
+        createdAt:
+          type: string
+          format: date-time
+          description: 用户创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 用户信息最后更新时间
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+          description: 新的用户名
+        email:
+          type: string
+          format: email
+          description: 新的用户邮箱
+        password:
+          type: string
+          format: password
+          description: 新的密码
+      
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message

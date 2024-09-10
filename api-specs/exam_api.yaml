@@ -1,0 +1,688 @@
+openapi: 3.0.0
+info:
+  title: 考试相关 API
+  version: 1.0.0
+  description: 这是考试相关的 API 文档
+
+paths:
+  /api/my-exams:
+    get:
+      summary: 获取我的考试列表
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: 成功获取考试列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exams:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExamListItem"
+                  totalCount:
+                    type: integer
+
+  /api/exam/list:
+    get:
+      summary: 获取考试列表
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: 成功获取考试列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exams:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExamListItem"
+                  totalCount:
+                    type: integer
+
+  /api/exam/create:
+    post:
+      summary: 创建新考试
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamCreate"
+      responses:
+        "200":
+          description: 成功创建考试
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+
+  /api/exams/{uuid}:
+    get:
+      summary: 获取单个考试详情
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取考试详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+
+    put:
+      summary: 更新考试数据
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamUpdate"
+      responses:
+        "200":
+          description: 成功更新考试数据
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+
+  /api/examview/{uuid}:
+    get:
+      summary: 获取考试视图数据
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取考试视图数据
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamView"
+
+  /api/exams/{uuid}/submit:
+    post:
+      summary: 提交考试答案
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamSubmit"
+      responses:
+        "200":
+          description: 成功提交考试答案
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  examUuid:
+                    type: string
+                  submissionTime:
+                    type: string
+                    format: date-time
+
+  /api/exams/{uuid}/save:
+    post:
+      summary: 保存考试答案
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamSave"
+      responses:
+        "200":
+          description: 成功保存考试答案
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  examUuid:
+                    type: string
+                  saveTime:
+                    type: string
+                    format: date-time
+                  savedQuestionCount:
+                    type: integer
+
+  /api/exams/{uuid}/answers:
+    get:
+      summary: 获取考试答案
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取考试答案
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamAnswers"
+
+  /api/exams/{uuid}/grades:
+    get:
+      summary: 获取考试成绩
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取考试成绩
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamGrades"
+
+    post:
+      summary: 提交考试成绩
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamGradesSubmit"
+      responses:
+        "200":
+          description: 成功提交考试成绩
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/exam-print/{uuid}:
+    get:
+      summary: 获取答题纸打印数据
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功获取答题纸打印数据
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamPrint"
+
+  /api/exam-submissions:
+    get:
+      summary: 获取考试提交列表
+      parameters:
+        - in: query
+          name: examUuid
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: studentName
+          schema:
+            type: string
+        - in: query
+          name: class
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [graded, ungraded]
+      responses:
+        "200":
+          description: 成功获取考试提交列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  submissions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExamSubmission"
+                  totalCount:
+                    type: integer
+
+components:
+  schemas:
+    ExamListItem:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ExamCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+
+    ExamDetail:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        createdAt:
+          type: string
+          format: date-time
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        totalScore:
+          type: integer
+        status:
+          type: string
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+
+    ExamUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+
+    ExamView:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        createdAt:
+          type: string
+          format: date-time
+        startTime:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        totalScore:
+          type: integer
+        status:
+          type: string
+        sections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Section"
+
+    ExamSubmit:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: string
+
+    ExamSave:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: string
+
+    ExamAnswers:
+      type: object
+      properties:
+        examUuid:
+          type: string
+        answers:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: string
+        submissionTime:
+          type: string
+          format: date-time
+
+    ExamGrades:
+      type: object
+      properties:
+        examUuid:
+          type: string
+        totalScore:
+          type: integer
+        maxScore:
+          type: integer
+        grades:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: integer
+        submissionTime:
+          type: string
+          format: date-time
+        gradingTime:
+          type: string
+          format: date-time
+        grader:
+          type: string
+        comments:
+          type: string
+
+    ExamGradesSubmit:
+      type: object
+      properties:
+        grades:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: integer
+        totalScore:
+          type: integer
+        grader:
+          type: string
+        comments:
+          type: string
+
+    ExamPrint:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        totalScore:
+          type: integer
+        duration:
+          type: integer
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              questions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    digest:
+                      type: string
+                    material:
+                      type: string
+                    questionDetails:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          questionContent:
+                            type: object
+                            properties:
+                              value:
+                                type: string
+                              image:
+                                type: string
+                          rows:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                value:
+                                  type: string
+                                image:
+                                  type: string
+                          score:
+                            type: integer
+                          uiType:
+                            type: string
+
+    ExamSubmission:
+      type: object
+      properties:
+        uuid:
+          type: string
+        examUuid:
+          type: string
+        examName:
+          type: string
+        studentName:
+          type: string
+        studentClass:
+          type: string
+        score:
+          type: integer
+        submissionTime:
+          type: string
+          format: date-time
+        isGraded:
+          type: boolean
+
+    GradeInfo:
+      type: object
+      properties:
+        school:
+          type: string
+        grade:
+          type: string
+
+    Section:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        order_in_exam:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+
+    Question:
+      type: object
+      properties:
+        uuid:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        kn:
+          type: string
+        gradeInfo:
+          $ref: "#/components/schemas/GradeInfo"
+        source:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        digest:
+          type: string
+        material:
+          type: string
+        questionDetails:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionDetailContent"
+        relatedSources:
+          type: array
+          items:
+            $ref: "#/components/schemas/RelatedSource"
+
+    QuestionDetailContent:
+      type: object
+      properties:
+        uuid:
+          type: string
+        order_in_question:
+          type: integer
+        questionContent:
+          type: object
+          properties:
+            value:
+              type: string
+            image:
+              type: string
+        rows:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              isAns:
+                type: boolean
+              image:
+                type: string
+        explanation:
+          type: string
+        answer:
+          type: array
+          items:
+            type: string
+        rate:
+          type: integer
+        uiType:
+          type: string
+        answerImage:
+          type: string
+
+    RelatedSource:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
