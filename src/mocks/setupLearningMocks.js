@@ -478,17 +478,17 @@ export const setupLearningMocks = (mock) => {
   });
 
   // 获取单个题目
-  mock.onGet(/\/api\/questions\/[\w-]+/).reply((config) => {
-    const uuid = config.url.split("/").pop();
-    return [
-      200,
-      {
-        uuid,
-        content: `这是题目 ${uuid} 的内容。请选择正确的答案。`,
-        options: ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
-      },
-    ];
-  });
+  // mock.onGet(/\/api\/questions\/[\w-]+/).reply((config) => {
+  //   const uuid = config.url.split("/").pop();
+  //   return [
+  //     200,
+  //     {
+  //       uuid,
+  //       content: `这是题目 ${uuid} 的内容。请选择正确的答案。`,
+  //       options: ["A. 选项1", "B. 选项2", "C. 选项3", "D. 选项4"],
+  //     },
+  //   ];
+  // });
 
   // 提交答案
   // mock.onPost(/\/api\/questions\/[\w-]+\/answer/).reply((config) => {
