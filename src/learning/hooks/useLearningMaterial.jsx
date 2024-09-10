@@ -216,14 +216,22 @@ export const useLearningMaterial = (materialUuid) => {
     const currentSection = material.sections[currentSectionIndex];
     let totalDetails = 0;
     let currentQuestionIndex = 0;
+    let foundCurrentQuestion = false;
 
     for (const question of currentSection.questions) {
       if (question.uuid === currentQuestion.uuid) {
         currentQuestionIndex =
           totalDetails + currentQuestionDetail.order_in_question;
+        foundCurrentQuestion = true;
+        totalDetails += question.questionDetailCount;
         break;
       }
       totalDetails += question.questionDetailCount;
+    }
+
+    if (!foundCurrentQuestion) {
+      console.error("当前问题未找到");
+      return;
     }
 
     if (currentQuestionIndex < totalDetails) {
@@ -231,6 +239,8 @@ export const useLearningMaterial = (materialUuid) => {
     } else if (currentSectionIndex < material.sections.length - 1) {
       const nextSection = material.sections[currentSectionIndex + 1];
       handleNavigation(nextSection.uuid, 1, "next");
+    } else {
+      console.log("已经是最后一个问题了");
     }
   }, [
     material,
