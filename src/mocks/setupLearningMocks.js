@@ -68,7 +68,7 @@ const questions = [
           { value: "力的作用是相互的", isAns: true, image: null },
         ],
         explanation:
-          "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
+          "力是物体运动状态改变的原因，且力的作用是相互的，这是牛���运动律的基本内容。",
         answer: ["C", "D"],
       },
       {
@@ -163,7 +163,7 @@ const questions = [
           { value: "导体中的所有电子都参与电流", isAns: false, image: null },
         ],
         explanation:
-          "电流是有方向的电荷流动，其方向规定为从正极到负极，单位是安培（A）。",
+          "电流是有方向的电荷流动，其方向规定为从正��到负极，单位是安培（A）。",
         answer: ["C"],
         uiType: "single_selection",
       },
@@ -196,7 +196,7 @@ const questions = [
       {
         questionContent: {
           value:
-            "4. 一个电阻为5Ω的导体，当两端电压为10V时，��过它的电流是多少？",
+            "4. 一个�����为5Ω的导体，当两端电压为10V时，过它的电流是多少？",
           image: null,
         },
         rows: [{ value: "2A", isAns: true, image: null }],
@@ -521,6 +521,29 @@ export const setupLearningMocks = (mock) => {
 
       return [200, { message: "答案和状态已保存" }];
     });
+
+  // 添加到错题集
+  mock.onPost(/\/api\/learning-material\/[\w-]+\/mistakes/).reply((config) => {
+    const materialUuid = config.url.split("/")[3];
+    const { questionUuid, questionDetailUuid } = JSON.parse(config.data);
+
+    console.log("添加到错题集:", {
+      materialUuid,
+      questionUuid,
+      questionDetailUuid,
+    });
+
+    // 这里可以添加一些逻辑来模拟将题目添加到错题集
+    // 例如，可以将题目信息存储在一个数组中
+
+    return [
+      200,
+      {
+        message: "题目已成功添加到错题集",
+        mistakeId: generateUUID("mistake"), // 生成一个唯一的错题ID
+      },
+    ];
+  });
 };
 
 export default setupLearningMocks;

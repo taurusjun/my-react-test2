@@ -8,7 +8,10 @@ import {
   FormControlLabel,
   Checkbox,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import axios from "axios";
 
 const LearningMaterial = ({
   material,
@@ -25,6 +28,11 @@ const LearningMaterial = ({
 }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [localAnswer, setLocalAnswer] = useState(cachedAnswer || []);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   useEffect(() => {
     setLocalAnswer(cachedAnswer || []);
@@ -50,8 +58,36 @@ const LearningMaterial = ({
     onStatusChange(newShowAnswer ? "completed" : "in_progress");
   }, [showAnswer, onStatusChange]);
 
-  const handleAddToMistakes = () => {
-    console.log("添加到错题集:", currentQuestionDetail);
+  const handleAddToMistakes = async () => {
+    try {
+      const response = await axios.post(
+        `/api/learning-material/${material.uuid}/mistakes`,
+        {
+          questionUuid: currentQuestion.uuid,
+          questionDetailUuid: currentQuestionDetail.uuid,
+        }
+      );
+      console.log("添加到错题集成功:", response.data);
+      setSnackbar({
+        open: true,
+        message: "成功添加到错题集",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("添加到错题集失败:", error);
+      setSnackbar({
+        open: true,
+        message: "添加到错题集失败，请稍后重试",
+        severity: "error",
+      });
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const getCurrentQuestionIndex = () => {
@@ -169,6 +205,21 @@ const LearningMaterial = ({
           下一题
         </Button>
       </Box>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        style={{ top: 150 }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
