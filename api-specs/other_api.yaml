@@ -15,27 +15,27 @@ paths:
             type: string
           description: 搜索关键词
       responses:
-        '200':
+        "200":
           description: 成功获取考试名称列表
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExamName'
+                  $ref: "#/components/schemas/ExamName"
 
   /api/user:
     get:
       summary: 获取用户信息
       responses:
-        '200':
+        "200":
           description: 成功获取用户信息
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
     put:
       summary: 更新用户信息
@@ -44,24 +44,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserUpdate'
+              $ref: "#/components/schemas/UserUpdate"
       responses:
-        '200':
+        "200":
           description: 成功更新用户信息
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /api/dictionaries:
     get:
       summary: 获取字典数据
       responses:
-        '200':
+        "200":
           description: 成功获取字典数据
           content:
             application/json:
@@ -102,7 +102,7 @@ paths:
                 password:
                   type: string
       responses:
-        '200':
+        "200":
           description: 登录成功
           content:
             application/json:
@@ -174,22 +174,7 @@ components:
           type: string
           format: password
           description: 新的密码
-      
-  responses:
-    BadRequest:
-      description: 请求参数错误
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: 未授权访问
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    
-  schemas:
+
     Error:
       type: object
       properties:
@@ -200,3 +185,17 @@ components:
       required:
         - code
         - message
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
