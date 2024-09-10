@@ -206,11 +206,11 @@ const LearningMaterial = ({
         </Button>
       </Box>
       <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "center", horizontal: "center" }}
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        style={{ top: 150 }}
+        style={{ position: "absolute", bottom: "200px", left: "400px" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
