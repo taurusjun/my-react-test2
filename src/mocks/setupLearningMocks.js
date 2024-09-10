@@ -412,27 +412,27 @@ export const setupLearningMocks = (mock) => {
     });
 
   // 提交答案
-  mock
-    .onPost(
-      /\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/[\w-]+\/answer/
-    )
-    .reply((config) => {
-      const { answer } = JSON.parse(config.data);
-      const correctAnswer = ["C", "D"];
-      const isCorrect =
-        JSON.stringify(answer.sort()) === JSON.stringify(correctAnswer);
+  // mock
+  //   .onPost(
+  //     /\/api\/learning-material\/[\w-]+\/section\/[\w-]+\/question\/[\w-]+\/answer/
+  //   )
+  //   .reply((config) => {
+  //     const { answer } = JSON.parse(config.data);
+  //     const correctAnswer = ["C", "D"];
+  //     const isCorrect =
+  //       JSON.stringify(answer.sort()) === JSON.stringify(correctAnswer);
 
-      return [
-        200,
-        {
-          correct: isCorrect,
-          correctAnswer: correctAnswer,
-          explanation: isCorrect
-            ? "恭喜你答对了！力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。"
-            : "很遗憾，你答错了。正确答案是C和D。力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。请仔细阅读题目并重新尝试。",
-        },
-      ];
-    });
+  //     return [
+  //       200,
+  //       {
+  //         correct: isCorrect,
+  //         correctAnswer: correctAnswer,
+  //         explanation: isCorrect
+  //           ? "恭喜你答对了！力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。"
+  //           : "很遗憾，你答错了。正确答案是C和D。力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。请仔细阅读题目并重新尝试。",
+  //       },
+  //     ];
+  //   });
 
   // 获取学习材料列表
   mock.onGet("/api/learning-materials").reply((config) => {
@@ -491,21 +491,21 @@ export const setupLearningMocks = (mock) => {
   });
 
   // 提交答案
-  mock.onPost(/\/api\/questions\/[\w-]+\/answer/).reply((config) => {
-    const questionUuid = config.url.split("/")[3];
-    const { answer } = JSON.parse(config.data);
-    const isCorrect = Math.random() > 0.5;
+  // mock.onPost(/\/api\/questions\/[\w-]+\/answer/).reply((config) => {
+  //   const questionUuid = config.url.split("/")[3];
+  //   const { answer } = JSON.parse(config.data);
+  //   const isCorrect = Math.random() > 0.5;
 
-    return [
-      200,
-      {
-        correct: isCorrect,
-        explanation: isCorrect
-          ? `恭喜你答对了！问题 ${questionUuid} 的正确答案是 ${answer}。`
-          : `很遗憾，你答错了。问题 ${questionUuid} 的正确答案不是 ${answer}。请仔细阅读题目并重新尝试。`,
-      },
-    ];
-  });
+  //   return [
+  //     200,
+  //     {
+  //       correct: isCorrect,
+  //       explanation: isCorrect
+  //         ? `恭喜你答对了！问题 ${questionUuid} 的正确答案是 ${answer}。`
+  //         : `很遗憾，你答错了。问题 ${questionUuid} 的正确答案不是 ${answer}。请仔细阅读题目并重新尝试。`,
+  //     },
+  //   ];
+  // });
 
   // 新增：模拟保存答案和状态的 API
   mock
