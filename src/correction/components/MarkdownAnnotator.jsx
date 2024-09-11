@@ -32,7 +32,7 @@ const MarkdownAnnotator = ({
   const validSections = useMemo(() => {
     return exam.sections
       .filter((section) => section.lines.length > 0)
-      .sort((a, b) => a.order - b.order); // 按 order 正序排列
+      .sort((a, b) => b.order - a.order); // 按 order 倒序排列
   }, [exam.sections]);
 
   useEffect(() => {

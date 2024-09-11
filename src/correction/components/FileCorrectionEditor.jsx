@@ -130,9 +130,9 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   };
 
   const handleMarkSection = (selectedLines, sectionOrder) => {
-    setExam((prevExam) => {
+    setExam((prev) => {
       // 将选中的行添加到指定的大题中，或创建新的大题
-      let newSections = [...prevExam.sections];
+      let newSections = [...prev.sections];
       const sectionIndex = newSections.findIndex(
         (s) => s.order === sectionOrder
       );
@@ -169,7 +169,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       updateMarkdownLines(newSections);
 
       return {
-        ...prevExam,
+        ...prev,
         sections: newSections,
       };
     });
@@ -262,7 +262,18 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         }));
 
       // 更新 markdownLines
-      updateMarkdownLines(updatedSections);
+      setMarkdownLines((prevLines) =>
+        prevLines.map((line, index) => {
+          if (index === lineIndex) {
+            return {
+              content: line.content,
+              backgroundColor: undefined,
+              label: undefined,
+            };
+          }
+          return line;
+        })
+      );
 
       return {
         ...prevExam,
@@ -326,6 +337,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     };
     fetchFileContent();
   }, [fileUuid]);
+
+  useEffect(() => {
+    updateMarkdownLines(exam.sections);
+  }, [exam]);
 
   return (
     <Grid container spacing={2}>
