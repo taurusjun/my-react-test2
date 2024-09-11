@@ -91,7 +91,7 @@ const MarkdownAnnotator = ({
       </Button>
       <Button
         variant="contained"
-        color="default"
+        color="success"
         onClick={() => openMaterialDialog("questionDetail")}
       >
         标注为小题
