@@ -225,6 +225,28 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           : line
       )
     );
+
+    setExam((prevExam) => {
+      const newSections = prevExam.sections
+        .map((section) => ({
+          ...section,
+          lines: section.lines.filter((line) => line !== lineIndex + 1),
+          questions: section.questions.map((question) => ({
+            ...question,
+            lines: question.lines.filter((line) => line !== lineIndex + 1),
+            questionDetails: question.questionDetails.map((detail) => ({
+              ...detail,
+              lines: detail.lines.filter((line) => line !== lineIndex + 1),
+            })),
+          })),
+        }))
+        .filter((section) => section.lines.length > 0);
+
+      return {
+        ...prevExam,
+        sections: newSections,
+      };
+    });
   };
 
   const renderMarkdownWithLineNumbers = (lines) => {
