@@ -26,6 +26,10 @@ import {
 import LearningMaterialListPage from "./learning/pages/LearningMaterialListPage";
 import LearningPage from "./learning/pages/LearningPage";
 
+// 导入文件校正相关组件
+import FileCorrectionListPage from "./correction/pages/FileCorrectionListPage";
+import FileCorrectionEditorPage from "./correction/pages/FileCorrectionEditorPage";
+
 // 保留现有的路由配置并添加新的错题集路由和阅卷中心路由
 export const routeConfig = [
   { path: "/login", element: Login, protected: false },
@@ -82,4 +86,16 @@ export const routeConfig = [
   // 添加新的学习资料路由
   { path: "/learning", element: LearningMaterialListPage, protected: true },
   { path: "/learning/:materialUuid", element: LearningPage, protected: true },
+
+  // 添加文件校正相关路由
+  {
+    path: "/file-correction",
+    element: FileCorrectionListPage,
+    protected: true,
+  },
+  {
+    path: "/file-correction/:fileUuid",
+    element: FileCorrectionEditorPage,
+    protected: true,
+  },
 ];

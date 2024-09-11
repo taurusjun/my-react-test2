@@ -1,0 +1,24 @@
+.markdown-container {
+  font-family: Arial, sans-serif;
+}
+
+.markdown-line {
+  display: flex;
+  align-items: flex-start;
+}
+
+.line-number {
+  width: 30px;
+  text-align: right;
+  margin-right: 10px;
+  color: #888;
+}
+
+.line-content {
+  flex: 1;
+}
+
+/* 示例：为第 5 行设置背景颜色 */
+#line-5 {
+  background-color: #f0f0f0;
+}

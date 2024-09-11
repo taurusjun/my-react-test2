@@ -55,5 +55,12 @@ export const getBreadcrumbPaths = () => ({
     { name: "学习资料", url: "" },
   ],
 
+  // 添加文件校正相关路径
+  fileCorrectionList: [{ name: "文件校正", url: "/file-correction" }],
+  fileCorrectionEdit: [
+    { name: "文件校正", url: "/file-correction" },
+    { name: "文件校正编辑", url: "" },
+  ],
+
   // ... 其他路径保持不变 ...
 });
