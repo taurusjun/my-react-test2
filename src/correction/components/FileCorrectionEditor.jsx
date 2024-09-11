@@ -3,9 +3,11 @@ import ReactMarkdown from "react-markdown"; // 导入react-markdown
 import { Box, Button, Grid, TextField } from "@mui/material";
 import axios from "axios"; // 确保导入axios
 import rehypeRaw from "rehype-raw"; // 导入 rehype-raw
+import MarkdownAnnotator from "./MarkdownAnnotator"; // 引入MarkdownAnnotator
 
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
+  const [sections, setSections] = useState([]); // 添加sections状态
   const [isEditing, setIsEditing] = useState(false); // 添加编辑状态
   const [selectedLines, setSelectedLines] = useState([]); // 添加选中的行号状态
 
@@ -81,7 +83,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           <Button
             onClick={handleEditToggle}
             variant="contained"
-            color="primary"
+            style={{
+              backgroundColor: isEditing ? "#3f51b5" : "#f50057", // 自定义背景色
+              color: "#fff", // 自定义文字颜色
+            }}
           >
             {isEditing ? "保存" : "编辑"}
           </Button>
@@ -99,11 +104,18 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             />
           ) : (
             <div style={{ width: "100%" }}>
-              {renderMarkdownWithLineNumbers(markdownLines)}{" "}
+              {renderMarkdownWithLineNumbers(markdownLines)}
               {/* 使用带行号的渲染 */}
             </div>
           )}
         </Box>
+        <MarkdownAnnotator
+          markdownLines={markdownLines}
+          selectedLines={selectedLines}
+          setMarkdownLines={setMarkdownLines}
+          sections={sections} // 传递sections状态
+          setSections={setSections} // 传递setSections函数
+        />
       </Grid>
     </Grid>
   );

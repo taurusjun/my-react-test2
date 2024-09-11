@@ -64,7 +64,7 @@ const FileCorrectionEditorPage = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <FileCorrectionEditor fileUuid={fileUuid} editable={true} />{" "}
+      <FileCorrectionEditor fileUuid={fileUuid} editable={true} />
       {/* 使 md 文件可编辑 */}
     </Box>
   );
