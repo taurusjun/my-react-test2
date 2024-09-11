@@ -20,30 +20,30 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <UserProvider>
-        {/* 在这里添加 UserProvider */}
-        <Routes>
-          {routeConfig.map(
-            ({ path, element: Element, protected: isProtected }) => (
-              <Route
-                key={path}
-                path={path}
-                element={
-                  isProtected ? (
-                    <ProtectedRoute>
-                      <Element />
-                    </ProtectedRoute>
-                  ) : (
+    // <ThemeProvider theme={theme}>
+    <UserProvider>
+      {/* 在这里添加 UserProvider */}
+      <Routes>
+        {routeConfig.map(
+          ({ path, element: Element, protected: isProtected }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                isProtected ? (
+                  <ProtectedRoute>
                     <Element />
-                  )
-                }
-              />
-            )
-          )}
-        </Routes>
-      </UserProvider>
-    </ThemeProvider>
+                  </ProtectedRoute>
+                ) : (
+                  <Element />
+                )
+              }
+            />
+          )
+        )}
+      </Routes>
+    </UserProvider>
+    // </ThemeProvider>
   );
 }
 

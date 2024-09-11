@@ -5,33 +5,111 @@ import axios from "axios"; // 确保导入axios
 import rehypeRaw from "rehype-raw"; // 导入 rehype-raw
 import MarkdownAnnotator from "./MarkdownAnnotator"; // 引入MarkdownAnnotator
 
+// 定义颜色常量
+const COLORS = {
+  SECTION: "#3f51b5", // 大题颜色
+  QUESTION: "#f50057", // 标准题颜色
+  QUESTION_DETAIL: "#00a152", // 小题颜色
+};
+
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
-  const [sections, setSections] = useState([]); // 添加sections状态
+  const [exam, setExam] = useState({
+    sections: [],
+  });
   const [isEditing, setIsEditing] = useState(false); // 添加编辑状态
   const [selectedLines, setSelectedLines] = useState([]); // 添加选中的行号状态
+  const [anchorPosition, setAnchorPosition] = useState(null);
 
   const handleEditToggle = () => {
     setIsEditing((prev) => !prev); // 切换编辑状态
   };
 
-  const handleLineClick = (index) => {
-    setSelectedLines((prev) => {
-      if (prev.includes(index)) {
-        return prev.filter((line) => line !== index); // 取消选择
-      }
-      return [...prev, index]; // 添加选择
+  const handleLineClick = (event, index) => {
+    event.preventDefault();
+    setSelectedLines([index]);
+    setAnchorPosition({
+      top: event.clientY,
+      left: event.clientX,
     });
   };
 
-  // 生成带行号的HTML
+  const handleAnnotatorClose = () => {
+    setAnchorPosition(null);
+    setSelectedLines([]);
+  };
+
+  const updateExam = (newExam) => {
+    setExam(newExam);
+  };
+
+  const handleMarkSection = (lineIndex, sectionOrder) => {
+    setMarkdownLines((prevLines) =>
+      prevLines.map((line, index) =>
+        index === lineIndex
+          ? {
+              ...line,
+              backgroundColor: COLORS.SECTION,
+              label: `大题${sectionOrder}`,
+            }
+          : line
+      )
+    );
+  };
+
+  const handleMarkQuestion = (lineIndex, sectionIndex, questionOrder) => {
+    setMarkdownLines((prevLines) =>
+      prevLines.map((line, index) =>
+        index === lineIndex
+          ? {
+              ...line,
+              backgroundColor: COLORS.QUESTION,
+              label: `标准题${sectionIndex}.${questionOrder}`,
+            }
+          : line
+      )
+    );
+  };
+
+  const handleMarkQuestionDetail = (
+    lineIndex,
+    sectionIndex,
+    questionIndex,
+    detailOrder
+  ) => {
+    setMarkdownLines((prevLines) =>
+      prevLines.map((line, index) =>
+        index === lineIndex
+          ? {
+              ...line,
+              backgroundColor: COLORS.QUESTION_DETAIL,
+              label: `小题${sectionIndex}.${questionIndex}.${detailOrder}`,
+            }
+          : line
+      )
+    );
+  };
+
+  const handleCancelAnnotation = (lineIndex) => {
+    setMarkdownLines((prevLines) =>
+      prevLines.map((line, index) =>
+        index === lineIndex
+          ? {
+              content: line.content,
+              backgroundColor: undefined,
+              label: undefined,
+            }
+          : line
+      )
+    );
+    // 这里可能还需要更新 exam 对象，移除相应的标注
+  };
+
   const renderMarkdownWithLineNumbers = (lines) => {
     return lines.map((line, index) => {
       const backgroundColor = selectedLines.includes(index)
         ? "#d0e0ff"
-        : index % 2 === 0
-        ? "#f9f9f9"
-        : "#ffffff"; // 高亮选中行
+        : line.backgroundColor || (index % 2 === 0 ? "#f9f9f9" : "#ffffff"); // 高亮选中行
       return (
         <div
           key={index}
@@ -42,7 +120,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             backgroundColor,
             cursor: "pointer",
           }}
-          onClick={() => handleLineClick(index)} // 使用React的onClick事件
+          onClick={(event) => handleLineClick(event, index)} // 使用React的onClick事件
         >
           <div
             style={{ width: "50px", textAlign: "right", paddingRight: "10px" }}
@@ -50,13 +128,17 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             {index + 1}
           </div>
           <div style={{ flex: 1 }}>
+            {line.label && (
+              <span style={{ fontWeight: "bold", marginRight: "10px" }}>
+                {line.label}
+              </span>
+            )}
             <ReactMarkdown
               components={{ p: ({ node, ...props }) => <p {...props} /> }}
               rehypePlugins={[rehypeRaw]} // 添加 rehype-raw 插件
             >
-              {line}
-            </ReactMarkdown>{" "}
-            {/* 使用react-markdown渲染 */}
+              {typeof line === "string" ? line : line.content || ""}
+            </ReactMarkdown>
           </div>
         </div>
       );
@@ -66,8 +148,14 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   useEffect(() => {
     const fetchFileContent = async () => {
       const response = await axios.get(`/api/file-corrections/${fileUuid}`);
-      const lines = response.data.content.split("\n");
+      const lines = response.data.content
+        .split("\n")
+        .map((content) => ({ content }));
       setMarkdownLines(lines);
+      // 如果后端返回了 exam 数据，也需要设置
+      if (response.data.exam) {
+        setExam(response.data.exam);
+      }
     };
     fetchFileContent();
   }, [fileUuid]);
@@ -84,7 +172,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             onClick={handleEditToggle}
             variant="contained"
             style={{
-              backgroundColor: isEditing ? "#3f51b5" : "#f50057", // 自定义背景色
+              backgroundColor: isEditing ? "#3f51b5" : "#f50057", // 定义背景色
               color: "#fff", // 自定义文字颜色
             }}
           >
@@ -95,8 +183,12 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           {isEditing ? (
             <TextField
               label="编辑Markdown"
-              value={markdownLines.join("\n")}
-              onChange={(e) => setMarkdownLines(e.target.value.split("\n"))}
+              value={markdownLines.map((line) => line.content || "").join("\n")}
+              onChange={(e) =>
+                setMarkdownLines(
+                  e.target.value.split("\n").map((content) => ({ content }))
+                )
+              }
               fullWidth
               multiline
               rows={10}
@@ -110,11 +202,17 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           )}
         </Box>
         <MarkdownAnnotator
-          markdownLines={markdownLines}
           selectedLines={selectedLines}
-          setMarkdownLines={setMarkdownLines}
-          sections={sections} // 传递sections状态
-          setSections={setSections} // 传递setSections函数
+          exam={exam}
+          updateExam={updateExam}
+          anchorPosition={anchorPosition}
+          onClose={handleAnnotatorClose}
+          onMarkSection={handleMarkSection}
+          onMarkQuestion={handleMarkQuestion}
+          onMarkQuestionDetail={handleMarkQuestionDetail}
+          onCancelAnnotation={handleCancelAnnotation}
+          colors={COLORS}
+          markdownLines={markdownLines}
         />
       </Grid>
     </Grid>
