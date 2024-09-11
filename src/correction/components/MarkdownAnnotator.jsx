@@ -24,24 +24,35 @@ const MarkdownAnnotator = ({
   colors,
   markdownLines,
 }) => {
-  const [selectedSection, setSelectedSection] = useState("");
+  const validSections = useMemo(() => {
+    return exam.sections
+      .filter((section) => section.lines.length > 0)
+      .sort((a, b) => b.order - a.order); // 倒排序
+  }, [exam.sections]);
+
+  const [selectedSection, setSelectedSection] = useState(
+    validSections.length > 0 ? validSections[0].order.toString() : "new"
+  );
+
   const isLineAnnotated = selectedLines.some(
     (line) => markdownLines[line]?.label
   );
 
-  // 使用 useMemo 来计算有效的大题列表
-  const validSections = useMemo(() => {
-    return exam.sections.filter((section) => section.lines.length > 0);
-  }, [exam.sections]);
-
   useEffect(() => {
-    setSelectedSection("");
-  }, [anchorPosition]);
+    setSelectedSection(
+      validSections.length > 0 ? validSections[0].order.toString() : "new"
+    );
+  }, [anchorPosition, validSections]);
 
   const handleMarkSection = () => {
     if (selectedSection === "new") {
-      const sectionOrder = validSections.length + 1;
-      onMarkSection(selectedLines, sectionOrder);
+      // 找到一个未使用的大题编号
+      const usedOrders = new Set(exam.sections.map((s) => s.order));
+      let newOrder = 1;
+      while (usedOrders.has(newOrder)) {
+        newOrder++;
+      }
+      onMarkSection(selectedLines, newOrder);
     } else if (selectedSection) {
       onMarkSection(selectedLines, parseInt(selectedSection));
     }
@@ -111,48 +122,64 @@ const MarkdownAnnotator = ({
           </Button>
         ) : (
           <>
-            <Grid container spacing={2} alignItems="center" marginBottom={2}>
-              <Grid item xs={7}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="section-select-label">选择大题</InputLabel>
-                  <Select
-                    labelId="section-select-label"
-                    value={selectedSection}
-                    onChange={handleSectionChange}
-                    label="选择大题"
-                  >
-                    <MenuItem value="new">
-                      <AddIcon
-                        fontSize="small"
-                        style={{ marginRight: "8px" }}
-                      />
-                      新大题
-                    </MenuItem>
-                    {validSections.map((section) => (
-                      <MenuItem
-                        key={section.order}
-                        value={section.order.toString()}
-                      >
-                        大题{section.order}
+            {validSections.length > 0 && (
+              <Grid container spacing={2} alignItems="center" marginBottom={2}>
+                <Grid item xs={7}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="section-select-label">选择大题</InputLabel>
+                    <Select
+                      labelId="section-select-label"
+                      value={selectedSection}
+                      onChange={handleSectionChange}
+                      label="选择大题"
+                    >
+                      <MenuItem value="new">
+                        <AddIcon
+                          fontSize="small"
+                          style={{ marginRight: "8px" }}
+                        />
+                        新大题
                       </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                      {validSections.map((section) => (
+                        <MenuItem
+                          key={section.order}
+                          value={section.order.toString()}
+                        >
+                          大题{section.order}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={5}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    style={{
+                      backgroundColor: colors.SECTION,
+                      color: "#fff",
+                    }}
+                    onClick={handleMarkSection}
+                  >
+                    大题标注
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={5}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  style={{
-                    backgroundColor: colors.SECTION,
-                    color: "#fff",
-                  }}
-                  onClick={handleMarkSection}
-                >
-                  大题标注
-                </Button>
-              </Grid>
-            </Grid>
+            )}
+            {validSections.length === 0 && (
+              <Button
+                variant="contained"
+                fullWidth
+                style={{
+                  backgroundColor: colors.SECTION,
+                  color: "#fff",
+                  marginBottom: "8px",
+                }}
+                onClick={handleMarkSection}
+              >
+                标注为大题
+              </Button>
+            )}
             <Button
               variant="contained"
               style={{
