@@ -111,40 +111,62 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     setExam(newExam);
   };
 
-  const handleMarkSection = (selectedLines, sectionOrder) => {
+  const updateMarkdownLines = (newSections) => {
     setMarkdownLines((prevLines) =>
-      prevLines.map((line, index) =>
-        selectedLines.includes(index)
-          ? {
-              ...line,
-              backgroundColor: COLORS.SECTION,
-              label: `大题${sectionOrder}`,
-            }
-          : line
-      )
+      prevLines.map((line, index) => {
+        const sectionForLine = newSections.find((section) =>
+          section.lines.includes(index + 1)
+        );
+        if (sectionForLine) {
+          return {
+            ...line,
+            backgroundColor: COLORS.SECTION,
+            label: sectionForLine.name,
+          };
+        }
+        return line;
+      })
     );
+  };
 
+  const handleMarkSection = (selectedLines, sectionOrder) => {
     setExam((prevExam) => {
-      const newSections = [...prevExam.sections];
-      const existingSectionIndex = newSections.findIndex(
+      // 将选中的行添加到指定的大题中，或创建新的大题
+      let newSections = [...prevExam.sections];
+      const sectionIndex = newSections.findIndex(
         (s) => s.order === sectionOrder
       );
 
-      if (existingSectionIndex !== -1) {
-        newSections[existingSectionIndex].lines = [
-          ...new Set([
-            ...newSections[existingSectionIndex].lines,
-            ...selectedLines.map((index) => index + 1),
-          ]),
-        ].sort((a, b) => a - b);
+      if (sectionIndex !== -1) {
+        // 更新现有大题
+        newSections[sectionIndex] = {
+          ...newSections[sectionIndex],
+          lines: [
+            ...new Set([
+              ...newSections[sectionIndex].lines,
+              ...selectedLines.map((i) => i + 1),
+            ]),
+          ].sort((a, b) => a - b),
+        };
       } else {
+        // 创建新大题
         newSections.push({
-          lines: selectedLines.map((index) => index + 1),
+          lines: selectedLines.map((i) => i + 1),
           order: sectionOrder,
           questions: [],
         });
-        newSections.sort((a, b) => a.order - b.order);
       }
+
+      // 根据每个大题的最小行号重新排序和重命名
+      newSections.sort((a, b) => Math.min(...a.lines) - Math.min(...b.lines));
+      newSections = newSections.map((section, index) => ({
+        ...section,
+        order: index + 1,
+        name: `大题${index + 1}`,
+      }));
+
+      // 更新 markdownLines
+      updateMarkdownLines(newSections);
 
       return {
         ...prevExam,
@@ -214,18 +236,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   };
 
   const handleCancelAnnotation = (lineIndex) => {
-    setMarkdownLines((prevLines) =>
-      prevLines.map((line, index) =>
-        index === lineIndex
-          ? {
-              content: line.content,
-              backgroundColor: undefined,
-              label: undefined,
-            }
-          : line
-      )
-    );
-
     setExam((prevExam) => {
       const newSections = prevExam.sections
         .map((section) => ({
@@ -242,9 +252,21 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         }))
         .filter((section) => section.lines.length > 0);
 
+      // 重新排序和重命名大题
+      const updatedSections = newSections
+        .sort((a, b) => Math.min(...a.lines) - Math.min(...b.lines))
+        .map((section, index) => ({
+          ...section,
+          order: index + 1,
+          name: `大题${index + 1}`,
+        }));
+
+      // 更新 markdownLines
+      updateMarkdownLines(updatedSections);
+
       return {
         ...prevExam,
-        sections: newSections,
+        sections: updatedSections,
       };
     });
   };

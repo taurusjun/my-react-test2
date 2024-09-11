@@ -32,7 +32,7 @@ const MarkdownAnnotator = ({
   const validSections = useMemo(() => {
     return exam.sections
       .filter((section) => section.lines.length > 0)
-      .sort((a, b) => b.order - a.order); // 倒排序
+      .sort((a, b) => a.order - b.order); // 按 order 正序排列
   }, [exam.sections]);
 
   useEffect(() => {
@@ -74,11 +74,7 @@ const MarkdownAnnotator = ({
     }
 
     if (selectedSection === "new") {
-      const usedOrders = new Set(exam.sections.map((s) => s.order));
-      let newOrder = 1;
-      while (usedOrders.has(newOrder)) {
-        newOrder++;
-      }
+      const newOrder = exam.sections.length + 1;
       onMarkSection(selectedLines, newOrder);
     } else if (selectedSection) {
       onMarkSection(selectedLines, parseInt(selectedSection));
@@ -187,7 +183,7 @@ const MarkdownAnnotator = ({
                             key={section.order}
                             value={section.order.toString()}
                           >
-                            大题{section.order}
+                            {section.name}
                           </MenuItem>
                         ))}
                       </Select>
@@ -256,7 +252,7 @@ const MarkdownAnnotator = ({
           horizontal: "center",
         }}
         sx={{
-          bottom: "250px !important",
+          bottom: "150px !important",
         }}
       >
         <Alert
