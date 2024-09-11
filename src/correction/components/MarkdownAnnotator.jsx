@@ -52,19 +52,27 @@ const MarkdownAnnotator = ({
     const hasOverlap = exam.sections.some((section) => {
       if (section.lines.length === 0) return false;
       // 如果是选择的同一个大题，则不检查重叠
-      if (selectedSection === section.order.toString()) return false;
+      if (selectedSection === section.order.toString()) {
+        // 对于同一个大题，我们需要检查新添加的行是否会导致与其他大题重叠
+        const newLines = [
+          ...new Set([...section.lines, ...selectedLines.map((i) => i + 1)]),
+        ];
+        const newStart = Math.min(...newLines);
+        const newEnd = Math.max(...newLines);
 
-      const sectionRange = {
-        start: Math.min(...section.lines),
-        end: Math.max(...section.lines),
-      };
+        return exam.sections.some((otherSection) => {
+          if (otherSection.order === section.order) return false;
+          const otherStart = Math.min(...otherSection.lines);
+          const otherEnd = Math.max(...otherSection.lines);
+          return newStart <= otherEnd && newEnd >= otherStart;
+        });
+      }
+
+      const sectionStart = Math.min(...section.lines);
+      const sectionEnd = Math.max(...section.lines);
       return (
-        (selectedLineRange.start >= sectionRange.start &&
-          selectedLineRange.start <= sectionRange.end) ||
-        (selectedLineRange.end >= sectionRange.start &&
-          selectedLineRange.end <= sectionRange.end) ||
-        (sectionRange.start >= selectedLineRange.start &&
-          sectionRange.start <= selectedLineRange.end)
+        selectedLineRange.start <= sectionEnd &&
+        selectedLineRange.end >= sectionStart
       );
     });
 

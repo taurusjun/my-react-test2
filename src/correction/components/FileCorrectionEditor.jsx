@@ -131,15 +131,15 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
   const handleMarkSection = (selectedLines, sectionOrder) => {
     setExam((prev) => {
-      // 将选中的行添加到指定的大题中，或创建新的大题
       let newSections = [...prev.sections];
       const sectionIndex = newSections.findIndex(
         (s) => s.order === sectionOrder
       );
 
+      let updatedSection;
       if (sectionIndex !== -1) {
         // 更新现有大题
-        newSections[sectionIndex] = {
+        updatedSection = {
           ...newSections[sectionIndex],
           lines: [
             ...new Set([
@@ -150,11 +150,34 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         };
       } else {
         // 创建新大题
-        newSections.push({
+        updatedSection = {
           lines: selectedLines.map((i) => i + 1),
           order: sectionOrder,
           questions: [],
-        });
+        };
+      }
+
+      // 检查是否与其他大题重叠
+      const hasOverlap = newSections.some((section, index) => {
+        if (index === sectionIndex) return false;
+        const sectionStart = Math.min(...section.lines);
+        const sectionEnd = Math.max(...section.lines);
+        const updatedStart = Math.min(...updatedSection.lines);
+        const updatedEnd = Math.max(...updatedSection.lines);
+        return updatedStart <= sectionEnd && updatedEnd >= sectionStart;
+      });
+
+      if (hasOverlap) {
+        // 如果有重叠，不进行更新
+        console.error("选中的行范围与其他大题重叠，无法更新");
+        return prev;
+      }
+
+      // 如果没有重叠，进行更新
+      if (sectionIndex !== -1) {
+        newSections[sectionIndex] = updatedSection;
+      } else {
+        newSections.push(updatedSection);
       }
 
       // 根据每个大题的最小行号重新排序和重命名
