@@ -1,8 +1,5 @@
-import { Home } from "./exam/Home";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
-import { List } from "./components/List";
-import { ExamDetail } from "./exam/ExamDetail";
 import QuestionList from "./provider/components/QuestionList";
 import QuestionEdit from "./provider/components/QuestionEdit";
 import {
@@ -37,9 +34,7 @@ export const routeConfig = [
   { path: "/user-center", element: UserCenter, protected: true },
   { path: "/questions", element: QuestionList, protected: true },
   { path: "/about/:id", element: About, protected: false },
-  { path: "/exam/:uuid", element: ExamDetail, protected: true },
   { path: "/contact", element: Contact, protected: false },
-  { path: "/list", element: List, protected: false },
   { path: "/question-edit", element: QuestionEdit, protected: true },
   { path: "/question-edit/:uuid", element: QuestionEdit, protected: true },
   { path: "/exam/new", element: NewExam, protected: true },

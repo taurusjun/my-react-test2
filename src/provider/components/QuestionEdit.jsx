@@ -5,7 +5,6 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
-  Stack,
   TextField,
   Typography,
   Select,
@@ -27,7 +26,6 @@ import axios from "axios";
 import CommonLayout from "../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../config/breadcrumbPaths";
-import NarrowSelect from "../../components/NarrowSelect";
 
 const QuestionEdit = ({
   onSubmit,
@@ -136,7 +134,7 @@ const QuestionEdit = ({
     } else {
       setAvailableKnowledgeNodes([]);
     }
-  }, [questionData.category, dictionaries.CategoryKNMapping]);
+  }, [questionData.category, dictionaries.CategoryKNMapping, questionData.kn]);
 
   if (loading) return <div>载中...</div>;
   if (error) return <div>加载失败</div>;
