@@ -1,52 +1,120 @@
-import React, { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown"; // 导入react-markdown
+import React, { useState, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
 import { Box, Button, Grid, TextField } from "@mui/material";
-import axios from "axios"; // 确保导入axios
-import rehypeRaw from "rehype-raw"; // 导入 rehype-raw
-import MarkdownAnnotator from "./MarkdownAnnotator"; // 引入MarkdownAnnotator
+import axios from "axios";
+import rehypeRaw from "rehype-raw";
+import MarkdownAnnotator from "./MarkdownAnnotator";
 
-// 定义颜色常量
 const COLORS = {
-  SECTION: "#3f51b5", // 大题颜色
-  QUESTION: "#f50057", // 标准题颜色
-  QUESTION_DETAIL: "#00a152", // 小题颜色
+  SECTION: "#3f51b5",
+  QUESTION: "#f50057",
+  QUESTION_DETAIL: "#00a152",
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
-  const [exam, setExam] = useState({
-    sections: [],
-  });
-  const [isEditing, setIsEditing] = useState(false); // 添加编辑状态
-  const [selectedLines, setSelectedLines] = useState([]); // 添加选中的行号状态
+  const [exam, setExam] = useState({ sections: [] });
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedLines, setSelectedLines] = useState([]);
   const [anchorPosition, setAnchorPosition] = useState(null);
+  const [isMultiSelecting, setIsMultiSelecting] = useState(false);
+  const [initialSelectedLine, setInitialSelectedLine] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleMultiSelectEnd = useCallback(() => {
+    if (selectedLines.length > 1) {
+      setAnchorPosition({
+        top: mousePosition.y,
+        left: mousePosition.x,
+      });
+    }
+  }, [selectedLines, mousePosition]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey || e.metaKey || e.ctrlKey) {
+        setIsMultiSelecting(true);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
+        setIsMultiSelecting(false);
+        handleMultiSelectEnd();
+      }
+    };
+
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMultiSelectEnd]);
 
   const handleEditToggle = () => {
-    setIsEditing((prev) => !prev); // 切换编辑状态
+    setIsEditing((prev) => !prev);
   };
 
   const handleLineClick = (event, index) => {
     event.preventDefault();
-    setSelectedLines([index]);
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX,
+
+    setSelectedLines((prev) => {
+      let newSelection;
+      if (event.shiftKey && initialSelectedLine !== null) {
+        // Shift 键按下：选择范围
+        const start = Math.min(initialSelectedLine, index);
+        const end = Math.max(initialSelectedLine, index);
+        newSelection = Array.from(
+          { length: end - start + 1 },
+          (_, i) => start + i
+        );
+      } else if (event.metaKey || event.ctrlKey) {
+        // Command/Ctrl 键按下：切换选中状态
+        if (prev.includes(index)) {
+          newSelection = prev.filter((i) => i !== index);
+        } else {
+          newSelection = [...prev, index];
+        }
+        setInitialSelectedLine(index);
+      } else {
+        // 没有按下修饰键：只选择当前行
+        newSelection = [index];
+        setInitialSelectedLine(index);
+      }
+      return newSelection;
     });
+
+    // 单击时显示 Popover（非多选模式）
+    if (!isMultiSelecting) {
+      setAnchorPosition({
+        top: event.clientY,
+        left: event.clientX,
+      });
+    }
   };
 
   const handleAnnotatorClose = () => {
     setAnchorPosition(null);
     setSelectedLines([]);
+    setInitialSelectedLine(null);
   };
 
   const updateExam = (newExam) => {
     setExam(newExam);
   };
 
-  const handleMarkSection = (lineIndex, sectionOrder) => {
+  const handleMarkSection = (selectedLines, sectionOrder) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) =>
-        index === lineIndex
+        selectedLines.includes(index)
           ? {
               ...line,
               backgroundColor: COLORS.SECTION,
@@ -55,12 +123,40 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           : line
       )
     );
+
+    setExam((prevExam) => {
+      const newSections = [...prevExam.sections];
+      const existingSectionIndex = newSections.findIndex(
+        (s) => s.order === sectionOrder
+      );
+
+      if (existingSectionIndex !== -1) {
+        newSections[existingSectionIndex].lines = [
+          ...new Set([
+            ...newSections[existingSectionIndex].lines,
+            ...selectedLines.map((index) => index + 1),
+          ]),
+        ].sort((a, b) => a - b);
+      } else {
+        newSections.push({
+          lines: selectedLines.map((index) => index + 1),
+          order: sectionOrder,
+          questions: [],
+        });
+        newSections.sort((a, b) => a.order - b.order);
+      }
+
+      return {
+        ...prevExam,
+        sections: newSections,
+      };
+    });
   };
 
-  const handleMarkQuestion = (lineIndex, sectionIndex, questionOrder) => {
+  const handleMarkQuestion = (selectedLines, sectionIndex, questionOrder) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) =>
-        index === lineIndex
+        selectedLines.includes(index)
           ? {
               ...line,
               backgroundColor: COLORS.QUESTION,
@@ -69,17 +165,30 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           : line
       )
     );
+
+    setExam((prevExam) => {
+      const newSections = [...prevExam.sections];
+      if (newSections[sectionIndex - 1]) {
+        const newQuestion = {
+          order: questionOrder,
+          lines: selectedLines.map((index) => index + 1),
+          questionDetails: [],
+        };
+        newSections[sectionIndex - 1].questions.push(newQuestion);
+      }
+      return { ...prevExam, sections: newSections };
+    });
   };
 
   const handleMarkQuestionDetail = (
-    lineIndex,
+    selectedLines,
     sectionIndex,
     questionIndex,
     detailOrder
   ) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) =>
-        index === lineIndex
+        selectedLines.includes(index)
           ? {
               ...line,
               backgroundColor: COLORS.QUESTION_DETAIL,
@@ -88,6 +197,20 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           : line
       )
     );
+
+    setExam((prevExam) => {
+      const newSections = [...prevExam.sections];
+      if (newSections[sectionIndex - 1]?.questions[questionIndex - 1]) {
+        const newQuestionDetail = {
+          order: detailOrder,
+          lines: selectedLines.map((index) => index + 1),
+        };
+        newSections[sectionIndex - 1].questions[
+          questionIndex - 1
+        ].questionDetails.push(newQuestionDetail);
+      }
+      return { ...prevExam, sections: newSections };
+    });
   };
 
   const handleCancelAnnotation = (lineIndex) => {
@@ -102,14 +225,15 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           : line
       )
     );
-    // 这里可能还需要更新 exam 对象，移除相应的标注
   };
 
   const renderMarkdownWithLineNumbers = (lines) => {
     return lines.map((line, index) => {
-      const backgroundColor = selectedLines.includes(index)
+      const isSelected = selectedLines.includes(index);
+      const backgroundColor = isSelected
         ? "#d0e0ff"
-        : line.backgroundColor || (index % 2 === 0 ? "#f9f9f9" : "#ffffff"); // 高亮选中行
+        : line.backgroundColor || (index % 2 === 0 ? "#f9f9f9" : "#ffffff");
+
       return (
         <div
           key={index}
@@ -120,7 +244,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             backgroundColor,
             cursor: "pointer",
           }}
-          onClick={(event) => handleLineClick(event, index)} // 使用React的onClick事件
+          onMouseDown={(event) => handleLineClick(event, index)}
         >
           <div
             style={{ width: "50px", textAlign: "right", paddingRight: "10px" }}
@@ -135,7 +259,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             )}
             <ReactMarkdown
               components={{ p: ({ node, ...props }) => <p {...props} /> }}
-              rehypePlugins={[rehypeRaw]} // 添加 rehype-raw 插件
+              rehypePlugins={[rehypeRaw]}
             >
               {typeof line === "string" ? line : line.content || ""}
             </ReactMarkdown>
@@ -152,7 +276,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         .split("\n")
         .map((content) => ({ content }));
       setMarkdownLines(lines);
-      // 如果后端返回了 exam 数据，也需要设置
       if (response.data.exam) {
         setExam(response.data.exam);
       }
@@ -172,8 +295,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             onClick={handleEditToggle}
             variant="contained"
             style={{
-              backgroundColor: isEditing ? "#3f51b5" : "#f50057", // 定义背景色
-              color: "#fff", // 自定义文字颜色
+              backgroundColor: isEditing ? "#3f51b5" : "#f50057",
+              color: "#fff",
             }}
           >
             {isEditing ? "保存" : "编辑"}
@@ -197,14 +320,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           ) : (
             <div style={{ width: "100%" }}>
               {renderMarkdownWithLineNumbers(markdownLines)}
-              {/* 使用带行号的渲染 */}
             </div>
           )}
         </Box>
         <MarkdownAnnotator
           selectedLines={selectedLines}
           exam={exam}
-          updateExam={updateExam}
+          updateExam={setExam}
           anchorPosition={anchorPosition}
           onClose={handleAnnotatorClose}
           onMarkSection={handleMarkSection}

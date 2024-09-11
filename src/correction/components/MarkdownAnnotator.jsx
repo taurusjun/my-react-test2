@@ -14,13 +14,14 @@ const MarkdownAnnotator = ({
   colors,
   markdownLines,
 }) => {
-  const selectedLine = selectedLines[0];
-  const isLineAnnotated =
-    selectedLine !== undefined && markdownLines[selectedLine]?.label;
+  const isMultiSelect = selectedLines.length > 1;
+  const isLineAnnotated = selectedLines.some(
+    (line) => markdownLines[line]?.label
+  );
 
   const handleMarkSection = () => {
     const sectionOrder = exam.sections.length + 1;
-    onMarkSection(selectedLine, sectionOrder);
+    onMarkSection(selectedLines, sectionOrder);
     onClose();
   };
 
@@ -28,7 +29,7 @@ const MarkdownAnnotator = ({
     const sectionIndex = exam.sections.length;
     const questionOrder =
       exam.sections[sectionIndex - 1]?.questions.length + 1 || 1;
-    onMarkQuestion(selectedLine, sectionIndex, questionOrder);
+    onMarkQuestion(selectedLines, sectionIndex, questionOrder);
     onClose();
   };
 
@@ -40,7 +41,7 @@ const MarkdownAnnotator = ({
       exam.sections[sectionIndex - 1]?.questions[questionIndex - 1]
         ?.questionDetails.length + 1 || 1;
     onMarkQuestionDetail(
-      selectedLine,
+      selectedLines,
       sectionIndex,
       questionIndex,
       detailOrder
@@ -49,7 +50,7 @@ const MarkdownAnnotator = ({
   };
 
   const handleCancelAnnotation = () => {
-    onCancelAnnotation(selectedLine);
+    selectedLines.forEach((line) => onCancelAnnotation(line));
     onClose();
   };
 
