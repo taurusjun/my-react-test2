@@ -131,17 +131,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         };
       }
 
-      // 检查是否与其他大题重叠
-      const hasOverlap = newSections.some((section, index) => {
-        if (index === sectionIndex) return false;
-        const sectionStart = Math.min(...section.extra);
-        const sectionEnd = Math.max(...section.extra);
-        const updatedStart = Math.min(...updatedSection.extra);
-        const updatedEnd = Math.max(...updatedSection.extra);
-        return updatedStart <= sectionEnd && updatedEnd >= sectionStart;
-      });
-
-      if (hasOverlap) {
+      if (hasOverlap(selectedLines.map((line) => line + 1))) {
         // 如果有重叠，不进行更新
         setErrorMessage("选中的行范围与其他大题重叠，无法更新");
         return prev;
