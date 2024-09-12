@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
+import MdMap from "../utils/MdMap";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -18,15 +19,16 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [fixedStartIndex, setFixedStartIndex] = useState(null); // 新增状态变量
+  const [fixedStartIndex, setFixedStartIndex] = useState(null);
+  const [mdMap, setMdMap] = useState(null);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
 
   const handleLineClick = (event, index) => {
-    event.preventDefault(); // 阻止默认事件
-    event.stopPropagation(); // 阻止事件冒泡
+    event.preventDefault();
+    event.stopPropagation();
 
     setMousePosition({ x: event.clientX, y: event.clientY });
 
@@ -126,7 +128,11 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         };
       }
 
-      // 如果没有重叠，进行更新
+      // 更新 MdMap
+      updatedSection.extra.forEach((lineNumber) => {
+        mdMap.set(lineNumber, updatedSection);
+      });
+
       if (sectionIndex !== -1) {
         newSections[sectionIndex] = updatedSection;
       } else {
@@ -155,11 +161,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const onMarkQuestion = (selectedLines, currentSection) => {
     setExam((prevExam) => {
       const newSections = [...prevExam.sections];
-      const sectionIndex = newSections.indexOf(currentSection);
+      const sectionIndex = newSections.findIndex(
+        (section) => section.order === currentSection.order
+      );
 
       if (sectionIndex !== -1) {
         // 获取当前大题下已有标准题的数量
-        const currentQuestionCount = currentSection.questions.length;
+        const currentQuestionCount = newSections[sectionIndex].questions.length;
 
         // 计算新的标准题序号
         const newQuestionOrder = currentQuestionCount + 1;
@@ -170,11 +178,11 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           type: "question", // 添加 type 属性
           extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
           order: newQuestionOrder,
-          materials: [], // 初始化 materials 数组
+          materials: [],
         };
 
         // 将新的标准题添加到当前大题
-        currentSection.questions.push(newQuestion);
+        newSections[sectionIndex].questions.push(newQuestion);
 
         // 更新 markdownLines，设置所选行的背景颜色和标签
         setMarkdownLines((prevLines) =>
@@ -189,8 +197,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           )
         );
 
-        // 更新 exam 对象
-        newSections[sectionIndex] = currentSection;
+        selectedLineNumbers.forEach((lineNumber) => {
+          mdMap.set(lineNumber, newQuestion);
+        });
+
         return { ...prevExam, sections: newSections };
       }
 
@@ -227,6 +237,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         newSections[sectionIndex - 1].questions[
           questionIndex - 1
         ].questionDetails.push(newQuestionDetail);
+
+        newQuestionDetail.extra.forEach((lineNumber) => {
+          mdMap.set(lineNumber, newQuestionDetail);
+        });
       }
       return { ...prevExam, sections: newSections };
     });
@@ -273,6 +287,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return line;
         })
       );
+
+      mdMap.set(lineIndex + 1, null);
 
       return {
         ...prevExam,
@@ -333,6 +349,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       if (response.data.exam) {
         setExam(response.data.exam);
       }
+      const newMdMap = new MdMap(extra.length);
+      setMdMap(newMdMap);
     };
     fetchFileContent();
   }, [fileUuid]);
@@ -401,6 +419,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           colors={COLORS}
           markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}
+          mdMap={mdMap}
         />
       </Grid>
     </Grid>

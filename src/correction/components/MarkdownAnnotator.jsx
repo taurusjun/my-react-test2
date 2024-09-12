@@ -25,6 +25,7 @@ const MarkdownAnnotator = ({
   colors,
   markdownLines,
   setSelectedLines, // 添加 setSelectedLines 作为 props
+  mdMap, // 添加 mdMap 作为 prop
 }) => {
   const [selectedSection, setSelectedSection] = useState("new");
 
@@ -44,7 +45,7 @@ const MarkdownAnnotator = ({
   }, [anchorPosition, validSections]);
 
   const isLineAnnotated = selectedLines.some(
-    (line) => markdownLines[line]?.label
+    (line) => mdMap.get(line + 1) !== null
   );
 
   const handleMarkSection = () => {
@@ -75,8 +76,7 @@ const MarkdownAnnotator = ({
 
   const handleMarkQuestion = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentSection =
-      findClosestSectionForSelectedLines(selectedLineNumbers);
+    const currentSection = mdMap.findNearestSection(selectedLineNumbers[0]);
 
     if (!currentSection) {
       setErrorMessage("未找到所属的大题");
@@ -84,7 +84,7 @@ const MarkdownAnnotator = ({
     }
 
     // 检查重叠
-    if (hasOverlap(selectedLines.map((line) => line + 1))) {
+    if (hasOverlap(selectedLineNumbers)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
@@ -97,31 +97,35 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
-  const findClosestSectionForSelectedLines = (selectedLineNumbers) => {
-    const selectedLineStart = Math.min(...selectedLineNumbers);
-    const sectionsWithMaxLines = exam.sections.map((section) => ({
-      section,
-      maxLine: Math.max(...section.extra),
-    }));
-    const closestSection = sectionsWithMaxLines
-      .filter(({ maxLine }) => maxLine < selectedLineStart)
-      .sort((a, b) => b.maxLine - a.maxLine)[0];
-    return closestSection ? closestSection.section : null;
-  };
-
   const handleMarkQuestionDetail = () => {
-    const sectionIndex = exam.sections.length;
-    const questionIndex =
-      exam.sections[sectionIndex - 1]?.questions.length || 0;
-    const detailOrder =
-      exam.sections[sectionIndex - 1]?.questions[questionIndex - 1]
-        ?.questionDetails.length + 1 || 1;
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentSection = mdMap.findNearestSection(selectedLineNumbers[0]);
+
+    if (!currentSection) {
+      setErrorMessage("未找到所属的大题");
+      return;
+    }
+
+    const currentQuestion = currentSection.questions.find((question) =>
+      question.extra.some((line) => line >= selectedLineNumbers[0])
+    );
+
+    if (!currentQuestion) {
+      setErrorMessage("未找到所属的标准题");
+      return;
+    }
 
     // 检查重叠
-    if (hasOverlap(selectedLines.map((line) => line + 1))) {
+    if (hasOverlap(selectedLineNumbers)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
+
+    const sectionIndex = exam.sections.indexOf(currentSection) + 1;
+    const questionIndex = currentSection.questions.indexOf(currentQuestion) + 1;
+    const detailOrder = currentQuestion.questionDetails
+      ? currentQuestion.questionDetails.length + 1
+      : 1;
 
     onMarkQuestionDetail(
       selectedLines,
