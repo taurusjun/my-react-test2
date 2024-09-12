@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
+import useOverlapChecker from "./useOverlapChecker";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -17,6 +18,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [exam, setExam] = useState({ sections: [] });
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [selectedSection, setSelectedSection] = useState("new");
+
+  const { hasOverlap, setErrorMessage, renderSnackbar } = useOverlapChecker(
+    exam,
+    selectedSection
+  );
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -25,6 +33,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const handleLineClick = (event, index) => {
     event.preventDefault(); // 阻止默认事件
     event.stopPropagation(); // 阻止事件冒泡
+
+    setMousePosition({ x: event.clientX, y: event.clientY });
 
     if (event.shiftKey) {
       const lastIndex = selectedLines[selectedLines.length - 1];
@@ -42,11 +52,33 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       );
     } else {
       setSelectedLines([index]);
+      setAnchorPosition({
+        top: event.clientY,
+        left: event.clientX,
+      });
     }
-    setAnchorPosition({
-      top: event.clientY,
-      left: event.clientX,
-    });
+
+    if (!event.shiftKey && !event.metaKey && !event.ctrlKey) {
+      setAnchorPosition({
+        top: event.clientY,
+        left: event.clientX,
+      });
+    }
+  };
+
+  const handleKeyUp = (event) => {
+    if (
+      event.key === "Shift" ||
+      event.key === "Meta" ||
+      event.key === "Control"
+    ) {
+      if (selectedLines.length > 1) {
+        setAnchorPosition({
+          top: mousePosition.y,
+          left: mousePosition.x,
+        });
+      }
+    }
   };
 
   const updateMarkdownLines = (sections) => {
@@ -107,7 +139,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       if (hasOverlap) {
         // 如果有重叠，不进行更新
-        console.error("选中的行范围与其他大题重叠，无法更新");
+        setErrorMessage("选中的行范围与其他大题重叠，无法更新");
         return prev;
       }
 
@@ -343,6 +375,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     updateMarkdownLines(exam.sections);
   }, [exam]);
 
+  useEffect(() => {
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [selectedLines, mousePosition]);
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -398,6 +437,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           setSelectedLines={setSelectedLines}
         />
       </Grid>
+      {renderSnackbar()}
     </Grid>
   );
 };

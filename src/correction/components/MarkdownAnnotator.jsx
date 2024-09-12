@@ -8,10 +8,9 @@ import {
   FormControl,
   InputLabel,
   Grid,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import useOverlapChecker from "./useOverlapChecker";
 
 const MarkdownAnnotator = ({
   selectedLines,
@@ -28,7 +27,11 @@ const MarkdownAnnotator = ({
   setSelectedLines, // 添加 setSelectedLines 作为 props
 }) => {
   const [selectedSection, setSelectedSection] = useState("new");
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const { hasOverlap, setErrorMessage, renderSnackbar } = useOverlapChecker(
+    exam,
+    selectedSection
+  );
 
   const validSections = useMemo(() => {
     return exam.sections
@@ -43,45 +46,6 @@ const MarkdownAnnotator = ({
   const isLineAnnotated = selectedLines.some(
     (line) => markdownLines[line]?.label
   );
-
-  const hasOverlap = (newLines) => {
-    const newStart = Math.min(...newLines);
-    const newEnd = Math.max(...newLines);
-
-    // 检查与现有的 section 重叠
-    for (const section of exam.sections) {
-      if (section.extra.length === 0) continue;
-
-      const sectionStart = Math.min(...section.extra);
-      const sectionEnd = Math.max(...section.extra);
-
-      // 如果是同一个大题，则不检查重叠
-      if (selectedSection === section.order.toString()) {
-        continue;
-      }
-
-      // 检查新行范围是否与现有 section 重叠
-      if (newStart <= sectionEnd && newEnd >= sectionStart) {
-        return true; // 有重叠
-      }
-
-      // 检查与现有 question 重叠
-      for (const question of section.questions) {
-        const questionStart = Math.min(...question.extra);
-        const questionEnd = Math.max(...question.extra);
-
-        // 如果是同一个问题，则不检查重叠
-        if (selectedLines.includes(question.order - 1)) {
-          continue;
-        }
-
-        if (newStart <= questionEnd && newEnd >= questionStart) {
-          return true; // 有重叠
-        }
-      }
-    }
-    return false; // 没有重叠
-  };
 
   const handleMarkSection = () => {
     const selectedLineRange = selectedLines.map((line) => line + 1);
@@ -158,13 +122,6 @@ const MarkdownAnnotator = ({
   const handleCancelAnnotation = () => {
     selectedLines.forEach((line) => onCancelAnnotation(line));
     onClose();
-  };
-
-  const handleCloseError = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setErrorMessage("");
   };
 
   return (
@@ -288,26 +245,7 @@ const MarkdownAnnotator = ({
           )}
         </Box>
       </Popover>
-      <Snackbar
-        open={!!errorMessage}
-        autoHideDuration={6000}
-        onClose={handleCloseError}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        sx={{
-          bottom: "150px !important",
-        }}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
+      {renderSnackbar()}
     </>
   );
 };
