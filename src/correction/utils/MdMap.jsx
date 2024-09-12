@@ -85,6 +85,55 @@ class MdMap {
 
     return null; // 如果没有找到 section，返回 null
   }
+
+  findPreviousObject(startLine) {
+    for (let i = startLine - 1; i >= 1; i--) {
+      const value = this.map.get(i);
+      if (value !== null) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  findNextObject(endLine) {
+    for (let i = endLine + 1; i <= this.lineCount; i++) {
+      const value = this.map.get(i);
+      if (value !== null) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  hasOverlap(lineNumbers, inputObject) {
+    const start = Math.min(...lineNumbers);
+    const end = Math.max(...lineNumbers);
+
+    // 1. 检查内部范围
+    for (let i = start; i <= end; i++) {
+      const value = this.map.get(i);
+      if (value !== null && value !== inputObject) {
+        return true; // 发现重叠
+      }
+    }
+
+    // 2. 检查外部范围
+    const frontObject = this.findPreviousObject(start);
+    const backObject = this.findNextObject(end);
+
+    // 检查 frontObject 和 backObject 是否为同一个对象
+    if (
+      frontObject &&
+      backObject &&
+      frontObject === backObject &&
+      frontObject !== inputObject
+    ) {
+      return true; // 发现重叠
+    }
+
+    return false; // 没有重叠
+  }
 }
 
 export default MdMap;
