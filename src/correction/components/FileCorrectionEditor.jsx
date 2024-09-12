@@ -4,7 +4,6 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
-import useOverlapChecker from "./useOverlapChecker";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -19,13 +18,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [selectedSection, setSelectedSection] = useState("new");
   const [fixedStartIndex, setFixedStartIndex] = useState(null); // 新增状态变量
-
-  const { hasOverlap, setErrorMessage, renderSnackbar } = useOverlapChecker(
-    exam,
-    selectedSection
-  );
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -103,7 +96,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     );
   };
 
-  const handleMarkSection = (selectedLines, sectionOrder) => {
+  const onMarkSection = (selectedLines, sectionOrder) => {
     setExam((prev) => {
       let newSections = [...prev.sections];
       const sectionIndex = newSections.findIndex(
@@ -131,12 +124,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         };
       }
 
-      if (hasOverlap(selectedLines.map((line) => line + 1))) {
-        // 如果有重叠，不进行更新
-        setErrorMessage("选中的行范围与其他大题重叠，无法更新");
-        return prev;
-      }
-
       // 如果没有重叠，进行更新
       if (sectionIndex !== -1) {
         newSections[sectionIndex] = updatedSection;
@@ -162,28 +149,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const findClosestSectionForSelectedLines = (selectedLineNumbers) => {
-    const selectedLineStart = Math.min(...selectedLineNumbers);
-    const sectionsWithMaxLines = exam.sections.map((section) => ({
-      section,
-      maxLine: Math.max(...section.extra),
-    }));
-    const closestSection = sectionsWithMaxLines
-      .filter(({ maxLine }) => maxLine < selectedLineStart)
-      .sort((a, b) => b.maxLine - a.maxLine)[0];
-    return closestSection ? closestSection.section : null;
-  };
-
-  const handleMarkQuestion = (selectedLines) => {
-    const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentSection =
-      findClosestSectionForSelectedLines(selectedLineNumbers);
-
-    if (!currentSection) {
-      console.error("未找到所属的大题");
-      return;
-    }
-
+  const onMarkQuestion = (selectedLines) => {
     setExam((prevExam) => {
       const newSections = [...prevExam.sections];
       const sectionIndex = newSections.indexOf(currentSection);
@@ -422,8 +388,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           updateExam={setExam}
           anchorPosition={anchorPosition}
           onClose={() => setAnchorPosition(null)}
-          onMarkSection={handleMarkSection}
-          onMarkQuestion={handleMarkQuestion}
+          onMarkSection={onMarkSection}
+          onMarkQuestion={onMarkQuestion}
           onMarkQuestionDetail={handleMarkQuestionDetail}
           onCancelAnnotation={handleCancelAnnotation}
           colors={COLORS}
@@ -431,7 +397,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           setSelectedLines={setSelectedLines}
         />
       </Grid>
-      {renderSnackbar()}
     </Grid>
   );
 };

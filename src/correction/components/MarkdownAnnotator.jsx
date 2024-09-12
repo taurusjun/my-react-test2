@@ -74,6 +74,15 @@ const MarkdownAnnotator = ({
   };
 
   const handleMarkQuestion = () => {
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentSection =
+      findClosestSectionForSelectedLines(selectedLineNumbers);
+
+    if (!currentSection) {
+      setErrorMessage("未找到所属的大题");
+      return;
+    }
+
     const sectionIndex = exam.sections.length;
     const questionOrder =
       exam.sections[sectionIndex - 1]?.questions.length + 1 || 1;
@@ -90,6 +99,18 @@ const MarkdownAnnotator = ({
     setSelectedLines([]); // 取消选中行
 
     onClose();
+  };
+
+  const findClosestSectionForSelectedLines = (selectedLineNumbers) => {
+    const selectedLineStart = Math.min(...selectedLineNumbers);
+    const sectionsWithMaxLines = exam.sections.map((section) => ({
+      section,
+      maxLine: Math.max(...section.extra),
+    }));
+    const closestSection = sectionsWithMaxLines
+      .filter(({ maxLine }) => maxLine < selectedLineStart)
+      .sort((a, b) => b.maxLine - a.maxLine)[0];
+    return closestSection ? closestSection.section : null;
   };
 
   const handleMarkQuestionDetail = () => {
