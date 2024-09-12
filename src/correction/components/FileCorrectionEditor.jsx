@@ -23,6 +23,9 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   };
 
   const handleLineClick = (event, index) => {
+    event.preventDefault(); // 阻止默认事件
+    event.stopPropagation(); // 阻止事件冒泡
+
     if (event.shiftKey) {
       const lastIndex = selectedLines[selectedLines.length - 1];
       const range = [lastIndex, index].sort((a, b) => a - b);
