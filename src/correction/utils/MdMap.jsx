@@ -2,6 +2,7 @@ class MdMap {
   constructor(lineCount) {
     this.map = new Map();
     this.lineCount = lineCount;
+    this.isLocked = false;
     this.initialize();
   }
 
@@ -11,11 +12,32 @@ class MdMap {
     }
   }
 
+  lock() {
+    this.isLocked = true;
+  }
+
+  unlock() {
+    this.isLocked = false;
+  }
+
   set(lineNumber, value) {
+    if (this.isLocked) {
+      throw new Error("MdMap 当前被锁定，无法进行设置操作");
+    }
+
     if (lineNumber < 1 || lineNumber > this.lineCount) {
       throw new Error(`行号 ${lineNumber} 超出范围`);
     }
     this.map.set(lineNumber, value);
+  }
+
+  setWithLock(lineNumber, value) {
+    this.lock();
+    try {
+      this.set(lineNumber, value);
+    } finally {
+      this.unlock();
+    }
   }
 
   get(lineNumber) {
@@ -26,13 +48,23 @@ class MdMap {
   }
 
   setRange(start, end, value) {
-    for (let i = start; i <= end; i++) {
-      this.set(i, value);
+    this.lock();
+    try {
+      for (let i = start; i <= end; i++) {
+        this.set(i, value);
+      }
+    } finally {
+      this.unlock();
     }
   }
 
   clear() {
-    this.initialize();
+    this.lock();
+    try {
+      this.initialize();
+    } finally {
+      this.unlock();
+    }
   }
 
   getLineCount() {
