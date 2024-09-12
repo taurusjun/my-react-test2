@@ -1,120 +1,55 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import { Grid, Box, Button, TextField, Snackbar, Alert } from "@mui/material";
 import ReactMarkdown from "react-markdown";
-import { Box, Button, Grid, TextField } from "@mui/material";
-import axios from "axios";
 import rehypeRaw from "rehype-raw";
+import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
 
 const COLORS = {
-  SECTION: "#3f51b5",
-  QUESTION: "#f50057",
-  QUESTION_DETAIL: "#00a152",
+  SECTION: "#ffeb3b",
+  QUESTION: "#8bc34a",
+  QUESTION_DETAIL: "#03a9f4",
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
+  const [selectedLines, setSelectedLines] = useState([]);
   const [exam, setExam] = useState({ sections: [] });
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedLines, setSelectedLines] = useState([]);
   const [anchorPosition, setAnchorPosition] = useState(null);
-  const [isMultiSelecting, setIsMultiSelecting] = useState(false);
-  const [initialSelectedLine, setInitialSelectedLine] = useState(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const handleMultiSelectEnd = useCallback(() => {
-    if (selectedLines.length > 1) {
-      setAnchorPosition({
-        top: mousePosition.y,
-        left: mousePosition.x,
-      });
-    }
-  }, [selectedLines, mousePosition]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.shiftKey || e.metaKey || e.ctrlKey) {
-        setIsMultiSelecting(true);
-      }
-    };
-
-    const handleKeyUp = (e) => {
-      if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
-        setIsMultiSelecting(false);
-        handleMultiSelectEnd();
-      }
-    };
-
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("mousemove", handleMouseMove);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [handleMultiSelectEnd]);
 
   const handleEditToggle = () => {
-    setIsEditing((prev) => !prev);
+    setIsEditing(!isEditing);
   };
 
   const handleLineClick = (event, index) => {
-    event.preventDefault();
-
-    setSelectedLines((prev) => {
-      let newSelection;
-      if (event.shiftKey && initialSelectedLine !== null) {
-        // Shift 键按下：选择范围
-        const start = Math.min(initialSelectedLine, index);
-        const end = Math.max(initialSelectedLine, index);
-        newSelection = Array.from(
-          { length: end - start + 1 },
-          (_, i) => start + i
-        );
-      } else if (event.metaKey || event.ctrlKey) {
-        // Command/Ctrl 键按下：切换选中状态
-        if (prev.includes(index)) {
-          newSelection = prev.filter((i) => i !== index);
-        } else {
-          newSelection = [...prev, index];
-        }
-        setInitialSelectedLine(index);
-      } else {
-        // 没有按下修饰键：只选择当前行
-        newSelection = [index];
-        setInitialSelectedLine(index);
+    if (event.shiftKey) {
+      const lastIndex = selectedLines[selectedLines.length - 1];
+      const range = [lastIndex, index].sort((a, b) => a - b);
+      const newSelectedLines = [];
+      for (let i = range[0]; i <= range[1]; i++) {
+        newSelectedLines.push(i);
       }
-      return newSelection;
-    });
-
-    // 单击时显示 Popover（非多选模式）
-    if (!isMultiSelecting) {
-      setAnchorPosition({
-        top: event.clientY,
-        left: event.clientX,
-      });
+      setSelectedLines(newSelectedLines);
+    } else if (event.metaKey || event.ctrlKey) {
+      setSelectedLines((prev) =>
+        prev.includes(index)
+          ? prev.filter((line) => line !== index)
+          : [...prev, index]
+      );
+    } else {
+      setSelectedLines([index]);
     }
+    setAnchorPosition({
+      top: event.clientY,
+      left: event.clientX,
+    });
   };
 
-  const handleAnnotatorClose = () => {
-    setAnchorPosition(null);
-    setSelectedLines([]);
-    setInitialSelectedLine(null);
-  };
-
-  const updateExam = (newExam) => {
-    setExam(newExam);
-  };
-
-  const updateMarkdownLines = (newSections) => {
+  const updateMarkdownLines = (sections) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) => {
-        const sectionForLine = newSections.find((section) =>
+        const sectionForLine = sections.find((section) =>
           section.lines.includes(index + 1)
         );
         if (sectionForLine) {
@@ -198,30 +133,67 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const handleMarkQuestion = (selectedLines, sectionIndex, questionOrder) => {
-    setMarkdownLines((prevLines) =>
-      prevLines.map((line, index) =>
-        selectedLines.includes(index)
-          ? {
-              ...line,
-              backgroundColor: COLORS.QUESTION,
-              label: `标准题${sectionIndex}.${questionOrder}`,
-            }
-          : line
-      )
-    );
+  const findClosestSectionForSelectedLines = (selectedLineNumbers) => {
+    const selectedLineStart = Math.min(...selectedLineNumbers);
+    const sectionsWithMaxLines = exam.sections.map((section) => ({
+      section,
+      maxLine: Math.max(...section.lines),
+    }));
+    const closestSection = sectionsWithMaxLines
+      .filter(({ maxLine }) => maxLine < selectedLineStart)
+      .sort((a, b) => b.maxLine - a.maxLine)[0];
+    return closestSection ? closestSection.section : null;
+  };
+
+  const handleMarkQuestion = (selectedLines) => {
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentSection =
+      findClosestSectionForSelectedLines(selectedLineNumbers);
+
+    if (!currentSection) {
+      console.error("未找到所属的大题");
+      return;
+    }
 
     setExam((prevExam) => {
       const newSections = [...prevExam.sections];
-      if (newSections[sectionIndex - 1]) {
+      const sectionIndex = newSections.indexOf(currentSection);
+
+      if (sectionIndex !== -1) {
+        // 获取当前大题下已有标准题的数量
+        const currentQuestionCount = currentSection.questions.length;
+
+        // 计算新的标准题序号
+        const newQuestionNumber = currentQuestionCount + 1;
+
+        // 创建新的标准题对象
         const newQuestion = {
-          order: questionOrder,
-          lines: selectedLines.map((index) => index + 1),
-          questionDetails: [],
+          lineNumbers: selectedLineNumbers,
+          number: newQuestionNumber,
         };
-        newSections[sectionIndex - 1].questions.push(newQuestion);
+
+        // 将新的标准题添加到当前大题
+        currentSection.questions.push(newQuestion);
+
+        // 更新 markdownLines，设置所选行的背景颜色和标签
+        setMarkdownLines((prevLines) =>
+          prevLines.map((line, index) =>
+            selectedLines.includes(index)
+              ? {
+                  ...line,
+                  backgroundColor: COLORS.QUESTION,
+                  label: `标准题${sectionIndex + 1}.${newQuestionNumber}`,
+                }
+              : line
+          )
+        );
+
+        // 更新 exam 对象
+        newSections[sectionIndex] = currentSection;
+        return { ...prevExam, sections: newSections };
       }
-      return { ...prevExam, sections: newSections };
+
+      return prevExam;
     });
   };
 
@@ -410,7 +382,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           exam={exam}
           updateExam={setExam}
           anchorPosition={anchorPosition}
-          onClose={handleAnnotatorClose}
+          onClose={() => setAnchorPosition(null)}
           onMarkSection={handleMarkSection}
           onMarkQuestion={handleMarkQuestion}
           onMarkQuestionDetail={handleMarkQuestionDetail}
