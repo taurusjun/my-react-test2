@@ -149,7 +149,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const onMarkQuestion = (selectedLines) => {
+  // selectedLines 选中的行， currentSection 行所归属的section
+  const onMarkQuestion = (selectedLines, currentSection) => {
     setExam((prevExam) => {
       const newSections = [...prevExam.sections];
       const sectionIndex = newSections.indexOf(currentSection);
@@ -162,6 +163,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         const newQuestionOrder = currentQuestionCount + 1;
 
         // 创建新的标准题对象
+        const selectedLineNumbers = selectedLines.map((index) => index + 1);
         const newQuestion = {
           extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
           order: newQuestionOrder,

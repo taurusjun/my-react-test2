@@ -83,17 +83,13 @@ const MarkdownAnnotator = ({
       return;
     }
 
-    const sectionIndex = exam.sections.length;
-    const questionOrder =
-      exam.sections[sectionIndex - 1]?.questions.length + 1 || 1;
-
     // 检查重叠
     if (hasOverlap(selectedLines.map((line) => line + 1))) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
 
-    onMarkQuestion(selectedLines, sectionIndex, questionOrder);
+    onMarkQuestion(selectedLines, currentSection);
 
     // 清空选中的行
     setSelectedLines([]); // 取消选中行
