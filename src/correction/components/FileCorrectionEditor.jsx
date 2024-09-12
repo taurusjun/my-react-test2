@@ -164,12 +164,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         const currentQuestionCount = currentSection.questions.length;
 
         // 计算新的标准题序号
-        const newQuestionNumber = currentQuestionCount + 1;
+        const newQuestionOrder = currentQuestionCount + 1;
 
         // 创建新的标准题对象
         const newQuestion = {
-          lineNumbers: selectedLineNumbers,
-          number: newQuestionNumber,
+          extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
+          order: newQuestionOrder,
+          materials: [], // 初始化 materials 数组
         };
 
         // 将新的标准题添加到当前大题
@@ -182,7 +183,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               ? {
                   ...line,
                   backgroundColor: COLORS.QUESTION,
-                  label: `标准题${sectionIndex + 1}.${newQuestionNumber}`,
+                  label: `标准题${sectionIndex + 1}.${newQuestionOrder}`,
                 }
               : line
           )
