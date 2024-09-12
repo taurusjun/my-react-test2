@@ -392,6 +392,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onCancelAnnotation={handleCancelAnnotation}
           colors={COLORS}
           markdownLines={markdownLines}
+          setSelectedLines={setSelectedLines}
         />
       </Grid>
     </Grid>

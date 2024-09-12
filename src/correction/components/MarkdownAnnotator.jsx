@@ -25,6 +25,7 @@ const MarkdownAnnotator = ({
   onCancelAnnotation,
   colors,
   markdownLines,
+  setSelectedLines, // 添加 setSelectedLines 作为 props
 }) => {
   const [selectedSection, setSelectedSection] = useState("new");
   const [errorMessage, setErrorMessage] = useState("");
@@ -43,41 +44,51 @@ const MarkdownAnnotator = ({
     (line) => markdownLines[line]?.label
   );
 
-  const handleMarkSection = () => {
-    const selectedLineRange = {
-      start: Math.min(...selectedLines) + 1,
-      end: Math.max(...selectedLines) + 1,
-    };
+  const hasOverlap = (newLines) => {
+    const newStart = Math.min(...newLines);
+    const newEnd = Math.max(...newLines);
 
-    const hasOverlap = exam.sections.some((section) => {
-      if (section.extra.length === 0) return false;
-      // 如果是选择的同一个大题，则不检查重叠
-      if (selectedSection === section.order.toString()) {
-        // 对于同一个大题，我们需要检查新添加的行是否会导致与其他大题重叠
-        const newLines = [
-          ...new Set([...section.extra, ...selectedLines.map((i) => i + 1)]),
-        ];
-        const newStart = Math.min(...newLines);
-        const newEnd = Math.max(...newLines);
-
-        return exam.sections.some((otherSection) => {
-          if (otherSection.order === section.order) return false;
-          const otherStart = Math.min(...otherSection.extra);
-          const otherEnd = Math.max(...otherSection.extra);
-          return newStart <= otherEnd && newEnd >= otherStart;
-        });
-      }
+    // 检查与现有的 section 重叠
+    for (const section of exam.sections) {
+      if (section.extra.length === 0) continue;
 
       const sectionStart = Math.min(...section.extra);
       const sectionEnd = Math.max(...section.extra);
-      return (
-        selectedLineRange.start <= sectionEnd &&
-        selectedLineRange.end >= sectionStart
-      );
-    });
 
-    if (hasOverlap) {
-      setErrorMessage("选中的行范围与其他大题重叠，请重新选择");
+      // 如果是同一个大题，则不检查重叠
+      if (selectedSection === section.order.toString()) {
+        continue;
+      }
+
+      // 检查新行范围是否与现有 section 重叠
+      if (newStart <= sectionEnd && newEnd >= sectionStart) {
+        return true; // 有重叠
+      }
+
+      // 检查与现有 question 重叠
+      for (const question of section.questions) {
+        const questionStart = Math.min(...question.extra);
+        const questionEnd = Math.max(...question.extra);
+
+        // 如果是同一个问题，则不检查重叠
+        if (selectedLines.includes(question.order - 1)) {
+          continue;
+        }
+
+        if (newStart <= questionEnd && newEnd >= questionStart) {
+          return true; // 有重叠
+        }
+      }
+    }
+    return false; // 没有重叠
+  };
+
+  const handleMarkSection = () => {
+    const selectedLineRange = selectedLines.map((line) => line + 1);
+
+    // 检查重叠
+    if (hasOverlap(selectedLineRange)) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
 
@@ -87,6 +98,10 @@ const MarkdownAnnotator = ({
     } else if (selectedSection) {
       onMarkSection(selectedLines, parseInt(selectedSection));
     }
+
+    // 清空选中的行
+    setSelectedLines([]); // 取消选中行
+
     onClose();
   };
 
@@ -98,7 +113,18 @@ const MarkdownAnnotator = ({
     const sectionIndex = exam.sections.length;
     const questionOrder =
       exam.sections[sectionIndex - 1]?.questions.length + 1 || 1;
+
+    // 检查重叠
+    if (hasOverlap(selectedLines.map((line) => line + 1))) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      return;
+    }
+
     onMarkQuestion(selectedLines, sectionIndex, questionOrder);
+
+    // 清空选中的行
+    setSelectedLines([]); // 取消选中行
+
     onClose();
   };
 
@@ -109,12 +135,23 @@ const MarkdownAnnotator = ({
     const detailOrder =
       exam.sections[sectionIndex - 1]?.questions[questionIndex - 1]
         ?.questionDetails.length + 1 || 1;
+
+    // 检查重叠
+    if (hasOverlap(selectedLines.map((line) => line + 1))) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      return;
+    }
+
     onMarkQuestionDetail(
       selectedLines,
       sectionIndex,
       questionIndex,
       detailOrder
     );
+
+    // 清空选中的行
+    setSelectedLines([]); // 取消选中行
+
     onClose();
   };
 
