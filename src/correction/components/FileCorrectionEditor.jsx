@@ -195,7 +195,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const handleMarkQuestionDetail = (
+  const onMarkQuestionDetail = (
     selectedLines,
     sectionIndex,
     questionIndex,
@@ -228,7 +228,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const handleCancelAnnotation = (lineIndex) => {
+  const onCancelAnnotation = (lineIndex) => {
     setExam((prevExam) => {
       const newSections = prevExam.sections
         .map((section) => ({
@@ -392,8 +392,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onClose={() => setAnchorPosition(null)}
           onMarkSection={onMarkSection}
           onMarkQuestion={onMarkQuestion}
-          onMarkQuestionDetail={handleMarkQuestionDetail}
-          onCancelAnnotation={handleCancelAnnotation}
+          onMarkQuestionDetail={onMarkQuestionDetail}
+          onCancelAnnotation={onCancelAnnotation}
           colors={COLORS}
           markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}
