@@ -108,6 +108,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         // 更新现有大题
         updatedSection = {
           ...newSections[sectionIndex],
+          type: "section", // 添加 type 属性
           extra: [
             ...new Set([
               ...newSections[sectionIndex].extra,
@@ -118,6 +119,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       } else {
         // 创建新大题
         updatedSection = {
+          type: "section", // 添加 type 属性
           extra: selectedLines.map((i) => i + 1),
           order: sectionOrder,
           questions: [],
@@ -165,6 +167,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         // 创建新的标准题对象
         const selectedLineNumbers = selectedLines.map((index) => index + 1);
         const newQuestion = {
+          type: "question", // 添加 type 属性
           extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
           order: newQuestionOrder,
           materials: [], // 初始化 materials 数组
@@ -217,6 +220,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       const newSections = [...prevExam.sections];
       if (newSections[sectionIndex - 1]?.questions[questionIndex - 1]) {
         const newQuestionDetail = {
+          type: "questionDetail", // 添加 type 属性
           order: detailOrder,
           extra: selectedLines.map((index) => index + 1),
         };
