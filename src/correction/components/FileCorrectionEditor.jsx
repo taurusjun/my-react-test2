@@ -20,6 +20,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [selectedSection, setSelectedSection] = useState("new");
+  const [fixedStartIndex, setFixedStartIndex] = useState(null); // 新增状态变量
 
   const { hasOverlap, setErrorMessage, renderSnackbar } = useOverlapChecker(
     exam,
@@ -37,13 +38,16 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     setMousePosition({ x: event.clientX, y: event.clientY });
 
     if (event.shiftKey) {
-      const lastIndex = selectedLines[selectedLines.length - 1];
-      const range = [lastIndex, index].sort((a, b) => a - b);
+      const startIndex = fixedStartIndex !== null ? fixedStartIndex : index;
+      const range = [startIndex, index].sort((a, b) => a - b);
       const newSelectedLines = [];
       for (let i = range[0]; i <= range[1]; i++) {
         newSelectedLines.push(i);
       }
       setSelectedLines(newSelectedLines);
+      if (fixedStartIndex === null) {
+        setFixedStartIndex(index); // 设置固定的起始位置
+      }
     } else if (event.metaKey || event.ctrlKey) {
       setSelectedLines((prev) =>
         prev.includes(index)
