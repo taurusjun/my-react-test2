@@ -50,7 +50,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) => {
         const sectionForLine = sections.find((section) =>
-          section.lines.includes(index + 1)
+          section.extra.includes(index + 1)
         );
         if (sectionForLine) {
           return {
@@ -76,9 +76,9 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         // 更新现有大题
         updatedSection = {
           ...newSections[sectionIndex],
-          lines: [
+          extra: [
             ...new Set([
-              ...newSections[sectionIndex].lines,
+              ...newSections[sectionIndex].extra,
               ...selectedLines.map((i) => i + 1),
             ]),
           ].sort((a, b) => a - b),
@@ -86,7 +86,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       } else {
         // 创建新大题
         updatedSection = {
-          lines: selectedLines.map((i) => i + 1),
+          extra: selectedLines.map((i) => i + 1),
           order: sectionOrder,
           questions: [],
         };
@@ -95,10 +95,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       // 检查是否与其他大题重叠
       const hasOverlap = newSections.some((section, index) => {
         if (index === sectionIndex) return false;
-        const sectionStart = Math.min(...section.lines);
-        const sectionEnd = Math.max(...section.lines);
-        const updatedStart = Math.min(...updatedSection.lines);
-        const updatedEnd = Math.max(...updatedSection.lines);
+        const sectionStart = Math.min(...section.extra);
+        const sectionEnd = Math.max(...section.extra);
+        const updatedStart = Math.min(...updatedSection.extra);
+        const updatedEnd = Math.max(...updatedSection.extra);
         return updatedStart <= sectionEnd && updatedEnd >= sectionStart;
       });
 
@@ -116,7 +116,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       }
 
       // 根据每个大题的最小行号重新排序和重命名
-      newSections.sort((a, b) => Math.min(...a.lines) - Math.min(...b.lines));
+      newSections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));
       newSections = newSections.map((section, index) => ({
         ...section,
         order: index + 1,
@@ -137,7 +137,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     const selectedLineStart = Math.min(...selectedLineNumbers);
     const sectionsWithMaxLines = exam.sections.map((section) => ({
       section,
-      maxLine: Math.max(...section.lines),
+      maxLine: Math.max(...section.extra),
     }));
     const closestSection = sectionsWithMaxLines
       .filter(({ maxLine }) => maxLine < selectedLineStart)
@@ -220,7 +220,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       if (newSections[sectionIndex - 1]?.questions[questionIndex - 1]) {
         const newQuestionDetail = {
           order: detailOrder,
-          lines: selectedLines.map((index) => index + 1),
+          extra: selectedLines.map((index) => index + 1),
         };
         newSections[sectionIndex - 1].questions[
           questionIndex - 1
@@ -235,21 +235,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       const newSections = prevExam.sections
         .map((section) => ({
           ...section,
-          lines: section.lines.filter((line) => line !== lineIndex + 1),
+          extra: section.extra.filter((line) => line !== lineIndex + 1),
           questions: section.questions.map((question) => ({
             ...question,
-            lines: question.lines.filter((line) => line !== lineIndex + 1),
-            questionDetails: question.questionDetails.map((detail) => ({
-              ...detail,
-              lines: detail.lines.filter((line) => line !== lineIndex + 1),
-            })),
+            extra: question.extra.filter((line) => line !== lineIndex + 1),
+            questionDetails: question.questionDetails
+              ? question.questionDetails.map((detail) => ({
+                  ...detail,
+                  extra: detail.extra.filter((line) => line !== lineIndex + 1),
+                }))
+              : [],
           })),
         }))
-        .filter((section) => section.lines.length > 0);
+        .filter((section) => section.extra.length > 0);
 
       // 重新排序和重命名大题
       const updatedSections = newSections
-        .sort((a, b) => Math.min(...a.lines) - Math.min(...b.lines))
+        .sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra))
         .map((section, index) => ({
           ...section,
           order: index + 1,
@@ -277,8 +279,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const renderMarkdownWithLineNumbers = (lines) => {
-    return lines.map((line, index) => {
+  const renderMarkdownWithLineNumbers = (extra) => {
+    return extra.map((line, index) => {
       const isSelected = selectedLines.includes(index);
       const backgroundColor = isSelected
         ? "#d0e0ff"
@@ -322,10 +324,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   useEffect(() => {
     const fetchFileContent = async () => {
       const response = await axios.get(`/api/file-corrections/${fileUuid}`);
-      const lines = response.data.content
+      const extra = response.data.content
         .split("\n")
         .map((content) => ({ content }));
-      setMarkdownLines(lines);
+      setMarkdownLines(extra);
       if (response.data.exam) {
         setExam(response.data.exam);
       }

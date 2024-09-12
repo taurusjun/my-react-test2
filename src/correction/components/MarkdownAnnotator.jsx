@@ -31,7 +31,7 @@ const MarkdownAnnotator = ({
 
   const validSections = useMemo(() => {
     return exam.sections
-      .filter((section) => section.lines.length > 0)
+      .filter((section) => section.extra.length > 0)
       .sort((a, b) => b.order - a.order); // 按 order 倒序排列
   }, [exam.sections]);
 
@@ -50,26 +50,26 @@ const MarkdownAnnotator = ({
     };
 
     const hasOverlap = exam.sections.some((section) => {
-      if (section.lines.length === 0) return false;
+      if (section.extra.length === 0) return false;
       // 如果是选择的同一个大题，则不检查重叠
       if (selectedSection === section.order.toString()) {
         // 对于同一个大题，我们需要检查新添加的行是否会导致与其他大题重叠
         const newLines = [
-          ...new Set([...section.lines, ...selectedLines.map((i) => i + 1)]),
+          ...new Set([...section.extra, ...selectedLines.map((i) => i + 1)]),
         ];
         const newStart = Math.min(...newLines);
         const newEnd = Math.max(...newLines);
 
         return exam.sections.some((otherSection) => {
           if (otherSection.order === section.order) return false;
-          const otherStart = Math.min(...otherSection.lines);
-          const otherEnd = Math.max(...otherSection.lines);
+          const otherStart = Math.min(...otherSection.extra);
+          const otherEnd = Math.max(...otherSection.extra);
           return newStart <= otherEnd && newEnd >= otherStart;
         });
       }
 
-      const sectionStart = Math.min(...section.lines);
-      const sectionEnd = Math.max(...section.lines);
+      const sectionStart = Math.min(...section.extra);
+      const sectionEnd = Math.max(...section.extra);
       return (
         selectedLineRange.start <= sectionEnd &&
         selectedLineRange.end >= sectionStart
