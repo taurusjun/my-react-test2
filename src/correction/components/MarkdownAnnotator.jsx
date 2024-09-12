@@ -52,7 +52,11 @@ const MarkdownAnnotator = ({
     const selectedLineRange = selectedLines.map((line) => line + 1);
 
     // 检查重叠
-    if (hasOverlap(selectedLineRange)) {
+    // 在 validSections 中找到 order = selectedSection 的对象
+    const selectedSectionObject = validSections.find(
+      (section) => section.order.toString() === selectedSection
+    );
+    if (mdMap.hasOverlap(selectedLineRange, selectedSectionObject)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
@@ -84,7 +88,10 @@ const MarkdownAnnotator = ({
     }
 
     // 检查重叠
-    if (hasOverlap(selectedLineNumbers)) {
+    const selectedSectionObject = validSections.find(
+      (section) => section.order.toString() === selectedSection
+    );
+    if (mdMap.hasOverlap(selectedLineNumbers, selectedSectionObject)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }

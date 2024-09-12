@@ -107,8 +107,11 @@ class MdMap {
   }
 
   hasOverlap(lineNumbers, inputObject) {
-    const start = Math.min(...lineNumbers);
-    const end = Math.max(...lineNumbers);
+    const allLines = [
+      ...new Set([...lineNumbers, ...(inputObject?.extra || [])]),
+    ];
+    const start = Math.min(...allLines);
+    const end = Math.max(...allLines);
 
     // 1. 检查内部范围
     for (let i = start; i <= end; i++) {
