@@ -141,16 +141,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           .find((question) => question.extra.includes(index + 1));
 
         if (questionForLine) {
-          const sectionIndex = sections.findIndex((section) =>
-            section.questions.includes(questionForLine)
-          );
-          const questionIndex =
-            sectionIndex !== -1
-              ? sections[sectionIndex].questions.findIndex(
-                  (q) => q === questionForLine
-                ) + 1
-              : 0;
-
           return {
             ...line,
             backgroundColor: COLORS.QUESTION,
@@ -166,12 +156,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           .find((detail) => detail.extra.includes(index + 1));
 
         if (questionDetailForLine) {
-          const questionIndex = sections
-            .flatMap((section) => section.questions)
-            .findIndex((question) =>
-              question.questionDetails.includes(questionDetailForLine)
-            );
-
           return {
             ...line,
             backgroundColor: COLORS.QUESTION_DETAIL,
@@ -273,18 +257,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     currentSection,
     currentQuestion
   ) => {
-    // setMarkdownLines((prevLines) =>
-    //   prevLines.map((line, index) =>
-    //     selectedLines.includes(index)
-    //       ? {
-    //           ...line,
-    //           backgroundColor: COLORS.QUESTION_DETAIL,
-    //           label: `小题${sectionIndex}.${questionIndex}.${detailOrder}`,
-    //         }
-    //       : line
-    //   )
-    // );
-
     setExam((prevExam) => {
       let newSections = [...prevExam.sections];
       const newQuestionDetail = {
