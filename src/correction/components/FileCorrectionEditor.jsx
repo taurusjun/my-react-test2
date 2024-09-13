@@ -204,14 +204,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     setExam((prevExam) => {
       let newSections = [...prevExam.sections];
       const sectionIndex = newSections.findIndex(
-        (section) => section.order === currentSection.order
+        (section) => section.uuid === currentSection.uuid
       );
-
-      // 获取当前大题下已有标准题的数量
-      const currentQuestionCount = newSections[sectionIndex].questions.length;
-
-      // 计算新的标准题序号
-      const newQuestionOrder = currentQuestionCount + 1;
 
       // 创建新的标准题对象
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
@@ -219,7 +213,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         uuid: uuidv4(), // 添加 uuid
         type: "question", // 添加 type 属性
         extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
-        order: newQuestionOrder,
         materials: [],
       };
 
