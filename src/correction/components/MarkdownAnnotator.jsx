@@ -103,15 +103,21 @@ const MarkdownAnnotator = ({
 
   const handleMarkQuestionDetail = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentSection = mdMap.findNearestSection(selectedLineNumbers[0]);
+    const currentSectionInMap = mdMap.findNearestSection(
+      selectedLineNumbers[0]
+    );
 
-    if (!currentSection) {
+    if (!currentSectionInMap) {
       setErrorMessage("未找到所属的大题");
       return;
     }
 
+    const currentSection = validSections.find(
+      (section) => section.uuid === currentSectionInMap.uuid
+    );
+
     const currentQuestion = currentSection.questions.find((question) =>
-      question.extra.some((line) => line >= selectedLineNumbers[0])
+      question.extra.some((line) => line < selectedLineNumbers[0])
     );
 
     if (!currentQuestion) {
@@ -125,18 +131,7 @@ const MarkdownAnnotator = ({
       return;
     }
 
-    const sectionIndex = exam.sections.indexOf(currentSection) + 1;
-    const questionIndex = currentSection.questions.indexOf(currentQuestion) + 1;
-    const detailOrder = currentQuestion.questionDetails
-      ? currentQuestion.questionDetails.length + 1
-      : 1;
-
-    onMarkQuestionDetail(
-      selectedLines,
-      sectionIndex,
-      questionIndex,
-      detailOrder
-    );
+    onMarkQuestionDetail(selectedLines, currentSection, currentQuestion);
 
     // 清空选中的行
     setSelectedLines([]); // 取消选中行

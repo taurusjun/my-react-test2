@@ -89,11 +89,27 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       // 对每个 section 进行排序和重命名
       const sortedQuestions = section.questions
         .sort((q1, q2) => Math.min(...q1.extra) - Math.min(...q2.extra))
-        .map((question, questionIndex) => ({
-          ...question,
-          order: questionIndex + 1, // 设置 question 的 order
-          name: `标准题${index + 1}.${questionIndex + 1}`, // 更新 name
-        }));
+        .map((question, questionIndex) => {
+          // 对每个 question 进行排序和重命名
+          const sortedQuestionDetails = question.questionDetails
+            ? question.questionDetails
+                .sort((d1, d2) => Math.min(...d1.extra) - Math.min(...d2.extra))
+                .map((detail, detailIndex) => ({
+                  ...detail,
+                  order: detailIndex + 1, // 设置 questionDetail 的 order
+                  name: `小题${index + 1}.${questionIndex + 1}.${
+                    detailIndex + 1
+                  }`, // 更新 name
+                }))
+            : [];
+
+          return {
+            ...question,
+            order: questionIndex + 1, // 设置 question 的 order
+            name: `标准题${index + 1}.${questionIndex + 1}`, // 更新 name
+            questionDetails: sortedQuestionDetails, // 更新 questionDetails
+          };
+        });
 
       return {
         ...section,
@@ -139,6 +155,27 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             ...line,
             backgroundColor: COLORS.QUESTION,
             label: `标准题${sectionIndex + 1}.${questionIndex}`, // 更新标签格式
+          };
+        }
+
+        // 检查是否属于某个 questionDetail
+        const questionDetailForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) => question.questionDetails)
+          )
+          .find((detail) => detail.extra.includes(index + 1));
+
+        if (questionDetailForLine) {
+          const questionIndex = sections
+            .flatMap((section) => section.questions)
+            .findIndex((question) =>
+              question.questionDetails.includes(questionDetailForLine)
+            );
+
+          return {
+            ...line,
+            backgroundColor: COLORS.QUESTION_DETAIL,
+            label: `小题${questionIndex + 1}.${questionDetailForLine.order}`, // 更新标签格式
           };
         }
 
@@ -233,37 +270,44 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
   const onMarkQuestionDetail = (
     selectedLines,
-    sectionIndex,
-    questionIndex,
-    detailOrder
+    currentSection,
+    currentQuestion
   ) => {
-    setMarkdownLines((prevLines) =>
-      prevLines.map((line, index) =>
-        selectedLines.includes(index)
-          ? {
-              ...line,
-              backgroundColor: COLORS.QUESTION_DETAIL,
-              label: `小题${sectionIndex}.${questionIndex}.${detailOrder}`,
-            }
-          : line
-      )
-    );
+    // setMarkdownLines((prevLines) =>
+    //   prevLines.map((line, index) =>
+    //     selectedLines.includes(index)
+    //       ? {
+    //           ...line,
+    //           backgroundColor: COLORS.QUESTION_DETAIL,
+    //           label: `小题${sectionIndex}.${questionIndex}.${detailOrder}`,
+    //         }
+    //       : line
+    //   )
+    // );
 
     setExam((prevExam) => {
-      const newSections = [...prevExam.sections];
-      if (newSections[sectionIndex - 1]?.questions[questionIndex - 1]) {
-        const newQuestionDetail = {
-          uuid: uuidv4(), // 添加 uuid
-          type: "questionDetail", // 添加 type 属性
-          order: detailOrder,
-          extra: selectedLines.map((index) => index + 1),
-        };
-        newSections[sectionIndex - 1].questions[
-          questionIndex - 1
-        ].questionDetails.push(newQuestionDetail);
+      let newSections = [...prevExam.sections];
+      const newQuestionDetail = {
+        uuid: uuidv4(), // 添加 uuid
+        type: "questionDetail", // 添加 type 属性
+        extra: selectedLines.map((index) => index + 1),
+      };
 
-        mdMap.setMultiLinesWithLock(newQuestionDetail.extra, newQuestionDetail);
-      }
+      currentQuestion.questionDetails.push(newQuestionDetail);
+
+      const index = newSections.findIndex(
+        (s) => s.uuid === currentSection.uuid
+      );
+      newSections[index] = currentSection;
+
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+
+      // 更新 markdownLines，设置所选行的背景颜色和标签
+      updateMarkdownLines(newSections);
+
+      mdMap.setMultiLinesWithLock(newQuestionDetail.extra, newQuestionDetail);
+
       return { ...prevExam, sections: newSections };
     });
   };
