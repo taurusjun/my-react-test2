@@ -131,7 +131,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.SECTION,
-            label: `大题${sectionForLine.order}`,
+            label: sectionForLine.name,
           };
         }
 
@@ -154,7 +154,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.QUESTION,
-            label: `标准题${sectionIndex + 1}.${questionIndex}`, // 更新标签格式
+            label: questionForLine.name, // 更新标签格式
           };
         }
 
@@ -175,7 +175,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.QUESTION_DETAIL,
-            label: `小题${questionIndex + 1}.${questionDetailForLine.order}`, // 更新标签格式
+            label: questionDetailForLine.name, // 更新标签格式
           };
         }
 
