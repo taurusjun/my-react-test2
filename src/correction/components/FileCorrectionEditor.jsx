@@ -290,7 +290,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
   const onCancelAnnotation = (lineIndex) => {
     setExam((prevExam) => {
-      const newSections = prevExam.sections
+      let newSections = prevExam.sections
         .map((section) => ({
           ...section,
           extra: section.extra.filter((line) => line !== lineIndex + 1),
@@ -312,13 +312,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         .filter((section) => section.extra.length > 0);
 
       // 重新排序和重命名大题
-      const updatedSections = newSections
-        .sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra))
-        .map((section, index) => ({
-          ...section,
-          order: index + 1,
-          name: `大题${index + 1}`,
-        }));
+      //   const updatedSections = newSections
+      //     .sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra))
+      //     .map((section, index) => ({
+      //       ...section,
+      //       order: index + 1,
+      //       name: `大题${index + 1}`,
+      //     }));
 
       // 更新 markdownLines
       setMarkdownLines((prevLines) =>
@@ -336,9 +336,15 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       mdMap.set(lineIndex + 1, null);
 
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+
+      // 更新 markdownLines，设置所选行的背景颜色和标签
+      updateMarkdownLines(newSections);
+
       return {
         ...prevExam,
-        sections: updatedSections,
+        sections: newSections,
       };
     });
   };
