@@ -40,6 +40,22 @@ const MarkdownAnnotator = ({
       .sort((a, b) => b.order - a.order); // 按 order 倒序排列
   }, [exam.sections]);
 
+  const quickLookupMap = useMemo(() => {
+    const map = new Map();
+
+    exam.sections.forEach((section) => {
+      map.set(section.uuid, section);
+      section.questions.forEach((question) => {
+        map.set(question.uuid, question);
+        question.questionDetails.forEach((detail) => {
+          map.set(detail.uuid, detail);
+        });
+      });
+    });
+
+    return map;
+  }, [exam.sections]);
+
   useEffect(() => {
     setSelectedSection("new");
   }, [anchorPosition, validSections]);
@@ -52,10 +68,7 @@ const MarkdownAnnotator = ({
     const selectedLineRange = selectedLines.map((line) => line + 1);
 
     // 检查重叠
-    // 在 validSections 中找到 order = selectedSection 的对象
-    const selectedSectionObject = validSections.find(
-      (section) => section.uuid === selectedSection
-    );
+    const selectedSectionObject = quickLookupMap.get(selectedSection);
 
     if (mdMap.hasOverlap(selectedLineRange, selectedSectionObject)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
@@ -84,9 +97,7 @@ const MarkdownAnnotator = ({
     }
 
     // 检查重叠
-    const selectedSectionObject = validSections.find(
-      (section) => section.uuid === selectedSection
-    );
+    const selectedSectionObject = quickLookupMap.get(selectedSection);
 
     if (mdMap.hasOverlap(selectedLineNumbers, selectedSectionObject)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
@@ -112,9 +123,7 @@ const MarkdownAnnotator = ({
       return;
     }
 
-    const currentSection = validSections.find(
-      (section) => section.uuid === currentSectionInMap.uuid
-    );
+    const currentSection = quickLookupMap.get(currentSectionInMap.uuid);
 
     const currentQuestion = currentSection.questions.find((question) =>
       question.extra.some((line) => line < selectedLineNumbers[0])
