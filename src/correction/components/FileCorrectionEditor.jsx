@@ -129,9 +129,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       }
 
       // 更新 MdMap
-      updatedSection.extra.forEach((lineNumber) => {
-        mdMap.set(lineNumber, updatedSection);
-      });
+      mdMap.setMultiLinesWithLock(updatedSection.extra, updatedSection);
 
       if (sectionIndex !== -1) {
         newSections[sectionIndex] = updatedSection;
@@ -197,9 +195,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           )
         );
 
-        selectedLineNumbers.forEach((lineNumber) => {
-          mdMap.set(lineNumber, newQuestion);
-        });
+        mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
         return { ...prevExam, sections: newSections };
       }
@@ -238,9 +234,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           questionIndex - 1
         ].questionDetails.push(newQuestionDetail);
 
-        newQuestionDetail.extra.forEach((lineNumber) => {
-          mdMap.set(lineNumber, newQuestionDetail);
-        });
+        mdMap.setMultiLinesWithLock(newQuestionDetail.extra, newQuestionDetail);
       }
       return { ...prevExam, sections: newSections };
     });

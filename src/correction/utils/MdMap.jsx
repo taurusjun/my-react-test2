@@ -75,7 +75,7 @@ class MdMap {
     this.lock();
     try {
       for (let i = start; i <= end; i++) {
-        this.set(i, value);
+        this.map.set(i, value);
       }
     } finally {
       this.unlock();
@@ -234,7 +234,7 @@ class MdMap {
     }
 
     // 插入新的 section
-    this.set(minLine, section);
+    this.setMultiLinesWithLock(lines, section);
   }
 
   addQuestionsToSection(startLine, targetSection) {
