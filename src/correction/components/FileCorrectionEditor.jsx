@@ -5,6 +5,7 @@ import rehypeRaw from "rehype-raw";
 import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
+import { v4 as uuidv4 } from "uuid";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -91,12 +92,14 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         .map((question, questionIndex) => ({
           ...question,
           order: questionIndex + 1, // 设置 question 的 order
+          name: `标准题${index + 1}.${questionIndex + 1}`, // 更新 name
         }));
 
       return {
         ...section,
         order: index + 1, // 设置 section 的 order
         questions: sortedQuestions, // 更新 questions
+        name: `大题${index + 1}`, // 更新 name
       };
     });
   };
@@ -144,45 +147,27 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     );
   };
 
-  const onMarkSection = (selectedLineRange, sectionOrder) => {
+  const onMarkSection = (selectedLineRange, selectedSectionObject) => {
     setExam((prev) => {
       let newSections = [...prev.sections];
-      const sectionIndex = newSections.findIndex(
-        (s) => s.order === sectionOrder
-      );
-
       let updatedSection;
-      if (sectionIndex !== -1) {
+      if (selectedSectionObject) {
         // 更新现有大题
         updatedSection = {
-          ...newSections[sectionIndex],
-          type: "section", // 添加 type 属性
+          ...selectedSectionObject,
           extra: [
-            ...new Set([
-              ...newSections[sectionIndex].extra,
-              ...selectedLineRange,
-            ]),
+            ...new Set([...selectedSectionObject.extra, ...selectedLineRange]),
           ].sort((a, b) => a - b),
-          order: -1,
         };
       } else {
         // 创建新大题
         updatedSection = {
+          uuid: uuidv4(), // 添加 uuid
           type: "section", // 添加 type 属性
           extra: selectedLineRange,
-          order: sectionOrder,
           questions: [],
         };
       }
-
-      // 更新 MdMap
-      // mdMap.setMultiLinesWithLock(updatedSection.extra, updatedSection);
-
-      // if (sectionIndex !== -1) {
-      //   newSections[sectionIndex] = updatedSection;
-      // } else {
-      //   newSections.push(updatedSection);
-      // }
 
       const changedSections = mdMap.insertSection(
         selectedLineRange,
@@ -191,16 +176,16 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       if (newSections.length === 0) {
         newSections = changedSections;
+      } else {
+        changedSections.forEach((section) => {
+          const index = newSections.findIndex((s) => s.uuid === section.uuid);
+          if (index !== -1) {
+            newSections[index] = section;
+          } else {
+            newSections.push(section);
+          }
+        });
       }
-
-      changedSections.forEach((section) => {
-        const index = newSections.findIndex((s) => s.order === section.order);
-        if (index !== -1) {
-          newSections[index] = section;
-        } else {
-          newSections.push(section);
-        }
-      });
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -231,6 +216,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       // 创建新的标准题对象
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       const newQuestion = {
+        uuid: uuidv4(), // 添加 uuid
         type: "question", // 添加 type 属性
         extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
         order: newQuestionOrder,
@@ -274,6 +260,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       const newSections = [...prevExam.sections];
       if (newSections[sectionIndex - 1]?.questions[questionIndex - 1]) {
         const newQuestionDetail = {
+          uuid: uuidv4(), // 添加 uuid
           type: "questionDetail", // 添加 type 属性
           order: detailOrder,
           extra: selectedLines.map((index) => index + 1),
