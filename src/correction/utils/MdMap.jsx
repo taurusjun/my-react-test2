@@ -162,58 +162,6 @@ class MdMap {
     return false; // 没有重叠
   }
 
-  findPreviousObject(startLine, type) {
-    for (let i = startLine - 1; i >= 1; i--) {
-      const value = this.map.get(i);
-      if (value !== null && (type ? value.type === type : true)) {
-        return value;
-      }
-    }
-    return null;
-  }
-
-  findNextObject(endLine, type) {
-    for (let i = endLine + 1; i <= this.lineCount; i++) {
-      const value = this.map.get(i);
-      if (value !== null && (type ? value.type === type : true)) {
-        return value;
-      }
-    }
-    return null;
-  }
-
-  hasOverlap(lineNumbers, inputObject) {
-    const allLines = [
-      ...new Set([...lineNumbers, ...(inputObject?.extra || [])]),
-    ];
-    const start = Math.min(...allLines);
-    const end = Math.max(...allLines);
-
-    // 1. 检查内部范围
-    for (let i = start; i <= end; i++) {
-      const value = this.map.get(i);
-      if (value !== null && value !== inputObject) {
-        return true; // 发现重叠
-      }
-    }
-
-    // 2. 检查外部范围
-    const frontObject = this.findPreviousObject(start);
-    const backObject = this.findNextObject(end);
-
-    // 检查 frontObject 和 backObject 是否为同一个对象
-    if (
-      frontObject &&
-      backObject &&
-      frontObject === backObject &&
-      frontObject !== inputObject
-    ) {
-      return true; // 发现重叠
-    }
-
-    return false; // 没有重叠
-  }
-
   insertSection(lines, section) {
     const minLine = Math.min(...lines);
     const maxLine = Math.max(...lines);
