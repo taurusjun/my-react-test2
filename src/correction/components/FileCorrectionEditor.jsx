@@ -86,6 +86,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         const sectionForLine = sections.find((section) =>
           section.extra.includes(index + 1)
         );
+
         if (sectionForLine) {
           return {
             ...line,
@@ -93,6 +94,30 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             label: sectionForLine.name,
           };
         }
+
+        // 检查是否属于某个 question
+        const questionForLine = sections
+          .flatMap((section) => section.questions)
+          .find((question) => question.extra.includes(index + 1));
+
+        if (questionForLine) {
+          const sectionIndex = sections.findIndex((section) =>
+            section.questions.includes(questionForLine)
+          );
+          const questionIndex =
+            sectionIndex !== -1
+              ? sections[sectionIndex].questions.findIndex(
+                  (q) => q === questionForLine
+                ) + 1
+              : 0;
+
+          return {
+            ...line,
+            backgroundColor: COLORS.QUESTION,
+            label: `标准题${sectionIndex + 1}.${questionIndex}`, // 更新标签格式
+          };
+        }
+
         return line;
       })
     );
@@ -158,11 +183,22 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       // 根据每个大题的最小行号重新排序和重命名
       newSections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));
-      newSections = newSections.map((section, index) => ({
-        ...section,
-        order: index + 1,
-        name: `大题${index + 1}`,
-      }));
+      newSections = newSections.map((section, index) => {
+        // 对每个 section 进行排序和重命名
+        const sortedQuestions = section.questions
+          .sort((q1, q2) => Math.min(...q1.extra) - Math.min(...q2.extra))
+          .map((question, questionIndex) => ({
+            ...question,
+            order: questionIndex + 1, // 设置 question 的 order
+          }));
+
+        return {
+          ...section,
+          order: index + 1, // 设置 section 的 order
+          name: `大题${index + 1}`, // 设置 section 的 name
+          questions: sortedQuestions, // 更新 questions
+        };
+      });
 
       // 更新 markdownLines
       updateMarkdownLines(newSections);
