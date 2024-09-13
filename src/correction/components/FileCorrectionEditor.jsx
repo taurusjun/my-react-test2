@@ -117,6 +117,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               ...selectedLineRange,
             ]),
           ].sort((a, b) => a - b),
+          order: -1,
         };
       } else {
         // 创建新大题
@@ -129,15 +130,31 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       }
 
       // 更新 MdMap
-      mdMap.setMultiLinesWithLock(updatedSection.extra, updatedSection);
+      // mdMap.setMultiLinesWithLock(updatedSection.extra, updatedSection);
 
-      if (sectionIndex !== -1) {
-        newSections[sectionIndex] = updatedSection;
-      } else {
-        newSections.push(updatedSection);
+      // if (sectionIndex !== -1) {
+      //   newSections[sectionIndex] = updatedSection;
+      // } else {
+      //   newSections.push(updatedSection);
+      // }
+
+      const changedSections = mdMap.insertSection(
+        selectedLineRange,
+        updatedSection
+      );
+
+      if (newSections.length === 0) {
+        newSections = changedSections;
       }
 
-      mdMap.insertSection(selectedLineRange, updatedSection);
+      changedSections.forEach((section) => {
+        const index = newSections.findIndex((s) => s.order === section.order);
+        if (index !== -1) {
+          newSections[index] = section;
+        } else {
+          newSections.push(section);
+        }
+      });
 
       // 根据每个大题的最小行号重新排序和重命名
       newSections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));

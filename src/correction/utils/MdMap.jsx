@@ -163,6 +163,9 @@ class MdMap {
   }
 
   insertSection(lines, section) {
+    // 插入新的 section
+    this.setMultiLinesWithLock(lines, section);
+
     const minLine = Math.min(...lines);
     const maxLine = Math.max(...lines);
 
@@ -179,8 +182,10 @@ class MdMap {
     // 2. 往后
     this.addQuestionsToSection(maxLine + 1, section);
 
-    // 插入新的 section
-    this.setMultiLinesWithLock(lines, section);
+    if (!frontSectionResult) {
+      return [section];
+    }
+    return [frontSectionResult.value, section];
   }
 
   addQuestionsToSection(startLine, targetSection) {
