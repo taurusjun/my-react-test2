@@ -210,8 +210,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
-      // 更新 markdownLines
-      updateMarkdownLines(newSections);
 
       return {
         ...prev,
@@ -243,9 +241,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       //重新排序
       newSections = sortAndRenameSections(newSections);
 
-      // 更新 markdownLines，设置所选行的背景颜色和标签
-      updateMarkdownLines(newSections);
-
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
       return { ...prevExam, sections: newSections };
@@ -274,9 +269,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
-
-      // 更新 markdownLines，设置所选行的背景颜色和标签
-      updateMarkdownLines(newSections);
 
       mdMap.setMultiLinesWithLock(newQuestionDetail.extra, newQuestionDetail);
 
@@ -334,9 +326,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
-
-      // 更新 markdownLines，设置所选行的背景颜色和标签
-      updateMarkdownLines(newSections);
 
       return {
         ...prevExam,
