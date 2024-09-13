@@ -63,9 +63,9 @@ const MarkdownAnnotator = ({
 
     if (selectedSection === "new") {
       const newOrder = exam.sections.length + 1;
-      onMarkSection(selectedLines, newOrder);
+      onMarkSection(selectedLineRange, newOrder);
     } else if (selectedSection) {
-      onMarkSection(selectedLines, parseInt(selectedSection));
+      onMarkSection(selectedLineRange, parseInt(selectedSection));
     }
 
     // 清空选中的行

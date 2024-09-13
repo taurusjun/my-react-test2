@@ -114,7 +114,7 @@ class MdMap {
     for (let i = startLine - 1; i >= 1; i--) {
       const value = this.map.get(i);
       if (value !== null && (type ? value.type === type : true)) {
-        return value;
+        return { value, lineNumber: i }; // 返回 value 和对应的行号
       }
     }
     return null;
@@ -124,7 +124,7 @@ class MdMap {
     for (let i = endLine + 1; i <= this.lineCount; i++) {
       const value = this.map.get(i);
       if (value !== null && (type ? value.type === type : true)) {
-        return value;
+        return { value, lineNumber: i }; // 返回 value 和对应的行号
       }
     }
     return null;
@@ -146,15 +146,15 @@ class MdMap {
     }
 
     // 2. 检查外部范围
-    const frontObject = this.findPreviousObject(start);
-    const backObject = this.findNextObject(end);
+    const frontObjectResult = this.findPreviousObject(start);
+    const backObjectResult = this.findNextObject(end);
 
     // 检查 frontObject 和 backObject 是否为同一个对象
     if (
-      frontObject &&
-      backObject &&
-      frontObject === backObject &&
-      frontObject !== inputObject
+      frontObjectResult &&
+      backObjectResult &&
+      frontObjectResult.value === backObjectResult.value &&
+      frontObjectResult.value !== inputObject
     ) {
       return true; // 发现重叠
     }
@@ -167,29 +167,27 @@ class MdMap {
     const maxLine = Math.max(...lines);
 
     // 1. 找到 frontSection
-    const frontSection = this.findPreviousObject(minLine, "section");
-    if (frontSection) {
-      this.addQuestionsToSection(minLine - 1, frontSection);
+    const frontSectionResult = this.findPreviousObject(minLine, "section");
+    if (frontSectionResult) {
+      const frontSection = frontSectionResult.value;
+      this.addQuestionsToSection(
+        frontSectionResult.lineNumber + 1,
+        frontSection
+      );
     }
 
-    // 2. 找到 backSection
-    const backSection = this.findNextObject(maxLine, "section");
-    if (backSection) {
-      this.addQuestionsToSection(maxLine + 1, backSection);
-    } else {
-      // 如果没有找到 backSection，添加最大行号之后的所有 question
-      this.addQuestionsToSection(maxLine + 1, section);
-    }
+    // 2. 往后
+    this.addQuestionsToSection(maxLine + 1, section);
 
     // 插入新的 section
     this.setMultiLinesWithLock(lines, section);
   }
 
   addQuestionsToSection(startLine, targetSection) {
+    targetSection.questions = [];
     for (let i = startLine; i <= this.lineCount; i++) {
       const value = this.map.get(i);
       if (value && value.type === "question") {
-        targetSection.questions = targetSection.questions || [];
         // 检查是否已存在，避免重复
         if (!targetSection.questions.includes(value)) {
           targetSection.questions.push(value);

@@ -98,7 +98,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     );
   };
 
-  const onMarkSection = (selectedLines, sectionOrder) => {
+  const onMarkSection = (selectedLineRange, sectionOrder) => {
     setExam((prev) => {
       let newSections = [...prev.sections];
       const sectionIndex = newSections.findIndex(
@@ -114,7 +114,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           extra: [
             ...new Set([
               ...newSections[sectionIndex].extra,
-              ...selectedLines.map((i) => i + 1),
+              ...selectedLineRange,
             ]),
           ].sort((a, b) => a - b),
         };
@@ -122,7 +122,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         // 创建新大题
         updatedSection = {
           type: "section", // 添加 type 属性
-          extra: selectedLines.map((i) => i + 1),
+          extra: selectedLineRange,
           order: sectionOrder,
           questions: [],
         };
@@ -136,6 +136,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       } else {
         newSections.push(updatedSection);
       }
+
+      mdMap.insertSection(selectedLineRange, updatedSection);
 
       // 根据每个大题的最小行号重新排序和重命名
       newSections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));
@@ -163,44 +165,40 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         (section) => section.order === currentSection.order
       );
 
-      if (sectionIndex !== -1) {
-        // 获取当前大题下已有标准题的数量
-        const currentQuestionCount = newSections[sectionIndex].questions.length;
+      // 获取当前大题下已有标准题的数量
+      const currentQuestionCount = newSections[sectionIndex].questions.length;
 
-        // 计算新的标准题序号
-        const newQuestionOrder = currentQuestionCount + 1;
+      // 计算新的标准题序号
+      const newQuestionOrder = currentQuestionCount + 1;
 
-        // 创建新的标准题对象
-        const selectedLineNumbers = selectedLines.map((index) => index + 1);
-        const newQuestion = {
-          type: "question", // 添加 type 属性
-          extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
-          order: newQuestionOrder,
-          materials: [],
-        };
+      // 创建新的标准题对象
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      const newQuestion = {
+        type: "question", // 添加 type 属性
+        extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
+        order: newQuestionOrder,
+        materials: [],
+      };
 
-        // 将新的标准题添加到当前大题
-        newSections[sectionIndex].questions.push(newQuestion);
+      // 将新的标准题添加到当前大题
+      newSections[sectionIndex].questions.push(newQuestion);
 
-        // 更新 markdownLines，设置所选行的背景颜色和标签
-        setMarkdownLines((prevLines) =>
-          prevLines.map((line, index) =>
-            selectedLines.includes(index)
-              ? {
-                  ...line,
-                  backgroundColor: COLORS.QUESTION,
-                  label: `标准题${sectionIndex + 1}.${newQuestionOrder}`,
-                }
-              : line
-          )
-        );
+      // 更新 markdownLines，设置所选行的背景颜色和标签
+      setMarkdownLines((prevLines) =>
+        prevLines.map((line, index) =>
+          selectedLines.includes(index)
+            ? {
+                ...line,
+                backgroundColor: COLORS.QUESTION,
+                label: `标准题${sectionIndex + 1}.${newQuestionOrder}`,
+              }
+            : line
+        )
+      );
 
-        mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
-        return { ...prevExam, sections: newSections };
-      }
-
-      return prevExam;
+      return { ...prevExam, sections: newSections };
     });
   };
 
@@ -246,16 +244,20 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         .map((section) => ({
           ...section,
           extra: section.extra.filter((line) => line !== lineIndex + 1),
-          questions: section.questions.map((question) => ({
-            ...question,
-            extra: question.extra.filter((line) => line !== lineIndex + 1),
-            questionDetails: question.questionDetails
-              ? question.questionDetails.map((detail) => ({
-                  ...detail,
-                  extra: detail.extra.filter((line) => line !== lineIndex + 1),
-                }))
-              : [],
-          })),
+          questions: section.questions
+            .map((question) => ({
+              ...question,
+              extra: question.extra.filter((line) => line !== lineIndex + 1),
+              questionDetails: question.questionDetails
+                ? question.questionDetails.map((detail) => ({
+                    ...detail,
+                    extra: detail.extra.filter(
+                      (line) => line !== lineIndex + 1
+                    ),
+                  }))
+                : [],
+            }))
+            .filter((question) => question.extra.length > 0),
         }))
         .filter((section) => section.extra.length > 0);
 
