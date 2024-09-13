@@ -162,42 +162,6 @@ class MdMap {
     return false; // 没有重叠
   }
 
-  insertSection(lines, section) {
-    const minLine = Math.min(...lines);
-    const maxLine = Math.max(...lines);
-
-    // 1. 找到 frontSection
-    const frontSection = this.findPreviousObject(minLine);
-    if (frontSection && frontSection.type === "section") {
-      this.addQuestionsToSection(minLine - 1, frontSection);
-    }
-
-    // 2. 找到 backSection
-    const backSection = this.findNextObject(maxLine);
-    if (backSection && backSection.type === "section") {
-      this.addQuestionsToSection(maxLine + 1, backSection);
-    } else {
-      // 如果没有找到 backSection，添加最大行号之后的所有 question
-      this.addQuestionsToSection(maxLine + 1, section);
-    }
-
-    this.setMultiLinesWithLock(lines, section);
-  }
-
-  addQuestionsToSection(startLine, targetSection) {
-    for (let i = startLine; i <= this.lineCount; i++) {
-      const value = this.map.get(i);
-      if (value && value.type === "question") {
-        targetSection.questions = targetSection.questions || [];
-        // 检查是否已存在，避免重复
-        if (!targetSection.questions.includes(value)) {
-          targetSection.questions.push(value);
-        }
-      }
-      if (value && value.type === "section") break; // 找到下一个 section，停止
-    }
-  }
-
   findPreviousObject(startLine, type) {
     for (let i = startLine - 1; i >= 1; i--) {
       const value = this.map.get(i);
@@ -286,8 +250,6 @@ class MdMap {
       if (value && value.type === "section") break; // 找到下一个 section，停止
     }
   }
-
-  // ... existing methods ...
 }
 
 export default MdMap;
