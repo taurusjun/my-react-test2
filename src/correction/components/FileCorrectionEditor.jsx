@@ -213,7 +213,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   // selectedLines 选中的行， currentSection 行所归属的section
   const onMarkQuestion = (selectedLines, currentSection) => {
     setExam((prevExam) => {
-      const newSections = [...prevExam.sections];
+      let newSections = [...prevExam.sections];
       const sectionIndex = newSections.findIndex(
         (section) => section.order === currentSection.order
       );
@@ -236,18 +236,38 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       // 将新的标准题添加到当前大题
       newSections[sectionIndex].questions.push(newQuestion);
 
+      // 根据每个大题的最小行号重新排序和重命名
+      newSections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));
+      newSections = newSections.map((section, index) => {
+        // 对每个 section 进行排序和重命名
+        const sortedQuestions = section.questions
+          .sort((q1, q2) => Math.min(...q1.extra) - Math.min(...q2.extra))
+          .map((question, questionIndex) => ({
+            ...question,
+            order: questionIndex + 1, // 设置 question 的 order
+          }));
+
+        return {
+          ...section,
+          order: index + 1, // 设置 section 的 order
+          name: `大题${index + 1}`, // 设置 section 的 name
+          questions: sortedQuestions, // 更新 questions
+        };
+      });
+
       // 更新 markdownLines，设置所选行的背景颜色和标签
-      setMarkdownLines((prevLines) =>
-        prevLines.map((line, index) =>
-          selectedLines.includes(index)
-            ? {
-                ...line,
-                backgroundColor: COLORS.QUESTION,
-                label: `标准题${sectionIndex + 1}.${newQuestionOrder}`,
-              }
-            : line
-        )
-      );
+      updateMarkdownLines(newSections);
+      // setMarkdownLines((prevLines) =>
+      //   prevLines.map((line, index) =>
+      //     selectedLines.includes(index)
+      //       ? {
+      //           ...line,
+      //           backgroundColor: COLORS.QUESTION,
+      //           label: `标准题${sectionIndex + 1}.${newQuestionOrder}`,
+      //         }
+      //       : line
+      //   )
+      // );
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
