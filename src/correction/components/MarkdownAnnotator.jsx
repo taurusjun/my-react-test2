@@ -107,7 +107,7 @@ const MarkdownAnnotator = ({
       return;
     }
 
-    onMarkQuestion(selectedLines, currentSection);
+    onMarkQuestion(selectedLineNumbers);
 
     // 清空选中的行
     setSelectedLines([]); // 取消选中行
@@ -146,7 +146,7 @@ const MarkdownAnnotator = ({
     const currentQuestion = quickLookupMap.get(currentQuestionInMap.uuid);
 
     // 更新数据结构
-    onMarkQuestionDetail(selectedLines, currentSection, currentQuestion);
+    onMarkQuestionDetail(selectedLineNumbers, currentSection, currentQuestion);
 
     // 清空选中的行
     setSelectedLines([]); // 取消选中行

@@ -432,14 +432,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const onMarkQuestion = (selectedLines, currentSection) => {
+  const onMarkQuestion = (selectedLineNumbers) => {
     setExam((prevExam) => {
       const newQuestion = {
         uuid: uuidv4(), // 添加 uuid
         type: "question", // 添加 type 属性
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
       let newSections = convertMdMapToExamStructure();
@@ -450,18 +449,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const onMarkQuestionDetail = (
-    selectedLines,
-    currentSection,
-    currentQuestion
-  ) => {
+  const onMarkQuestionDetail = (selectedLineNumbers) => {
     setExam((prevExam) => {
       const newQuestionDetail = {
         uuid: uuidv4(), // 添加 uuid
         type: "questionDetail", // 添加 type 属性
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);
 
       let newSections = convertMdMapToExamStructure();
