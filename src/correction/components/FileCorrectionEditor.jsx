@@ -13,6 +13,7 @@ const COLORS = {
   MATERIAL: "#a5d6a7",
   QUESTION_DETAIL: "#03a9f4",
   QUESTION_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
+  EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
@@ -70,6 +71,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               type: "questionDetail",
               extra: [],
               questionContent: [], // 初始化 questionContent 字段
+              explanation: [], // 初始化 explanation 字段
             };
             questionDetails.push(questionDetail);
           }
@@ -89,6 +91,12 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
             lastQuestionDetail.questionContent.push(i); // 将行号添加到 questionContent 字段中
+          }
+        } else if (value.type === "question_explanation") {
+          const lastQuestionDetail =
+            questionDetails[questionDetails.length - 1];
+          if (lastQuestionDetail) {
+            lastQuestionDetail.explanation.push(i); // 将行号添加到 explanation 字段中
           }
         }
       }
@@ -177,6 +185,14 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     }_内容`,
                   };
 
+                  // 对每个 explanation 进行排序和重命名
+                  const sortedExplanation = {
+                    extra: detail.explanation,
+                    name: `小题${index + 1}.${questionIndex + 1}.${
+                      detailIndex + 1
+                    }_解析`,
+                  };
+
                   return {
                     ...detail,
                     order: detailIndex + 1, // 设置 questionDetail 的 order
@@ -184,6 +200,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                       detailIndex + 1
                     }`, // 更新 name
                     questionContent: sortedQuestionContent, // 更新 questionContent
+                    explanation: sortedExplanation, // 更新 questionContent
                   };
                 })
             : [];
@@ -286,6 +303,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             ...line,
             backgroundColor: COLORS.QUESTION_CONTENT,
             label: questionContentForLine.name, // 更新标签格式
+          };
+        }
+
+        // 检查是否属于某个 explanation
+        const explanationForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) =>
+              question.questionDetails.flatMap((detail) => detail.explanation)
+            )
+          )
+          .find((explanation) => explanation.extra.includes(index + 1));
+
+        if (explanationForLine) {
+          return {
+            ...line,
+            backgroundColor: COLORS.EXPLANATION,
+            label: explanationForLine.name, // 更新标签格式
           };
         }
 
@@ -427,6 +461,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
+  const onMarkExplanation = (selectedLineNumbers) => {
+    setExam((prevExam) => {
+      const newExplanation = {
+        uuid: uuidv4(), // 添加 uuid
+        type: "question_explanation", // 添加 type 属性
+      };
+
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
+
+      let newSections = convertMdMapToExamStructure();
+
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
+    });
+  };
+
   const renderMarkdownWithLineNumbers = (extra) => {
     return extra.map((line, index) => {
       const isSelected = selectedLines.includes(index);
@@ -548,6 +600,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onCancelAnnotation={onCancelAnnotation}
           onMarkMaterial={onMarkMaterial}
           onMarkQuestionContent={onMarkQuestionContent}
+          onMarkExplanation={onMarkExplanation} // 添加 onMarkExplanation 作为 props
           colors={COLORS}
           markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}
