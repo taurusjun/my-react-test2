@@ -15,7 +15,6 @@ import useOverlapChecker from "./useOverlapChecker";
 const MarkdownAnnotator = ({
   selectedLines,
   exam,
-  updateExam,
   anchorPosition,
   onClose,
   onMarkSection,
@@ -25,8 +24,8 @@ const MarkdownAnnotator = ({
   onMarkMaterial,
   onMarkQuestionContent, // 添加 onMarkQuestionContent 作为 props
   onMarkExplanation,
+  onMarkAnswer,
   colors,
-  markdownLines,
   setSelectedLines, // 添加 setSelectedLines 作为 props
   mdMap, // 添加 mdMap 作为 prop
 }) => {
@@ -231,6 +230,30 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
+  const handleMarkAnswer = () => {
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentQuestionDetail = mdMap.findNearestObject(
+      selectedLineNumbers[0],
+      "questionDetail"
+    );
+
+    if (!currentQuestionDetail) {
+      setErrorMessage("未找到所属的小题");
+      return;
+    }
+
+    if (mdMap.hasOverlap(selectedLineNumbers)) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      return;
+    }
+
+    onMarkAnswer(selectedLineNumbers);
+
+    setSelectedLines([]);
+
+    onClose();
+  };
+
   return (
     <>
       <Popover
@@ -377,7 +400,17 @@ const MarkdownAnnotator = ({
                 onClick={handleMarkExplanation}
               >
                 标注解释
-              </Button>{" "}
+              </Button>
+              <Button
+                variant="contained"
+                style={{
+                  backgroundColor: colors.ANSWER,
+                  color: "#fff",
+                }}
+                onClick={handleMarkAnswer}
+              >
+                标注答案
+              </Button>
             </>
           )}
         </Box>

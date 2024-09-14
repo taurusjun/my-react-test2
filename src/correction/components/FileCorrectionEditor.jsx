@@ -14,6 +14,7 @@ const COLORS = {
   QUESTION_DETAIL: "#03a9f4",
   QUESTION_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
   EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
+  ANSWER: "#ffab91", // 添加 ANSWER 颜色
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
@@ -26,6 +27,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
 
+  // 在 convertMdMapToExamStructure 函数中处理 answer 字段
   const convertMdMapToExamStructure = () => {
     const sections = [];
     const questions = [];
@@ -52,10 +54,9 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             type: "question",
             extra: [],
             questionDetails: [],
-            material: [], // 初始化 material 字段
+            material: [],
           };
           question.extra.push(i);
-          // 将问题直接添加到最近的 section 中
           const lastSection = sections[sections.length - 1];
           if (lastSection) {
             lastSection.questions.push(question);
@@ -70,13 +71,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               uuid: value.uuid,
               type: "questionDetail",
               extra: [],
-              questionContent: [], // 初始化 questionContent 字段
-              explanation: [], // 初始化 explanation 字段
+              questionContent: [],
+              explanation: [],
+              answer: [], // 初始化 answer 字段
             };
             questionDetails.push(questionDetail);
           }
           questionDetail.extra.push(i);
-          // 将问题细节添加到最近的 question 中
           const lastQuestion = questions[questions.length - 1];
           if (lastQuestion) {
             lastQuestion.questionDetails.push(questionDetail);
@@ -84,19 +85,25 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         } else if (value.type === "question_material") {
           const lastQuestion = questions[questions.length - 1];
           if (lastQuestion) {
-            lastQuestion.material.push(i); // 将行号添加到 material 字段中
+            lastQuestion.material.push(i);
           }
         } else if (value.type === "question_content") {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
-            lastQuestionDetail.questionContent.push(i); // 将行号添加到 questionContent 字段中
+            lastQuestionDetail.questionContent.push(i);
           }
         } else if (value.type === "question_explanation") {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
-            lastQuestionDetail.explanation.push(i); // 将行号添加到 explanation 字段中
+            lastQuestionDetail.explanation.push(i);
+          }
+        } else if (value.type === "question_answer") {
+          const lastQuestionDetail =
+            questionDetails[questionDetails.length - 1];
+          if (lastQuestionDetail) {
+            lastQuestionDetail.answer.push(i); // 将行号添加到 answer 字段中
           }
         }
       }
@@ -165,19 +172,15 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
   // 重新排序
   const sortAndRenameSections = (sections) => {
-    // 根据每个大题的最小行号重新排序和重命名
     sections.sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra));
     return sections.map((section, index) => {
-      // 对每个 section 进行排序和重命名
       const sortedQuestions = section.questions
         .sort((q1, q2) => Math.min(...q1.extra) - Math.min(...q2.extra))
         .map((question, questionIndex) => {
-          // 对每个 question 进行排序和重命名
           const sortedQuestionDetails = question.questionDetails
             ? question.questionDetails
                 .sort((d1, d2) => Math.min(...d1.extra) - Math.min(...d2.extra))
                 .map((detail, detailIndex) => {
-                  // 对每个 questionContent 进行排序和重命名
                   const sortedQuestionContent = {
                     extra: detail.questionContent,
                     name: `小题${index + 1}.${questionIndex + 1}.${
@@ -185,7 +188,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     }_内容`,
                   };
 
-                  // 对每个 explanation 进行排序和重命名
                   const sortedExplanation = {
                     extra: detail.explanation,
                     name: `小题${index + 1}.${questionIndex + 1}.${
@@ -193,19 +195,26 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     }_解析`,
                   };
 
-                  return {
-                    ...detail,
-                    order: detailIndex + 1, // 设置 questionDetail 的 order
+                  const sortedAnswer = {
+                    extra: detail.answer,
                     name: `小题${index + 1}.${questionIndex + 1}.${
                       detailIndex + 1
-                    }`, // 更新 name
-                    questionContent: sortedQuestionContent, // 更新 questionContent
-                    explanation: sortedExplanation, // 更新 questionContent
+                    }_答案`,
+                  };
+
+                  return {
+                    ...detail,
+                    order: detailIndex + 1,
+                    name: `小题${index + 1}.${questionIndex + 1}.${
+                      detailIndex + 1
+                    }`,
+                    questionContent: sortedQuestionContent,
+                    explanation: sortedExplanation,
+                    answer: sortedAnswer, // 更新 answer
                   };
                 })
             : [];
 
-          // 对每个 material 进行排序和重命名
           const sortedMaterial = {
             extra: question.material,
             name: `标准题${index + 1}.${questionIndex + 1}_材料`,
@@ -213,18 +222,18 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
           return {
             ...question,
-            order: questionIndex + 1, // 设置 question 的 order
-            name: `标准题${index + 1}.${questionIndex + 1}`, // 更新 name
-            questionDetails: sortedQuestionDetails, // 更新 questionDetails
-            material: sortedMaterial, // 更新 material
+            order: questionIndex + 1,
+            name: `标准题${index + 1}.${questionIndex + 1}`,
+            questionDetails: sortedQuestionDetails,
+            material: sortedMaterial,
           };
         });
 
       return {
         ...section,
-        order: index + 1, // 设置 section 的 order
-        questions: sortedQuestions, // 更新 questions
-        name: `大题${index + 1}`, // 更新 name
+        order: index + 1,
+        questions: sortedQuestions,
+        name: `大题${index + 1}`,
       };
     });
   };
@@ -244,7 +253,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           };
         }
 
-        // 检查是否属于某个 question
         const questionForLine = sections
           .flatMap((section) => section.questions)
           .find((question) => question.extra.includes(index + 1));
@@ -253,11 +261,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.QUESTION,
-            label: questionForLine.name, // 更新标签格式
+            label: questionForLine.name,
           };
         }
 
-        // 检查是否属于某个 questionDetail
         const questionDetailForLine = sections
           .flatMap((section) =>
             section.questions.flatMap((question) => question.questionDetails)
@@ -268,11 +275,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.QUESTION_DETAIL,
-            label: questionDetailForLine.name, // 更新标签格式
+            label: questionDetailForLine.name,
           };
         }
 
-        // 检查是否属于某个 material
         const materialForLine = sections
           .flatMap((section) =>
             section.questions.flatMap((question) => question.material)
@@ -283,11 +289,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.MATERIAL,
-            label: materialForLine.name, // 更新标签格式
+            label: materialForLine.name,
           };
         }
 
-        // 检查是否属于某个 questionContent
         const questionContentForLine = sections
           .flatMap((section) =>
             section.questions.flatMap((question) =>
@@ -302,11 +307,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.QUESTION_CONTENT,
-            label: questionContentForLine.name, // 更新标签格式
+            label: questionContentForLine.name,
           };
         }
 
-        // 检查是否属于某个 explanation
         const explanationForLine = sections
           .flatMap((section) =>
             section.questions.flatMap((question) =>
@@ -319,7 +323,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           return {
             ...line,
             backgroundColor: COLORS.EXPLANATION,
-            label: explanationForLine.name, // 更新标签格式
+            label: explanationForLine.name,
+          };
+        }
+
+        const answerForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) =>
+              question.questionDetails.flatMap((detail) => detail.answer)
+            )
+          )
+          .find((answer) => answer.extra.includes(index + 1));
+
+        if (answerForLine) {
+          return {
+            ...line,
+            backgroundColor: COLORS.ANSWER,
+            label: answerForLine.name,
           };
         }
 
@@ -389,6 +409,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       let newSections = convertMdMapToExamStructure();
 
       //重新排序
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
+    });
+  };
+
+  const onMarkAnswer = (selectedLineNumbers) => {
+    setExam((prevExam) => {
+      const newAnswer = {
+        uuid: uuidv4(),
+        type: "question_answer",
+      };
+
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
+
+      let newSections = convertMdMapToExamStructure();
+
       newSections = sortAndRenameSections(newSections);
       return { ...prevExam, sections: newSections };
     });
@@ -591,7 +628,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         <MarkdownAnnotator
           selectedLines={selectedLines}
           exam={exam}
-          updateExam={setExam}
           anchorPosition={anchorPosition}
           onClose={() => setAnchorPosition(null)}
           onMarkSection={onMarkSection}
@@ -601,8 +637,8 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onMarkMaterial={onMarkMaterial}
           onMarkQuestionContent={onMarkQuestionContent}
           onMarkExplanation={onMarkExplanation} // 添加 onMarkExplanation 作为 props
+          onMarkAnswer={onMarkAnswer} // 添加 onMarkAnswer 作为 props
           colors={COLORS}
-          markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}
           mdMap={mdMap}
         />
