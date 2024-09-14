@@ -22,6 +22,7 @@ const MarkdownAnnotator = ({
   onMarkQuestion,
   onMarkQuestionDetail,
   onCancelAnnotation,
+  onMarkMaterial,
   colors,
   markdownLines,
   setSelectedLines, // 添加 setSelectedLines 作为 props
@@ -156,6 +157,28 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
+  const handleMarkMaterial = () => {
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentQuestion = mdMap.findNearestQuestion(selectedLineNumbers[0]);
+
+    if (!currentQuestion) {
+      setErrorMessage("未找到所属的题目");
+      return;
+    }
+
+    if (mdMap.hasOverlap(selectedLineNumbers)) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      return;
+    }
+
+    onMarkMaterial(selectedLineNumbers);
+
+    // 清空选中的行
+    setSelectedLines([]); // 取消选中行
+
+    onClose();
+  };
+
   return (
     <>
       <Popover
@@ -259,6 +282,17 @@ const MarkdownAnnotator = ({
                 onClick={handleMarkQuestion}
               >
                 标注为标准题
+              </Button>
+              <Button
+                variant="contained"
+                style={{
+                  backgroundColor: colors.QUESTION,
+                  color: "#fff",
+                  marginBottom: "8px",
+                }}
+                onClick={handleMarkMaterial}
+              >
+                标注材料
               </Button>
               <Button
                 variant="contained"

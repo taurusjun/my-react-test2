@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 const COLORS = {
   SECTION: "#ffeb3b",
   QUESTION: "#8bc34a",
+  MATERIAL: "#8bc34a",
   QUESTION_DETAIL: "#03a9f4",
 };
 
@@ -65,6 +66,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             type: "question",
             extra: [],
             questionDetails: [],
+            material: [], // 初始化 material 字段
           };
           question.extra.push(i);
           // 将问题直接添加到最近的 section 中
@@ -90,6 +92,11 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           const lastQuestion = questions[questions.length - 1];
           if (lastQuestion) {
             lastQuestion.questionDetails.push(questionDetail);
+          }
+        } else if (value.type === "question_material") {
+          const lastQuestion = questions[questions.length - 1];
+          if (lastQuestion) {
+            lastQuestion.material.push(i); // 将行号添加到 material 字段中
           }
         }
       }
@@ -178,11 +185,18 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                 }))
             : [];
 
+          // 对每个 material 进行排序和重命名
+          const sortedMaterial = {
+            extra: question.material,
+            name: `标准题${index + 1}.${questionIndex + 1}材料`,
+          };
+
           return {
             ...question,
             order: questionIndex + 1, // 设置 question 的 order
             name: `标准题${index + 1}.${questionIndex + 1}`, // 更新 name
             questionDetails: sortedQuestionDetails, // 更新 questionDetails
+            material: sortedMaterial, // 更新 material
           };
         });
 
@@ -235,6 +249,21 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             ...line,
             backgroundColor: COLORS.QUESTION_DETAIL,
             label: questionDetailForLine.name, // 更新标签格式
+          };
+        }
+
+        // 检查是否属于某个 material
+        const materialForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) => question.material)
+          )
+          .find((material) => material.extra.includes(index + 1));
+
+        if (materialForLine) {
+          return {
+            ...line,
+            backgroundColor: COLORS.MATERIAL,
+            label: materialForLine.name, // 更新标签格式
           };
         }
 
@@ -337,6 +366,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         ...prevExam,
         sections: newSections,
       };
+    });
+  };
+
+  const onMarkMaterial = (selectedLineNumbers) => {
+    setExam((prevExam) => {
+      const newQuestionMaterial = {
+        uuid: uuidv4(), // 添加 uuid
+        type: "question_material", // 添加 type 属性
+      };
+
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
+
+      let newSections = convertMdMapToExamStructure();
+
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
     });
   };
 
@@ -459,6 +506,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onMarkQuestion={onMarkQuestion}
           onMarkQuestionDetail={onMarkQuestionDetail}
           onCancelAnnotation={onCancelAnnotation}
+          onMarkMaterial={onMarkMaterial}
           colors={COLORS}
           markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}
