@@ -177,12 +177,12 @@ class MdMap {
     return false; // 没有重叠
   }
 
-  insertSection(lines, section) {
-    // 插入新的 section
-    this.setMultiLinesWithLock(lines, section);
-
+  insertSection(lines, updatedSectionObj, quickLookupMap) {
     const minLine = Math.min(...lines);
     const maxLine = Math.max(...lines);
+
+    // 插入新的 section
+    this.setMultiLinesWithLock(lines, updatedSectionObj);
 
     // 1. 找到 frontSection
     const frontSectionResult = this.findPreviousObject(minLine, "section");
@@ -190,27 +190,35 @@ class MdMap {
       const frontSection = frontSectionResult.value;
       this.addQuestionsToSection(
         frontSectionResult.lineNumber + 1,
-        frontSection
+        minLine - 1,
+        quickLookupMap.get(frontSection.uuid),
+        quickLookupMap
       );
     }
 
     // 2. 往后
-    this.addQuestionsToSection(maxLine + 1, section);
+    this.addQuestionsToSection(
+      maxLine + 1,
+      this.lineCount,
+      updatedSectionObj,
+      quickLookupMap
+    );
 
     if (!frontSectionResult) {
-      return [section];
+      return [updatedSectionObj];
     }
-    return [frontSectionResult.value, section];
+    return [frontSectionResult.value, updatedSectionObj];
   }
 
-  addQuestionsToSection(startLine, targetSection) {
+  addQuestionsToSection(startLine, endLine, targetSection, quickLookupMap) {
     targetSection.questions = [];
-    for (let i = startLine; i <= this.lineCount; i++) {
+    for (let i = startLine; i <= endLine; i++) {
       const value = this.map.get(i);
       if (value && value.type === "question") {
         // 检查是否已存在，避免重复
-        if (!targetSection.questions.includes(value)) {
-          targetSection.questions.push(value);
+        const question = quickLookupMap.get(value.uuid);
+        if (!targetSection.questions.includes(question)) {
+          targetSection.questions.push(question);
         }
       }
       if (value && value.type === "section") break; // 找到下一个 section，停止

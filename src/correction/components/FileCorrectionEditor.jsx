@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Grid, Box, Button, TextField, Snackbar, Alert } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -22,6 +22,22 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
+
+  const quickLookupMap = useMemo(() => {
+    const map = new Map();
+
+    exam.sections.forEach((section) => {
+      map.set(section.uuid, section);
+      section.questions.forEach((question) => {
+        map.set(question.uuid, question);
+        question.questionDetails.forEach((detail) => {
+          map.set(detail.uuid, detail);
+        });
+      });
+    });
+
+    return map;
+  }, [exam.sections]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -180,6 +196,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             ...new Set([...selectedSectionObject.extra, ...selectedLineRange]),
           ].sort((a, b) => a - b),
         };
+        const index = newSections.findIndex(
+          (s) => s.uuid === updatedSection.uuid
+        );
+        newSections[index] = updatedSection;
       } else {
         // 创建新大题
         updatedSection = {
@@ -188,24 +208,25 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           extra: selectedLineRange,
           questions: [],
         };
-      }
 
-      const changedSections = mdMap.insertSection(
-        selectedLineRange,
-        updatedSection
-      );
+        const changedSections = mdMap.insertSection(
+          selectedLineRange,
+          updatedSection,
+          quickLookupMap
+        );
 
-      if (newSections.length === 0) {
-        newSections = changedSections;
-      } else {
-        changedSections.forEach((section) => {
-          const index = newSections.findIndex((s) => s.uuid === section.uuid);
-          if (index !== -1) {
-            newSections[index] = section;
-          } else {
-            newSections.push(section);
-          }
-        });
+        if (newSections.length === 0) {
+          newSections = changedSections;
+        } else {
+          changedSections.forEach((section) => {
+            const index = newSections.findIndex((s) => s.uuid === section.uuid);
+            if (index !== -1) {
+              newSections[index] = section;
+            } else {
+              newSections.push(section);
+            }
+          });
+        }
       }
 
       //重新排序
