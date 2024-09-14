@@ -12,6 +12,7 @@ const COLORS = {
   QUESTION: "#8bc34a",
   MATERIAL: "#a5d6a7",
   QUESTION_DETAIL: "#03a9f4",
+  QUESTION_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
@@ -68,6 +69,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               uuid: value.uuid,
               type: "questionDetail",
               extra: [],
+              questionContent: [], // 初始化 questionContent 字段
             };
             questionDetails.push(questionDetail);
           }
@@ -81,6 +83,12 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           const lastQuestion = questions[questions.length - 1];
           if (lastQuestion) {
             lastQuestion.material.push(i); // 将行号添加到 material 字段中
+          }
+        } else if (value.type === "question_content") {
+          const lastQuestionDetail =
+            questionDetails[questionDetails.length - 1];
+          if (lastQuestionDetail) {
+            lastQuestionDetail.questionContent.push(i); // 将行号添加到 questionContent 字段中
           }
         }
       }
@@ -160,13 +168,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           const sortedQuestionDetails = question.questionDetails
             ? question.questionDetails
                 .sort((d1, d2) => Math.min(...d1.extra) - Math.min(...d2.extra))
-                .map((detail, detailIndex) => ({
-                  ...detail,
-                  order: detailIndex + 1, // 设置 questionDetail 的 order
-                  name: `小题${index + 1}.${questionIndex + 1}.${
-                    detailIndex + 1
-                  }`, // 更新 name
-                }))
+                .map((detail, detailIndex) => {
+                  // 对每个 questionContent 进行排序和重命名
+                  const sortedQuestionContent = {
+                    extra: detail.questionContent,
+                    name: `小题${index + 1}.${questionIndex + 1}.${
+                      detailIndex + 1
+                    }_内容`,
+                  };
+
+                  return {
+                    ...detail,
+                    order: detailIndex + 1, // 设置 questionDetail 的 order
+                    name: `小题${index + 1}.${questionIndex + 1}.${
+                      detailIndex + 1
+                    }`, // 更新 name
+                    questionContent: sortedQuestionContent, // 更新 questionContent
+                  };
+                })
             : [];
 
           // 对每个 material 进行排序和重命名
@@ -248,6 +267,25 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             ...line,
             backgroundColor: COLORS.MATERIAL,
             label: materialForLine.name, // 更新标签格式
+          };
+        }
+
+        // 检查是否属于某个 questionContent
+        const questionContentForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) =>
+              question.questionDetails.flatMap(
+                (detail) => detail.questionContent
+              )
+            )
+          )
+          .find((questionContent) => questionContent.extra.includes(index + 1));
+
+        if (questionContentForLine) {
+          return {
+            ...line,
+            backgroundColor: COLORS.QUESTION_CONTENT,
+            label: questionContentForLine.name, // 更新标签格式
           };
         }
 
@@ -362,6 +400,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
+
+      let newSections = convertMdMapToExamStructure();
+
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
+    });
+  };
+
+  const onMarkQuestionContent = (selectedLineNumbers) => {
+    setExam((prevExam) => {
+      const newQuestionContent = {
+        uuid: uuidv4(), // 添加 uuid
+        type: "question_content", // 添加 type 属性
+      };
+
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
 
       let newSections = convertMdMapToExamStructure();
 
@@ -491,6 +547,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onMarkQuestionDetail={onMarkQuestionDetail}
           onCancelAnnotation={onCancelAnnotation}
           onMarkMaterial={onMarkMaterial}
+          onMarkQuestionContent={onMarkQuestionContent}
           colors={COLORS}
           markdownLines={markdownLines}
           setSelectedLines={setSelectedLines}

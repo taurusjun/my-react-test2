@@ -95,6 +95,21 @@ class MdMap {
     return this.lineCount;
   }
 
+  findNearestObject(lineNumber, type) {
+    if (lineNumber < 1 || lineNumber > this.lineCount) {
+      throw new Error(`行号 ${lineNumber} 超出范围`);
+    }
+
+    for (let i = lineNumber; i >= 1; i--) {
+      const value = this.map.get(i);
+      if (value && value.type === type) {
+        return value;
+      }
+    }
+
+    return null; // 如果没有找到 section，返回 null
+  }
+
   findNearestSection(lineNumber) {
     if (lineNumber < 1 || lineNumber > this.lineCount) {
       throw new Error(`行号 ${lineNumber} 超出范围`);
