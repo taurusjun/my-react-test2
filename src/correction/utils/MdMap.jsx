@@ -177,6 +177,7 @@ class MdMap {
     return false; // 没有重叠
   }
 
+  // 强业务属性代码，加入updatedSectionObj, quickLookupMap是为了方便处理业务
   insertSection(lines, updatedSectionObj, quickLookupMap) {
     const minLine = Math.min(...lines);
     const maxLine = Math.max(...lines);
@@ -185,13 +186,14 @@ class MdMap {
     this.setMultiLinesWithLock(lines, updatedSectionObj);
 
     // 1. 找到 frontSection
+    let frontSection = null;
     const frontSectionResult = this.findPreviousObject(minLine, "section");
     if (frontSectionResult) {
-      const frontSection = frontSectionResult.value;
+      frontSection = quickLookupMap.get(frontSectionResult.value.uuid);
       this.addQuestionsToSection(
         frontSectionResult.lineNumber + 1,
         minLine - 1,
-        quickLookupMap.get(frontSection.uuid),
+        frontSection,
         quickLookupMap
       );
     }
@@ -204,10 +206,10 @@ class MdMap {
       quickLookupMap
     );
 
-    if (!frontSectionResult) {
+    if (!frontSection) {
       return [updatedSectionObj];
     }
-    return [frontSectionResult.value, updatedSectionObj];
+    return [frontSection, updatedSectionObj];
   }
 
   addQuestionsToSection(startLine, endLine, targetSection, quickLookupMap) {
