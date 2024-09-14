@@ -243,10 +243,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const onMarkQuestion = (selectedLines, currentSection) => {
     setExam((prevExam) => {
       let newSections = [...prevExam.sections];
-      const sectionIndex = newSections.findIndex(
-        (section) => section.uuid === currentSection.uuid
-      );
-
       // 创建新的标准题对象
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       const newQuestion = {
@@ -256,14 +252,29 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         materials: [],
       };
 
+      const changedQuestions = mdMap.insertQuestion(
+        selectedLines,
+        newQuestion,
+        quickLookupMap
+      );
+
       // 将新的标准题添加到当前大题
-      newSections[sectionIndex].questions.push(newQuestion);
+      const sectionIndex = newSections.findIndex(
+        (section) => section.uuid === currentSection.uuid
+      );
+      changedQuestions.forEach((question) => {
+        const index = newSections[sectionIndex].questions.findIndex(
+          (s) => s.uuid === question.uuid
+        );
+        if (index !== -1) {
+          newSections[sectionIndex].questions[index] = question;
+        } else {
+          newSections[sectionIndex].questions.push(question);
+        }
+      });
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
-
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
-
       return { ...prevExam, sections: newSections };
     });
   };

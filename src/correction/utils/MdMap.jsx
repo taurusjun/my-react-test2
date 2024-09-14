@@ -226,6 +226,62 @@ class MdMap {
       if (value && value.type === "section") break; // 找到下一个 section，停止
     }
   }
+
+  //////////
+  // 强业务属性代码，加入updatedSectionObj, quickLookupMap是为了方便处理业务
+  insertQuestion(lines, updatedQuestionObj, quickLookupMap) {
+    const minLine = Math.min(...lines);
+    const maxLine = Math.max(...lines);
+
+    // 插入新的 section
+    this.setMultiLinesWithLock(lines, updatedQuestionObj);
+
+    // 1. 找到 frontSection
+    let frontQuestion = null;
+    const frontQuestionResult = this.findPreviousObject(minLine, "question");
+    if (frontQuestionResult) {
+      frontQuestion = quickLookupMap.get(frontQuestionResult.value.uuid);
+      this.addQuestionDetailsToQuestion(
+        frontQuestionResult.lineNumber + 1,
+        minLine - 1,
+        frontQuestion,
+        quickLookupMap
+      );
+    }
+
+    // 2. 往后
+    this.addQuestionDetailsToQuestion(
+      maxLine + 1,
+      this.lineCount,
+      updatedQuestionObj,
+      quickLookupMap
+    );
+
+    if (!frontQuestion) {
+      return [updatedQuestionObj];
+    }
+    return [frontQuestion, updatedQuestionObj];
+  }
+
+  addQuestionDetailsToQuestion(
+    startLine,
+    endLine,
+    targetQuestion,
+    quickLookupMap
+  ) {
+    targetQuestion.questionDetails = [];
+    for (let i = startLine; i <= endLine; i++) {
+      const value = this.map.get(i);
+      if (value && value.type === "questionDetail") {
+        // 检查是否已存在，避免重复
+        const questionDetail = quickLookupMap.get(value.uuid);
+        if (!targetQuestion.questionDetails.includes(questionDetail)) {
+          targetQuestion.questionDetails.push(questionDetail);
+        }
+      }
+      if (value && value.type === "question") break;
+    }
+  }
 }
 
 export default MdMap;
