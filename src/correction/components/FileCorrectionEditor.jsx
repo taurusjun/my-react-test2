@@ -122,7 +122,16 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
-            lastQuestionDetail.rows.push(row);
+            const existingRowIndex = lastQuestionDetail.rows.findIndex(
+              (r) => r.uuid === row.uuid
+            );
+            if (existingRowIndex !== -1) {
+              // 如果存在相同 uuid 的 row，则更新旧的 row
+              lastQuestionDetail.rows[existingRowIndex] = row;
+            } else {
+              // 否则，将新的 row 添加到数组中
+              lastQuestionDetail.rows.push(row);
+            }
           }
         }
       }
@@ -466,7 +475,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         type: "question_answer",
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
 
       let newSections = convertMdMapToExamStructure();
@@ -483,7 +491,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         type: "questionDetail_row",
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
 
       let newSections = convertMdMapToExamStructure();
