@@ -69,13 +69,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               questionDetails: [],
               material: [],
             };
-            question.extra.push(i);
+            questions.push(question);
           }
+          question.extra.push(i);
           const lastSection = sections[sections.length - 1];
           if (lastSection) {
             upsertByUuid(lastSection.questions, question);
           }
-          questions.push(question);
         } else if (value.type === "questionDetail") {
           let questionDetail = questionDetails.find(
             (d) => d.uuid === value.uuid
