@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 const COLORS = {
   SECTION: "#ffeb3b",
   QUESTION: "#8bc34a",
-  MATERIAL: "#8bc34a",
+  MATERIAL: "#a5d6a7",
   QUESTION_DETAIL: "#03a9f4",
 };
 
@@ -172,7 +172,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           // 对每个 material 进行排序和重命名
           const sortedMaterial = {
             extra: question.material,
-            name: `标准题${index + 1}.${questionIndex + 1}材料`,
+            name: `标准题${index + 1}.${questionIndex + 1}_材料`,
           };
 
           return {

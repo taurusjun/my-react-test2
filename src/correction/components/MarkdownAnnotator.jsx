@@ -286,7 +286,7 @@ const MarkdownAnnotator = ({
               <Button
                 variant="contained"
                 style={{
-                  backgroundColor: colors.QUESTION,
+                  backgroundColor: colors.MATERIAL,
                   color: "#fff",
                   marginBottom: "8px",
                 }}
