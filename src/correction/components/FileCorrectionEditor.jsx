@@ -24,22 +24,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
 
-  const quickLookupMap = useMemo(() => {
-    const map = new Map();
-
-    exam.sections.forEach((section) => {
-      map.set(section.uuid, section);
-      section.questions.forEach((question) => {
-        map.set(question.uuid, question);
-        question.questionDetails.forEach((detail) => {
-          map.set(detail.uuid, detail);
-        });
-      });
-    });
-
-    return map;
-  }, [exam.sections]);
-
   const convertMdMapToExamStructure = () => {
     const sections = [];
     const questions = [];
