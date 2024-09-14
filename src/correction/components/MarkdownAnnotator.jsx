@@ -114,6 +114,14 @@ const MarkdownAnnotator = ({
 
   const handleMarkQuestionDetail = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
+
+    // 检查重叠
+    if (hasOverlap(selectedLineNumbers)) {
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      return;
+    }
+
+    // get current section
     const currentSectionInMap = mdMap.findNearestSection(
       selectedLineNumbers[0]
     );
@@ -122,24 +130,19 @@ const MarkdownAnnotator = ({
       setErrorMessage("未找到所属的大题");
       return;
     }
-
     const currentSection = quickLookupMap.get(currentSectionInMap.uuid);
 
-    const currentQuestion = currentSection.questions.find((question) =>
-      question.extra.some((line) => line < selectedLineNumbers[0])
+    // get current question
+    const currentQuestionInMap = mdMap.findNearestQuestion(
+      selectedLineNumbers[0]
     );
-
-    if (!currentQuestion) {
+    if (!currentQuestionInMap) {
       setErrorMessage("未找到所属的标准题");
       return;
     }
+    const currentQuestion = quickLookupMap.get(currentQuestionInMap.uuid);
 
-    // 检查重叠
-    if (hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
-      return;
-    }
-
+    // 更新数据结构
     onMarkQuestionDetail(selectedLines, currentSection, currentQuestion);
 
     // 清空选中的行

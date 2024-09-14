@@ -293,6 +293,11 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       };
 
       currentQuestion.questionDetails.push(newQuestionDetail);
+      currentSection.questions[
+        currentSection.questions.findIndex(
+          (s) => s.uuid === currentQuestion.uuid
+        )
+      ] = currentQuestion;
 
       const index = newSections.findIndex(
         (s) => s.uuid === currentSection.uuid
