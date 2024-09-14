@@ -151,8 +151,13 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
+  // const handleCancelAnnotation = () => {
+  //   selectedLines.forEach((line) => onCancelAnnotation(line));
+  //   onClose();
+  // };
+
   const handleCancelAnnotation = () => {
-    selectedLines.forEach((line) => onCancelAnnotation(line));
+    onCancelAnnotation(selectedLines);
     onClose();
   };
 
