@@ -243,61 +243,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     );
   };
 
-  // const onMarkSection = (selectedLineRange, selectedSectionObject) => {
-  //   setExam((prev) => {
-  //     let newSections = [...prev.sections];
-  //     let updatedSection;
-  //     if (selectedSectionObject) {
-  //       // 更新现有大题
-  //       updatedSection = {
-  //         ...selectedSectionObject,
-  //         extra: [
-  //           ...new Set([...selectedSectionObject.extra, ...selectedLineRange]),
-  //         ].sort((a, b) => a - b),
-  //       };
-  //       const index = newSections.findIndex(
-  //         (s) => s.uuid === updatedSection.uuid
-  //       );
-  //       newSections[index] = updatedSection;
-  //     } else {
-  //       // 创建新大题
-  //       updatedSection = {
-  //         uuid: uuidv4(), // 添加 uuid
-  //         type: "section", // 添加 type 属性
-  //         extra: selectedLineRange,
-  //         questions: [],
-  //       };
-
-  //       const changedSections = mdMap.insertSection(
-  //         selectedLineRange,
-  //         updatedSection,
-  //         quickLookupMap
-  //       );
-
-  //       if (newSections.length === 0) {
-  //         newSections = changedSections;
-  //       } else {
-  //         changedSections.forEach((section) => {
-  //           const index = newSections.findIndex((s) => s.uuid === section.uuid);
-  //           if (index !== -1) {
-  //             newSections[index] = section;
-  //           } else {
-  //             newSections.push(section);
-  //           }
-  //         });
-  //       }
-  //     }
-
-  //     //重新排序
-  //     newSections = sortAndRenameSections(newSections);
-
-  //     return {
-  //       ...prev,
-  //       sections: newSections,
-  //     };
-  //   });
-  // };
-
   const onMarkSection = (selectedLineRange, selectedSectionObject) => {
     setExam((prev) => {
       let updatedSection = {
@@ -324,46 +269,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  // selectedLines 选中的行， currentSection 行所归属的section
-  //   const onMarkQuestion = (selectedLines, currentSection) => {
-  //     setExam((prevExam) => {
-  //       let newSections = [...prevExam.sections];
-  //       // 创建新的标准题对象
-  //       const selectedLineNumbers = selectedLines.map((index) => index + 1);
-  //       const newQuestion = {
-  //         uuid: uuidv4(), // 添加 uuid
-  //         type: "question", // 添加 type 属性
-  //         extra: selectedLineNumbers, // 将行号加入 question 的 extra 属性
-  //         materials: [],
-  //       };
-
-  //       const changedQuestions = mdMap.insertQuestion(
-  //         selectedLines,
-  //         newQuestion,
-  //         quickLookupMap
-  //       );
-
-  //       // 将新的标准题添加到当前大题
-  //       const sectionIndex = newSections.findIndex(
-  //         (section) => section.uuid === currentSection.uuid
-  //       );
-  //       changedQuestions.forEach((question) => {
-  //         const index = newSections[sectionIndex].questions.findIndex(
-  //           (s) => s.uuid === question.uuid
-  //         );
-  //         if (index !== -1) {
-  //           newSections[sectionIndex].questions[index] = question;
-  //         } else {
-  //           newSections[sectionIndex].questions.push(question);
-  //         }
-  //       });
-
-  //       //重新排序
-  //       newSections = sortAndRenameSections(newSections);
-  //       return { ...prevExam, sections: newSections };
-  //     });
-  //   };
-
   const onMarkQuestion = (selectedLines, currentSection) => {
     setExam((prevExam) => {
       const newQuestion = {
@@ -381,40 +286,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       return { ...prevExam, sections: newSections };
     });
   };
-
-  //   const onMarkQuestionDetail = (
-  //     selectedLines,
-  //     currentSection,
-  //     currentQuestion
-  //   ) => {
-  //     setExam((prevExam) => {
-  //       let newSections = [...prevExam.sections];
-  //       const newQuestionDetail = {
-  //         uuid: uuidv4(), // 添加 uuid
-  //         type: "questionDetail", // 添加 type 属性
-  //         extra: selectedLines.map((index) => index + 1),
-  //       };
-
-  //       currentQuestion.questionDetails.push(newQuestionDetail);
-  //       currentSection.questions[
-  //         currentSection.questions.findIndex(
-  //           (s) => s.uuid === currentQuestion.uuid
-  //         )
-  //       ] = currentQuestion;
-
-  //       const index = newSections.findIndex(
-  //         (s) => s.uuid === currentSection.uuid
-  //       );
-  //       newSections[index] = currentSection;
-
-  //       //重新排序
-  //       newSections = sortAndRenameSections(newSections);
-
-  //       mdMap.setMultiLinesWithLock(newQuestionDetail.extra, newQuestionDetail);
-
-  //       return { ...prevExam, sections: newSections };
-  //     });
-  //   };
 
   const onMarkQuestionDetail = (
     selectedLines,
@@ -437,64 +308,6 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       return { ...prevExam, sections: newSections };
     });
   };
-
-  //   const onCancelAnnotation = (lineIndex) => {
-  //     setExam((prevExam) => {
-  //       let newSections = prevExam.sections
-  //         .map((section) => ({
-  //           ...section,
-  //           extra: section.extra.filter((line) => line !== lineIndex + 1),
-  //           questions: section.questions
-  //             .map((question) => ({
-  //               ...question,
-  //               extra: question.extra.filter((line) => line !== lineIndex + 1),
-  //               questionDetails: question.questionDetails
-  //                 ? question.questionDetails.map((detail) => ({
-  //                     ...detail,
-  //                     extra: detail.extra.filter(
-  //                       (line) => line !== lineIndex + 1
-  //                     ),
-  //                   }))
-  //                 : [],
-  //             }))
-  //             .filter((question) => question.extra.length > 0),
-  //         }))
-  //         .filter((section) => section.extra.length > 0);
-
-  //       // 重新排序和重命名大题
-  //       //   const updatedSections = newSections
-  //       //     .sort((a, b) => Math.min(...a.extra) - Math.min(...b.extra))
-  //       //     .map((section, index) => ({
-  //       //       ...section,
-  //       //       order: index + 1,
-  //       //       name: `大题${index + 1}`,
-  //       //     }));
-
-  //       // 更新 markdownLines
-  //       setMarkdownLines((prevLines) =>
-  //         prevLines.map((line, index) => {
-  //           if (index === lineIndex) {
-  //             return {
-  //               content: line.content,
-  //               backgroundColor: undefined,
-  //               label: undefined,
-  //             };
-  //           }
-  //           return line;
-  //         })
-  //       );
-
-  //       mdMap.set(lineIndex + 1, null);
-
-  //       //重新排序
-  //       newSections = sortAndRenameSections(newSections);
-
-  //       return {
-  //         ...prevExam,
-  //         sections: newSections,
-  //       };
-  //     });
-  //   };
 
   const onCancelAnnotation = (selectedLines) => {
     setExam((prevExam) => {
