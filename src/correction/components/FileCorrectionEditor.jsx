@@ -18,6 +18,16 @@ const COLORS = {
   ROW: "#ffab91", // 添加 ANSWER 颜色
 };
 
+// 通用函数
+const upsertByUuid = (array, newItem) => {
+  const index = array.findIndex((item) => item.uuid === newItem.uuid);
+  if (index !== -1) {
+    array[index] = newItem;
+  } else {
+    array.push(newItem);
+  }
+};
+
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
@@ -50,17 +60,20 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           }
           section.extra.push(i);
         } else if (value.type === "question") {
-          let question = {
-            uuid: value.uuid,
-            type: "question",
-            extra: [],
-            questionDetails: [],
-            material: [],
-          };
-          question.extra.push(i);
+          let question = questions.find((d) => d.uuid === value.uuid);
+          if (!question) {
+            question = {
+              uuid: value.uuid,
+              type: "question",
+              extra: [],
+              questionDetails: [],
+              material: [],
+            };
+            question.extra.push(i);
+          }
           const lastSection = sections[sections.length - 1];
           if (lastSection) {
-            lastSection.questions.push(question);
+            upsertByUuid(lastSection.questions, question);
           }
           questions.push(question);
         } else if (value.type === "questionDetail") {
@@ -82,7 +95,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           questionDetail.extra.push(i);
           const lastQuestion = questions[questions.length - 1];
           if (lastQuestion) {
-            lastQuestion.questionDetails.push(questionDetail);
+            upsertByUuid(lastQuestion.questionDetails, questionDetail);
           }
         } else if (value.type === "question_material") {
           const lastQuestion = questions[questions.length - 1];
@@ -122,16 +135,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
-            const existingRowIndex = lastQuestionDetail.rows.findIndex(
-              (r) => r.uuid === row.uuid
-            );
-            if (existingRowIndex !== -1) {
-              // 如果存在相同 uuid 的 row，则更新旧的 row
-              lastQuestionDetail.rows[existingRowIndex] = row;
-            } else {
-              // 否则，将新的 row 添加到数组中
-              lastQuestionDetail.rows.push(row);
-            }
+            upsertByUuid(lastQuestionDetail.rows, row);
           }
         }
       }
