@@ -15,6 +15,7 @@ const COLORS = {
   QUESTION_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
   EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
   ANSWER: "#ffab91", // 添加 ANSWER 颜色
+  ROW: "#ffab91", // 添加 ANSWER 颜色
 };
 
 const FileCorrectionEditor = ({ fileUuid }) => {
@@ -27,11 +28,11 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
 
-  // 在 convertMdMapToExamStructure 函数中处理 answer 字段
   const convertMdMapToExamStructure = () => {
     const sections = [];
     const questions = [];
     const questionDetails = [];
+    const rows = [];
 
     for (let i = 1; i <= mdMap.getLineCount(); i++) {
       const value = mdMap.get(i);
@@ -74,6 +75,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
               questionContent: [],
               explanation: [],
               answer: [], // 初始化 answer 字段
+              rows: [], // 初始化 rows 字段
             };
             questionDetails.push(questionDetail);
           }
@@ -104,6 +106,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
             lastQuestionDetail.answer.push(i); // 将行号添加到 answer 字段中
+          }
+        } else if (value.type === "questionDetail_row") {
+          let row = rows.find((d) => d.uuid === value.uuid);
+          if (!row) {
+            row = {
+              uuid: value.uuid,
+              type: "questionDetail_row",
+              extra: [],
+              isAns: false,
+            };
+            rows.push(row);
+          }
+          row.extra.push(i);
+          const lastQuestionDetail =
+            questionDetails[questionDetails.length - 1];
+          if (lastQuestionDetail) {
+            lastQuestionDetail.rows.push(row);
           }
         }
       }
@@ -202,6 +221,13 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     }_答案`,
                   };
 
+                  const sortedRows = detail.rows.map((row, rowIndex) => ({
+                    ...row,
+                    name: `小题${index + 1}.${questionIndex + 1}.${
+                      detailIndex + 1
+                    }_选项${rowIndex + 1}`,
+                  }));
+
                   return {
                     ...detail,
                     order: detailIndex + 1,
@@ -211,6 +237,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     questionContent: sortedQuestionContent,
                     explanation: sortedExplanation,
                     answer: sortedAnswer, // 更新 answer
+                    rows: sortedRows, // 更新 rows
                   };
                 })
             : [];
@@ -343,6 +370,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           };
         }
 
+        const rowForLine = sections
+          .flatMap((section) =>
+            section.questions.flatMap((question) =>
+              question.questionDetails.flatMap((detail) => detail.rows)
+            )
+          )
+          .find((row) => row.extra.includes(index + 1));
+
+        if (rowForLine) {
+          return {
+            ...line,
+            backgroundColor: rowForLine.isAns
+              ? COLORS.ANSWER
+              : COLORS.QUESTION_DETAIL,
+            label: rowForLine.name,
+          };
+        }
+
         return line;
       })
     );
@@ -423,6 +468,23 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
+
+      let newSections = convertMdMapToExamStructure();
+
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
+    });
+  };
+
+  const onMarkRow = (selectedLineNumbers) => {
+    setExam((prevExam) => {
+      const newRow = {
+        uuid: uuidv4(),
+        type: "questionDetail_row",
+      };
+
+      const selectedLineNumbers = selectedLines.map((index) => index + 1);
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
 
       let newSections = convertMdMapToExamStructure();
 
@@ -638,6 +700,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
           onMarkQuestionContent={onMarkQuestionContent}
           onMarkExplanation={onMarkExplanation} // 添加 onMarkExplanation 作为 props
           onMarkAnswer={onMarkAnswer} // 添加 onMarkAnswer 作为 props
+          onMarkRow={onMarkRow}
           colors={COLORS}
           setSelectedLines={setSelectedLines}
           mdMap={mdMap}
