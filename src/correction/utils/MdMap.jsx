@@ -95,19 +95,23 @@ class MdMap {
     return this.lineCount;
   }
 
-  findNearestObject(lineNumber, type) {
+  findNearestObject(lineNumber, type = null) {
     if (lineNumber < 1 || lineNumber > this.lineCount) {
       throw new Error(`行号 ${lineNumber} 超出范围`);
     }
 
+    const validTypes = type
+      ? [type]
+      : ["section", "question", "questionDetail"];
+
     for (let i = lineNumber; i >= 1; i--) {
       const value = this.map.get(i);
-      if (value && value.type === type) {
+      if (value && validTypes.includes(value.type)) {
         return value;
       }
     }
 
-    return null; // 如果没有找到 section，返回 null
+    return null; // 如果没有找到匹配的对象，返回 null
   }
 
   findNearestSection(lineNumber) {
