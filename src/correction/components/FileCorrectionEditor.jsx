@@ -296,8 +296,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const updateMarkdownLines = (sections) => {
     setMarkdownLines((prevLines) =>
       prevLines.map((line, index) => {
+        const lineNumber = index + 1;
         const sectionForLine = sections.find((section) =>
-          section.extra.includes(index + 1)
+          section.extra.includes(lineNumber)
         );
 
         if (sectionForLine) {
@@ -310,7 +311,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const questionForLine = sections
           .flatMap((section) => section.questions)
-          .find((question) => question.extra.includes(index + 1));
+          .find((question) => question.extra.includes(lineNumber));
 
         if (questionForLine) {
           return {
@@ -324,7 +325,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           .flatMap((section) =>
             section.questions.flatMap((question) => question.questionDetails)
           )
-          .find((detail) => detail.extra.includes(index + 1));
+          .find((detail) => detail.extra.includes(lineNumber));
 
         if (questionDetailForLine) {
           return {
@@ -338,7 +339,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           .flatMap((section) =>
             section.questions.flatMap((question) => question.material)
           )
-          .find((material) => material.extra.includes(index + 1));
+          .find((material) => material.extra.includes(lineNumber));
 
         if (materialForLine) {
           return {
@@ -356,7 +357,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               )
             )
           )
-          .find((questionContent) => questionContent.extra.includes(index + 1));
+          .find((questionContent) =>
+            questionContent.extra.includes(lineNumber)
+          );
 
         if (questionContentForLine) {
           return {
@@ -372,7 +375,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               question.questionDetails.flatMap((detail) => detail.explanation)
             )
           )
-          .find((explanation) => explanation.extra.includes(index + 1));
+          .find((explanation) => explanation.extra.includes(lineNumber));
 
         if (explanationForLine) {
           return {
@@ -388,7 +391,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               question.questionDetails.flatMap((detail) => detail.answer)
             )
           )
-          .find((answer) => answer.extra.includes(index + 1));
+          .find((answer) => answer.extra.includes(lineNumber));
 
         if (answerForLine) {
           return {
@@ -404,7 +407,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               question.questionDetails.flatMap((detail) => detail.rows)
             )
           )
-          .find((row) => row.extra.includes(index + 1));
+          .find((row) => row.extra.includes(lineNumber));
 
         if (rowForLine) {
           return {
@@ -611,26 +614,60 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           key={index}
           style={{
             display: "flex",
-            alignItems: "center",
-            lineHeight: "1.5",
+            alignItems: "stretch", // 改为 stretch 以使子元素填充整个高度
+            padding: "4px 0",
             backgroundColor,
             cursor: "pointer",
+            borderBottom: "1px solid #e0e0e0",
           }}
           onMouseDown={(event) => handleLineClick(event, index)}
         >
           <div
-            style={{ width: "50px", textAlign: "right", paddingRight: "10px" }}
+            style={{
+              width: "50px",
+              display: "flex",
+              alignItems: "center", // 垂直居中
+              justifyContent: "flex-end", // 右对齐
+              paddingRight: "10px",
+              color: "#888",
+              fontFamily: "monospace",
+              userSelect: "none",
+              backgroundColor: "#f0f0f0", // 添加浅灰色背景
+              borderRight: "1px solid #e0e0e0", // 添加右侧边框
+            }}
           >
             {index + 1}
           </div>
-          <div style={{ flex: 1 }}>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              paddingLeft: "10px",
+            }}
+          >
             {line.label && (
-              <span style={{ fontWeight: "bold", marginRight: "10px" }}>
+              <span
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "4px",
+                  color: "#333",
+                  fontSize: "0.9em",
+                  backgroundColor: line.backgroundColor,
+                  padding: "2px 4px",
+                  borderRadius: "3px",
+                  alignSelf: "flex-start",
+                }}
+              >
                 {line.label}
               </span>
             )}
             <ReactMarkdown
-              components={{ p: ({ node, ...props }) => <p {...props} /> }}
+              components={{
+                p: ({ node, ...props }) => (
+                  <p style={{ margin: 0 }} {...props} />
+                ),
+              }}
               rehypePlugins={[rehypeRaw]}
             >
               {typeof line === "string" ? line : line.content || ""}
