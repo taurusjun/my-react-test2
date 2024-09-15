@@ -92,10 +92,7 @@ const FileCorrectionEditorPage = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      {/* 导航栏 */}
-      <AppBar position="static">
-        {" "}
-        {/* 添加 AppBar */}
+      <AppBar position="fixed">
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton
@@ -135,11 +132,14 @@ const FileCorrectionEditorPage = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <FileCorrectionEditor
-        fileUuid={fileUuid}
-        editable={true}
-        setEditorState={setEditorState}
-      />
+      <Toolbar /> {/* 添加这个空的 Toolbar 来占位 */}
+      <Box sx={{ flexGrow: 1, overflow: "auto", p: 3 }}>
+        <FileCorrectionEditor
+          fileUuid={fileUuid}
+          editable={true}
+          setEditorState={setEditorState}
+        />
+      </Box>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
