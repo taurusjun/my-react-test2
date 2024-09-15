@@ -733,7 +733,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           <TextField
             required
             label="名称"
-            value={exam.name === "" ? "全部" : exam.name}
+            value={exam.name}
             onChange={handleNameChange}
             size="small"
             sx={{ mt: 1, mr: 1, mb: 1, width: 1000 }}

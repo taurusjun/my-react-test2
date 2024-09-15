@@ -25,11 +25,9 @@ const FileCorrectionEditorPage = () => {
   const [editorState, setEditorState] = useState(null);
 
   const handleTemporarySave = async () => {
-    if (editorState && editorState.mdMap && editorState.exam) {
+    if (editorState && editorState.mdMap) {
       try {
         const markMap = editorState.mdMap.toJSONString();
-
-        console.log("markMap:", markMap);
 
         await axios.post(`/api/file-corrections/${fileUuid}/temporary-save`, {
           markMap,
@@ -53,9 +51,36 @@ const FileCorrectionEditorPage = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // 实现提交逻辑
-    console.log("提交功能待实现");
+  const handleSubmit = async () => {
+    if (editorState && editorState.mdMap && editorState.exam) {
+      try {
+        const markMap = editorState.mdMap.toJSONString();
+        const examData = editorState.exam;
+
+        await axios.post(`/api/file-corrections/${fileUuid}/submit`, {
+          markMap,
+          examData,
+        });
+
+        setSnackbar({
+          open: true,
+          message: "提交成功",
+          severity: "success",
+        });
+
+        // 可以在这里添加导航逻辑，例如返回到文件列表页面
+        // navigate('/file-corrections');
+      } catch (error) {
+        console.error("提交失败:", error);
+        setSnackbar({ open: true, message: "提交失败", severity: "error" });
+      }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "没有可提交的数据",
+        severity: "warning",
+      });
+    }
   };
 
   const handleSnackbarClose = (event, reason) => {
@@ -119,6 +144,13 @@ const FileCorrectionEditorPage = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{
+          top: "200px !important",
+          left: "50% !important",
+          right: "auto !important",
+          transform: "translateX(-50%)",
+        }}
       >
         <Alert
           onClose={handleSnackbarClose}
