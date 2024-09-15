@@ -12,6 +12,58 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import useOverlapChecker from "./useOverlapChecker";
 
+// 定义操作配置
+const actionConfig = {
+  section: ["markSection", "markQuestion"],
+  question: ["markQuestion", "markMaterial", "markQuestionDetail"],
+  questionDetail: [
+    "markQuestionDetail",
+    "markRow",
+    "markExplanation",
+    "markAnswer",
+  ],
+  default: ["markSection", "markQuestion"], // 当没有最近元素时使用
+};
+
+// 定义操作按钮配置
+const buttonConfig = {
+  markSection: {
+    label: "标注为大题",
+    color: "SECTION",
+    handler: "handleMarkSection",
+  },
+  markQuestion: {
+    label: "标注为标准题",
+    color: "QUESTION",
+    handler: "handleMarkQuestion",
+  },
+  markMaterial: {
+    label: "标注材料",
+    color: "MATERIAL",
+    handler: "handleMarkMaterial",
+  },
+  markQuestionDetail: {
+    label: "标注为小题",
+    color: "QUESTION_DETAIL",
+    handler: "handleMarkQuestionDetail",
+  },
+  markRow: {
+    label: "标注选项",
+    color: "ROW",
+    handler: "handleMarkRow",
+  },
+  markExplanation: {
+    label: "标注解释",
+    color: "EXPLANATION",
+    handler: "handleMarkExplanation",
+  },
+  markAnswer: {
+    label: "标注答案",
+    color: "ANSWER",
+    handler: "handleMarkAnswer",
+  },
+};
+
 const MarkdownAnnotator = ({
   selectedLines,
   exam,
@@ -33,7 +85,7 @@ const MarkdownAnnotator = ({
   const [selectedSection, setSelectedSection] = useState("new");
   const [nearestElement, setNearestElement] = useState(null);
 
-  const { hasOverlap, setErrorMessage, renderSnackbar } = useOverlapChecker(
+  const { setErrorMessage, renderSnackbar } = useOverlapChecker(
     exam,
     selectedSection
   );
@@ -128,7 +180,7 @@ const MarkdownAnnotator = ({
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
 
     // 检查重叠
-    if (hasOverlap(selectedLineNumbers)) {
+    if (mdMap.hasOverlap(selectedLineNumbers)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
@@ -288,6 +340,40 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
+  const handlers = {
+    handleMarkSection,
+    handleMarkQuestion,
+    handleMarkMaterial,
+    handleMarkQuestionDetail,
+    handleMarkQuestionContent,
+    handleMarkAnswer,
+    handleMarkRow,
+    handleMarkExplanation,
+  };
+
+  const renderActionButtons = () => {
+    const elementType = nearestElement ? nearestElement.type : "default";
+    const availableActions = actionConfig[elementType] || [];
+
+    return availableActions.map((action) => {
+      const config = buttonConfig[action];
+      return (
+        <Button
+          key={action}
+          variant="contained"
+          style={{
+            backgroundColor: colors[config.color],
+            color: "#fff",
+            marginBottom: "8px",
+          }}
+          onClick={handlers[config.handler]()}
+        >
+          {config.label}
+        </Button>
+      );
+    });
+  };
+
   return (
     <>
       <Popover
@@ -319,167 +405,56 @@ const MarkdownAnnotator = ({
             </Button>
           ) : (
             <>
-              {(!nearestElement || nearestElement.type === "section") && (
-                <>
-                  {validSections.length > 0 && (
-                    <Grid
-                      container
-                      spacing={2}
-                      alignItems="center"
-                      marginBottom={2}
-                    >
-                      <Grid item xs={7}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel id="section-select-label">
-                            选择大题
-                          </InputLabel>
-                          <Select
-                            labelId="section-select-label"
-                            value={selectedSection}
-                            onChange={handleSectionChange}
-                            label="选择大题"
-                          >
-                            <MenuItem value="new">
-                              <AddIcon
-                                fontSize="small"
-                                style={{ marginRight: "8px" }}
-                              />
-                              新大题
-                            </MenuItem>
-                            {validSections.map((section) => (
-                              <MenuItem key={section.uuid} value={section.uuid}>
-                                {section.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={5}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          style={{
-                            backgroundColor: colors.SECTION,
-                            color: "#fff",
-                          }}
-                          onClick={handleMarkSection}
+              {(!nearestElement || nearestElement.type === "section") &&
+                validSections.length > 0 && (
+                  <Grid
+                    container
+                    spacing={2}
+                    alignItems="center"
+                    marginBottom={2}
+                  >
+                    <Grid item xs={7}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel id="section-select-label">
+                          选择大题
+                        </InputLabel>
+                        <Select
+                          labelId="section-select-label"
+                          value={selectedSection}
+                          onChange={handleSectionChange}
+                          label="选择大题"
                         >
-                          大题标注
-                        </Button>
-                      </Grid>
+                          <MenuItem value="new">
+                            <AddIcon
+                              fontSize="small"
+                              style={{ marginRight: "8px" }}
+                            />
+                            新大题
+                          </MenuItem>
+                          {validSections.map((section) => (
+                            <MenuItem key={section.uuid} value={section.uuid}>
+                              {section.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Grid>
-                  )}
-                  {validSections.length === 0 && (
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      style={{
-                        backgroundColor: colors.SECTION,
-                        color: "#fff",
-                        marginBottom: "8px",
-                      }}
-                      onClick={handleMarkSection}
-                    >
-                      标注为大题
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.QUESTION,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkQuestion}
-                  >
-                    标注为标准题
-                  </Button>
-                </>
-              )}
-              {nearestElement && nearestElement.type === "question" && (
-                <>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.QUESTION,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkQuestion}
-                  >
-                    标注为标准题
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.MATERIAL,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkMaterial}
-                  >
-                    标注材料
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.QUESTION_DETAIL,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkQuestionDetail}
-                  >
-                    标注为小题
-                  </Button>
-                </>
-              )}
-              {nearestElement && nearestElement.type === "questionDetail" && (
-                <>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.QUESTION_DETAIL,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkQuestionDetail}
-                  >
-                    标注为小题
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.ROW,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkRow}
-                  >
-                    标注选项
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.EXPLANATION,
-                      color: "#fff",
-                      marginBottom: "8px",
-                    }}
-                    onClick={handleMarkExplanation}
-                  >
-                    标注解释
-                  </Button>
-                  <Button
-                    variant="contained"
-                    style={{
-                      backgroundColor: colors.ANSWER,
-                      color: "#fff",
-                    }}
-                    onClick={handleMarkAnswer}
-                  >
-                    标注答案
-                  </Button>
-                </>
-              )}
+                    <Grid item xs={5}>
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        style={{
+                          backgroundColor: colors.SECTION,
+                          color: "#fff",
+                        }}
+                        onClick={handleMarkSection}
+                      >
+                        大题标注
+                      </Button>
+                    </Grid>
+                  </Grid>
+                )}
+              {renderActionButtons()}
             </>
           )}
         </Box>

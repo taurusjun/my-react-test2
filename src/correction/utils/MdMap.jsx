@@ -174,7 +174,7 @@ class MdMap {
     // 1. 检查内部范围
     for (let i = start; i <= end; i++) {
       const value = this.map.get(i);
-      if (value !== null && value.uuid !== inputObject.uuid) {
+      if (value !== null && (!inputObject || value.uuid !== inputObject.uuid)) {
         return true; // 发现重叠
       }
     }
@@ -188,7 +188,7 @@ class MdMap {
       frontObjectResult &&
       backObjectResult &&
       frontObjectResult.value === backObjectResult.value &&
-      frontObjectResult.value.uuid !== inputObject.uuid
+      (!inputObject || frontObjectResult.value.uuid !== inputObject.uuid)
     ) {
       return true; // 发现重叠
     }

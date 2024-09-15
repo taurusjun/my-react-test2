@@ -37,6 +37,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const convertMdMapToExamStructure = () => {
     const sections = [];
@@ -627,16 +628,24 @@ const FileCorrectionEditor = ({ fileUuid }) => {
 
   useEffect(() => {
     const fetchFileContent = async () => {
-      const response = await axios.get(`/api/file-corrections/${fileUuid}`);
-      const extra = response.data.content
-        .split("\n")
-        .map((content) => ({ content }));
-      setMarkdownLines(extra);
-      if (response.data.exam) {
-        setExam(response.data.exam);
+      try {
+        setIsLoading(true);
+        const response = await axios.get(`/api/file-corrections/${fileUuid}`);
+        const extra = response.data.content
+          .split("\n")
+          .map((content) => ({ content }));
+        setMarkdownLines(extra);
+        if (response.data.exam) {
+          setExam(response.data.exam);
+        }
+        const newMdMap = new MdMap(extra.length);
+        setMdMap(newMdMap);
+      } catch (error) {
+        console.error("获取文件内容时出错:", error);
+        // 这里可以添加错误处理，比如显示一个错误消息
+      } finally {
+        setIsLoading(false);
       }
-      const newMdMap = new MdMap(extra.length);
-      setMdMap(newMdMap);
     };
     fetchFileContent();
   }, [fileUuid]);
@@ -651,6 +660,10 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, [selectedLines, mousePosition]);
+
+  if (isLoading) {
+    return <div>加载中...</div>; // 或者使用一个加载指示器组件
+  }
 
   return (
     <Grid container spacing={2}>
@@ -692,24 +705,26 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             </div>
           )}
         </Box>
-        <MarkdownAnnotator
-          selectedLines={selectedLines}
-          exam={exam}
-          anchorPosition={anchorPosition}
-          onClose={() => setAnchorPosition(null)}
-          onMarkSection={onMarkSection}
-          onMarkQuestion={onMarkQuestion}
-          onMarkQuestionDetail={onMarkQuestionDetail}
-          onCancelAnnotation={onCancelAnnotation}
-          onMarkMaterial={onMarkMaterial}
-          onMarkQuestionContent={onMarkQuestionContent}
-          onMarkExplanation={onMarkExplanation} // 添加 onMarkExplanation 作为 props
-          onMarkAnswer={onMarkAnswer} // 添加 onMarkAnswer 作为 props
-          onMarkRow={onMarkRow}
-          colors={COLORS}
-          setSelectedLines={setSelectedLines}
-          mdMap={mdMap}
-        />
+        {mdMap && (
+          <MarkdownAnnotator
+            selectedLines={selectedLines}
+            exam={exam}
+            anchorPosition={anchorPosition}
+            onClose={() => setAnchorPosition(null)}
+            onMarkSection={onMarkSection}
+            onMarkQuestion={onMarkQuestion}
+            onMarkQuestionDetail={onMarkQuestionDetail}
+            onCancelAnnotation={onCancelAnnotation}
+            onMarkMaterial={onMarkMaterial}
+            onMarkQuestionContent={onMarkQuestionContent}
+            onMarkExplanation={onMarkExplanation}
+            onMarkAnswer={onMarkAnswer}
+            onMarkRow={onMarkRow}
+            colors={COLORS}
+            setSelectedLines={setSelectedLines}
+            mdMap={mdMap}
+          />
+        )}
       </Grid>
     </Grid>
   );
