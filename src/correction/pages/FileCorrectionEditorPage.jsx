@@ -10,8 +10,11 @@ import {
   AppBar,
   Snackbar,
   Alert,
+  Container,
 } from "@mui/material"; // 添加必要的组件
 import HomeIcon from "@mui/icons-material/Home"; // 添加图标
+import SaveIcon from "@mui/icons-material/Save";
+import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 
 const FileCorrectionEditorPage = () => {
@@ -91,18 +94,32 @@ const FileCorrectionEditorPage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <AppBar position="fixed">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        bgcolor: "#f5f5f5",
+      }}
+    >
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton
               color="inherit"
-              onClick={() => navigate("/")} // 添加返回主页的功能
-              sx={{ mr: 1 }}
+              onClick={() => navigate("/")}
+              sx={{ mr: 2 }}
             >
               <HomeIcon />
             </IconButton>
-            <Typography variant="h6" component="div">
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ fontWeight: "bold" }}
+            >
               文件修正编辑
             </Typography>
           </Box>
@@ -111,19 +128,20 @@ const FileCorrectionEditorPage = () => {
               variant="contained"
               color="secondary"
               onClick={handleTemporarySave}
-              sx={{ mr: 1, fontWeight: "bold" }}
+              startIcon={<SaveIcon />}
+              sx={{ mr: 2, fontWeight: "bold" }}
             >
               暂时保存
             </Button>
             <Button
               variant="contained"
               onClick={handleSubmit}
+              startIcon={<SendIcon />}
               sx={{
-                mr: 1,
                 fontWeight: "bold",
-                backgroundColor: "error.main",
+                bgcolor: "error.main",
                 "&:hover": {
-                  backgroundColor: "error.dark",
+                  bgcolor: "error.dark",
                 },
               }}
             >
@@ -132,14 +150,16 @@ const FileCorrectionEditorPage = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <Toolbar /> {/* 添加这个空的 Toolbar 来占位 */}
-      <Box sx={{ flexGrow: 1, overflow: "auto", p: 3 }}>
-        <FileCorrectionEditor
-          fileUuid={fileUuid}
-          editable={true}
-          setEditorState={setEditorState}
-        />
-      </Box>
+      <Toolbar />
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
+        <Box sx={{ bgcolor: "white", borderRadius: 2, boxShadow: 3, p: 3 }}>
+          <FileCorrectionEditor
+            fileUuid={fileUuid}
+            editable={true}
+            setEditorState={setEditorState}
+          />
+        </Box>
+      </Container>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -156,6 +176,8 @@ const FileCorrectionEditorPage = () => {
           onClose={handleSnackbarClose}
           severity={snackbar.severity}
           sx={{ width: "100%" }}
+          elevation={6}
+          variant="filled"
         >
           {snackbar.message}
         </Alert>
