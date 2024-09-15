@@ -48,7 +48,7 @@ const buttonConfig = {
   },
   markMaterial: {
     label: "标注材料",
-    color: "MATERIAL",
+    color: "QUESTION_MATERIAL",
     handler: "handleMarkMaterial",
   },
   markQuestionDetail: {
@@ -58,22 +58,22 @@ const buttonConfig = {
   },
   markQuestionContent: {
     label: "标注为内容",
-    color: "QUESTION_CONTENT",
+    color: "QUESTION_DETAIL_CONTENT",
     handler: "handleMarkQuestionContent",
   },
   markRow: {
     label: "标注选项",
-    color: "ROW",
+    color: "QUESTION_DETAIL_OPTION",
     handler: "handleMarkRow",
   },
   markExplanation: {
     label: "标注解释",
-    color: "EXPLANATION",
+    color: "QUESTION_DETAIL_EXPLANATION",
     handler: "handleMarkExplanation",
   },
   markAnswer: {
     label: "标注答案",
-    color: "ANSWER",
+    color: "QUESTION_DETAIL_ANSWER",
     handler: "handleMarkAnswer",
   },
 };

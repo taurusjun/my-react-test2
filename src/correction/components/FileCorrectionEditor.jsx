@@ -23,12 +23,12 @@ import { CategoryDict } from "../../provider/utils/dictionaries";
 const COLORS = {
   SECTION: "#ffeb3b",
   QUESTION: "#8bc34a",
-  MATERIAL: "#a5d6a7",
+  QUESTION_MATERIAL: "#a5d6a7",
   QUESTION_DETAIL: "#03a9f4",
-  QUESTION_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
-  EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
-  ANSWER: "#ffab91", // 添加 ANSWER 颜色
-  ROW: "#ffab91", // 添加 ANSWER 颜色
+  QUESTION_DETAIL_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
+  QUESTION_DETAIL_OPTION: "#ffab91", // 添加 ANSWER 颜色
+  QUESTION_DETAIL_ANSWER: "#ffab91", // 添加 ANSWER 颜色
+  QUESTION_DETAIL_EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
 };
 
 // 通用函数
@@ -344,7 +344,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         if (materialForLine) {
           return {
             ...line,
-            backgroundColor: COLORS.MATERIAL,
+            backgroundColor: COLORS.QUESTION_MATERIAL,
             label: materialForLine.name,
           };
         }
@@ -364,7 +364,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         if (questionContentForLine) {
           return {
             ...line,
-            backgroundColor: COLORS.QUESTION_CONTENT,
+            backgroundColor: COLORS.QUESTION_DETAIL_CONTENT,
             label: questionContentForLine.name,
           };
         }
@@ -380,7 +380,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         if (explanationForLine) {
           return {
             ...line,
-            backgroundColor: COLORS.EXPLANATION,
+            backgroundColor: COLORS.QUESTION_DETAIL_EXPLANATION,
             label: explanationForLine.name,
           };
         }
@@ -396,7 +396,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         if (answerForLine) {
           return {
             ...line,
-            backgroundColor: COLORS.ANSWER,
+            backgroundColor: COLORS.QUESTION_DETAIL_ANSWER,
             label: answerForLine.name,
           };
         }
@@ -413,7 +413,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           return {
             ...line,
             backgroundColor: rowForLine.isAns
-              ? COLORS.ANSWER
+              ? COLORS.QUESTION_DETAIL_ANSWER
               : COLORS.QUESTION_DETAIL,
             label: rowForLine.name,
           };
@@ -614,7 +614,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           key={index}
           style={{
             display: "flex",
-            alignItems: "stretch", // 改为 stretch 以使子元素填充整个高度
+            alignItems: "stretch",
             padding: "4px 0",
             backgroundColor,
             cursor: "pointer",
@@ -626,14 +626,14 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             style={{
               width: "50px",
               display: "flex",
-              alignItems: "center", // 垂直居中
-              justifyContent: "flex-end", // 右对齐
+              alignItems: "center",
+              justifyContent: "flex-end",
               paddingRight: "10px",
               color: "#888",
               fontFamily: "monospace",
               userSelect: "none",
-              backgroundColor: "#f0f0f0", // 添加浅灰色背景
-              borderRight: "1px solid #e0e0e0", // 添加右侧边框
+              backgroundColor: "#f0f0f0",
+              borderRight: "1px solid #e0e0e0",
             }}
           >
             {index + 1}
@@ -649,14 +649,17 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             {line.label && (
               <span
                 style={{
-                  fontWeight: "bold",
+                  fontWeight: "500",
                   marginBottom: "4px",
-                  color: "#333",
-                  fontSize: "0.9em",
+                  color: "#fff",
+                  fontSize: "0.85em",
                   backgroundColor: line.backgroundColor,
-                  padding: "2px 4px",
-                  borderRadius: "3px",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                   alignSelf: "flex-start",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
                 }}
               >
                 {line.label}
