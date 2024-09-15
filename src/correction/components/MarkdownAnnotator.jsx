@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import useMarkdownAnnotationHelper from "./useMarkdownAnnotationHelper";
+import { QUESTION_UI_TYPES } from "../../common/constants";
 
 // 定义操作配置
 const actionConfig = {
@@ -84,6 +85,7 @@ const MarkdownAnnotator = ({
 }) => {
   const [selectedSection, setSelectedSection] = useState("new");
   const [nearestElement, setNearestElement] = useState(null);
+  const [selectedQuestionType, setSelectedQuestionType] = useState("");
 
   const { setErrorMessage, renderSnackbar } = useMarkdownAnnotationHelper(
     exam,
@@ -179,6 +181,12 @@ const MarkdownAnnotator = ({
   const handleMarkQuestionDetail = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
 
+    // 检查是否选择了题型
+    if (!selectedQuestionType) {
+      setErrorMessage("请选择题型");
+      return;
+    }
+
     // 检查重叠
     if (mdMap.hasOverlap(selectedLineNumbers)) {
       setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
@@ -207,10 +215,11 @@ const MarkdownAnnotator = ({
     const currentQuestion = quickLookupMap.get(currentQuestionInMap.uuid);
 
     // 更新数据结构
-    onMarkQuestionDetail(selectedLineNumbers, currentSection, currentQuestion);
+    onMarkQuestionDetail(selectedLineNumbers, selectedQuestionType);
 
     // 清空选中的行
     setSelectedLines([]); // 取消选中行
+    setSelectedQuestionType("");
 
     onClose();
   };
@@ -424,6 +433,56 @@ const MarkdownAnnotator = ({
           )}
         {availableActions.map((action) => {
           const config = buttonConfig[action];
+          if (action === "markQuestionDetail") {
+            return (
+              <React.Fragment key={action}>
+                <Grid
+                  container
+                  spacing={2}
+                  alignItems="center"
+                  marginBottom={2}
+                >
+                  <Grid item xs={7}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel id="question-type-select-label">
+                        选择题型
+                      </InputLabel>
+                      <Select
+                        labelId="question-type-select-label"
+                        value={selectedQuestionType}
+                        onChange={(e) =>
+                          setSelectedQuestionType(e.target.value)
+                        }
+                        label="选择题型"
+                      >
+                        {Object.entries(QUESTION_UI_TYPES).map(
+                          ([value, label]) => (
+                            <MenuItem key={value} value={value}>
+                              {label}
+                            </MenuItem>
+                          )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      style={{
+                        backgroundColor: colors[config.color],
+                        color: "#fff",
+                      }}
+                      onClick={handleMarkQuestionDetail}
+                      disabled={!selectedQuestionType}
+                    >
+                      {config.label}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </React.Fragment>
+            );
+          }
           return (
             <Button
               key={action}

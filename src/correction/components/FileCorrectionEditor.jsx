@@ -6,6 +6,7 @@ import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
+import { QUESTION_UI_TYPES } from "../../common/constants";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -85,6 +86,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             questionDetail = {
               uuid: value.uuid,
               type: "questionDetail",
+              uiType: value.uiType,
               extra: [],
               questionContent: [],
               explanation: [],
@@ -247,7 +249,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     order: detailIndex + 1,
                     name: `小题${index + 1}.${questionIndex + 1}.${
                       detailIndex + 1
-                    }`,
+                    }(${QUESTION_UI_TYPES[detail.uiType]})`,
                     questionContent: sortedQuestionContent,
                     explanation: sortedExplanation,
                     answer: sortedAnswer, // 更新 answer
@@ -450,11 +452,12 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
-  const onMarkQuestionDetail = (selectedLineNumbers) => {
+  const onMarkQuestionDetail = (selectedLineNumbers, selectedQuestionType) => {
     setExam((prevExam) => {
       const newQuestionDetail = {
         uuid: uuidv4(), // 添加 uuid
         type: "questionDetail", // 添加 type 属性
+        uiType: selectedQuestionType,
       };
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);

@@ -29,7 +29,6 @@ import LearningPage from "./learning/pages/LearningPage";
 // 导入文件校正相关组件
 import FileCorrectionListPage from "./correction/pages/FileCorrectionListPage";
 import FileCorrectionEditorPage from "./correction/pages/FileCorrectionEditorPage";
-import ExamCuttingPage from "./correction2/pages/ExamCuttingPage";
 
 // 保留现有的路由配置并添加新的错题集路由和阅卷中心路由
 export const routeConfig = [
@@ -97,11 +96,6 @@ export const routeConfig = [
   {
     path: "/file-correction/:fileUuid",
     element: FileCorrectionEditorPage,
-    protected: true,
-  },
-  {
-    path: "/file-correction2/:fileUuid",
-    element: ExamCuttingPage,
     protected: true,
   },
 ];
