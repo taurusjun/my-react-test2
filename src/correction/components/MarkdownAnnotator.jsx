@@ -239,7 +239,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请��新选择");
       return;
     }
 
@@ -289,7 +289,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重��选择");
       return;
     }
 
@@ -361,133 +361,60 @@ const MarkdownAnnotator = ({
   };
 
   const renderActionButtons = () => {
-    if (!nearestElement) {
-      // 如果没有找到最近的对象，且没有有效的大题，才显示"标注为大题"按钮
-      if (validSections.length === 0) {
-        return (
+    const renderSectionButton = (fullWidth = false) => (
+      <Grid container spacing={2} alignItems="center" marginBottom={2}>
+        {validSections.length > 0 && (
+          <Grid item xs={fullWidth ? 7 : 12}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="section-select-label">选择大题</InputLabel>
+              <Select
+                labelId="section-select-label"
+                value={selectedSection}
+                onChange={handleSectionChange}
+                label="选择大题"
+              >
+                <MenuItem value="new">
+                  <AddIcon fontSize="small" style={{ marginRight: "8px" }} />
+                  新大题
+                </MenuItem>
+                {validSections.map((section) => (
+                  <MenuItem key={section.uuid} value={section.uuid}>
+                    {section.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+        <Grid item xs={fullWidth ? 5 : 12}>
           <Button
             variant="contained"
             fullWidth
             style={{
               backgroundColor: colors.SECTION,
               color: "#fff",
-              marginBottom: "8px",
             }}
             onClick={() => handlers.handleMarkSection()}
           >
-            标注为大题
+            大题标注
           </Button>
-        );
-      } else {
-        return (
-          <Grid container spacing={2} alignItems="center" marginBottom={2}>
-            <Grid item xs={7}>
-              <FormControl fullWidth size="small">
-                <InputLabel id="section-select-label">选择大题</InputLabel>
-                <Select
-                  labelId="section-select-label"
-                  value={selectedSection}
-                  onChange={handleSectionChange}
-                  label="选择大题"
-                >
-                  <MenuItem value="new">
-                    <AddIcon fontSize="small" style={{ marginRight: "8px" }} />
-                    新大题
-                  </MenuItem>
-                  {validSections.map((section) => (
-                    <MenuItem key={section.uuid} value={section.uuid}>
-                      {section.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={5}>
-              <Button
-                variant="contained"
-                fullWidth
-                style={{
-                  backgroundColor: colors.SECTION,
-                  color: "#fff",
-                }}
-                onClick={() => handlers.handleMarkSection()}
-              >
-                大题标注
-              </Button>
-            </Grid>
-          </Grid>
-        );
-      }
-      // 如果已经有大题，则不显示任何按钮
-      // return null;
+        </Grid>
+      </Grid>
+    );
+
+    if (!nearestElement) {
+      return validSections.length === 0
+        ? renderSectionButton()
+        : renderSectionButton(true);
     }
 
-    // 如果找到了最近的对象，使用原来的逻辑
     const elementType = nearestElement.type;
     const availableActions = actionConfig[elementType] || [];
 
     return (
       <>
         {(elementType === "section" || elementType === "default") &&
-          validSections.length > 0 && (
-            <Grid container spacing={2} alignItems="center" marginBottom={2}>
-              <Grid item xs={7}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="section-select-label">选择大题</InputLabel>
-                  <Select
-                    labelId="section-select-label"
-                    value={selectedSection}
-                    onChange={handleSectionChange}
-                    label="选择大题"
-                  >
-                    <MenuItem value="new">
-                      <AddIcon
-                        fontSize="small"
-                        style={{ marginRight: "8px" }}
-                      />
-                      新大题
-                    </MenuItem>
-                    {validSections.map((section) => (
-                      <MenuItem key={section.uuid} value={section.uuid}>
-                        {section.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={5}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  style={{
-                    backgroundColor: colors.SECTION,
-                    color: "#fff",
-                  }}
-                  onClick={() => handlers.handleMarkSection()}
-                >
-                  大题标注
-                </Button>
-              </Grid>
-            </Grid>
-          )}
-        {(elementType === "section" || elementType === "default") &&
-          validSections.length == 0 && (
-            <Grid container spacing={2} alignItems="center" marginBottom={2}>
-              <Grid item xs={5}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  style={{
-                    backgroundColor: colors.SECTION,
-                    color: "#fff",
-                  }}
-                  onClick={() => handlers.handleMarkSection()}
-                >
-                  大题标注
-                </Button>
-              </Grid>
-            </Grid>
-          )}
+          renderSectionButton(validSections.length > 0)}
         {availableActions.map((action) => {
           const config = buttonConfig[action];
           if (action === "markQuestionDetail") {
