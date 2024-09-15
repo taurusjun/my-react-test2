@@ -41,6 +41,134 @@ const upsertByUuid = (array, newItem) => {
   }
 };
 
+const createSubmitExam = (exam, markdownLines) => {
+  const convertSection = (section) => {
+    let markdown = "";
+    if (section.extra && section.extra.length > 0) {
+      section.extra.forEach((lineNumber) => {
+        markdown += markdownLines[lineNumber - 1].content + "\n";
+      });
+    }
+
+    const questions = section.questions
+      .filter((question) => question && Object.keys(question).length > 0)
+      .map((question) => {
+        let questionMarkdown = "";
+
+        if (
+          question.material &&
+          question.material.extra &&
+          question.material.extra.length > 0
+        ) {
+          question.material.extra.forEach((lineNumber) => {
+            questionMarkdown += markdownLines[lineNumber - 1].content + "\n";
+          });
+        }
+
+        if (question.extra && question.extra.length > 0) {
+          question.extra.forEach((lineNumber) => {
+            questionMarkdown += markdownLines[lineNumber - 1].content + "\n";
+          });
+        }
+
+        const questionDetails = question.questionDetails
+          .filter((detail) => detail && Object.keys(detail).length > 0)
+          .map((detail) => {
+            let detailMarkdown = "";
+
+            if (detail.extra && detail.extra.length > 0) {
+              detail.extra.forEach((lineNumber) => {
+                detailMarkdown += markdownLines[lineNumber - 1].content + "\n";
+              });
+            }
+
+            if (
+              detail.questionContent &&
+              detail.questionContent.extra &&
+              detail.questionContent.extra.length > 0
+            ) {
+              detail.questionContent.extra.forEach((lineNumber) => {
+                detailMarkdown += markdownLines[lineNumber - 1].content + "\n";
+              });
+            }
+
+            const options = detail.rows
+              .filter((row) => row && row.extra && row.extra.length > 0)
+              .map((row) => {
+                let optionMarkdown = "";
+                row.extra.forEach((lineNumber) => {
+                  optionMarkdown +=
+                    markdownLines[lineNumber - 1].content + "\n";
+                });
+                return optionMarkdown.trim();
+              });
+
+            let answerMarkdown = "";
+            if (
+              detail.answer &&
+              detail.answer.extra &&
+              detail.answer.extra.length > 0
+            ) {
+              detail.answer.extra.forEach((lineNumber) => {
+                answerMarkdown += markdownLines[lineNumber - 1].content + "\n";
+              });
+            }
+
+            let explanationMarkdown = "";
+            if (
+              detail.explanation &&
+              detail.explanation.extra &&
+              detail.explanation.extra.length > 0
+            ) {
+              detail.explanation.extra.forEach((lineNumber) => {
+                explanationMarkdown +=
+                  markdownLines[lineNumber - 1].content + "\n";
+              });
+            }
+
+            const result = {
+              content: detailMarkdown.trim(),
+              uiType: detail.uiType,
+            };
+
+            if (options.length > 0) result.options = options;
+            if (answerMarkdown) result.answer = answerMarkdown.trim();
+            if (explanationMarkdown)
+              result.explanation = explanationMarkdown.trim();
+
+            return result;
+          });
+
+        return {
+          content: questionMarkdown.trim(),
+          questionDetails:
+            questionDetails.length > 0 ? questionDetails : undefined,
+        };
+      });
+
+    return {
+      content: markdown.trim(),
+      questions: questions.length > 0 ? questions : undefined,
+    };
+  };
+
+  const result = {};
+  if (exam.name) result.name = exam.name;
+  if (exam.category) result.category = exam.category;
+
+  const sections = exam.sections
+    .filter((section) => section && Object.keys(section).length > 0)
+    .map(convertSection)
+    .filter(
+      (section) =>
+        section.content || (section.questions && section.questions.length > 0)
+    );
+
+  if (sections.length > 0) result.sections = sections;
+
+  return result;
+};
+
 const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
@@ -724,7 +852,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
   useEffect(() => {
     if (mdMap && exam) {
-      setEditorState({ mdMap, exam });
+      const createdExam = createSubmitExam(exam, markdownLines);
+      setEditorState({ mdMap, exam: createdExam });
     }
   }, [mdMap, exam, setEditorState]);
 
