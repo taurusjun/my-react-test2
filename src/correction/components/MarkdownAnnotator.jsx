@@ -16,9 +16,17 @@ import { QUESTION_UI_TYPES } from "../../common/constants";
 // 定义操作配置
 const actionConfig = {
   section: ["markQuestion"],
-  question: ["markQuestion", "markMaterial", "markQuestionDetail"],
-  questionDetail: [
+  question: [
+    "markSection",
+    "markQuestion",
+    "markMaterial",
     "markQuestionDetail",
+  ],
+  questionDetail: [
+    "markSection",
+    "markQuestion",
+    "markQuestionDetail",
+    "markQuestionContent",
     "markRow",
     "markExplanation",
     "markAnswer",
@@ -47,6 +55,11 @@ const buttonConfig = {
     label: "标注为小题",
     color: "QUESTION_DETAIL",
     handler: "handleMarkQuestionDetail",
+  },
+  markQuestionContent: {
+    label: "标注为内容",
+    color: "QUESTION_CONTENT",
+    handler: "handleMarkQuestionContent",
   },
   markRow: {
     label: "标注选项",

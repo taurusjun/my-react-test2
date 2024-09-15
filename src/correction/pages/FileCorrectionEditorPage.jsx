@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // 添加 useNavigate
 import FileCorrectionEditor from "../components/FileCorrectionEditor";
 import {
@@ -8,12 +8,62 @@ import {
   Typography,
   IconButton,
   AppBar,
+  Snackbar,
+  Alert,
 } from "@mui/material"; // 添加必要的组件
 import HomeIcon from "@mui/icons-material/Home"; // 添加图标
+import axios from "axios";
 
 const FileCorrectionEditorPage = () => {
   const { fileUuid } = useParams();
   const navigate = useNavigate(); // 初始化 navigate
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+  const [editorState, setEditorState] = useState(null);
+
+  const handleTemporarySave = async () => {
+    if (editorState && editorState.mdMap && editorState.exam) {
+      try {
+        const markMap = editorState.mdMap.toJSONString();
+
+        console.log("markMap:", markMap);
+
+        await axios.post(`/api/file-corrections/${fileUuid}/temporary-save`, {
+          markMap,
+        });
+
+        setSnackbar({
+          open: true,
+          message: "暂时保存成功",
+          severity: "success",
+        });
+      } catch (error) {
+        console.error("暂时保存失败:", error);
+        setSnackbar({ open: true, message: "暂时保存失败", severity: "error" });
+      }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "没有可保存的数据",
+        severity: "warning",
+      });
+    }
+  };
+
+  const handleSubmit = () => {
+    // 实现提交逻辑
+    console.log("提交功能待实现");
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -38,18 +88,14 @@ const FileCorrectionEditorPage = () => {
             <Button
               variant="contained"
               color="secondary"
-              onClick={() => {
-                /* 暂时保存逻辑 */
-              }}
+              onClick={handleTemporarySave}
               sx={{ mr: 1, fontWeight: "bold" }}
             >
               暂时保存
             </Button>
             <Button
               variant="contained"
-              onClick={() => {
-                /* 提交逻辑 */
-              }}
+              onClick={handleSubmit}
               sx={{
                 mr: 1,
                 fontWeight: "bold",
@@ -64,7 +110,24 @@ const FileCorrectionEditorPage = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <FileCorrectionEditor fileUuid={fileUuid} editable={true} />
+      <FileCorrectionEditor
+        fileUuid={fileUuid}
+        editable={true}
+        setEditorState={setEditorState}
+      />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       {/* 使 md 文件可编辑 */}
     </Box>
   );

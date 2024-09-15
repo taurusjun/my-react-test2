@@ -41,7 +41,7 @@ const upsertByUuid = (array, newItem) => {
   }
 };
 
-const FileCorrectionEditor = ({ fileUuid }) => {
+const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
   const [exam, setExam] = useState({ sections: [], name: "", category: "" });
@@ -683,6 +683,12 @@ const FileCorrectionEditor = ({ fileUuid }) => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, [selectedLines, mousePosition]);
+
+  useEffect(() => {
+    if (mdMap && exam) {
+      setEditorState({ mdMap, exam });
+    }
+  }, [mdMap, exam, setEditorState]);
 
   if (isLoading) {
     return <div>加载中...</div>; // 或者使用一个加载指示器组件

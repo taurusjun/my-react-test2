@@ -82,6 +82,16 @@ class MdMap {
     }
   }
 
+  toJSONString() {
+    const jsonObject = {};
+    for (let [key, value] of this.map) {
+      if (value !== null) {
+        jsonObject[key] = value;
+      }
+    }
+    return JSON.stringify(jsonObject, null, 2);
+  }
+
   clear() {
     this.lock();
     try {
