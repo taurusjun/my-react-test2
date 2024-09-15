@@ -249,7 +249,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
                     order: detailIndex + 1,
                     name: `小题${index + 1}.${questionIndex + 1}.${
                       detailIndex + 1
-                    }(${QUESTION_UI_TYPES[detail.uiType]})`,
+                    } (${QUESTION_UI_TYPES[detail.uiType]})`,
                     questionContent: sortedQuestionContent,
                     explanation: sortedExplanation,
                     answer: sortedAnswer, // 更新 answer
