@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Grid, Box, Button, TextField, Snackbar, Alert } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Button,
+  TextField,
+  Snackbar,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import axios from "axios";
@@ -7,6 +18,7 @@ import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
 import { QUESTION_UI_TYPES } from "../../common/constants";
+import { CategoryDict } from "../../provider/utils/dictionaries";
 
 const COLORS = {
   SECTION: "#ffeb3b",
@@ -32,7 +44,7 @@ const upsertByUuid = (array, newItem) => {
 const FileCorrectionEditor = ({ fileUuid }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
-  const [exam, setExam] = useState({ sections: [] });
+  const [exam, setExam] = useState({ sections: [], name: "", category: "" });
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -629,6 +641,14 @@ const FileCorrectionEditor = ({ fileUuid }) => {
     });
   };
 
+  const handleNameChange = (event) => {
+    setExam((prev) => ({ ...prev, name: event.target.value }));
+  };
+
+  const handleCategoryChange = (event) => {
+    setExam((prev) => ({ ...prev, category: event.target.value }));
+  };
+
   useEffect(() => {
     const fetchFileContent = async () => {
       try {
@@ -674,6 +694,7 @@ const FileCorrectionEditor = ({ fileUuid }) => {
         <Box
           display="flex"
           alignItems="center"
+          justifyContent="flex-start"
           style={{ marginBottom: "10px" }}
         >
           <Button
@@ -682,10 +703,35 @@ const FileCorrectionEditor = ({ fileUuid }) => {
             style={{
               backgroundColor: isEditing ? "#3f51b5" : "#f50057",
               color: "#fff",
+              marginRight: "10px",
             }}
           >
             {isEditing ? "保存" : "编辑"}
           </Button>
+          <FormControl required size="small" sx={{ mr: 1, minWidth: 120 }}>
+            <InputLabel>科目</InputLabel>
+            <Select
+              required
+              value={exam.category}
+              onChange={handleCategoryChange}
+              label="科目"
+            >
+              <MenuItem value="">全部</MenuItem>
+              {Object.entries(CategoryDict).map(([key, value]) => (
+                <MenuItem key={key} value={key}>
+                  {value}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            required
+            label="名称"
+            value={exam.name}
+            onChange={handleNameChange}
+            size="small"
+            sx={{ mt: 1, mr: 1, mb: 1, width: 1000 }}
+          />
         </Box>
         <Box display="flex" flexDirection="column" width="100%">
           {isEditing ? (
