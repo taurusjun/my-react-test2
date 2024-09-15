@@ -28,8 +28,8 @@ const actionConfig = {
     "markQuestionDetail",
     "markQuestionContent",
     "markRow",
-    "markExplanation",
     "markAnswer",
+    "markExplanation",
   ],
   default: ["markSection"], // 当没有最近元素时使用
 };

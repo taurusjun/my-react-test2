@@ -21,14 +21,14 @@ import { QUESTION_UI_TYPES } from "../../common/constants";
 import { CategoryDict } from "../../provider/utils/dictionaries";
 
 const COLORS = {
-  SECTION: "#ffeb3b",
-  QUESTION: "#8bc34a",
-  QUESTION_MATERIAL: "#a5d6a7",
-  QUESTION_DETAIL: "#03a9f4",
-  QUESTION_DETAIL_CONTENT: "#c5e1a5", // 添加 QUESTION_CONTENT 颜色
-  QUESTION_DETAIL_OPTION: "#ffab91", // 添加 ANSWER 颜色
-  QUESTION_DETAIL_ANSWER: "#ffab91", // 添加 ANSWER 颜色
-  QUESTION_DETAIL_EXPLANATION: "#ffcc80", // 添加 EXPLANATION 颜色
+  SECTION: "#3f51b5", // 深蓝色
+  QUESTION: "#4caf50", // 绿色
+  QUESTION_MATERIAL: "#81c784", // 浅绿色
+  QUESTION_DETAIL: "#2196f3", // 蓝色
+  QUESTION_DETAIL_CONTENT: "#90caf9", // 浅蓝色
+  QUESTION_DETAIL_OPTION: "#ff9800", // 橙色
+  QUESTION_DETAIL_ANSWER: "#f57c00", // 深橙色
+  QUESTION_DETAIL_EXPLANATION: "#ffa726", // 浅橙色
 };
 
 // 通用函数
@@ -412,9 +412,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         if (rowForLine) {
           return {
             ...line,
-            backgroundColor: rowForLine.isAns
-              ? COLORS.QUESTION_DETAIL_ANSWER
-              : COLORS.QUESTION_DETAIL,
+            backgroundColor: COLORS.QUESTION_DETAIL_OPTION,
             label: rowForLine.name,
           };
         }
