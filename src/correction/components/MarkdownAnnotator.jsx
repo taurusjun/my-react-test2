@@ -10,7 +10,7 @@ import {
   Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import useOverlapChecker from "./useOverlapChecker";
+import useMarkdownAnnotationHelper from "./useMarkdownAnnotationHelper";
 
 // 定义操作配置
 const actionConfig = {
@@ -85,7 +85,7 @@ const MarkdownAnnotator = ({
   const [selectedSection, setSelectedSection] = useState("new");
   const [nearestElement, setNearestElement] = useState(null);
 
-  const { setErrorMessage, renderSnackbar } = useOverlapChecker(
+  const { setErrorMessage, renderSnackbar } = useMarkdownAnnotationHelper(
     exam,
     selectedSection
   );
