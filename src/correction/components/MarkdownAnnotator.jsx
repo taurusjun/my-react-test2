@@ -366,7 +366,7 @@ const MarkdownAnnotator = ({
             color: "#fff",
             marginBottom: "8px",
           }}
-          onClick={handlers[config.handler]()}
+          onClick={() => handlers[config.handler]()}
         >
           {config.label}
         </Button>
