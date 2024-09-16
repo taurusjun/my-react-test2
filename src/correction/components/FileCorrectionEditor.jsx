@@ -100,9 +100,9 @@ const createSubmitExam = (exam, markdownLines) => {
             : "selection", //TODO: 需要有type的取值规则
         category: exam.category,
         order_in_section: question.order, // 添加 order_in_section 字段
-        kn: "vocabulary_and_grammar", // TODO: 假设的知识点
-        gradeInfo: { school: "senior", grade: "grade11" }, // TODO: 假设的年级信息
-        source: "",
+        kn: "", // TODO: 假设的知识点
+        gradeInfo: exam.gradeInfo,
+        source: exam.name,
         tags: [],
         digest: question.name,
         material: getContent(question.material.extra),
@@ -123,10 +123,7 @@ const createSubmitExam = (exam, markdownLines) => {
     uuid: exam.uuid,
     name: exam.name,
     category: exam.category,
-    gradeInfo: {
-      school: "senior",
-      grade: "grade11",
-    },
+    gradeInfo: exam.gradeInfo,
     createdAt: new Date().toISOString(),
     startTime: new Date(Date.now() + 86400000).toISOString(),
     duration: 60,
