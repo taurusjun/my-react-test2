@@ -139,7 +139,7 @@ class MdMap {
     return this.lineCount;
   }
 
-  findNearestObject(lineNumber, type = null) {
+  findNearestContainerObject(lineNumber, type = null) {
     if (lineNumber < 1 || lineNumber > this.lineCount) {
       throw new Error(`行号 ${lineNumber} 超出范围`);
     }
@@ -198,7 +198,7 @@ class MdMap {
     return null;
   }
 
-  findNextObject(endLine, type) {
+  findNextObject(endLine, type = null) {
     for (let i = endLine + 1; i <= this.lineCount; i++) {
       const value = this.map.get(i);
       if (value !== null && (type ? value.type === type : true)) {

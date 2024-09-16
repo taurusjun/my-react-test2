@@ -235,19 +235,19 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           if (lastQuestion) {
             lastQuestion.material.push(i);
           }
-        } else if (value.type === "question_content") {
+        } else if (value.type === "questionDetail_content") {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
             lastQuestionDetail.questionContent.push(i);
           }
-        } else if (value.type === "question_explanation") {
+        } else if (value.type === "questionDetail_explanation") {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
             lastQuestionDetail.explanation.push(i);
           }
-        } else if (value.type === "question_answer") {
+        } else if (value.type === "questionDetail_answer") {
           const lastQuestionDetail =
             questionDetails[questionDetails.length - 1];
           if (lastQuestionDetail) {
@@ -637,7 +637,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     setExam((prevExam) => {
       const newAnswer = {
         uuid: uuidv4(),
-        type: "question_answer",
+        type: "questionDetail_answer",
       };
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
@@ -722,7 +722,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     setExam((prevExam) => {
       const newQuestionContent = {
         uuid: uuidv4(), // 添加 uuid
-        type: "question_content", // 添加 type 属性
+        type: "questionDetail_content", // 添加 type 属性
       };
 
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
@@ -741,7 +741,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     setExam((prevExam) => {
       const newExplanation = {
         uuid: uuidv4(), // 添加 uuid
-        type: "question_explanation", // 添加 type 属性
+        type: "questionDetail_explanation", // 添加 type 属性
       };
 
       const selectedLineNumbers = selectedLines.map((index) => index + 1);

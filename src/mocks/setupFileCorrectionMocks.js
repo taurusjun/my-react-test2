@@ -124,7 +124,7 @@ const mockMdMap = `{
     },
     "14": {
         "uuid": "9c746e1e-8fcf-478e-845f-3779a71c043f",
-        "type": "question_content"
+        "type": "questionDetail_content"
     },
     "15": {
         "uuid": "7ec09cf8-9f70-4d17-b02a-f458189236c6",
@@ -133,11 +133,11 @@ const mockMdMap = `{
     },
     "16": {
         "uuid": "8d24e792-85e6-4887-a29b-51b0a3176b5c",
-        "type": "question_content"
+        "type": "questionDetail_content"
     },
     "18": {
         "uuid": "1d483e08-04fd-48f8-8631-ce4542cfe33f",
-        "type": "question_answer"
+        "type": "questionDetail_answer"
     },
     "19": {
         "uuid": "f22ee0cd-37f8-42a2-95aa-fdd975abad73",
@@ -146,7 +146,7 @@ const mockMdMap = `{
     },
     "20": {
         "uuid": "e60ec8b3-0e01-4ad1-87b1-b77df7ffe69d",
-        "type": "question_content"
+        "type": "questionDetail_content"
     },
     "22": {
         "uuid": "627ef05f-adcc-49d7-b5ef-1a2469376be6",
@@ -166,11 +166,11 @@ const mockMdMap = `{
     },
     "30": {
         "uuid": "87501484-ce14-4ab3-8b09-073ca9235d69",
-        "type": "question_answer"
+        "type": "questionDetail_answer"
     },
     "32": {
         "uuid": "b5ffc956-5682-46bb-ae76-4a277d8f9227",
-        "type": "question_explanation"
+        "type": "questionDetail_explanation"
     }
 }`;
 

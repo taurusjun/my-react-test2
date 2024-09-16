@@ -134,7 +134,7 @@ const MarkdownAnnotator = ({
   useEffect(() => {
     if (selectedLines.length > 0) {
       const firstLine = selectedLines[0] + 1;
-      const nearest = mdMap.findNearestObject(firstLine);
+      const nearest = mdMap.findNearestContainerObject(firstLine);
       setNearestElement(nearest);
     }
   }, [selectedLines, mdMap]);
@@ -238,6 +238,53 @@ const MarkdownAnnotator = ({
   };
 
   const handleCancelAnnotation = () => {
+    // 获取选中行的最大和最小值
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const minLine = Math.min(...selectedLineNumbers);
+    const maxLine = Math.max(...selectedLineNumbers);
+
+    const nearestContainerEl = mdMap.findNearestContainerObject(minLine - 1);
+    const nextElementResult = mdMap.findNextObject(maxLine);
+
+    if (!nearestContainerEl) {
+      setErrorMessage("不能删除，无大题会破坏结构");
+      return;
+    }
+
+    const nameMap = {
+      section: "大题",
+      question: "标准题",
+      question_material: "标准题材料",
+      questionDetail: "小题",
+      questionDetail_content: "小题内容",
+      questionDetail_row: "小题选项",
+      questionDetail_answer: "小题答案",
+      questionDetail_explanation: "小题解释",
+    };
+
+    if (nearestContainerEl && nextElementResult) {
+      const nextElement = nextElementResult.value;
+      const containerType = nearestContainerEl.type;
+      const elementType = nextElement.type;
+      if (
+        (containerType === "section" && elementType !== "question") ||
+        (containerType === "question" && elementType !== "questionDetail") ||
+        (containerType === "questionDetail" &&
+          elementType === "questionDetail_content" &&
+          elementType === "questionDetail_row" &&
+          elementType === "questionDetail_answer" &&
+          elementType === "questionDetail_explanation")
+      ) {
+        setErrorMessage(
+          "不能删除，下面的元素:" +
+            nameMap[elementType] +
+            " 无法匹配上面的类型:" +
+            nameMap[containerType]
+        );
+        return;
+      }
+    }
+
     onCancelAnnotation(selectedLines);
     onClose();
   };
@@ -266,7 +313,7 @@ const MarkdownAnnotator = ({
 
   const handleMarkQuestionContent = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentQuestionDetail = mdMap.findNearestObject(
+    const currentQuestionDetail = mdMap.findNearestContainerObject(
       selectedLineNumbers[0],
       "questionDetail"
     );
@@ -291,7 +338,7 @@ const MarkdownAnnotator = ({
 
   const handleMarkExplanation = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentQuestionDetail = mdMap.findNearestObject(
+    const currentQuestionDetail = mdMap.findNearestContainerObject(
       selectedLineNumbers[0],
       "questionDetail"
     );
@@ -316,7 +363,7 @@ const MarkdownAnnotator = ({
 
   const handleMarkAnswer = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentQuestionDetail = mdMap.findNearestObject(
+    const currentQuestionDetail = mdMap.findNearestContainerObject(
       selectedLineNumbers[0],
       "questionDetail"
     );
@@ -340,7 +387,7 @@ const MarkdownAnnotator = ({
 
   const handleMarkRow = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentQuestionDetail = mdMap.findNearestObject(
+    const currentQuestionDetail = mdMap.findNearestContainerObject(
       selectedLineNumbers[0],
       "questionDetail"
     );
