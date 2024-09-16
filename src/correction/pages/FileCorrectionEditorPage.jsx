@@ -32,6 +32,17 @@ const FileCorrectionEditorPage = () => {
   const [editorState, setEditorState] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
+  const validateExam = (exam) => {
+    if (!exam) return false;
+    return (
+      exam.name &&
+      exam.category &&
+      exam.gradeInfo &&
+      exam.gradeInfo.school &&
+      exam.gradeInfo.grade
+    );
+  };
+
   const handleTemporarySave = async () => {
     if (editorState && editorState.mdMap) {
       try {
@@ -61,6 +72,15 @@ const FileCorrectionEditorPage = () => {
 
   const handleSubmit = async () => {
     if (editorState && editorState.mdMap && editorState.exam) {
+      if (!validateExam(editorState.exam)) {
+        setSnackbar({
+          open: true,
+          message: "请填写所有必填字段（名称、科目、学习阶段、年级）",
+          severity: "error",
+        });
+        return;
+      }
+
       try {
         const markMap = editorState.mdMap.toJSON();
         const examData = editorState.exam;

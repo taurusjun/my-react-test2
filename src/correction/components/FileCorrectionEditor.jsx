@@ -908,6 +908,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <TextField
+              required
               fullWidth
               label="名称"
               value={exam.name}
@@ -917,7 +918,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           </Grid>
 
           <Grid item xs={12} sm={4}>
-            <FormControl fullWidth variant="outlined">
+            <FormControl required fullWidth variant="outlined">
               <InputLabel>科目</InputLabel>
               <Select
                 value={exam.category}
