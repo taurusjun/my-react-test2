@@ -139,7 +139,7 @@ const ExamContent = ({ exam, showHeader = true }) => {
                             <Typography
                               variant="subtitle1"
                               component="div"
-                              sx={{ display: "flex", alignItems: "flex-start" }}
+                              sx={{ display: "flex", alignItems: "center" }}
                             >
                               <span
                                 style={{ marginRight: "8px", flexShrink: 0 }}
