@@ -57,33 +57,6 @@ paths:
                   mdMap:
                     type: string
 
-  /api/questions:
-    post:
-      summary: 创建新问题
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                questions:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/Question"
-      responses:
-        "200":
-          description: 成功创建问题
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  questions:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Question"
-
   /api/file-corrections/{fileUuid}/temporary-save:
     post:
       summary: 暂时保存文件修改
@@ -158,13 +131,3 @@ components:
         createdAt:
           type: string
           format: date-time
-
-    Question:
-      type: object
-      properties:
-        uuid:
-          type: string
-        content:
-          type: string
-        type:
-          type: string

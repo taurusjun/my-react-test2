@@ -212,14 +212,6 @@ export const setupFileCorrectionMocks = (mock) => {
     }
   });
 
-  mock.onPost("/api/questions").reply((config) => {
-    const questions = JSON.parse(config.data).questions.map((question) => ({
-      ...question,
-      uuid: uuidv4(), // 如果需要，仍然可以为问题生成 UUID
-    }));
-    return [200, { questions }];
-  });
-
   // 添加新的 mock API 用于暂时保存
   mock.onPost(/\/api\/file-corrections\/.+\/temporary-save/).reply((config) => {
     const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
