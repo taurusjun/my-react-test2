@@ -1,4 +1,6 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import {
   Typography,
   Box,
@@ -111,7 +113,9 @@ const ExamContent = ({ exam, showHeader = true }) => {
                     <QuestionBox key={question.uuid}>
                       {question.material && (
                         <Typography sx={{ mb: 1 }}>
-                          {question.material}
+                          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                            {question.material}
+                          </ReactMarkdown>
                         </Typography>
                       )}
                       {question.questionDetails.map((detail) => {
@@ -125,8 +129,10 @@ const ExamContent = ({ exam, showHeader = true }) => {
                             >
                               <span>
                                 <strong>{detailCounter}:</strong>{" "}
-                                {detail.questionContent.value}
                               </span>
+                              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                                {detail.questionContent.value}
+                              </ReactMarkdown>
                               <Chip
                                 label={`${detail.score} 分`}
                                 size="small"
