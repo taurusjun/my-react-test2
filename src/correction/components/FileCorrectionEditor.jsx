@@ -102,7 +102,7 @@ const createSubmitExam = (exam, markdownLines) => {
         order_in_section: question.order, // 添加 order_in_section 字段
         kn: "", // TODO: 假设的知识点
         gradeInfo: exam.gradeInfo,
-        source: exam.name,
+        source: exam.source,
         tags: [],
         digest: question.name,
         material: getContent(question.material.extra),
@@ -159,6 +159,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     name: "",
     category: "",
     gradeInfo: { school: "", grade: "" },
+    source: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
@@ -915,7 +916,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth variant="outlined">
               <InputLabel>科目</InputLabel>
               <Select
@@ -934,7 +935,17 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              fullWidth
+              label="来源"
+              value={exam.source || ""}
+              onChange={(e) => setExam({ ...exam, source: e.target.value })}
+              variant="outlined"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
             <MultiLevelSelect
               onMultiSelectChange={handleGradeInfoChange}
               initialSchoolLevel={exam.gradeInfo.school}
