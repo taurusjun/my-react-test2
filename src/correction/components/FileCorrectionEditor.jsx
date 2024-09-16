@@ -111,7 +111,7 @@ const createSubmitExam = (exam, markdownLines) => {
 
     return {
       uuid: section.uuid,
-      name: section.name,
+      name: getContent(section.extra),
       order_in_exam: section.order,
       questions: questions,
     };
@@ -146,6 +146,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewExam, setPreviewExam] = useState(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   const convertMdMapToExamStructure = (mdMap) => {
     const sections = [];
@@ -517,7 +518,12 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     );
   };
 
+  const saveScrollPosition = () => {
+    setScrollPosition(window.pageYOffset);
+  };
+
   const onMarkSection = (selectedLineRange, selectedSectionObject) => {
+    saveScrollPosition();
     setExam((prev) => {
       let updatedSection = {
         uuid: uuidv4(), // 添加 uuid
@@ -544,6 +550,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkQuestion = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newQuestion = {
         uuid: uuidv4(), // 添加 uuid
@@ -561,6 +568,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkQuestionDetail = (selectedLineNumbers, selectedQuestionType) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newQuestionDetail = {
         uuid: uuidv4(), // 添加 uuid
@@ -579,6 +587,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkAnswer = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newAnswer = {
         uuid: uuidv4(),
@@ -595,6 +604,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkRow = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newRow = {
         uuid: uuidv4(),
@@ -611,6 +621,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onCancelAnnotation = (selectedLines) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       // 更新 markdownLines
       setMarkdownLines((prevLines) =>
@@ -642,6 +653,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkMaterial = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newQuestionMaterial = {
         uuid: uuidv4(), // 添加 uuid
@@ -660,6 +672,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkQuestionContent = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newQuestionContent = {
         uuid: uuidv4(), // 添加 uuid
@@ -678,6 +691,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const onMarkExplanation = (selectedLineNumbers) => {
+    saveScrollPosition();
     setExam((prevExam) => {
       const newExplanation = {
         uuid: uuidv4(), // 添加 uuid
@@ -838,6 +852,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       setPreviewExam(createdExam);
     }
   }, [mdMap, exam, setEditorState]);
+
+  useEffect(() => {
+    window.scrollTo(0, scrollPosition);
+  }, [exam, scrollPosition]);
 
   if (isLoading) {
     return <div>加载中...</div>; // 或者使用一个加载指示器组件
