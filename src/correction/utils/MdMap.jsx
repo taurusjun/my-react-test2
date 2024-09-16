@@ -89,7 +89,7 @@ class MdMap {
         jsonObject[key] = value;
       }
     }
-    return JSON.stringify(jsonObject, null, 2);
+    return jsonObject;
   }
 
   clear() {

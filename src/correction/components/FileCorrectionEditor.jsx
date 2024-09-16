@@ -42,131 +42,91 @@ const upsertByUuid = (array, newItem) => {
 };
 
 const createSubmitExam = (exam, markdownLines) => {
+  const getContent = (extra) => {
+    return extra && extra.length > 0
+      ? extra
+          .map((lineNumber) => markdownLines[lineNumber - 1].content)
+          .join("\n")
+      : "";
+  };
+
   const convertSection = (section) => {
-    let markdown = "";
-    if (section.extra && section.extra.length > 0) {
-      section.extra.forEach((lineNumber) => {
-        markdown += markdownLines[lineNumber - 1].content + "\n";
-      });
-    }
-
-    const questions = section.questions
-      .filter((question) => question && Object.keys(question).length > 0)
-      .map((question) => {
-        let questionMarkdown = "";
-
-        if (
-          question.material &&
-          question.material.extra &&
-          question.material.extra.length > 0
-        ) {
-          question.material.extra.forEach((lineNumber) => {
-            questionMarkdown += markdownLines[lineNumber - 1].content + "\n";
-          });
-        }
-
-        if (question.extra && question.extra.length > 0) {
-          question.extra.forEach((lineNumber) => {
-            questionMarkdown += markdownLines[lineNumber - 1].content + "\n";
-          });
-        }
-
-        const questionDetails = question.questionDetails
-          .filter((detail) => detail && Object.keys(detail).length > 0)
-          .map((detail) => {
-            let detailMarkdown = "";
-
-            if (detail.extra && detail.extra.length > 0) {
-              detail.extra.forEach((lineNumber) => {
-                detailMarkdown += markdownLines[lineNumber - 1].content + "\n";
-              });
-            }
-
-            if (
-              detail.questionContent &&
-              detail.questionContent.extra &&
-              detail.questionContent.extra.length > 0
-            ) {
-              detail.questionContent.extra.forEach((lineNumber) => {
-                detailMarkdown += markdownLines[lineNumber - 1].content + "\n";
-              });
-            }
-
-            const options = detail.rows
-              .filter((row) => row && row.extra && row.extra.length > 0)
-              .map((row) => {
-                let optionMarkdown = "";
-                row.extra.forEach((lineNumber) => {
-                  optionMarkdown +=
-                    markdownLines[lineNumber - 1].content + "\n";
-                });
-                return optionMarkdown.trim();
-              });
-
-            let answerMarkdown = "";
-            if (
-              detail.answer &&
-              detail.answer.extra &&
-              detail.answer.extra.length > 0
-            ) {
-              detail.answer.extra.forEach((lineNumber) => {
-                answerMarkdown += markdownLines[lineNumber - 1].content + "\n";
-              });
-            }
-
-            let explanationMarkdown = "";
-            if (
-              detail.explanation &&
-              detail.explanation.extra &&
-              detail.explanation.extra.length > 0
-            ) {
-              detail.explanation.extra.forEach((lineNumber) => {
-                explanationMarkdown +=
-                  markdownLines[lineNumber - 1].content + "\n";
-              });
-            }
-
-            const result = {
-              content: detailMarkdown.trim(),
-              uiType: detail.uiType,
-            };
-
-            if (options.length > 0) result.options = options;
-            if (answerMarkdown) result.answer = answerMarkdown.trim();
-            if (explanationMarkdown)
-              result.explanation = explanationMarkdown.trim();
-
-            return result;
-          });
-
-        return {
-          content: questionMarkdown.trim(),
-          questionDetails:
-            questionDetails.length > 0 ? questionDetails : undefined,
+    const questions = section.questions.map((question) => {
+      const questionDetails = question.questionDetails.map((detail) => {
+        const result = {
+          uuid: detail.uuid,
+          order_in_question: detail.order,
+          questionContent: {
+            value: getContent(detail.questionContent.extra),
+            image: null,
+          },
+          uiType: detail.uiType,
+          score: 0,
+          rate: 0,
         };
+
+        if (detail.rows && detail.rows.length > 0) {
+          result.rows = detail.rows.map((row) => ({
+            value: getContent(row.extra),
+            isAns: row.isAns || false,
+            image: null,
+          }));
+        } else {
+          result.rows = [];
+        }
+
+        if (detail.answer) {
+          result.answer = [getContent(detail.answer.extra)];
+        }
+
+        if (detail.explanation) {
+          result.explanation = getContent(detail.explanation.extra);
+        }
+
+        return result;
       });
+
+      return {
+        uuid: question.uuid,
+        type:
+          question.questionDetails[0]?.uiType === "fill_blank"
+            ? "fill_in_blank"
+            : "selection",
+        category: exam.category,
+        kn: "vocabulary_and_grammar", // 假设的知识点
+        gradeInfo: { school: "senior", grade: "grade11" }, // 假设的年级信息
+        source: "",
+        tags: [],
+        digest: question.name,
+        material: getContent(question.material.extra),
+        questionDetails: questionDetails,
+        relatedSources: [], // 如果有相关资源，可以在这里添加
+      };
+    });
 
     return {
-      content: markdown.trim(),
-      questions: questions.length > 0 ? questions : undefined,
+      uuid: section.uuid,
+      name: section.name,
+      order_in_exam: section.order,
+      questions: questions,
     };
   };
 
-  const result = {};
-  if (exam.name) result.name = exam.name;
-  if (exam.category) result.category = exam.category;
-
-  const sections = exam.sections
-    .filter((section) => section && Object.keys(section).length > 0)
-    .map(convertSection)
-    .filter(
-      (section) =>
-        section.content || (section.questions && section.questions.length > 0)
-    );
-
-  if (sections.length > 0) result.sections = sections;
-
-  return result;
+  return {
+    uuid: exam.uuid,
+    name: exam.name,
+    category: exam.category,
+    gradeInfo: {
+      school: "senior",
+      grade: "grade11",
+    },
+    createdAt: new Date().toISOString(),
+    startTime: new Date(Date.now() + 86400000).toISOString(),
+    duration: 60,
+    totalScore: 100,
+    status: "未开始",
+    sections: exam.sections.map(convertSection),
+  };
 };
 
 const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
@@ -852,6 +812,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
   useEffect(() => {
     if (mdMap && exam) {
+      console.log("exam:", exam);
       const createdExam = createSubmitExam(exam, markdownLines);
       setEditorState({ mdMap, exam: createdExam });
     }
