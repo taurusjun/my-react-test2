@@ -91,16 +91,17 @@ const createSubmitExam = (exam, markdownLines) => {
         type:
           question.questionDetails[0]?.uiType === "fill_blank"
             ? "fill_in_blank"
-            : "selection",
+            : "selection", //TODO: 需要有type的取值规则
         category: exam.category,
-        kn: "vocabulary_and_grammar", // 假设的知识点
-        gradeInfo: { school: "senior", grade: "grade11" }, // 假设的年级信息
+        order_in_section: question.order, // 添加 order_in_section 字段
+        kn: "vocabulary_and_grammar", // TODO: 假设的知识点
+        gradeInfo: { school: "senior", grade: "grade11" }, // TODO: 假设的年级信息
         source: "",
         tags: [],
         digest: question.name,
         material: getContent(question.material.extra),
         questionDetails: questionDetails,
-        relatedSources: [], // 如果有相关资源，可以在这里添加
+        relatedSources: [],
       };
     });
 
