@@ -8,6 +8,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Paper,
+  Typography,
+  Divider,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -19,6 +22,9 @@ import { QUESTION_UI_TYPES } from "../../common/constants";
 import { CategoryDict } from "../../provider/utils/dictionaries";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
+import { styled } from "@mui/material/styles";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
 
 const COLORS = {
   SECTION: "#3f51b5", // 深蓝色
@@ -129,6 +135,24 @@ const createSubmitExam = (exam, markdownLines) => {
     sections: exam.sections.map(convertSection),
   };
 };
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  marginBottom: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[2],
+}));
+
+const SectionTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  marginBottom: theme.spacing(2),
+  color: theme.palette.primary.main,
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  marginLeft: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius,
+}));
 
 const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
@@ -878,41 +902,41 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="flex-start"
-          style={{ marginBottom: "10px" }}
-        >
-          <Button
-            onClick={handleEditToggle}
-            variant="contained"
-            style={{
-              backgroundColor: isEditing ? "#3f51b5" : "#f50057",
-              color: "#fff",
-              marginRight: "10px",
-            }}
-          >
-            {isEditing ? "保存" : "编辑"}
-          </Button>
-          <FormControl required size="small" sx={{ mr: 1, minWidth: 120 }}>
-            <InputLabel>科目</InputLabel>
-            <Select
-              required
-              value={exam.category}
-              onChange={handleCategoryChange}
-              label="科目"
-            >
-              <MenuItem value="">全部</MenuItem>
-              {Object.entries(CategoryDict).map(([key, value]) => (
-                <MenuItem key={key} value={key}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+    <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 4, mb: 8 }}>
+      <StyledPaper elevation={3}>
+        <SectionTitle variant="h5">文件信息</SectionTitle>
+        <Divider sx={{ my: 2 }} />
+
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="名称"
+              value={exam.name}
+              onChange={(e) => setExam({ ...exam, name: e.target.value })}
+              variant="outlined"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>科目</InputLabel>
+              <Select
+                value={exam.category}
+                onChange={(e) => setExam({ ...exam, category: e.target.value })}
+                label="科目"
+              >
+                {Object.entries(dictionaries.CategoryDict).map(
+                  ([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          </Grid>
+
           <Grid item xs={12} sm={6}>
             <MultiLevelSelect
               onMultiSelectChange={handleGradeInfoChange}
@@ -924,37 +948,48 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               inline={true}
             />
           </Grid>
-          <TextField
-            required
-            label="名称"
-            value={exam.name}
-            onChange={handleNameChange}
-            size="small"
-            sx={{ mt: 1, mr: 1, mb: 1, width: 1000 }}
-          />
-        </Box>
-        <Box display="flex" flexDirection="column" width="100%">
+        </Grid>
+      </StyledPaper>
+
+      <StyledPaper elevation={3}>
+        <Grid container spacing={3} alignItems="center">
+          <Grid item xs>
+            <SectionTitle variant="h5">文件内容</SectionTitle>
+          </Grid>
+          <Grid item>
+            <StyledButton
+              variant="contained"
+              color="primary"
+              startIcon={isEditing ? <SaveIcon /> : <EditIcon />}
+              onClick={handleEditToggle}
+            >
+              {isEditing ? "保存" : "编辑"}
+            </StyledButton>
+          </Grid>
+        </Grid>
+        <Divider sx={{ my: 2 }} />
+
+        <Box sx={{ mt: 2, mb: 2, bgcolor: "#f5f5f5", p: 2, borderRadius: 1 }}>
           {isEditing ? (
             <TextField
-              label="编辑Markdown"
+              multiline
+              fullWidth
+              variant="outlined"
               value={markdownLines.map((line) => line.content || "").join("\n")}
               onChange={(e) =>
                 setMarkdownLines(
                   e.target.value.split("\n").map((content) => ({ content }))
                 )
               }
-              fullWidth
-              multiline
-              rows={10}
-              margin="normal"
+              sx={{ fontFamily: "monospace" }}
             />
           ) : (
-            <div style={{ width: "100%" }}>
+            <Box sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
               {renderMarkdownWithLineNumbers(markdownLines)}
-            </div>
+            </Box>
           )}
         </Box>
-        {mdMap && (
+        {!isEditing && mdMap && (
           <MarkdownAnnotator
             selectedLines={selectedLines}
             exam={exam}
@@ -974,8 +1009,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             mdMap={mdMap}
           />
         )}
-      </Grid>
-    </Grid>
+      </StyledPaper>
+    </Box>
   );
 };
 
