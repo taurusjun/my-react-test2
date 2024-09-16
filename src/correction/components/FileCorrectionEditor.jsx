@@ -10,6 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Modal,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -19,6 +20,9 @@ import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
 import { QUESTION_UI_TYPES } from "../../common/constants";
 import { CategoryDict } from "../../provider/utils/dictionaries";
+import ExamPreview from "./ExamPreview";
+import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const COLORS = {
   SECTION: "#3f51b5", // 深蓝色
@@ -140,6 +144,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewExam, setPreviewExam] = useState(null);
 
   const convertMdMapToExamStructure = (mdMap) => {
     const sections = [];
@@ -776,6 +782,14 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     setExam((prev) => ({ ...prev, category: event.target.value }));
   };
 
+  const handlePreviewClick = () => {
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+  };
+
   useEffect(() => {
     const fetchFileContent = async () => {
       try {
@@ -819,9 +833,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
   useEffect(() => {
     if (mdMap && exam) {
-      console.log("exam:", exam);
       const createdExam = createSubmitExam(exam, markdownLines);
       setEditorState({ mdMap, exam: createdExam });
+      setPreviewExam(createdExam);
     }
   }, [mdMap, exam, setEditorState]);
 
@@ -848,6 +862,15 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             }}
           >
             {isEditing ? "保存" : "编辑"}
+          </Button>
+          {/* 新增预览按钮 */}
+          <Button
+            onClick={handlePreviewClick}
+            variant="contained"
+            color="primary"
+            style={{ marginRight: "10px" }}
+          >
+            预览
           </Button>
           <FormControl required size="small" sx={{ mr: 1, minWidth: 120 }}>
             <InputLabel>科目</InputLabel>
@@ -916,6 +939,43 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           />
         )}
       </Grid>
+      <Modal
+        open={isPreviewOpen}
+        onClose={handleClosePreview}
+        aria-labelledby="exam-preview-modal"
+        aria-describedby="exam-preview-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "90%",
+            maxWidth: 1000,
+            maxHeight: "90vh",
+            overflow: "auto",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <IconButton
+            aria-label="关闭"
+            onClick={handleClosePreview}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {previewExam && <ExamPreview exam={previewExam} />}
+        </Box>
+      </Modal>{" "}
     </Grid>
   );
 };
