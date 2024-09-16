@@ -1,0 +1,170 @@
+openapi: 3.0.0
+info:
+  title: 文件纠正API
+  version: 1.0.0
+  description: 用于文件纠正和问题管理的API
+
+paths:
+  /api/file-corrections:
+    get:
+      summary: 获取文件列表
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: 页码
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: 每页数量
+      responses:
+        "200":
+          description: 成功返回文件列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/File"
+                  totalCount:
+                    type: integer
+
+  /api/file-corrections/{uuid}:
+    get:
+      summary: 获取特定文件的内容
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: 文件的UUID
+      responses:
+        "200":
+          description: 成功返回文件内容
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+                  mdMap:
+                    type: string
+
+  /api/questions:
+    post:
+      summary: 创建新问题
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                questions:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Question"
+      responses:
+        "200":
+          description: 成功创建问题
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Question"
+
+  /api/file-corrections/{fileUuid}/temporary-save:
+    post:
+      summary: 暂时保存文件修改
+      parameters:
+        - in: path
+          name: fileUuid
+          required: true
+          schema:
+            type: string
+          description: 文件的UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                markMap:
+                  type: object
+      responses:
+        "200":
+          description: 暂时保存成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/file-corrections/{fileUuid}/submit:
+    post:
+      summary: 提交文件修改
+      parameters:
+        - in: path
+          name: fileUuid
+          required: true
+          schema:
+            type: string
+          description: 文件的UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                markMap:
+                  type: object
+                examData:
+                  type: object
+      responses:
+        "200":
+          description: 提交成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Question:
+      type: object
+      properties:
+        uuid:
+          type: string
+        content:
+          type: string
+        type:
+          type: string

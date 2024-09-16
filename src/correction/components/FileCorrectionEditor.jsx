@@ -955,6 +955,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               disabled={false}
               readOnly={false}
               inline={true}
+              required={true}
             />
           </Grid>
         </Grid>
