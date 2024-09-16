@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // 添加 useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import FileCorrectionEditor from "../components/FileCorrectionEditor";
+import ExamPreview from "../components/ExamPreview";
 import {
   Box,
   Toolbar,
@@ -11,21 +12,25 @@ import {
   Snackbar,
   Alert,
   Container,
-} from "@mui/material"; // 添加必要的组件
-import HomeIcon from "@mui/icons-material/Home"; // 添加图标
+  Modal,
+} from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
+import PreviewIcon from "@mui/icons-material/Preview";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
 const FileCorrectionEditorPage = () => {
   const { fileUuid } = useParams();
-  const navigate = useNavigate(); // 初始化 navigate
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "info",
   });
   const [editorState, setEditorState] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleTemporarySave = async () => {
     if (editorState && editorState.mdMap) {
@@ -93,6 +98,14 @@ const FileCorrectionEditorPage = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handlePreviewClick = () => {
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+  };
+
   return (
     <Box
       sx={{
@@ -135,14 +148,21 @@ const FileCorrectionEditorPage = () => {
             </Button>
             <Button
               variant="contained"
+              color="primary"
+              onClick={handlePreviewClick}
+              startIcon={<PreviewIcon />}
+              sx={{ mr: 2, fontWeight: "bold" }}
+            >
+              预览
+            </Button>
+            <Button
+              variant="contained"
               onClick={handleSubmit}
               startIcon={<SendIcon />}
               sx={{
                 fontWeight: "bold",
                 bgcolor: "error.main",
-                "&:hover": {
-                  bgcolor: "error.dark",
-                },
+                "&:hover": { bgcolor: "error.dark" },
               }}
             >
               提交
@@ -160,6 +180,45 @@ const FileCorrectionEditorPage = () => {
           />
         </Box>
       </Container>
+      <Modal
+        open={isPreviewOpen}
+        onClose={handleClosePreview}
+        aria-labelledby="exam-preview-modal"
+        aria-describedby="exam-preview-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "90%",
+            maxWidth: 1000,
+            maxHeight: "90vh",
+            overflow: "auto",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <IconButton
+            aria-label="关闭"
+            onClick={handleClosePreview}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {editorState && editorState.exam && (
+            <ExamPreview exam={editorState.exam} />
+          )}
+        </Box>
+      </Modal>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
@@ -182,7 +241,6 @@ const FileCorrectionEditorPage = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      {/* 使 md 文件可编辑 */}
     </Box>
   );
 };
