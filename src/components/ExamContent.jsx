@@ -27,6 +27,13 @@ const QuestionBox = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
 }));
 
+const AnswerBox = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  padding: theme.spacing(1),
+  backgroundColor: theme.palette.grey[100],
+  borderRadius: theme.shape.borderRadius,
+}));
+
 const ExamContent = ({ exam, showHeader = true }) => {
   const renderQuestionOptions = (rows) => {
     return (
@@ -49,6 +56,13 @@ const ExamContent = ({ exam, showHeader = true }) => {
         ))}
       </List>
     );
+  };
+
+  const renderAnswer = (answer) => {
+    if (Array.isArray(answer)) {
+      return answer.join(", ");
+    }
+    return answer;
   };
 
   return (
@@ -125,9 +139,11 @@ const ExamContent = ({ exam, showHeader = true }) => {
                             <Typography
                               variant="subtitle1"
                               component="div"
-                              sx={{ display: "flex", alignItems: "center" }}
+                              sx={{ display: "flex", alignItems: "flex-start" }}
                             >
-                              <span>
+                              <span
+                                style={{ marginRight: "8px", flexShrink: 0 }}
+                              >
                                 <strong>{detailCounter}:</strong>{" "}
                               </span>
                               <ReactMarkdown rehypePlugins={[rehypeRaw]}>
@@ -136,7 +152,7 @@ const ExamContent = ({ exam, showHeader = true }) => {
                               <Chip
                                 label={`${detail.score} 分`}
                                 size="small"
-                                sx={{ ml: 1, minWidth: "auto" }}
+                                sx={{ ml: 1, minWidth: "auto", flexShrink: 0 }}
                               />
                             </Typography>
                             {detail.questionContent.image && (
@@ -147,6 +163,24 @@ const ExamContent = ({ exam, showHeader = true }) => {
                               />
                             )}
                             {renderQuestionOptions(detail.rows)}
+
+                            <AnswerBox>
+                              <Typography variant="body2">
+                                <strong>答案：</strong>
+                                {renderAnswer(detail.answer)}
+                              </Typography>
+
+                              {detail.explanation && (
+                                <Box sx={{ mt: 1 }}>
+                                  <Typography variant="body2">
+                                    <strong>解释：</strong>
+                                  </Typography>
+                                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                                    {detail.explanation}
+                                  </ReactMarkdown>
+                                </Box>
+                              )}
+                            </AnswerBox>
                           </Box>
                         );
                       })}
