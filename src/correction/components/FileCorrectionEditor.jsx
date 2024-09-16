@@ -786,16 +786,16 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           .map((content) => ({ content }));
         setMarkdownLines(extra);
         const newMdMap = new MdMap(extra.length);
+        let newSections = [];
         if (response.data.mdMap) {
           newMdMap.fromJSON(response.data.mdMap);
           setMdMap(newMdMap);
+          newSections = convertMdMapToExamStructure(newMdMap);
+          newSections = sortAndRenameSections(newSections);
         } else {
           setMdMap(newMdMap);
         }
-        let newSections = convertMdMapToExamStructure(newMdMap);
-        //重新排序
-        newSections = sortAndRenameSections(newSections);
-        setExam({ sections: newSections });
+        setExam({ uuid: uuidv4(), sections: newSections });
       } catch (error) {
         console.error("获取文件内容时出错:", error);
         // 这里可以添加错误处理，比如显示一个错误消息
