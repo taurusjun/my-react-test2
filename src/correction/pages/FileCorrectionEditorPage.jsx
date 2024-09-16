@@ -30,7 +30,7 @@ const FileCorrectionEditorPage = () => {
   const handleTemporarySave = async () => {
     if (editorState && editorState.mdMap) {
       try {
-        const markMap = editorState.mdMap.toJSONString();
+        const markMap = editorState.mdMap.toJSON();
 
         await axios.post(`/api/file-corrections/${fileUuid}/temporary-save`, {
           markMap,
@@ -57,7 +57,7 @@ const FileCorrectionEditorPage = () => {
   const handleSubmit = async () => {
     if (editorState && editorState.mdMap && editorState.exam) {
       try {
-        const markMap = editorState.mdMap.toJSONString();
+        const markMap = editorState.mdMap.toJSON();
         const examData = editorState.exam;
 
         await axios.post(`/api/file-corrections/${fileUuid}/submit`, {

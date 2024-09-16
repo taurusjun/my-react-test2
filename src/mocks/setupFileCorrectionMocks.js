@@ -104,6 +104,76 @@ It finallys snowing yesterday, but it was already dark. We started back down in 
 3．Jason 是一个工作狂(workaholic)。他每次头疼就自己吃点阿司匹林，然后就继续工作了。  
 `; // 读取 md 文件内容
 
+const mockMdMap = `{
+    "2": {
+        "uuid": "e513015f-046f-461f-b3d5-f5824614ed40",
+        "type": "section"
+    },
+    "10": {
+        "uuid": "d08abd8a-5056-465c-9117-0396483fe9e9",
+        "type": "question"
+    },
+    "12": {
+        "uuid": "fd39f57f-637b-471c-a18d-584199f42ae8",
+        "type": "question_material"
+    },
+    "13": {
+        "uuid": "4d4532a4-3623-44c9-b92e-33bf9ec084be",
+        "type": "questionDetail",
+        "uiType": "fill_blank"
+    },
+    "14": {
+        "uuid": "9c746e1e-8fcf-478e-845f-3779a71c043f",
+        "type": "question_content"
+    },
+    "15": {
+        "uuid": "7ec09cf8-9f70-4d17-b02a-f458189236c6",
+        "type": "questionDetail",
+        "uiType": "fill_blank"
+    },
+    "16": {
+        "uuid": "8d24e792-85e6-4887-a29b-51b0a3176b5c",
+        "type": "question_content"
+    },
+    "18": {
+        "uuid": "1d483e08-04fd-48f8-8631-ce4542cfe33f",
+        "type": "question_answer"
+    },
+    "19": {
+        "uuid": "f22ee0cd-37f8-42a2-95aa-fdd975abad73",
+        "type": "questionDetail",
+        "uiType": "single_selection"
+    },
+    "20": {
+        "uuid": "e60ec8b3-0e01-4ad1-87b1-b77df7ffe69d",
+        "type": "question_content"
+    },
+    "22": {
+        "uuid": "627ef05f-adcc-49d7-b5ef-1a2469376be6",
+        "type": "questionDetail_row"
+    },
+    "24": {
+        "uuid": "60f42bc1-826c-4b18-8f7c-299afa404c2b",
+        "type": "questionDetail_row"
+    },
+    "26": {
+        "uuid": "f60ed472-42ec-416e-80fc-e0645b7f1474",
+        "type": "questionDetail_row"
+    },
+    "28": {
+        "uuid": "a9a7b964-fe6b-4e1f-b24f-6cc170f4a476",
+        "type": "questionDetail_row"
+    },
+    "30": {
+        "uuid": "87501484-ce14-4ab3-8b09-073ca9235d69",
+        "type": "question_answer"
+    },
+    "32": {
+        "uuid": "b5ffc956-5682-46bb-ae76-4a277d8f9227",
+        "type": "question_explanation"
+    }
+}`;
+
 export const setupFileCorrectionMocks = (mock) => {
   const mockFiles = [
     {
@@ -136,7 +206,7 @@ export const setupFileCorrectionMocks = (mock) => {
     const uuid = config.url.split("/").pop();
     const file = mockFiles.find((file) => file.uuid === uuid);
     if (file) {
-      return [200, { content: mdContent }];
+      return [200, { content: mdContent, mdMap: mockMdMap }];
     } else {
       return [404, { message: "文件未找到" }];
     }

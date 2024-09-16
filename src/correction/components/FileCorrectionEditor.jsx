@@ -141,7 +141,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [mdMap, setMdMap] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const convertMdMapToExamStructure = () => {
+  const convertMdMapToExamStructure = (mdMap) => {
     const sections = [];
     const questions = [];
     const questionDetails = [];
@@ -526,7 +526,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
       mdMap.setMultiLinesWithLock(selectedLineRange, updatedSection);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
       //重新排序
       newSections = sortAndRenameSections(newSections);
 
@@ -546,7 +546,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -564,7 +564,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -581,7 +581,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       newSections = sortAndRenameSections(newSections);
       return { ...prevExam, sections: newSections };
@@ -597,7 +597,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       newSections = sortAndRenameSections(newSections);
       return { ...prevExam, sections: newSections };
@@ -623,7 +623,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, null);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -645,7 +645,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -663,7 +663,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -681,7 +681,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
 
-      let newSections = convertMdMapToExamStructure();
+      let newSections = convertMdMapToExamStructure(mdMap);
 
       //重新排序
       newSections = sortAndRenameSections(newSections);
@@ -785,11 +785,17 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           .split("\n")
           .map((content) => ({ content }));
         setMarkdownLines(extra);
-        if (response.data.exam) {
-          setExam(response.data.exam);
-        }
         const newMdMap = new MdMap(extra.length);
-        setMdMap(newMdMap);
+        if (response.data.mdMap) {
+          newMdMap.fromJSON(response.data.mdMap);
+          setMdMap(newMdMap);
+        } else {
+          setMdMap(newMdMap);
+        }
+        let newSections = convertMdMapToExamStructure(newMdMap);
+        //重新排序
+        newSections = sortAndRenameSections(newSections);
+        setExam({ sections: newSections });
       } catch (error) {
         console.error("获取文件内容时出错:", error);
         // 这里可以添加错误处理，比如显示一个错误消息

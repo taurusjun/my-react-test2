@@ -82,7 +82,41 @@ class MdMap {
     }
   }
 
-  toJSONString() {
+  fromJSON(jsonData, lineCount) {
+    this.lock();
+    try {
+      // 清除现有数据
+      this.clear();
+
+      // 解析 JSON 字符串（如果传入的是字符串）
+      const data =
+        typeof jsonData === "string" ? JSON.parse(jsonData) : jsonData;
+
+      // 遍历 JSON 对象并设置 MdMap
+      for (const [key, value] of Object.entries(data)) {
+        const lineNumber = parseInt(key, 10);
+        if (
+          !isNaN(lineNumber) &&
+          lineNumber >= 1 &&
+          lineNumber <= this.lineCount
+        ) {
+          this.map.set(lineNumber, value);
+        }
+      }
+
+      // 更新 lineCount（如果需要）
+      const maxLine = Math.max(
+        ...Object.keys(data).map((k) => parseInt(k, 10))
+      );
+      if (maxLine > this.lineCount) {
+        this.lineCount = maxLine;
+      }
+    } finally {
+      this.unlock();
+    }
+  }
+
+  toJSON() {
     const jsonObject = {};
     for (let [key, value] of this.map) {
       if (value !== null) {
