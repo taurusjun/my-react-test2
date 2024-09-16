@@ -17,6 +17,8 @@ import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
 import { QUESTION_UI_TYPES } from "../../common/constants";
 import { CategoryDict } from "../../provider/utils/dictionaries";
+import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
+import { useDictionaries } from "../../provider/hooks/useDictionaries";
 
 const COLORS = {
   SECTION: "#3f51b5", // 深蓝色
@@ -131,7 +133,12 @@ const createSubmitExam = (exam, markdownLines) => {
 const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
-  const [exam, setExam] = useState({ sections: [], name: "", category: "" });
+  const [exam, setExam] = useState({
+    sections: [],
+    name: "",
+    category: "",
+    gradeInfo: { school: "", grade: "" },
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -139,6 +146,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [mdMap, setMdMap] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
+
+  const { dictionaries } = useDictionaries();
 
   const convertMdMapToExamStructure = (mdMap) => {
     const sections = [];
@@ -303,6 +312,30 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         });
       }
     }
+  };
+
+  // 添加处理学习阶段变化的函数
+  const handleSchoolLevelChange = (event) => {
+    const newSchoolLevel = event.target.value;
+    setExam((prev) => ({
+      ...prev,
+      gradeInfo: { ...prev.gradeInfo, school: newSchoolLevel, grade: "" },
+    }));
+    setEditorState((prevState) => ({
+      ...prevState,
+      exam: {
+        ...prevState.exam,
+        gradeInfo: exam.gradeInfo,
+      },
+    }));
+  };
+
+  // 修改处理 gradeInfo 变化的函数
+  const handleGradeInfoChange = (school, grade) => {
+    setExam((prev) => ({
+      ...prev,
+      gradeInfo: { school, grade },
+    }));
   };
 
   // 重新排序
@@ -807,7 +840,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         } else {
           setMdMap(newMdMap);
         }
-        setExam({ uuid: uuidv4(), sections: newSections });
+        setExam({ ...exam, uuid: uuidv4(), sections: newSections });
       } catch (error) {
         console.error("获取文件内容时出错:", error);
         // 这里可以添加错误处理，比如显示一个错误消息
@@ -880,6 +913,17 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               ))}
             </Select>
           </FormControl>
+          <Grid item xs={12} sm={6}>
+            <MultiLevelSelect
+              onMultiSelectChange={handleGradeInfoChange}
+              initialSchoolLevel={exam.gradeInfo.school}
+              initialGrade={exam.gradeInfo.grade}
+              error={false}
+              disabled={false}
+              readOnly={false}
+              inline={true}
+            />
+          </Grid>
           <TextField
             required
             label="名称"
