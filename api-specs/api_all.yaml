@@ -1,0 +1,500 @@
+openapi: 3.0.0
+info:
+  title: Mock API Documentation
+  version: 1.0.0
+  description: 这是一个模拟 API 的文档
+
+tags:
+  - name: 用户相关
+    description: 与用户相关的操作
+  - name: 考试相关
+    description: 与考试相关的操作
+  - name: 问题相关
+    description: 与问题相关的操作
+  - name: 错题相关
+    description: 与错题相关的操作
+  - name: 其他
+    description: 其他相关操作
+
+paths:
+  /api/login:
+    post:
+      summary: 用户登录
+      tags:
+        - 用户相关
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+        '401':
+          description: 登录失败
+
+  /api/user:
+    get:
+      summary: 获取用户信息
+      tags:
+        - 用户相关
+      responses:
+        '200':
+          description: 成功获取用户信息
+    put:
+      summary: 更新用户信息
+      tags:
+        - 用户相关
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: 用户信息更新成功
+        '400':
+          description: 请求参数错误
+
+  /api/exam/create:
+    post:
+      summary: 创建考试
+      tags:
+        - 考试相关
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 考试创建成功
+        '400':
+          description: 请求参数错误
+
+  /api/exam/list:
+    get:
+      summary: 获取考试列表
+      tags:
+        - 考试相关
+      responses:
+        '200':
+          description: 成功获取考试列表
+
+  /api/exams:
+    get:
+      summary: 获取所有考试
+      tags:
+        - 考试相关
+      responses:
+        '200':
+          description: 成功获取所有考试信息
+
+  /api/exams/{uuid}:
+    get:
+      summary: 获取单个考试
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取考试信息
+    put:
+      summary: 更新考试信息
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: 考试信息更新成功
+        '400':
+          description: 请求参数错误
+
+  /api/exams/{uuid}/answers:
+    get:
+      summary: 获取考试答案
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取考试答案
+
+  /api/exams/{uuid}/grades:
+    get:
+      summary: 获取单个考试成绩
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取考试成绩
+
+    post:
+      summary: 提交考试成绩
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score:
+                  type: number
+      responses:
+        '200':
+          description: 成功提交考试成绩
+
+  /api/exams/{uuid}/submit:
+    post:
+      summary: 提交考试答案
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId:
+                        type: string
+                      answer:
+                        type: string
+      responses:
+        '200':
+          description: 考试答案提交成功
+        '400':
+          description: 请求参数错误
+
+  /api/exams/{uuid}/save:
+    post:
+      summary: 保存考试答案
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId:
+                        type: string
+                      answer:
+                        type: string
+      responses:
+        '200':
+          description: 考试答案已成功保存
+        '400':
+          description: 请求参数错误
+
+  /api/exam-print/{uuid}:
+    get:
+      summary: 打印考试
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取打印信息
+
+  /api/examview/{uuid}:
+    get:
+      summary: 查看考试
+      tags:
+        - 考试相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 考试的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取考试视图
+
+  /api/questions:
+    post:
+      summary: 创建问题
+      tags:
+        - 问题相关
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                options:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: 问题创建成功
+        '400':
+          description: 请求参数错误
+
+  /api/questions/{uuid}:
+    get:
+      summary: 获取单个问题
+      tags:
+        - 问题相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 问题的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取问题
+
+    put:
+      summary: 更新问题
+      tags:
+        - 问题相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 问题的唯一标识符
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                options:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 问题更新成功
+        '400':
+          description: 请求参数错误
+
+  /api/questionlist:
+    get:
+      summary: 获取问题列表
+      tags:
+        - 问题相关
+      responses:
+        '200':
+          description: 成功获取问题列表
+
+  /api/error-questions:
+    get:
+      summary: 获取错题列表
+      tags:
+        - 错题相关
+      responses:
+        '200':
+          description: 成功获取错题列表
+
+  /api/error-questions/{uuid}:
+    get:
+      summary: 获取单个错题
+      tags:
+        - 错题相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 错题的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取错题信息
+
+  /api/error-questions-detail/{uuid}:
+    get:
+      summary: 获取错题详情
+      tags:
+        - 错题相关
+      parameters:
+        - name: uuid
+          in: path
+          required: true
+          description: 错题的唯一标识符
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功获取错题详情
+
+  /api/error-questions-practice:
+    get:
+      summary: 获取错题练习
+      tags:
+        - 错题相关
+      responses:
+        '200':
+          description: 成功获取错题练习
+
+  /api/error-questions-practice/submit:
+    post:
+      summary: 提交错题练习
+      tags:
+        - 错题相关
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId:
+                        type: string
+                      answer:
+                        type: string
+      responses:
+        '200':
+          description: 提交成功
+        '400':
+          description: 请求参数错误
+
+  /api/dictionaries:
+    get:
+      summary: 获取字典数据
+      tags:
+        - 其他
+      responses:
+        '200':
+          description: 成功获取字典数据
+
+  /api/my-exams:
+    get:
+      summary: 获取我的考试
+      tags:
+        - 其他
+      responses:
+        '200':
+          description: 成功获取我的考试
+
+  /api/exam-names:
+    get:
+      summary: 获取考试名称
+      tags:
+        - 其他
+      responses:
+        '200':
+          description: 成功获取考试名称
+
+  /api/exam-submissions:
+    get:
+      summary: 获取考试提交记录
+      tags:
+        - 其他
+      responses:
+        '200':
+          description: 成功获取考试提交记录
