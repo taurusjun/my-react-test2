@@ -1357,16 +1357,6 @@ mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
   });
 });
 
-// 模拟提交考试成绩的请求
-mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
-  const uuid = config.url.split("/")[3];
-  const submittedGrades = JSON.parse(config.data);
-
-  console.log(`提交考试 ${uuid} 的成绩:`, submittedGrades);
-
-  return [200, { message: "成绩提交成功" }];
-});
-
 // 添加新的模拟数据用于答题纸打印
 mock.onGet(/\/api\/exam-print\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();
