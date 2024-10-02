@@ -158,7 +158,7 @@ paths:
         '200':
           description: 成功获取考试答案
 
-  /api/exams/{uuid}/grades:
+  /api/my-exams/{uuid}/grades:
     get:
       summary: 获取单个考试成绩
       tags:
@@ -198,7 +198,7 @@ paths:
         '200':
           description: 成功提交考试成绩
 
-  /api/exams/{uuid}/submit:
+  /api/my-exams/{uuid}/submit:
     post:
       summary: 提交考试答案
       tags:
@@ -232,7 +232,7 @@ paths:
         '400':
           description: 请求参数错误
 
-  /api/exams/{uuid}/save:
+  /api/my-exams/{uuid}/save:
     post:
       summary: 保存考试答案
       tags:
