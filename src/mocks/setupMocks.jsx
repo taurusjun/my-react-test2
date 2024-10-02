@@ -641,18 +641,9 @@ mock.onPost("/api/error-questions-practice/submit").reply((config) => {
   return [200, mockResults];
 });
 
-// 添加获取考试列表的 mock
-mock.onGet("/api/exams").reply(200, [
-  { uuid: "exam-1", name: "2024年物理期中考试" },
-  { uuid: "exam-2", name: "2023年物理期末考试" },
-  { uuid: "exam-3", name: "2024年数学模拟考试" },
-  { uuid: "exam-4", name: "2023年化学期中考试" },
-  { uuid: "exam-5", name: "2024年综合科学测试" },
-]);
-
 // 添加模拟考试名称搜索的 API
 mock.onGet("/api/exam-names").reply((config) => {
-  const { query } = config.params;
+  const { query = "" } = config.params;
 
   const allExamNames = [
     { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
