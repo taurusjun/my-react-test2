@@ -558,7 +558,7 @@ const EditExam = () => {
               .sort((a, b) => a.order_in_exam - b.order_in_exam)
               .map((section, index) => (
                 <Card
-                  key={section.id}
+                  key={section.uuid}
                   sx={{ mb: 3, borderRadius: 2, boxShadow: 3 }}
                 >
                   <CardContent>

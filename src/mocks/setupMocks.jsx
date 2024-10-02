@@ -388,7 +388,7 @@ mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
     status: "未开始",
     sections: [
       {
-        id: "section-1",
+        uuid: "section-1",
         name: "选择题",
         order_in_exam: 1,
         questions: [
@@ -415,7 +415,7 @@ mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
         ],
       },
       {
-        id: "section-2",
+        uuid: "section-2",
         name: "填空题",
         order_in_exam: 2,
         questions: [
@@ -431,7 +431,7 @@ mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
         ],
       },
       {
-        id: "section-3",
+        uuid: "section-3",
         name: "计算题",
         order_in_exam: 3,
         questions: [
