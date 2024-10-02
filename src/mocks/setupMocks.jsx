@@ -325,7 +325,7 @@ mock.onPost("/api/exam/create").reply((config) => {
 });
 
 // 更新模拟考试数据
-mock.onGet("/api/exam/list").reply((config) => {
+mock.onGet("/api/exams/list").reply((config) => {
   const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
 
   const mockExams = Array(100)

@@ -32,7 +32,7 @@ const ExamBreadcrumbs = ({ currentPage }) => {
           首页
         </Link>
         <Link
-          to="/exam/list"
+          to="/exams/list"
           style={{
             textDecoration: "none",
             color: "#1976d2",

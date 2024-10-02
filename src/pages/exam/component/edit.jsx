@@ -280,7 +280,7 @@ const EditExam = () => {
         severity: "success",
       });
       // 延迟导航，以用户能看到成功消息
-      setTimeout(() => navigate("/exam/list"), 2000);
+      setTimeout(() => navigate("/exams/list"), 2000);
     } catch (error) {
       console.error("更新考试失败:", error);
       setSnackbar({

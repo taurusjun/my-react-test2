@@ -1,11 +1,11 @@
 export const getBreadcrumbPaths = () => ({
-  examList: [{ name: "考卷中心", url: "/exam/list" }],
+  examList: [{ name: "考卷中心", url: "/exams/list" }],
   examEdit: [
-    { name: "考卷中心", url: "/exam/list" },
+    { name: "考卷中心", url: "/exams/list" },
     { name: "考卷编辑", url: "" },
   ],
   examView: [
-    { name: "考卷中心", url: "/exam/list" },
+    { name: "考卷中心", url: "/exams/list" },
     { name: "考卷查看", url: "" },
   ],
   myExams: [{ name: "我的考试", url: "/my-exams" }],

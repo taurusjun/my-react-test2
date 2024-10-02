@@ -467,7 +467,7 @@ const ExamPaper = () => {
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate("/my-exam/list")}
+              onClick={() => navigate("/my-exams/list")}
               startIcon={<ListAltIcon />}
             >
               我的考试

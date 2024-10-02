@@ -44,7 +44,7 @@ const ExamMainLayout = ({ children, currentPage, maxWidth = "lg" }) => {
               <Button
                 color="inherit"
                 component={RouterLink}
-                to="/exam/list"
+                to="/exams/list"
                 startIcon={<ListAltIcon />}
               >
                 考卷列表

@@ -70,7 +70,7 @@ const ExamList = () => {
 
   const fetchExams = useCallback(async () => {
     try {
-      const response = await axios.get("/api/exam/list", {
+      const response = await axios.get("/api/exams/list", {
         params: {
           page: page + 1,
           pageSize: rowsPerPage,

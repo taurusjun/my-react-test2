@@ -34,7 +34,7 @@ paths:
                   totalCount:
                     type: integer
 
-  /api/exam/list:
+  /api/exams/list:
     get:
       summary: 获取考试列表
       parameters:

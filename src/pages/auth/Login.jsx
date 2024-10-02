@@ -27,8 +27,8 @@ const Login = () => {
       const { token, user } = response.data; // 假设后端返回了 token 和 user 信息
       setToken(token);
       login(user); // 使用 login 函数将用户信息添加到 UserContext 中
-      // 重定向到之前尝试访问的页面，如果没有则默认到 "/exam/list"
-      const from = location.state?.from?.pathname || "/exam/list";
+      // 重定向到之前尝试访问的页面，如果没有则默认到 "/exams/list"
+      const from = location.state?.from?.pathname || "/exams/list";
       navigate(from, { replace: true });
     } catch (err) {
       setError("登录失败，请检查用户名和密码");

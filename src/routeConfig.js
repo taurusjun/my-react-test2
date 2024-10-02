@@ -34,7 +34,7 @@ import FileCorrectionEditorPage from "./correction/pages/FileCorrectionEditorPag
 export const routeConfig = [
   { path: "/login", element: Login, protected: false },
   { path: "/", element: Landing, protected: true },
-  { path: "/exam/list", element: ExamList, protected: true },
+  { path: "/exams/list", element: ExamList, protected: true },
   { path: "/user-center", element: UserCenter, protected: true },
   { path: "/questions", element: QuestionList, protected: true },
   { path: "/about/:id", element: About, protected: false },
@@ -47,7 +47,7 @@ export const routeConfig = [
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true },
   { path: "/exam/result/:uuid", element: ExamResult, protected: true },
-  { path: "/my-exam/list", element: MyExams, protected: true },
+  { path: "/my-exams/list", element: MyExams, protected: true },
   { path: "/exam/:uuid", element: ExamPaper, protected: true },
 
   // 新的错题集路由
