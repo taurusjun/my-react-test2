@@ -99,15 +99,6 @@ paths:
         '200':
           description: 成功获取考试列表
 
-  /api/exams:
-    get:
-      summary: 获取所有考试
-      tags:
-        - 考试相关
-      responses:
-        '200':
-          description: 成功获取所有考试信息
-
   /api/exams/{uuid}:
     get:
       summary: 获取单个考试
