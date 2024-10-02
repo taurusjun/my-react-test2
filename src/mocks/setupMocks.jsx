@@ -866,7 +866,7 @@ mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
 });
 
 // 模拟获取单个考试成绩的请求
-mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
+mock.onGet(/\/api\/my-exams\/[^/]+\/grades$/).reply((config) => {
   const uuid = config.url.split("/")[3];
 
   const mockGrades = {
@@ -922,7 +922,7 @@ mock.onGet(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
 });
 
 // 模拟提交考试成绩的请求
-mock.onPost(/\/api\/exams\/[^/]+\/grades$/).reply((config) => {
+mock.onPost(/\/api\/my-exams\/[^/]+\/grades$/).reply((config) => {
   const uuid = config.url.split("/")[3];
   const submittedGrades = JSON.parse(config.data);
 
@@ -1297,7 +1297,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
 });
 
 // 模拟提交考试答案的请求
-mock.onPost(/\/api\/exams\/.*\/submit/).reply((config) => {
+mock.onPost(/\/api\/my-exams\/.*\/submit/).reply((config) => {
   const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
   const submittedAnswers = JSON.parse(config.data);
 
@@ -1323,7 +1323,7 @@ mock.onPost(/\/api\/exams\/.*\/submit/).reply((config) => {
 });
 
 // 模拟保存考试答案的请求
-mock.onPost(/\/api\/exams\/.*\/save/).reply((config) => {
+mock.onPost(/\/api\/my-exams\/.*\/save/).reply((config) => {
   const uuid = config.url.split("/")[3]; // 从 URL 中提取考试 UUID
   const savedAnswers = JSON.parse(config.data);
 

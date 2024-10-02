@@ -136,7 +136,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ExamView"
 
-  /api/exams/{uuid}/submit:
+  /api/my-exams/{uuid}/submit:
     post:
       summary: 提交考试答案
       parameters:
@@ -167,7 +167,7 @@ paths:
                     type: string
                     format: date-time
 
-  /api/exams/{uuid}/save:
+  /api/my-exams/{uuid}/save:
     post:
       summary: 保存考试答案
       parameters:
@@ -217,7 +217,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ExamAnswers"
 
-  /api/exams/{uuid}/grades:
+  /api/my-exams/{uuid}/grades:
     get:
       summary: 获取考试成绩
       parameters:

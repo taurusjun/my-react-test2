@@ -153,7 +153,7 @@ const ExamGrading = () => {
     }
 
     try {
-      await axios.post(`/api/exams/${uuid}/grades`, { grades, totalScore });
+      await axios.post(`/api/my-exams/${uuid}/grades`, { grades, totalScore });
       setSnackbar({
         open: true,
         message: "成绩提交成功",

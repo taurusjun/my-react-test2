@@ -349,7 +349,7 @@ const ExamPaper = () => {
   const handleTemporarySave = async () => {
     try {
       setLoading(true);
-      await axios.post(`/api/exams/${uuid}/save`, answers);
+      await axios.post(`/api/my-exams/${uuid}/save`, answers);
       setLoading(false);
       setSnackbar({
         open: true,
@@ -376,7 +376,10 @@ const ExamPaper = () => {
     try {
       console.log(answers);
       setLoading(true);
-      await axios.post(`/api/exams/${uuid}/submit`, { ...answers, isRetake });
+      await axios.post(`/api/my-exams/${uuid}/submit`, {
+        ...answers,
+        isRetake,
+      });
       setLoading(false);
       navigate(`/exam-result/${uuid}`);
     } catch (error) {
