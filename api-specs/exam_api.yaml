@@ -200,9 +200,9 @@ paths:
                   savedQuestionCount:
                     type: integer
 
-  /api/exams/{uuid}/answers:
+  /api/my-exams/{uuid}/answers:
     get:
-      summary: 获取考试答案
+      summary: 获取我的考试答案
       parameters:
         - in: path
           name: uuid

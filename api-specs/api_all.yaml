@@ -142,9 +142,9 @@ paths:
         '400':
           description: 请求参数错误
 
-  /api/exams/{uuid}/answers:
+  /api/my-exams/{uuid}/answers:
     get:
-      summary: 获取考试答案
+      summary: 获取我的考试答案
       tags:
         - 考试相关
       parameters:

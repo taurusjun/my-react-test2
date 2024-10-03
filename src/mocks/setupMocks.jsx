@@ -808,7 +808,7 @@ mock.onGet("/api/exam-submissions").reply((config) => {
 });
 
 // 模拟获取单个考试答案的请求
-mock.onGet(/\/api\/exams\/[^/]+\/answers$/).reply((config) => {
+mock.onGet(/\/api\/my-exams\/[^/]+\/answers$/).reply((config) => {
   const uuid = config.url.split("/")[3];
 
   const mockAnswers = {
