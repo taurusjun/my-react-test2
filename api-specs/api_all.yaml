@@ -142,6 +142,16 @@ paths:
         '400':
           description: 请求参数错误
 
+  /api/my-exams:
+    get:
+      summary: 获取我的考试
+      tags:
+        - 考试相关
+      responses:
+        '200':
+          description: 成功获取我的考试
+
+
   /api/my-exams/{uuid}/answers:
     get:
       summary: 获取我的考试答案
@@ -462,15 +472,6 @@ paths:
       responses:
         '200':
           description: 成功获取字典数据
-
-  /api/my-exams:
-    get:
-      summary: 获取我的考试
-      tags:
-        - 其他
-      responses:
-        '200':
-          description: 成功获取我的考试
 
   /api/exam-names:
     get:
