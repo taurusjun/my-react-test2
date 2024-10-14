@@ -51,62 +51,62 @@ mock.onGet("/api/dictionaries").reply(200, {
   CategoryKNMapping,
 });
 
-// 更新模拟登录的请求处理
-mock.onPost("/api/login").reply((config) => {
-  const { username, password } = JSON.parse(config.data);
+// // 更新模拟登录的请求处理
+// mock.onPost("/api/login").reply((config) => {
+//   const { username, password } = JSON.parse(config.data);
 
-  // 模拟用户验证
-  if (username === "testuser" && password === "password123") {
-    return [
-      200,
-      {
-        token: "mock-jwt-token-12345",
-        user: {
-          uuid: "uuid-user01",
-          name: "testuser",
-          nickname: "测试用户",
-          role: "student",
-        },
-      },
-    ];
-  } else {
-    return [401, { message: "登录失败，请检查用户名和密码" }];
-  }
-});
+//   // 模拟用户验证
+//   if (username === "testuser" && password === "password123") {
+//     return [
+//       200,
+//       {
+//         token: "mock-jwt-token-12345",
+//         user: {
+//           uuid: "uuid-user01",
+//           name: "testuser",
+//           nickname: "测试用户",
+//           role: "student",
+//         },
+//       },
+//     ];
+//   } else {
+//     return [401, { message: "登录失败，请检查用户名和密码" }];
+//   }
+// });
 
-// 模拟获取用户信息
-mock.onGet("/api/user").reply(200, {
-  uuid: "uuid-user01",
-  name: "testuser",
-  nickname: "测试用户",
-  role: "student",
-});
+// // 模拟获取用户信息
+// mock.onGet("/api/user").reply(200, {
+//   uuid: "uuid-user01",
+//   name: "testuser",
+//   nickname: "测试用户",
+//   role: "student",
+// });
 
-// 模拟更新用户信息
-mock.onPut("/api/user").reply((config) => {
-  const { uuid, nickname, newPassword } = JSON.parse(config.data);
-  console.log("更新用户信息:", { uuid, nickname, newPassword });
+// // 模拟更新用户信息
+// mock.onPut("/api/user").reply((config) => {
+//   const { uuid, nickname, newPassword } = JSON.parse(config.data);
+//   console.log("更新用户信息:", { uuid, nickname, newPassword });
 
-  // 这里可以添加一些验证逻辑
-  if (nickname.length < 2) {
-    return [400, { message: "昵称长度不能少于2个字符" }];
-  }
+//   // 这里可以添加一些验证逻辑
+//   if (nickname.length < 2) {
+//     return [400, { message: "昵称长度不能少于2个字符" }];
+//   }
 
-  if (newPassword && newPassword.length < 6) {
-    return [400, { message: "密码长度不能少于6个字符" }];
-  }
+//   if (newPassword && newPassword.length < 6) {
+//     return [400, { message: "密码长度不能少于6个字符" }];
+//   }
 
-  // 返回更新后的用户数据
-  return [
-    200,
-    {
-      uuid: "uuid-user01",
-      name: "testuser",
-      nickname: nickname,
-      role: "student",
-    },
-  ];
-});
+//   // 返回更新后的用户数据
+//   return [
+//     200,
+//     {
+//       uuid: "uuid-user01",
+//       name: "testuser",
+//       nickname: nickname,
+//       role: "student",
+//     },
+//   ];
+// });
 
 // 修改 /api/my-exams 的模拟数据
 mock.onGet("/api/my-exams").reply((config) => {
