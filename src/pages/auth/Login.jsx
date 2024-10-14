@@ -32,8 +32,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post("/api/login", { username, password });
-      const { token, user } = response.data; // 假设后端返回了 token 和 user 信息
-      setToken(token);
+      const { accessToken, user } = response.data.data; // 假设后端返回了 token 和 user 信息
+      setToken(accessToken);
       login(user); // 使用 login 函数将用户信息添加到 UserContext 中
       const userData = { ...user, username }; // 创建一个包含用户信息和用户名的对象
       localStorage.setItem("user", JSON.stringify(userData)); // 登录成功后保存用户信息和用户名

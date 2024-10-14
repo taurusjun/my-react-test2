@@ -17,7 +17,6 @@ import axios from "axios";
 const UserCenter = () => {
   const { user, updateUser } = useContext(UserContext);
   const [nickname, setNickname] = useState(user?.username || "");
-  const [uuid, setUUID] = useState(user.uuid || "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [snackbar, setSnackbar] = useState({
@@ -57,7 +56,6 @@ const UserCenter = () => {
     try {
       // 调用后端接口更新用户信息并获取返回的用户数据
       const response = await axios.put("/api/user", {
-        uuid,
         nickname,
         newPassword,
       });
