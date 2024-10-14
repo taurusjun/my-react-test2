@@ -27,7 +27,7 @@ const UserCenter = () => {
 
   useEffect(() => {
     if (user) {
-      setNickname(user.username);
+      setNickname(user.name);
     }
   }, [user]);
 

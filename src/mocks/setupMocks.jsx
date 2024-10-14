@@ -62,8 +62,7 @@ mock.onPost("/api/login").reply((config) => {
       {
         token: "mock-jwt-token-12345",
         user: {
-          id: 1,
-          username: "testuser",
+          uuid: "uuid-user01",
           name: "测试用户",
           role: "student",
         },
@@ -76,9 +75,8 @@ mock.onPost("/api/login").reply((config) => {
 
 // 模拟获取用户信息
 mock.onGet("/api/user").reply(200, {
-  id: 1,
-  username: "testuser",
-  nickname: "测试用户",
+  uuid: "uuid-user01",
+  name: "测试用户",
   role: "student",
 });
 
@@ -100,9 +98,8 @@ mock.onPut("/api/user").reply((config) => {
   return [
     200,
     {
-      id: 1,
-      username: "testuser",
-      nickname: nickname, // 返回更新后的昵称
+      uuid: "uuid-user01",
+      name: nickname,
       role: "student",
     },
   ];
