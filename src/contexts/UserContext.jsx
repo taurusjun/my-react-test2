@@ -6,12 +6,10 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // 这里可以添加从本地存储或API获取用户信息的逻辑
-    // 例如:
-    // const storedUser = localStorage.getItem('user');
-    // if (storedUser) {
-    //   setUser(JSON.parse(storedUser));
-    // }
+    const storedUser = localStorage.getItem("user"); // 从本地存储获取用户信息
+    if (storedUser) {
+      setUser(JSON.parse(storedUser)); // 如果存在，则解析并设置用户信息
+    }
   }, []);
 
   const login = (userData) => {
@@ -20,12 +18,13 @@ export const UserProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setUser(null);
-    // 可以在这里添加清除本地存储中用户信息的逻辑
+    setUser(null); // 清除用户状态
+    localStorage.removeItem("user"); // 从本地存储中移除用户信息
+    localStorage.removeItem("username"); // 从本地存储中移除用户名
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, login, logout }}>
+    <UserContext.Provider value={{ user, login, logout }}>
       {children}
     </UserContext.Provider>
   );

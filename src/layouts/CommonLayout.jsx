@@ -35,8 +35,13 @@ const CommonLayout = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -90,13 +95,20 @@ const CommonLayout = ({
               {item.text}
             </Button>
           ))}
-          <Button
-            color="inherit"
-            onClick={() => navigate("/user-center")}
-            sx={{ ml: 2 }}
-          >
-            {user ? user.name : "登录"}
-          </Button>
+          {user ? (
+            <>
+              <Button color="inherit" onClick={() => navigate("/user-center")}>
+                {user.name}
+              </Button>
+              <Button color="inherit" onClick={handleLogout}>
+                登出
+              </Button>
+            </>
+          ) : (
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              登录
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer

@@ -17,7 +17,12 @@ const drawerWidth = 240;
 
 const MainLayout = ({ children, menuItems = [] }) => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -29,9 +34,20 @@ const MainLayout = ({ children, menuItems = [] }) => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Logo
           </Typography>
-          <Button color="inherit" onClick={() => navigate("/user-center")}>
-            {user ? user.name : "登录"}
-          </Button>
+          {user ? (
+            <>
+              <Button color="inherit" onClick={() => navigate("/user-center")}>
+                {user.name}
+              </Button>
+              <Button color="inherit" onClick={handleLogout}>
+                登出
+              </Button>
+            </>
+          ) : (
+            <Button color="inherit" onClick={() => navigate("/login")}>
+              登录
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
