@@ -98,7 +98,7 @@ const CommonLayout = ({
           {user ? (
             <>
               <Button color="inherit" onClick={() => navigate("/user-center")}>
-                {user.name}
+                {user.nickname}
               </Button>
               <Button color="inherit" onClick={handleLogout}>
                 登出

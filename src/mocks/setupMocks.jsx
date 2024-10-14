@@ -63,7 +63,8 @@ mock.onPost("/api/login").reply((config) => {
         token: "mock-jwt-token-12345",
         user: {
           uuid: "uuid-user01",
-          name: "测试用户",
+          name: "testuser",
+          nickname: "测试用户",
           role: "student",
         },
       },
@@ -76,14 +77,15 @@ mock.onPost("/api/login").reply((config) => {
 // 模拟获取用户信息
 mock.onGet("/api/user").reply(200, {
   uuid: "uuid-user01",
-  name: "测试用户",
+  name: "testuser",
+  nickname: "测试用户",
   role: "student",
 });
 
 // 模拟更新用户信息
 mock.onPut("/api/user").reply((config) => {
-  const { nickname, newPassword } = JSON.parse(config.data);
-  console.log("更新用户信息:", { nickname, newPassword });
+  const { uuid, nickname, newPassword } = JSON.parse(config.data);
+  console.log("更新用户信息:", { uuid, nickname, newPassword });
 
   // 这里可以添加一些验证逻辑
   if (nickname.length < 2) {
@@ -99,7 +101,8 @@ mock.onPut("/api/user").reply((config) => {
     200,
     {
       uuid: "uuid-user01",
-      name: nickname,
+      name: "testuser",
+      nickname: nickname,
       role: "student",
     },
   ];
