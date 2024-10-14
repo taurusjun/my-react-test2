@@ -96,7 +96,16 @@ mock.onPut("/api/user").reply((config) => {
     return [400, { message: "密码长度不能少于6个字符" }];
   }
 
-  return [200, { message: "用户信息更新成功" }];
+  // 返回更新后的用户数据
+  return [
+    200,
+    {
+      id: 1,
+      username: "testuser",
+      nickname: nickname, // 返回更新后的昵称
+      role: "student",
+    },
+  ];
 });
 
 // 修改 /api/my-exams 的模拟数据
@@ -1115,7 +1124,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
                 score: 2,
                 rate: 4,
                 explanation:
-                  "法拉第电��感应定律表明，感应电动势的大小与穿过闭合回路的磁通量变化率的大小成正比。",
+                  "法拉第电感应定律表明，感应电动势的大小与穿过闭合回路的磁通量变化率的大小成正比。",
                 uiType: "fill_in_blank",
                 answer: ["磁通量"],
                 answerImage: null,
@@ -1165,7 +1174,7 @@ mock.onGet(/\/api\/examview\/.*/).reply((config) => {
         name: "计算题",
         order_in_exam: 3,
         questions: [
-          // ���留原有的计算题（2个questionDetails）
+          // 留原有的计算题（2个questionDetails）
           {
             uuid: "question-12",
             type: "calculation",

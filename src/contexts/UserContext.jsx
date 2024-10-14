@@ -14,7 +14,7 @@ export const UserProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
-    // 可以在这里添加将用户信息保存到本地存储的逻辑
+    localStorage.setItem("user", JSON.stringify(userData)); // 登录时保存用户信息到本地存储
   };
 
   const logout = () => {
@@ -23,8 +23,16 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("username"); // 从本地存储中移除用户名
   };
 
+  const updateUser = (updatedData) => {
+    setUser((prevUser) => {
+      const newUser = { ...prevUser, ...updatedData }; // 合并旧用户数据和新数据
+      localStorage.setItem("user", JSON.stringify(newUser)); // 更新本地存储中的用户信息
+      return newUser; // 返回更新后的用户数据
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

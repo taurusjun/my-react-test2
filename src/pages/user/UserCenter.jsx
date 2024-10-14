@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "../../contexts/UserContext";
 import CommonLayout from "../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../components/CommonBreadcrumbs";
@@ -12,10 +12,11 @@ import {
   Alert,
 } from "@mui/material";
 import { menuItems } from "../../config/menuItems";
+import axios from "axios";
 
 const UserCenter = () => {
   const { user, updateUser } = useContext(UserContext);
-  const [nickname, setNickname] = useState(user?.nickname || "");
+  const [nickname, setNickname] = useState(user?.username || "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [snackbar, setSnackbar] = useState({
@@ -24,8 +25,25 @@ const UserCenter = () => {
     severity: "success",
   });
 
+  useEffect(() => {
+    if (user) {
+      setNickname(user.username);
+    }
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 检查新密码和确认密码是否为空
+    if (!newPassword) {
+      setSnackbar({
+        open: true,
+        message: "新密码不能为空",
+        severity: "error",
+      });
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
       setSnackbar({
         open: true,
@@ -36,7 +54,13 @@ const UserCenter = () => {
     }
 
     try {
-      await updateUser({ nickname, newPassword });
+      // 调用后端接口更新用户信息并获取返回的用户数据
+      const response = await axios.put("/api/user", { nickname, newPassword });
+      const userData = response.data; // 获取返回的用户数据
+
+      // 调用 UserContext 中的 updateUser 更新用户信息
+      updateUser(userData); // 使用返回的 userData 更新用户信息
+
       setSnackbar({
         open: true,
         message: "用户信息更新成功",
@@ -98,6 +122,7 @@ const UserCenter = () => {
         />
         <TextField
           margin="normal"
+          required
           name="newPassword"
           label="新密码"
           type="password"
@@ -109,6 +134,7 @@ const UserCenter = () => {
         />
         <TextField
           margin="normal"
+          required
           name="confirmPassword"
           label="确认新密码"
           type="password"
