@@ -20,6 +20,7 @@ import SendIcon from "@mui/icons-material/Send";
 import PreviewIcon from "@mui/icons-material/Preview";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
+import QuestionEdit from "../../provider/components/QuestionEdit";
 
 const FileCorrectionEditorPage = () => {
   const { fileUuid } = useParams();
@@ -31,6 +32,8 @@ const FileCorrectionEditorPage = () => {
   });
   const [editorState, setEditorState] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [questionData, setQuestionData] = useState(null);
 
   const validateExam = (exam) => {
     if (!exam) return false;
@@ -126,6 +129,41 @@ const FileCorrectionEditorPage = () => {
     setIsPreviewOpen(false);
   };
 
+  const handleNextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handleBackStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <FileCorrectionEditor
+            fileUuid={fileUuid}
+            editable={true}
+            setEditorState={setEditorState}
+          />
+        );
+      case 2:
+        return (
+          <QuestionEdit
+            initialCategory={questionData?.category}
+            initialSchool={questionData?.gradeInfo.school}
+            initialGrade={questionData?.gradeInfo.grade}
+            initialKn={questionData?.kn}
+            isDialog={true}
+          />
+        );
+      case 3:
+        return <ExamPreview exam={questionData} onSubmit={handleSubmit} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -160,6 +198,23 @@ const FileCorrectionEditorPage = () => {
             <Button
               variant="contained"
               color="secondary"
+              onClick={handleBackStep}
+              sx={{ mr: 2, fontWeight: "bold" }}
+              disabled={currentStep === 1}
+            >
+              上一步
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNextStep}
+              sx={{ mr: 2, fontWeight: "bold" }}
+              disabled={currentStep === 3}
+            >
+              下一步
+            </Button>
+            <Button
+              variant="contained"
               onClick={handleTemporarySave}
               startIcon={<SaveIcon />}
               sx={{ mr: 2, fontWeight: "bold" }}
@@ -168,7 +223,6 @@ const FileCorrectionEditorPage = () => {
             </Button>
             <Button
               variant="contained"
-              color="primary"
               onClick={handlePreviewClick}
               startIcon={<PreviewIcon />}
               sx={{ mr: 2, fontWeight: "bold" }}
@@ -192,13 +246,7 @@ const FileCorrectionEditorPage = () => {
       </AppBar>
       <Toolbar />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
-        <Box sx={{ bgcolor: "white", borderRadius: 2, boxShadow: 3, p: 3 }}>
-          <FileCorrectionEditor
-            fileUuid={fileUuid}
-            editable={true}
-            setEditorState={setEditorState}
-          />
-        </Box>
+        {renderStep()}
       </Container>
       <Modal
         open={isPreviewOpen}
