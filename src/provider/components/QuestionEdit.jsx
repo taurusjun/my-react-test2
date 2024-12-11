@@ -408,13 +408,10 @@ const QuestionEdit = ({
       {!showPreview ? (
         <QuestionDataForm
           questionData={questionData}
-          onQuestionDataChange={setQuestionData}
           onSubmit={handleSubmitQuestion}
           onCancel={handleCancel}
           isDialog={isDialog}
           errors={errors}
-          availableKnowledgeNodes={availableKnowledgeNodes}
-          dictionaries={dictionaries} // 传递 dictionaries
         />
       ) : (
         <QuestionPreview

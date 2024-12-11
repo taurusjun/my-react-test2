@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Paper,
@@ -15,24 +15,41 @@ import {
 } from "@mui/material";
 import MultiLevelSelect from "./MultiLevelSelect";
 import QuestionDetailEdit from "./QuestionDetailEdit";
+import { useDictionaries } from "../hooks/useDictionaries";
 
 const QuestionDataForm = ({
-  questionData,
-  onQuestionDataChange,
+  questionData: initialQuestionData,
   onSubmit,
   onCancel,
   isDialog,
   errors,
-  availableKnowledgeNodes,
-  dictionaries,
 }) => {
+  const { dictionaries } = useDictionaries();
+  const [questionData, setQuestionData] = useState(initialQuestionData);
+  const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
+
+  useEffect(() => {
+    if (questionData.category && dictionaries.CategoryKNMapping) {
+      const knList =
+        dictionaries.CategoryKNMapping[questionData.category] || [];
+      setAvailableKnowledgeNodes(knList);
+
+      // 如果当前选中的知识点不在新的列表中,重置知识点
+      if (knList.length > 0 && !knList.includes(questionData.kn)) {
+        setQuestionData((prevData) => ({ ...prevData, kn: "" }));
+      }
+    } else {
+      setAvailableKnowledgeNodes([]);
+    }
+  }, [questionData.category, dictionaries.CategoryKNMapping, questionData.kn]);
+
   const handleSelectChange = (type, value) => {
-    onQuestionDataChange((prevData) => ({
+    setQuestionData((prevData) => ({
       ...prevData,
       [type]: value,
     }));
     if (type === "category") {
-      onQuestionDataChange((prevData) => ({
+      setQuestionData((prevData) => ({
         ...prevData,
         kn: "",
       }));
@@ -40,7 +57,7 @@ const QuestionDataForm = ({
   };
 
   const handleQuestionDetailChange = (updatedQuestionDetail, index) => {
-    onQuestionDataChange((prevData) => ({
+    setQuestionData((prevData) => ({
       ...prevData,
       questionDetails: prevData.questionDetails.map((detail, i) =>
         i === index ? { ...detail, ...updatedQuestionDetail } : detail
@@ -50,7 +67,7 @@ const QuestionDataForm = ({
 
   // 添加新问题详情的函数
   const addQuestionDetail = () => {
-    onQuestionDataChange((prevData) => ({
+    setQuestionData((prevData) => ({
       ...prevData,
       questionDetails: [
         ...prevData.questionDetails,
@@ -75,7 +92,7 @@ const QuestionDataForm = ({
 
   // 移动问题详情的函数
   const moveQuestionDetail = (index, direction) => {
-    onQuestionDataChange((prevData) => {
+    setQuestionData((prevData) => {
       const newQuestionDetails = [...prevData.questionDetails];
       if (direction === "up" && index > 0) {
         [newQuestionDetails[index], newQuestionDetails[index - 1]] = [
@@ -103,7 +120,7 @@ const QuestionDataForm = ({
 
   // 删除问题详情的函数
   const removeQuestionDetail = (index) => {
-    onQuestionDataChange((prevData) => ({
+    setQuestionData((prevData) => ({
       ...prevData,
       questionDetails: prevData.questionDetails.filter((_, i) => i !== index),
     }));
@@ -163,7 +180,7 @@ const QuestionDataForm = ({
                   >
                     {availableKnowledgeNodes.map((kn) => (
                       <MenuItem key={kn} value={kn}>
-                        {kn}
+                        {dictionaries.KNDict[kn] || kn}
                       </MenuItem>
                     ))}
                   </Select>
@@ -172,7 +189,7 @@ const QuestionDataForm = ({
               <Grid item xs={12} sm={4}>
                 <MultiLevelSelect
                   onMultiSelectChange={(school, grade) => {
-                    onQuestionDataChange((prevData) => ({
+                    setQuestionData((prevData) => ({
                       ...prevData,
                       gradeInfo: { school, grade },
                     }));
@@ -266,7 +283,7 @@ const QuestionDataForm = ({
                   label="摘要: 比如题目的主要内容"
                   value={questionData.digest}
                   onChange={(e) =>
-                    onQuestionDataChange((prevData) => ({
+                    setQuestionData((prevData) => ({
                       ...prevData,
                       digest: e.target.value,
                     }))
@@ -283,7 +300,7 @@ const QuestionDataForm = ({
                   label="来源: 比如哪一本书，或者哪一张试卷"
                   value={questionData.source}
                   onChange={(e) =>
-                    onQuestionDataChange((prevData) => ({
+                    setQuestionData((prevData) => ({
                       ...prevData,
                       source: e.target.value,
                     }))
@@ -303,7 +320,7 @@ const QuestionDataForm = ({
                     value: dictionaries.TagDict[key],
                   }))}
                   onChange={(event, newValue) =>
-                    onQuestionDataChange((prevData) => ({
+                    setQuestionData((prevData) => ({
                       ...prevData,
                       tags: newValue.map((option) => option.key),
                     }))
@@ -339,7 +356,7 @@ const QuestionDataForm = ({
                   label="材料:多个题目共用"
                   value={questionData.material}
                   onChange={(e) =>
-                    onQuestionDataChange((prevData) => ({
+                    setQuestionData((prevData) => ({
                       ...prevData,
                       material: e.target.value,
                     }))
@@ -426,7 +443,11 @@ const QuestionDataForm = ({
         </Grid>
         {/* 操作按钮 */}
         <Grid item xs={6}>
-          <Button variant="contained" onClick={onSubmit} fullWidth>
+          <Button
+            variant="contained"
+            onClick={() => onSubmit(questionData)}
+            fullWidth
+          >
             提交
           </Button>
         </Grid>
