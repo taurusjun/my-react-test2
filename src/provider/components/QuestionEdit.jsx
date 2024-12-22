@@ -180,12 +180,12 @@ const QuestionEdit = ({
     console.log(updatedQuestionDetail);
   };
 
-  const handleSubmitQuestion = async (event) => {
-    event.preventDefault();
+  const handleSubmitQuestion = async (qData) => {
+    // event.preventDefault();
     console.log("submit!");
-    console.log(questionData);
+    console.log(qData);
 
-    var errorTxt = checkBeforeSubmit();
+    var errorTxt = checkBeforeSubmit(qData);
 
     setSubmiting(true);
 
@@ -239,7 +239,7 @@ const QuestionEdit = ({
     }
   };
 
-  const checkBeforeSubmit = () => {
+  const checkBeforeSubmit = (questionData) => {
     let newErrors = {
       type: questionData.type === "",
       category: questionData.category === "",

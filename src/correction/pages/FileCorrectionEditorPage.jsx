@@ -20,7 +20,8 @@ import SendIcon from "@mui/icons-material/Send";
 import PreviewIcon from "@mui/icons-material/Preview";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
-import QuestionEdit from "../../provider/components/QuestionEdit";
+import QuestionDataForm from "../../provider/components/QuestionDataForm";
+import ExamEditor from "../components/ExamEditor";
 
 const FileCorrectionEditorPage = () => {
   const { fileUuid } = useParams();
@@ -45,6 +46,23 @@ const FileCorrectionEditorPage = () => {
       exam.gradeInfo.grade
     );
   };
+
+  const [errors, setErrors] = useState({
+    type: false,
+    category: false,
+    kn: false,
+    school: false,
+    grade: false,
+    digest: false,
+    questionDetails: [
+      {
+        questionContent: false,
+        rows: [],
+        answer: false,
+        rate: false,
+      },
+    ],
+  });
 
   const handleTemporarySave = async () => {
     if (editorState && editorState.mdMap) {
@@ -149,13 +167,22 @@ const FileCorrectionEditorPage = () => {
         );
       case 2:
         return (
-          <QuestionEdit
-            initialCategory={questionData?.category}
-            initialSchool={questionData?.gradeInfo.school}
-            initialGrade={questionData?.gradeInfo.grade}
-            initialKn={questionData?.kn}
-            isDialog={true}
-          />
+          // <QuestionEdit
+          //   initialCategory={questionData?.category}
+          //   initialSchool={questionData?.gradeInfo.school}
+          //   initialGrade={questionData?.gradeInfo.grade}
+          //   initialKn={questionData?.kn}
+          //   isDialog={true}
+          // />
+          // <QuestionDataForm
+          //   questionData={editorState.exam}
+          //   // onSubmit={handleSubmitQuestion}
+          //   // onCancel={handleCancel}
+          //   isDialog={true}
+          //   errors={errors}
+          // />
+          // <ExamPreview exam={editorState.exam} />
+          <ExamEditor exam={editorState.exam} />
         );
       case 3:
         return <ExamPreview exam={questionData} onSubmit={handleSubmit} />;
