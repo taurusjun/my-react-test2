@@ -70,9 +70,6 @@ const ExamEditor = ({ exam, onSave }) => {
           </Typography>
           {section.questions.map((question, questionIndex) => (
             <Box key={question.uuid} sx={{ mb: 2 }}>
-              <Typography variant="subtitle1">
-                第 {questionIndex + 1} 大题 {/* 显示大题序号 */}
-              </Typography>
               <Box sx={{ position: "relative", mb: 1 }}>
                 {editingMaterialIndex === `${sectionIndex}-${questionIndex}` ? (
                   <Box
@@ -117,15 +114,17 @@ const ExamEditor = ({ exam, onSave }) => {
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        padding: "10px",
-                        borderRadius: "4px",
-                        flexGrow: 1,
-                      }}
-                      dangerouslySetInnerHTML={{ __html: question.material }}
-                    />
+                    {question.material ? (
+                      <Box
+                        sx={{
+                          border: "1px solid #ccc",
+                          padding: "10px",
+                          borderRadius: "4px",
+                          flexGrow: 1,
+                        }}
+                        dangerouslySetInnerHTML={{ __html: question.material }}
+                      />
+                    ) : null}
                   </Box>
                 )}
               </Box>
@@ -146,7 +145,8 @@ const ExamEditor = ({ exam, onSave }) => {
               {question.questionDetails.map((detail, detailIndex) => (
                 <Box key={detail.uuid} sx={{ mb: 2 }}>
                   <Typography variant="body1" sx={{ mb: 1 }}>
-                    第 {detailIndex + 1} 小题 {/* 显示小题序号 */}
+                    第 {questionIndex + 1}.{detailIndex + 1} 题{" "}
+                    {/* 显示小题序号 */}
                   </Typography>
                   <TextField
                     label="题目"
@@ -164,6 +164,8 @@ const ExamEditor = ({ exam, onSave }) => {
                     variant="outlined"
                     sx={{ mb: 1 }}
                     InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                    multiline // 设置为多行文本框
+                    rows={4} // 设置行数
                   />
                   <TextField
                     label="答案"
@@ -181,6 +183,8 @@ const ExamEditor = ({ exam, onSave }) => {
                     variant="outlined"
                     sx={{ mb: 1 }}
                     InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                    multiline // 设置为多行文本框
+                    rows={4} // 设置行数
                   />
                   <TextField
                     label="解释"
@@ -198,6 +202,8 @@ const ExamEditor = ({ exam, onSave }) => {
                     variant="outlined"
                     sx={{ mb: 1 }}
                     InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                    multiline // 设置为多行文本框
+                    rows={4} // 设置行数
                   />
                   {detail.uiType === "single_selection" && (
                     <>
@@ -225,6 +231,8 @@ const ExamEditor = ({ exam, onSave }) => {
                               variant="outlined"
                               sx={{ mb: 1 }}
                               InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                              multiline // 设置为多行文本框
+                              rows={4} // 设置行数
                             />
                           </ListItem>
                         ))}

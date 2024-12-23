@@ -63,7 +63,10 @@ const createSubmitExam = (exam, markdownLines) => {
           uuid: detail.uuid,
           order_in_question: detail.order,
           questionContent: {
-            value: getContent(detail.questionContent.extra),
+            value: getContent([
+              ...detail.extra,
+              ...detail.questionContent.extra,
+            ]),
             image: null,
           },
           uiType: detail.uiType,
