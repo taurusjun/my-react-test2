@@ -67,7 +67,7 @@ const createSubmitExam = (exam, markdownLines) => {
               ...detail.extra,
               ...detail.questionContent.extra,
             ]),
-            image: null,
+            images: [],
           },
           uiType: detail.uiType,
           score: 0,
@@ -78,7 +78,7 @@ const createSubmitExam = (exam, markdownLines) => {
           result.rows = detail.rows.map((row) => ({
             value: getContent(row.extra),
             isAns: row.isAns || false,
-            image: null,
+            images: [],
           }));
         } else {
           result.rows = [];
