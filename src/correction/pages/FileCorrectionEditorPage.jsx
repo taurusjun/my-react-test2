@@ -155,6 +155,13 @@ const FileCorrectionEditorPage = () => {
     setCurrentStep(currentStep - 1);
   };
 
+  const updateExam = (updatedExam) => {
+    setEditorState((prevState) => ({
+      ...prevState,
+      exam: updatedExam,
+    }));
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -166,26 +173,9 @@ const FileCorrectionEditorPage = () => {
           />
         );
       case 2:
-        return (
-          // <QuestionEdit
-          //   initialCategory={questionData?.category}
-          //   initialSchool={questionData?.gradeInfo.school}
-          //   initialGrade={questionData?.gradeInfo.grade}
-          //   initialKn={questionData?.kn}
-          //   isDialog={true}
-          // />
-          // <QuestionDataForm
-          //   questionData={editorState.exam}
-          //   // onSubmit={handleSubmitQuestion}
-          //   // onCancel={handleCancel}
-          //   isDialog={true}
-          //   errors={errors}
-          // />
-          // <ExamPreview exam={editorState.exam} />
-          <ExamEditor exam={editorState.exam} />
-        );
+        return <ExamEditor exam={editorState.exam} onExamChange={updateExam} />;
       case 3:
-        return <ExamPreview exam={questionData} onSubmit={handleSubmit} />;
+        return <ExamPreview exam={editorState.exam} onSubmit={handleSubmit} />;
       default:
         return null;
     }

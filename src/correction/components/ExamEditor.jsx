@@ -12,7 +12,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 
-const ExamEditor = ({ exam, onSave }) => {
+const ExamEditor = ({ exam, onExamChange }) => {
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
 
@@ -28,6 +28,7 @@ const ExamEditor = ({ exam, onSave }) => {
       detailIndex
     ][field] = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
   };
 
   const handleRowChange = (
@@ -42,27 +43,49 @@ const ExamEditor = ({ exam, onSave }) => {
       detailIndex
     ].rows[rowIndex].value = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
   };
 
   const handleMaterialChange = (sectionIndex, questionIndex, value) => {
     const updatedSections = [...editedExam.sections];
     updatedSections[sectionIndex].questions[questionIndex].material = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
   };
 
   const handleDigestChange = (sectionIndex, questionIndex, value) => {
     const updatedSections = [...editedExam.sections];
     updatedSections[sectionIndex].questions[questionIndex].digest = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
   };
 
   const handleSave = () => {
-    onSave(editedExam);
+    onExamChange(editedExam);
   };
 
   return (
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
+      <TextField
+        label="试卷名称"
+        value={editedExam.name}
+        onChange={(e) => setEditedExam({ ...editedExam, name: e.target.value })}
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      />
+
+      <TextField
+        label="科目"
+        value={editedExam.category}
+        onChange={(e) =>
+          setEditedExam({ ...editedExam, category: e.target.value })
+        }
+        fullWidth
+        variant="outlined"
+        sx={{ mb: 2 }}
+      />
       {editedExam.sections.map((section, sectionIndex) => (
         <Box key={section.uuid} sx={{ mb: 4 }}>
           <Typography variant="h6">
