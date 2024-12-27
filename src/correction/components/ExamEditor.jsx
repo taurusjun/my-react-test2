@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   TextField,
   Box,
@@ -11,10 +11,13 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
+import UploadIcon from "@mui/icons-material/Upload";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ExamEditor = ({ exam, onExamChange }) => {
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
+  const fileInputRefs = useRef([]);
 
   const handleDetailChange = (
     sectionIndex,
@@ -58,6 +61,46 @@ const ExamEditor = ({ exam, onExamChange }) => {
     updatedSections[sectionIndex].questions[questionIndex].digest = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
     onExamChange({ ...editedExam, sections: updatedSections });
+  };
+
+  const handleImageUpload = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    files
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => URL.createObjectURL(file));
+    if (images.length > 0) {
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].questionContent.images.push(...images);
+      setEditedExam({ ...editedExam, sections: updatedSections });
+      onExamChange({ ...editedExam, sections: updatedSections });
+    }
+    fileInputRefs.current[detailIndex].value = "";
+  };
+
+  const handleImageDelete = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    imageIndex
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images =
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].questionContent.images;
+    images.splice(imageIndex, 1);
+    updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+      detailIndex
+    ].questionContent.images = images;
+    setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
+    fileInputRefs.current[detailIndex].value = "";
   };
 
   const handleSave = () => {
@@ -262,6 +305,56 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       </List>
                     </>
                   )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    style={{ display: "none" }}
+                    ref={(el) => (fileInputRefs.current[detailIndex] = el)}
+                    id={`upload-button-${detailIndex}`}
+                    onChange={(e) =>
+                      handleImageUpload(
+                        sectionIndex,
+                        questionIndex,
+                        detailIndex,
+                        e.target.files
+                      )
+                    }
+                  />
+                  <label htmlFor={`upload-button-${detailIndex}`}>
+                    <Button
+                      variant="contained"
+                      component="span"
+                      startIcon={<UploadIcon />}
+                    >
+                      上传图片
+                    </Button>
+                  </label>
+                  {detail.questionContent.images &&
+                    detail.questionContent.images.map((image, index) => (
+                      <div
+                        key={index}
+                        style={{ display: "inline-block", margin: "5px" }}
+                      >
+                        <img
+                          src={image}
+                          alt={`Uploaded ${index}`}
+                          style={{ width: "100px" }}
+                        />
+                        <IconButton
+                          onClick={() =>
+                            handleImageDelete(
+                              sectionIndex,
+                              questionIndex,
+                              detailIndex,
+                              index
+                            )
+                          }
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </div>
+                    ))}
                 </Box>
               ))}
             </Box>
