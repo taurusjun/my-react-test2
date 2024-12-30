@@ -7,6 +7,8 @@ import {
   List,
   ListItem,
   ListItemText,
+  Select,
+  MenuItem,
   IconButton,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -531,25 +533,58 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       </List>
                     </>
                   )}
-                  <TextField
-                    label="答案"
-                    value={detail.answer.join(", ")}
-                    onChange={(e) =>
-                      handleDetailChange(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        "answer",
-                        e.target.value.split(", ")
-                      )
-                    }
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                    multiline // 设置为多行文本框
-                    rows={4} // 设置行数
-                  />
+                  {detail.uiType === "single_selection" ? (
+                    <>
+                      <Typography variant="subtitle1">答案:</Typography>
+                      <Select
+                        value={detail.answer[0] || ""} // 默认选择第一个答案
+                        onChange={(e) =>
+                          handleDetailChange(
+                            sectionIndex,
+                            questionIndex,
+                            detailIndex,
+                            "answer",
+                            [e.target.value] // 将选择的值作为数组
+                          )
+                        }
+                        fullWidth
+                        variant="outlined"
+                        sx={{ mb: 1 }}
+                      >
+                        {/* 根据 rows 的长度生成选项 */}
+                        {detail.rows.map((row, index) => (
+                          <MenuItem
+                            key={index}
+                            value={String.fromCharCode(65 + index)}
+                          >
+                            {/* 65 是 'A' 的 ASCII 码 */}
+                            {String.fromCharCode(65 + index)}
+                            {/* 生成 A, B, C, D 等 */}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </>
+                  ) : (
+                    <TextField
+                      label="答案"
+                      value={detail.answer.join(", ")}
+                      onChange={(e) =>
+                        handleDetailChange(
+                          sectionIndex,
+                          questionIndex,
+                          detailIndex,
+                          "answer",
+                          e.target.value.split(", ")
+                        )
+                      }
+                      fullWidth
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                      InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                      multiline // 设置为多行文本框
+                      rows={4} // 设置行数
+                    />
+                  )}
                   <TextField
                     label="解释"
                     value={detail.explanation || ""} // 如果没有解释，默认空行
