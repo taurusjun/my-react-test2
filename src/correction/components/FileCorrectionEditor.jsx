@@ -877,8 +877,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   }, [fileUuid]);
 
   useEffect(() => {
-    updateMarkdownLines(exam.sections);
-  }, [exam]);
+    if (!isEditing) {
+      updateMarkdownLines(exam.sections);
+    }
+  }, [exam, isEditing]);
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyUp);
