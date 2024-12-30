@@ -103,6 +103,57 @@ const ExamEditor = ({ exam, onExamChange }) => {
     fileInputRefs.current[detailIndex].value = "";
   };
 
+  const handleRowImageUpload = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    rowIndex,
+    files
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => URL.createObjectURL(file));
+
+    if (images.length > 0) {
+      if (
+        !updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+          detailIndex
+        ].rows[rowIndex].images
+      ) {
+        updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+          detailIndex
+        ].rows[rowIndex].images = [];
+      }
+
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].rows[rowIndex].images.push(...images);
+
+      setEditedExam({ ...editedExam, sections: updatedSections });
+      onExamChange({ ...editedExam, sections: updatedSections });
+    }
+  };
+
+  const handleRowImageDelete = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    rowIndex,
+    imageIndex
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images =
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].rows[rowIndex].images;
+
+    images.splice(imageIndex, 1);
+
+    setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
+  };
+
   const handleSave = () => {
     onExamChange(editedExam);
   };
@@ -276,30 +327,123 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       <Typography variant="subtitle1">选项:</Typography>
                       <List>
                         {detail.rows.map((row, rowIndex) => (
-                          <ListItem key={rowIndex}>
-                            <ListItemText
-                              primary={`${String.fromCharCode(
-                                65 + rowIndex
-                              )}. `}
-                            />
-                            <TextField
-                              value={row.value}
-                              onChange={(e) =>
-                                handleRowChange(
-                                  sectionIndex,
-                                  questionIndex,
-                                  detailIndex,
-                                  rowIndex,
-                                  e.target.value
-                                )
-                              }
-                              fullWidth
-                              variant="outlined"
-                              sx={{ mb: 1 }}
-                              InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                              multiline // 设置为多行文本框
-                              rows={4} // 设置行数
-                            />
+                          <ListItem key={rowIndex} sx={{ mb: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                width: "100%",
+                              }}
+                            >
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <ListItemText
+                                  primary={`${String.fromCharCode(
+                                    65 + rowIndex
+                                  )}. `}
+                                  sx={{ mb: 1 }}
+                                />
+                                <TextField
+                                  value={row.value}
+                                  onChange={(e) =>
+                                    handleRowChange(
+                                      sectionIndex,
+                                      questionIndex,
+                                      detailIndex,
+                                      rowIndex,
+                                      e.target.value
+                                    )
+                                  }
+                                  fullWidth
+                                  variant="outlined"
+                                  sx={{ mb: 1, ml: 2 }}
+                                  InputProps={{ style: { textAlign: "left" } }}
+                                  multiline
+                                  rows={4}
+                                />
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  mt: 1,
+                                }}
+                              >
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  style={{ display: "none" }}
+                                  id={`upload-button-row-${sectionIndex}-${questionIndex}-${detailIndex}-${rowIndex}`}
+                                  onChange={(e) =>
+                                    handleRowImageUpload(
+                                      sectionIndex,
+                                      questionIndex,
+                                      detailIndex,
+                                      rowIndex,
+                                      e.target.files
+                                    )
+                                  }
+                                />
+                                <label
+                                  htmlFor={`upload-button-row-${sectionIndex}-${questionIndex}-${detailIndex}-${rowIndex}`}
+                                >
+                                  <Button
+                                    variant="contained"
+                                    component="span"
+                                    startIcon={<UploadIcon />}
+                                    sx={{ mb: 1, mr: 2 }}
+                                  >
+                                    上传图片
+                                  </Button>
+                                </label>
+
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  {row.images &&
+                                    row.images.map((image, index) => (
+                                      <div
+                                        key={index}
+                                        style={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          marginBottom: "5px",
+                                          marginRight: "5px",
+                                        }}
+                                      >
+                                        <img
+                                          src={image}
+                                          alt={`Uploaded ${index}`}
+                                          style={{
+                                            width: "100px",
+                                            marginRight: "5px",
+                                          }}
+                                        />
+                                        <IconButton
+                                          onClick={() =>
+                                            handleRowImageDelete(
+                                              sectionIndex,
+                                              questionIndex,
+                                              detailIndex,
+                                              rowIndex,
+                                              index
+                                            )
+                                          }
+                                        >
+                                          <DeleteIcon />
+                                        </IconButton>
+                                      </div>
+                                    ))}
+                                </Box>
+                              </Box>
+                            </Box>
                           </ListItem>
                         ))}
                       </List>
