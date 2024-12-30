@@ -233,6 +233,7 @@ const ExamEditor = ({ exam, onExamChange }) => {
               value={exam.name}
               onChange={(e) => onExamChange({ ...exam, name: e.target.value })}
               variant="outlined"
+              sx={{ mb: 2 }}
             />
           </Grid>
 
@@ -283,10 +284,14 @@ const ExamEditor = ({ exam, onExamChange }) => {
             border: "1px solid #e0e0e0",
             borderRadius: "8px",
             padding: 2,
-            boxShadow: 2,
+            boxShadow: 3,
+            backgroundColor: "#f9f9f9",
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", mb: 2, color: "#333" }}
+          >
             {sectionIndex + 1}. {section.name} {/* 显示 section 序号 */}
           </Typography>
           {section.questions.map((question, questionIndex) => (
@@ -663,14 +668,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
           ))}
         </Box>
       ))}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleSave}
-        sx={{ mt: 2 }}
-      >
-        保存
-      </Button>
     </Box>
   );
 };
