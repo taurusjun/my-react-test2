@@ -158,6 +158,55 @@ const ExamEditor = ({ exam, onExamChange }) => {
     onExamChange(editedExam);
   };
 
+  const handleQuestionImageUpload = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    files
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => URL.createObjectURL(file));
+
+    if (images.length > 0) {
+      if (
+        !updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+          detailIndex
+        ].questionContent.images
+      ) {
+        updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+          detailIndex
+        ].questionContent.images = [];
+      }
+
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].questionContent.images.push(...images);
+
+      setEditedExam({ ...editedExam, sections: updatedSections });
+      onExamChange({ ...editedExam, sections: updatedSections });
+    }
+  };
+
+  const handleQuestionImageDelete = (
+    sectionIndex,
+    questionIndex,
+    detailIndex,
+    imageIndex
+  ) => {
+    const updatedSections = [...editedExam.sections];
+    const images =
+      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+        detailIndex
+      ].questionContent.images;
+
+    images.splice(imageIndex, 1);
+
+    setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
+  };
+
   return (
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
@@ -284,6 +333,77 @@ const ExamEditor = ({ exam, onExamChange }) => {
                     multiline // 设置为多行文本框
                     rows={4} // 设置行数
                   />
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: "none" }}
+                      id={`upload-button-question-${sectionIndex}-${questionIndex}-${detailIndex}`}
+                      onChange={(e) =>
+                        handleQuestionImageUpload(
+                          sectionIndex,
+                          questionIndex,
+                          detailIndex,
+                          e.target.files
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={`upload-button-question-${sectionIndex}-${questionIndex}-${detailIndex}`}
+                    >
+                      <Button
+                        variant="contained"
+                        component="span"
+                        startIcon={<UploadIcon />}
+                        sx={{ mb: 1, mr: 2 }} // 增加右边距
+                      >
+                        上传图片
+                      </Button>
+                    </label>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {detail.questionContent.images &&
+                        detail.questionContent.images.map((image, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "5px",
+                              marginRight: "5px",
+                            }}
+                          >
+                            <img
+                              src={image}
+                              alt={`Uploaded ${index}`}
+                              style={{
+                                width: "100px",
+                                marginRight: "5px",
+                              }}
+                            />
+                            <IconButton
+                              onClick={() =>
+                                handleQuestionImageDelete(
+                                  sectionIndex,
+                                  questionIndex,
+                                  detailIndex,
+                                  index // 确保传递正确的 index
+                                )
+                              }
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </div>
+                        ))}
+                    </Box>
+                  </Box>
                   <TextField
                     label="答案"
                     value={detail.answer.join(", ")}
@@ -449,56 +569,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       </List>
                     </>
                   )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    style={{ display: "none" }}
-                    ref={(el) => (fileInputRefs.current[detailIndex] = el)}
-                    id={`upload-button-${detailIndex}`}
-                    onChange={(e) =>
-                      handleImageUpload(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        e.target.files
-                      )
-                    }
-                  />
-                  <label htmlFor={`upload-button-${detailIndex}`}>
-                    <Button
-                      variant="contained"
-                      component="span"
-                      startIcon={<UploadIcon />}
-                    >
-                      上传图片
-                    </Button>
-                  </label>
-                  {detail.questionContent.images &&
-                    detail.questionContent.images.map((image, index) => (
-                      <div
-                        key={index}
-                        style={{ display: "inline-block", margin: "5px" }}
-                      >
-                        <img
-                          src={image}
-                          alt={`Uploaded ${index}`}
-                          style={{ width: "100px" }}
-                        />
-                        <IconButton
-                          onClick={() =>
-                            handleImageDelete(
-                              sectionIndex,
-                              questionIndex,
-                              detailIndex,
-                              index
-                            )
-                          }
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </div>
-                    ))}
                 </Box>
               ))}
             </Box>
