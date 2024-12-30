@@ -220,11 +220,11 @@ const ExamEditor = ({ exam, onExamChange }) => {
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
 
-      <Paper sx={{ padding: 3, marginBottom: 3 }}>
+      <Paper sx={{ padding: 3, marginBottom: 3, boxShadow: 3 }}>
         <Typography variant="h6">试卷信息</Typography>
         <Divider sx={{ my: 2 }} />
 
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           <Grid item xs={12}>
             <TextField
               required
@@ -276,8 +276,17 @@ const ExamEditor = ({ exam, onExamChange }) => {
       </Paper>
 
       {editedExam.sections.map((section, sectionIndex) => (
-        <Box key={section.uuid} sx={{ mb: 4 }}>
-          <Typography variant="h6">
+        <Box
+          key={section.uuid}
+          sx={{
+            mb: 4,
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            padding: 2,
+            boxShadow: 2,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
             {sectionIndex + 1}. {section.name} {/* 显示 section 序号 */}
           </Typography>
           {section.questions.map((question, questionIndex) => (
@@ -654,7 +663,12 @@ const ExamEditor = ({ exam, onExamChange }) => {
           ))}
         </Box>
       ))}
-      <Button variant="contained" color="primary" onClick={handleSave}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSave}
+        sx={{ mt: 2 }}
+      >
         保存
       </Button>
     </Box>
