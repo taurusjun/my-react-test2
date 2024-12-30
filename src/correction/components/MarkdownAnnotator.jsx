@@ -302,7 +302,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请��新选择");
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
 
@@ -352,7 +352,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重��选择");
+      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
       return;
     }
 
@@ -550,13 +550,18 @@ const MarkdownAnnotator = ({
     );
   };
 
+  const handleClose = () => {
+    setSelectedLines([]); // 取消选中行
+    onClose();
+  };
+
   return (
     <>
       <Popover
         open={Boolean(anchorPosition)}
         anchorReference="anchorPosition"
         anchorPosition={anchorPosition}
-        onClose={onClose}
+        onClose={handleClose}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
