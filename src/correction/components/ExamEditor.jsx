@@ -404,44 +404,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
                         ))}
                     </Box>
                   </Box>
-                  <TextField
-                    label="答案"
-                    value={detail.answer.join(", ")}
-                    onChange={(e) =>
-                      handleDetailChange(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        "answer",
-                        e.target.value.split(", ")
-                      )
-                    }
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                    multiline // 设置为多行文本框
-                    rows={4} // 设置行数
-                  />
-                  <TextField
-                    label="解释"
-                    value={detail.explanation || ""} // 如果没有解释，默认空行
-                    onChange={(e) =>
-                      handleDetailChange(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        "explanation",
-                        e.target.value
-                      )
-                    }
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                    multiline // 设置为多行文本框
-                    rows={4} // 设置行数
-                  />
                   {detail.uiType === "single_selection" && (
                     <>
                       <Typography variant="subtitle1">选项:</Typography>
@@ -569,6 +531,44 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       </List>
                     </>
                   )}
+                  <TextField
+                    label="答案"
+                    value={detail.answer.join(", ")}
+                    onChange={(e) =>
+                      handleDetailChange(
+                        sectionIndex,
+                        questionIndex,
+                        detailIndex,
+                        "answer",
+                        e.target.value.split(", ")
+                      )
+                    }
+                    fullWidth
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                    multiline // 设置为多行文本框
+                    rows={4} // 设置行数
+                  />
+                  <TextField
+                    label="解释"
+                    value={detail.explanation || ""} // 如果没有解释，默认空行
+                    onChange={(e) =>
+                      handleDetailChange(
+                        sectionIndex,
+                        questionIndex,
+                        detailIndex,
+                        "explanation",
+                        e.target.value
+                      )
+                    }
+                    fullWidth
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
+                    multiline // 设置为多行文本框
+                    rows={4} // 设置行数
+                  />
                 </Box>
               ))}
             </Box>
