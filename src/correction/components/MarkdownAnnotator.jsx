@@ -246,7 +246,10 @@ const MarkdownAnnotator = ({
     const nearestContainerEl = mdMap.findNearestContainerObject(minLine - 1);
     const nextElementResult = mdMap.findNextObject(maxLine);
 
-    if (!nearestContainerEl) {
+    if (
+      !nearestContainerEl &&
+      (!nextElementResult || nextElementResult.value.type !== "section")
+    ) {
       setErrorMessage("不能删除，无大题会破坏结构");
       return;
     }
