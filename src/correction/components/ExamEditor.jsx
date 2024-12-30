@@ -10,11 +10,18 @@ import {
   Select,
   MenuItem,
   IconButton,
+  Grid,
+  FormControl,
+  InputLabel,
+  Paper,
+  Divider,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import UploadIcon from "@mui/icons-material/Upload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
+import { CategoryDict } from "../../provider/utils/dictionaries";
 
 const ExamEditor = ({ exam, onExamChange }) => {
   const [editedExam, setEditedExam] = useState(exam);
@@ -212,25 +219,62 @@ const ExamEditor = ({ exam, onExamChange }) => {
   return (
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
-      <TextField
-        label="试卷名称"
-        value={editedExam.name}
-        onChange={(e) => setEditedExam({ ...editedExam, name: e.target.value })}
-        fullWidth
-        variant="outlined"
-        sx={{ mb: 2 }}
-      />
 
-      <TextField
-        label="科目"
-        value={editedExam.category}
-        onChange={(e) =>
-          setEditedExam({ ...editedExam, category: e.target.value })
-        }
-        fullWidth
-        variant="outlined"
-        sx={{ mb: 2 }}
-      />
+      <Paper sx={{ padding: 3, marginBottom: 3 }}>
+        <Typography variant="h6">试卷信息</Typography>
+        <Divider sx={{ my: 2 }} />
+
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              required
+              fullWidth
+              label="名称"
+              value={exam.name}
+              onChange={(e) => onExamChange({ ...exam, name: e.target.value })}
+              variant="outlined"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <FormControl required fullWidth variant="outlined">
+              <InputLabel>科目</InputLabel>
+              <Select
+                value={exam.category}
+                onChange={(e) =>
+                  onExamChange({ ...exam, category: e.target.value })
+                }
+                label="科目"
+              >
+                {Object.entries(CategoryDict).map(([key, value]) => (
+                  <MenuItem key={key} value={key}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <MultiLevelSelect
+              onMultiSelectChange={(school, grade) =>
+                onExamChange({
+                  ...exam,
+                  gradeInfo: { ...exam.gradeInfo, school, grade },
+                })
+              }
+              initialSchoolLevel={exam.gradeInfo?.school}
+              initialGrade={exam.gradeInfo?.grade}
+              error={false}
+              disabled={false}
+              readOnly={false}
+              inline={true}
+              required={true}
+            />
+          </Grid>
+        </Grid>
+      </Paper>
+
       {editedExam.sections.map((section, sectionIndex) => (
         <Box key={section.uuid} sx={{ mb: 4 }}>
           <Typography variant="h6">
