@@ -20,7 +20,6 @@ import SendIcon from "@mui/icons-material/Send";
 import PreviewIcon from "@mui/icons-material/Preview";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
-import QuestionDataForm from "../../provider/components/QuestionDataForm";
 import ExamEditor from "../components/ExamEditor";
 
 const FileCorrectionEditorPage = () => {

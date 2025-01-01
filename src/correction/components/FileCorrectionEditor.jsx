@@ -19,7 +19,6 @@ import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
 import { QUESTION_UI_TYPES } from "../../common/constants";
-import { CategoryDict } from "../../provider/utils/dictionaries";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
 import { styled } from "@mui/material/styles";
