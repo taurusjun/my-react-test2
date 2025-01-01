@@ -43,13 +43,18 @@ const ExamContent = ({ exam, showHeader = true }) => {
             <ListItemText
               primary={`${String.fromCharCode(65 + index)}. ${row.value}`}
               secondary={
-                row.image && (
+                row.images &&
+                row.images.length > 0 &&
+                row.images.map((image, imgIndex) => (
                   <img
-                    src={row.image}
-                    alt={`选项 ${String.fromCharCode(65 + index)}`}
-                    style={{ maxWidth: "100%", marginTop: "8px" }}
+                    key={imgIndex}
+                    src={image}
+                    alt={`选项 ${String.fromCharCode(65 + index)} 图片 ${
+                      imgIndex + 1
+                    }`}
+                    style={{ width: "150px", height: "auto", marginTop: "8px" }}
                   />
-                )
+                ))
               }
             />
           </ListItem>
@@ -155,13 +160,22 @@ const ExamContent = ({ exam, showHeader = true }) => {
                                 sx={{ ml: 1, minWidth: "auto", flexShrink: 0 }}
                               />
                             </Typography>
-                            {detail.questionContent.image && (
-                              <img
-                                src={detail.questionContent.image}
-                                alt="问题图片"
-                                style={{ maxWidth: "100%", marginTop: "8px" }}
-                              />
-                            )}
+                            {detail.questionContent.images &&
+                              detail.questionContent.images.length > 0 &&
+                              detail.questionContent.images.map(
+                                (image, index) => (
+                                  <img
+                                    key={index}
+                                    src={image}
+                                    alt={`问题图片 ${index + 1}`}
+                                    style={{
+                                      width: "150px",
+                                      height: "auto",
+                                      marginTop: "8px",
+                                    }}
+                                  />
+                                )
+                              )}
                             {renderQuestionOptions(detail.rows)}
 
                             <AnswerBox>
