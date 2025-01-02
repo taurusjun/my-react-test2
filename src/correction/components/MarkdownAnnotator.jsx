@@ -248,7 +248,8 @@ const MarkdownAnnotator = ({
 
     if (
       !nearestContainerEl &&
-      (!nextElementResult || nextElementResult.value.type !== "section")
+      nextElementResult &&
+      nextElementResult.value.type !== "section"
     ) {
       setErrorMessage("不能删除，无大题会破坏结构");
       return;
