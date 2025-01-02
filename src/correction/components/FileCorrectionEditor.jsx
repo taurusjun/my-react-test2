@@ -153,22 +153,30 @@ const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
+const FileCorrectionEditor = ({
+  content,
+  mdMap,
+  exam,
+  // updateContent,
+  // updateMdMap,
+  // updateExam,
+  // updateSubmitExam,
+  updateEditorState,
+}) => {
   const [markdownLines, setMarkdownLines] = useState([]);
   const [selectedLines, setSelectedLines] = useState([]);
-  const [exam, setExam] = useState({
-    sections: [],
-    name: "",
-    category: "",
-    gradeInfo: { school: "", grade: "" },
-    source: "",
-  });
+  // const [exam, setExam] = useState({
+  //   sections: [],
+  //   name: "",
+  //   category: "",
+  //   gradeInfo: { school: "", grade: "" },
+  //   source: "",
+  // });
   const [isEditing, setIsEditing] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
-  const [mdMap, setMdMap] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [mdMap, setMdMap] = useState(null);
   const [scrollPosition, setScrollPosition] = useState(0);
 
   const { dictionaries } = useDictionaries();
@@ -341,25 +349,29 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   // 添加处理学习阶段变化的函数
   const handleSchoolLevelChange = (event) => {
     const newSchoolLevel = event.target.value;
-    setExam((prev) => ({
-      ...prev,
-      gradeInfo: { ...prev.gradeInfo, school: newSchoolLevel, grade: "" },
-    }));
-    setEditorState((prevState) => ({
-      ...prevState,
-      exam: {
-        ...prevState.exam,
-        gradeInfo: exam.gradeInfo,
-      },
-    }));
+    // setExam((prev) => ({
+    //   ...prev,
+    //   gradeInfo: { ...prev.gradeInfo, school: newSchoolLevel, grade: "" },
+    // }));
+    // setEditorState((prevState) => ({
+    //   ...prevState,
+    //   exam: {
+    //     ...prevState.exam,
+    //     gradeInfo: exam.gradeInfo,
+    //   },
+    // }));
+    updateEditorState({
+      exam: { ...exam, gradeInfo: { school: newSchoolLevel, grade: "" } },
+    });
   };
 
   // 修改处理 gradeInfo 变化的函数
   const handleGradeInfoChange = (school, grade) => {
-    setExam((prev) => ({
-      ...prev,
-      gradeInfo: { school, grade },
-    }));
+    // setExam((prev) => ({
+    //   ...prev,
+    //   gradeInfo: { school, grade },
+    // }));
+    updateEditorState({ exam: { ...exam, gradeInfo: { school, grade } } });
   };
 
   // 重新排序
@@ -573,189 +585,324 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
   const onMarkSection = (selectedLineRange, selectedSectionObject) => {
     saveScrollPosition();
-    setExam((prev) => {
-      let updatedSection = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "section", // 添加 type 属性
+
+    let updatedSection = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "section", // 添加 type 属性
+    };
+
+    if (selectedSectionObject) {
+      updatedSection = {
+        uuid: selectedSectionObject.uuid,
+        type: "section",
       };
-      if (selectedSectionObject) {
-        updatedSection = {
-          uuid: selectedSectionObject.uuid,
-          type: "section",
-        };
-      }
+    }
 
-      mdMap.setMultiLinesWithLock(selectedLineRange, updatedSection);
+    mdMap.setMultiLinesWithLock(selectedLineRange, updatedSection);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
+    let newSections = convertMdMapToExamStructure(mdMap);
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
 
-      return {
-        ...prev,
-        sections: newSections,
-      };
+    // setExam((prev) => {
+    //   return {
+    //     ...prev,
+    //     sections: newSections,
+    //   };
+    // });
+
+    // setMdMap(mdMap);
+    // setEditorState((prevState) => ({
+    //   ...prevState,
+    //   mdMap,
+    // }));
+    updateEditorState({
+      exam: { ...exam, sections: newSections },
+      mdMap,
     });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkQuestion = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newQuestion = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "question", // 添加 type 属性
-      };
+    // setExam((prevExam) => {
+    //   const newQuestion = {
+    //     uuid: uuidv4(), // 添加 uuid
+    //     type: "question", // 添加 type 属性
+    //   };
 
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newQuestion = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "question", // 添加 type 属性
+    };
+
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestion);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkQuestionDetail = (selectedLineNumbers, selectedQuestionType) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newQuestionDetail = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "questionDetail", // 添加 type 属性
-        uiType: selectedQuestionType,
-      };
+    // setExam((prevExam) => {
+    //   const newQuestionDetail = {
+    //     uuid: uuidv4(), // 添加 uuid
+    //     type: "questionDetail", // 添加 type 属性
+    //     uiType: selectedQuestionType,
+    //   };
 
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newQuestionDetail = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "questionDetail", // 添加 type 属性
+      uiType: selectedQuestionType,
+    };
+
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionDetail);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkAnswer = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newAnswer = {
-        uuid: uuidv4(),
-        type: "questionDetail_answer",
-      };
+    // setExam((prevExam) => {
+    //   const newAnswer = {
+    //     uuid: uuidv4(),
+    //     type: "questionDetail_answer",
+    //   };
 
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newAnswer = {
+      uuid: uuidv4(),
+      type: "questionDetail_answer",
+    };
+
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newAnswer);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkRow = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newRow = {
-        uuid: uuidv4(),
-        type: "questionDetail_row",
-      };
+    // setExam((prevExam) => {
+    //   const newRow = {
+    //     uuid: uuidv4(),
+    //     type: "questionDetail_row",
+    //   };
 
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newRow = {
+      uuid: uuidv4(),
+      type: "questionDetail_row",
+    };
+
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newRow);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onCancelAnnotation = (selectedLines) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      // 更新 markdownLines
-      setMarkdownLines((prevLines) =>
-        prevLines.map((line, index) => {
-          if (selectedLines.includes(index)) {
-            return {
-              content: line.content,
-              backgroundColor: undefined,
-              label: undefined,
-            };
-          }
-          return line;
-        })
-      );
+    // setExam((prevExam) => {
+    //   // 更新 markdownLines
+    //   setMarkdownLines((prevLines) =>
+    //     prevLines.map((line, index) => {
+    //       if (selectedLines.includes(index)) {
+    //         return {
+    //           content: line.content,
+    //           backgroundColor: undefined,
+    //           label: undefined,
+    //         };
+    //       }
+    //       return line;
+    //     })
+    //   );
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, null);
+    //   const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, null);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
 
-      return {
-        ...prevExam,
-        sections: newSections,
-      };
-    });
+    //   return {
+    //     ...prevExam,
+    //     sections: newSections,
+    //   };
+    // });
+    // 更新 markdownLines
+    setMarkdownLines((prevLines) =>
+      prevLines.map((line, index) => {
+        if (selectedLines.includes(index)) {
+          return {
+            content: line.content,
+            backgroundColor: undefined,
+            label: undefined,
+          };
+        }
+        return line;
+      })
+    );
+
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, null);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
   };
 
   const onMarkMaterial = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newQuestionMaterial = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "question_material", // 添加 type 属性
-      };
+    // setExam((prevExam) => {
+    //   const newQuestionMaterial = {
+    //     uuid: uuidv4(), // 添加 uuid
+    //     type: "question_material", // 添加 type 属性
+    //   };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
+    //   const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newQuestionMaterial = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "question_material", // 添加 type 属性
+    };
+
+    // const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkQuestionContent = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newQuestionContent = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "questionDetail_content", // 添加 type 属性
-      };
+    // setExam((prevExam) => {
+    //   const newQuestionContent = {
+    //     uuid: uuidv4(), // 添加 uuid
+    //     type: "questionDetail_content", // 添加 type 属性
+    //   };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
+    //   const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newQuestionContent = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "questionDetail_content", // 添加 type 属性
+    };
+
+    // const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const onMarkExplanation = (selectedLineNumbers) => {
     saveScrollPosition();
-    setExam((prevExam) => {
-      const newExplanation = {
-        uuid: uuidv4(), // 添加 uuid
-        type: "questionDetail_explanation", // 添加 type 属性
-      };
+    // setExam((prevExam) => {
+    //   const newExplanation = {
+    //     uuid: uuidv4(), // 添加 uuid
+    //     type: "questionDetail_explanation", // 添加 type 属性
+    //   };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
-      mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
+    //   const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    //   mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
 
-      let newSections = convertMdMapToExamStructure(mdMap);
+    //   let newSections = convertMdMapToExamStructure(mdMap);
 
-      //重新排序
-      newSections = sortAndRenameSections(newSections);
-      return { ...prevExam, sections: newSections };
-    });
+    //   //重新排序
+    //   newSections = sortAndRenameSections(newSections);
+    //   return { ...prevExam, sections: newSections };
+    // });
+
+    const newExplanation = {
+      uuid: uuidv4(), // 添加 uuid
+      type: "questionDetail_explanation", // 添加 type 属性
+    };
+
+    // const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
+
+    let newSections = convertMdMapToExamStructure(mdMap);
+
+    //重新排序
+    newSections = sortAndRenameSections(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections }, mdMap });
+    updateMarkdownLines(newSections);
   };
 
   const renderMarkdownWithLineNumbers = (extra) => {
@@ -838,48 +985,45 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   const handleNameChange = (event) => {
-    setExam((prev) => ({ ...prev, name: event.target.value }));
+    // setExam((prev) => ({ ...prev, name: event.target.value }));
+    updateEditorState({ exam: { ...exam, name: event.target.value } });
   };
 
   const handleCategoryChange = (event) => {
-    setExam((prev) => ({ ...prev, category: event.target.value }));
+    // setExam((prev) => ({ ...prev, category: event.target.value }));
+    updateEditorState({ exam: { ...exam, category: event.target.value } });
   };
 
   useEffect(() => {
-    const fetchFileContent = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(`/api/file-corrections/${fileUuid}`);
-        const extra = response.data.content
-          .split("\n")
-          .map((content) => ({ content }));
-        setMarkdownLines(extra);
-        const newMdMap = new MdMap(extra.length);
-        let newSections = [];
-        if (response.data.mdMap) {
-          newMdMap.fromJSON(response.data.mdMap);
-          setMdMap(newMdMap);
-          newSections = convertMdMapToExamStructure(newMdMap);
-          newSections = sortAndRenameSections(newSections);
-        } else {
-          setMdMap(newMdMap);
-        }
-        setExam({ ...exam, uuid: uuidv4(), sections: newSections });
-      } catch (error) {
-        console.error("获取文件内容时出错:", error);
-        // 这里可以添加错误处理，比如显示一个错误消息
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchFileContent();
-  }, [fileUuid]);
-
-  useEffect(() => {
-    if (!isEditing) {
-      updateMarkdownLines(exam.sections);
+    // let newSections = [];
+    // if (content && markMap) {
+    //   const extra = content.split("\n").map((content) => ({ content }));
+    //   setMarkdownLines(extra);
+    //   const newMdMap = new MdMap(extra.length);
+    //   newMdMap.fromJSON(markMap);
+    //   setMdMap(newMdMap);
+    //   newSections = convertMdMapToExamStructure(newMdMap);
+    //   newSections = sortAndRenameSections(newSections);
+    // }
+    // setExam({ ...exam, uuid: uuidv4(), sections: newSections });
+    let newSections = [];
+    if (content) {
+      const extra = content.split("\n").map((content) => ({ content }));
+      setMarkdownLines(extra);
     }
-  }, [exam, isEditing]);
+    if (mdMap) {
+      newSections = convertMdMapToExamStructure(mdMap);
+      newSections = sortAndRenameSections(newSections);
+    }
+    updateMarkdownLines(newSections);
+    updateEditorState({ exam: { ...exam, sections: newSections } });
+  }, [content, mdMap]);
+
+  // useEffect(() => {
+  //   if (!isEditing) {
+  //     updateMarkdownLines(exam.sections);
+  //   }
+  // }, [exam, isEditing]);
 
   useEffect(() => {
     window.addEventListener("keyup", handleKeyUp);
@@ -889,19 +1033,24 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   }, [selectedLines, mousePosition]);
 
   useEffect(() => {
-    if (mdMap && exam) {
-      const createdExam = createSubmitExam(exam, markdownLines);
-      setEditorState({ mdMap, exam: createdExam });
-    }
-  }, [mdMap, exam, setEditorState]);
+    const createdExam = createSubmitExam(exam, markdownLines);
+    // setEditorState((prevState) => ({
+    //   ...prevState,
+    //   exam: createdExam,
+    // }));
+    updateEditorState({ submitExam: createdExam });
+  }, [exam, markdownLines]);
+
+  // useEffect(() => {
+  //   setEditorState((prevState) => ({
+  //     ...prevState,
+  //     mdMap: mdMap,
+  //   }));
+  // }, [mdMap]);
 
   useEffect(() => {
     window.scrollTo(0, scrollPosition);
   }, [exam, scrollPosition]);
-
-  if (isLoading) {
-    return <div>加载中...</div>; // 或者使用一个加载指示器组件
-  }
 
   return (
     <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 4, mb: 8 }}>
@@ -916,7 +1065,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               fullWidth
               label="名称"
               value={exam.name}
-              onChange={(e) => setExam({ ...exam, name: e.target.value })}
+              onChange={(e) =>
+                updateEditorState({ exam: { ...exam, name: e.target.value } })
+              }
               variant="outlined"
             />
           </Grid>
@@ -926,7 +1077,11 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               <InputLabel>科目</InputLabel>
               <Select
                 value={exam.category}
-                onChange={(e) => setExam({ ...exam, category: e.target.value })}
+                onChange={(e) =>
+                  updateEditorState({
+                    exam: { ...exam, category: e.target.value },
+                  })
+                }
                 label="科目"
               >
                 {Object.entries(dictionaries.CategoryDict).map(
@@ -945,7 +1100,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               fullWidth
               label="来源"
               value={exam.source || ""}
-              onChange={(e) => setExam({ ...exam, source: e.target.value })}
+              onChange={(e) =>
+                updateEditorState({ exam: { ...exam, source: e.target.value } })
+              }
               variant="outlined"
             />
           </Grid>

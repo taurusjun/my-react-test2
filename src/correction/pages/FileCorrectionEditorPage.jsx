@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import FileCorrectionEditor from "../components/FileCorrectionEditor";
 import ExamPreview from "../components/ExamPreview";
@@ -21,6 +21,8 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import ExamEditor from "../components/ExamEditor";
+import MdMap from "../utils/MdMap";
+import { v4 as uuidv4 } from "uuid";
 
 const FileCorrectionEditorPage = () => {
   const { fileUuid } = useParams();
@@ -33,7 +35,55 @@ const FileCorrectionEditorPage = () => {
   const [editorState, setEditorState] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [questionData, setQuestionData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchFileContent = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`/api/file-corrections/${fileUuid}`);
+
+      // 处理内容
+      const extra = response.data.content
+        ? response.data.content.split("\n").map((content) => ({ content }))
+        : [];
+
+      const newMdMap = new MdMap(extra.length);
+      if (response.data.mdMap) {
+        newMdMap.fromJSON(response.data.mdMap);
+      }
+
+      // 创建新的 exam 对象
+      const newExam = {
+        uuid: uuidv4(),
+        sections: [],
+        name: "",
+        category: "",
+        gradeInfo: { school: "", grade: "" },
+        source: "",
+      };
+
+      // 更新 editorState 结构
+      setEditorState({
+        content: response.data.content || "", // 确保有默认值
+        mdMap: response.data.mdMap ? newMdMap : null, // 如果没有 mdMap，设置为 null
+        exam: newExam, // 使用新的 exam 对象
+      });
+    } catch (error) {
+      console.error("获取文件内容时出错:", error);
+      // 这里可以添加错误处理，比如显示一个错误消息
+      setSnackbar({
+        open: true,
+        message: "获取文件内容失败，请重试。",
+        severity: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFileContent();
+  }, [fileUuid]);
 
   const validateExam = (exam) => {
     if (!exam) return false;
@@ -154,10 +204,38 @@ const FileCorrectionEditorPage = () => {
     setCurrentStep(currentStep - 1);
   };
 
-  const updateExam = (updatedExam) => {
+  // const updateContent = (updatedContent) => {
+  //   setEditorState((prevState) => ({
+  //     ...prevState,
+  //     content: updatedContent,
+  //   }));
+  // };
+
+  // const updateMdMap = (updatedMdMap) => {
+  //   setEditorState((prevState) => ({
+  //     ...prevState,
+  //     mdMap: updatedMdMap,
+  //   }));
+  // };
+
+  const updateSubmitExam = (updatedExam) => {
     setEditorState((prevState) => ({
       ...prevState,
-      exam: updatedExam,
+      submitExamm: updatedExam,
+    }));
+  };
+
+  // const updateSubmitExam = (updatedExam) => {
+  //   setEditorState((prevState) => ({
+  //     ...prevState,
+  //     submitExam: updatedExam,
+  //   }));
+  // };
+
+  const updateEditorState = (updates) => {
+    setEditorState((prevState) => ({
+      ...prevState,
+      ...updates, // 合并更新对象
     }));
   };
 
@@ -166,19 +244,35 @@ const FileCorrectionEditorPage = () => {
       case 1:
         return (
           <FileCorrectionEditor
-            fileUuid={fileUuid}
-            editable={true}
-            setEditorState={setEditorState}
+            content={editorState.content}
+            mdMap={editorState.mdMap}
+            exam={editorState.exam}
+            // updateContent={updateContent}
+            // updateMdMap={updateMdMap}
+            // updateExam={updateExam}
+            // updateSubmitExam={updateSubmitExam}
+            updateEditorState={updateEditorState}
           />
         );
       case 2:
-        return <ExamEditor exam={editorState.exam} onExamChange={updateExam} />;
+        return (
+          <ExamEditor
+            exam={editorState.submitExam}
+            onExamChange={updateSubmitExam}
+          />
+        );
       case 3:
-        return <ExamPreview exam={editorState.exam} onSubmit={handleSubmit} />;
+        return (
+          <ExamPreview exam={editorState.submitExam} onSubmit={handleSubmit} />
+        );
       default:
         return null;
     }
   };
+
+  if (isLoading) {
+    return <div>加载中...</div>; // 或者使用一个加载指示器组件
+  }
 
   return (
     <Box
