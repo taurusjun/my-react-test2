@@ -11,6 +11,8 @@ import {
   Paper,
   Typography,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -170,6 +172,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [mdMap, setMdMap] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const { dictionaries } = useDictionaries();
 
@@ -280,8 +284,33 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     return sections;
   };
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      // 发送请求到后端进行保存
+      try {
+        const contentToSave = markdownLines
+          .map((line) => line.content)
+          .join("\n");
+        const response = await axios.post(
+          `/api/file-corrections/${fileUuid}/save-content`,
+          { content: contentToSave }
+        );
+
+        // 显示成功的 Snackbar 消息
+        setSnackbarMessage(response.data.message);
+        setSnackbarOpen(true);
+      } catch (error) {
+        console.error("保存失败:", error);
+        // 显示错误的 Snackbar 消息
+        setSnackbarMessage("保存失败，请重试。");
+        setSnackbarOpen(true);
+      }
+    }
+    setIsEditing(!isEditing); // 切换编辑状态
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const handleLineClick = (event, index) => {
@@ -1024,6 +1053,21 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           />
         )}
       </StyledPaper>
+
+      {/* Snackbar 用于显示消息 */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
