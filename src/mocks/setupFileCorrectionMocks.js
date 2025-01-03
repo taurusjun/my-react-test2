@@ -154,17 +154,14 @@ const mockMdMap = `{
 
 // const mockMdMap = {};
 
-const examData = {
-  uuid: "1fe4eeff-795b-46b8-87b8-7901880ed91c",
-  name: "Unit 10 Don't give up Progress Check 2",
-  category: "english",
-  source: "上外附中初中英语校本练习EIMBook1",
-  kn: "vocabulary",
-  gradeInfo: {
-    school: "junior",
-    grade: "grade7",
-  },
-};
+const examData = `{
+  "uuid":"1fe4eeff-795b-46b8-87b8-7901880ed91c",
+  "name":"Unit 10 Don\'t give up Progress Check 2",
+  "category":"english",
+  "kn":"vocabulary",
+  "gradeInfo":{"school":"junior","grade":"grade7"},
+  "source":"上外附中初中英语校本练习EIMBook1"
+}`;
 
 export const setupFileCorrectionMocks = (mock) => {
   const mockFiles = [
@@ -194,18 +191,18 @@ export const setupFileCorrectionMocks = (mock) => {
     return [200, { files: paginatedFiles, totalCount: mockFiles.length }];
   });
 
-  mock.onGet(/\/api\/file-corrections\/.+/).reply((config) => {
-    const uuid = config.url.split("/").pop();
-    const file = mockFiles.find((file) => file.uuid === uuid);
-    if (file) {
-      return [
-        200,
-        { content: mdContent, mdMap: mockMdMap, examData: examData },
-      ];
-    } else {
-      return [404, { message: "文件未找到" }];
-    }
-  });
+  // mock.onGet(/\/api\/file-corrections\/.+/).reply((config) => {
+  //   const uuid = config.url.split("/").pop();
+  //   const file = mockFiles.find((file) => file.uuid === uuid);
+  //   if (file) {
+  //     return [
+  //       200,
+  //       { content: mdContent, mdMap: mockMdMap, examData: examData },
+  //     ];
+  //   } else {
+  //     return [404, { message: "文件未找到" }];
+  //   }
+  // });
 
   // 添加新的 mock API 用于暂时保存
   mock.onPost(/\/api\/file-corrections\/.+\/temporary-save/).reply((config) => {

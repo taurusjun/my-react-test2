@@ -882,14 +882,14 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       try {
         setIsLoading(true);
         const response = await axios.get(`/api/file-corrections/${fileUuid}`);
-        const extra = response.data.content
-          .split("\n")
-          .map((content) => ({ content }));
+        const responseData = response.data.data;
+        const content = responseData.content.replace(/\\n/g, "\n");
+        const extra = content.split("\n").map((content) => ({ content }));
         setMarkdownLines(extra);
         const newMdMap = new MdMap(extra.length);
         let newSections = [];
-        if (response.data.mdMap) {
-          newMdMap.fromJSON(response.data.mdMap);
+        if (responseData.mdMap) {
+          newMdMap.fromJSON(responseData.mdMap);
           setMdMap(newMdMap);
           newSections = convertMdMapToExamStructure(newMdMap);
           newSections = sortAndRenameSections(newSections);
@@ -897,7 +897,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           setMdMap(newMdMap);
         }
 
-        const examData = response.data.examData;
+        const examData = JSON.parse(responseData.examData);
         if (examData && examData.uuid) {
           setExam({ ...exam, ...examData, sections: newSections });
         } else {
