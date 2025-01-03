@@ -67,9 +67,18 @@ const FileCorrectionEditorPage = () => {
     if (editorState && editorState.mdMap) {
       try {
         const markMap = editorState.mdMap.toJSON();
+        const examData = {
+          uuid: editorState.exam.uuid,
+          name: editorState.exam.name,
+          category: editorState.exam.category,
+          kn: editorState.exam.kn,
+          gradeInfo: editorState.exam.gradeInfo,
+          source: editorState.exam.source,
+        };
 
         await axios.post(`/api/file-corrections/${fileUuid}/temporary-save`, {
           markMap,
+          examData,
         });
 
         setSnackbar({

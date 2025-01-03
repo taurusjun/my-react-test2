@@ -210,7 +210,7 @@ export const setupFileCorrectionMocks = (mock) => {
   // 添加新的 mock API 用于暂时保存
   mock.onPost(/\/api\/file-corrections\/.+\/temporary-save/).reply((config) => {
     const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
-    const { markMap } = JSON.parse(config.data);
+    const { markMap, examData } = JSON.parse(config.data);
 
     // 检查 fileUuid 是否存在
     const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
@@ -221,7 +221,7 @@ export const setupFileCorrectionMocks = (mock) => {
 
     // 在实际应用中，这里应该保存 markMap
     // 但在 mock 中，我们只需要返回一个成功响应
-    console.log(`Temporary save for file ${fileUuid}:`, markMap);
+    console.log(`Temporary save for file ${fileUuid}:`, markMap, examData);
 
     return [200, { message: "暂时保存成功" }];
   });
