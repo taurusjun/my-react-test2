@@ -233,6 +233,10 @@ const ExamEditor = ({ exam, onExamChange }) => {
     onExamChange({ ...editedExam, sections: updatedSections });
   };
 
+  const handleGradeInfoChange = (schoolLevel, grade) => {
+    onExamChange({ ...exam, gradeInfo: { school: schoolLevel, grade } });
+  };
+
   return (
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
@@ -284,6 +288,20 @@ const ExamEditor = ({ exam, onExamChange }) => {
                 onExamChange({ ...exam, source: e.target.value })
               }
               variant="outlined"
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <MultiLevelSelect
+              onMultiSelectChange={handleGradeInfoChange}
+              initialSchoolLevel={exam.gradeInfo.school}
+              initialGrade={exam.gradeInfo.grade}
+              error={false}
+              disabled={false}
+              readOnly={false}
+              inline={true}
+              required={true}
               sx={{ mb: 2 }}
             />
           </Grid>
