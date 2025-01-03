@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   TextField,
   Box,
@@ -15,6 +15,8 @@ import {
   InputLabel,
   Paper,
   Divider,
+  StyledPaper,
+  SectionTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
@@ -22,11 +24,26 @@ import UploadIcon from "@mui/icons-material/Upload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { CategoryDict } from "../../provider/utils/dictionaries";
+import { useDictionaries } from "../../provider/hooks/useDictionaries";
 
 const ExamEditor = ({ exam, onExamChange }) => {
+  const { dictionaries } = useDictionaries();
+  const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
   const fileInputRefs = useRef([]);
+
+  useEffect(() => {
+    if (exam.category && dictionaries.CategoryKNMapping) {
+      const knList = dictionaries.CategoryKNMapping[exam.category] || [];
+      setAvailableKnowledgeNodes(knList);
+      if (knList.length > 0 && !knList.includes(exam.kn)) {
+        onExamChange({ ...exam, kn: "" });
+      }
+    } else {
+      setAvailableKnowledgeNodes([]);
+    }
+  }, [exam.category, dictionaries.CategoryKNMapping, exam.kn, onExamChange]);
 
   const handleDetailChange = (
     sectionIndex,
@@ -220,11 +237,13 @@ const ExamEditor = ({ exam, onExamChange }) => {
     <Box>
       <Typography variant="h5">编辑试卷</Typography>
 
-      <Paper sx={{ padding: 3, marginBottom: 3, boxShadow: 3 }}>
-        <Typography variant="h6">试卷信息</Typography>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        <Typography variant="h5" sx={{ mb: 3 }}>
+          试卷信息
+        </Typography>
         <Divider sx={{ my: 2 }} />
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <TextField
               required
@@ -238,7 +257,7 @@ const ExamEditor = ({ exam, onExamChange }) => {
           </Grid>
 
           <Grid item xs={12} sm={4}>
-            <FormControl required fullWidth variant="outlined">
+            <FormControl required fullWidth variant="outlined" sx={{ mb: 2 }}>
               <InputLabel>科目</InputLabel>
               <Select
                 value={exam.category}
@@ -257,21 +276,33 @@ const ExamEditor = ({ exam, onExamChange }) => {
           </Grid>
 
           <Grid item xs={12} sm={4}>
-            <MultiLevelSelect
-              onMultiSelectChange={(school, grade) =>
-                onExamChange({
-                  ...exam,
-                  gradeInfo: { ...exam.gradeInfo, school, grade },
-                })
+            <TextField
+              fullWidth
+              label="来源"
+              value={exam.source || ""}
+              onChange={(e) =>
+                onExamChange({ ...exam, source: e.target.value })
               }
-              initialSchoolLevel={exam.gradeInfo?.school}
-              initialGrade={exam.gradeInfo?.grade}
-              error={false}
-              disabled={false}
-              readOnly={false}
-              inline={true}
-              required={true}
+              variant="outlined"
+              sx={{ mb: 2 }}
             />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <FormControl required fullWidth variant="outlined" sx={{ mb: 2 }}>
+              <InputLabel>知识点</InputLabel>
+              <Select
+                value={exam.kn}
+                onChange={(e) => onExamChange({ ...exam, kn: e.target.value })}
+                label="知识点"
+              >
+                {availableKnowledgeNodes.map((kn) => (
+                  <MenuItem key={kn} value={kn}>
+                    {dictionaries.KNDict[kn] || kn}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
       </Paper>

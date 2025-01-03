@@ -127,6 +127,8 @@ const createSubmitExam = (exam, markdownLines) => {
     uuid: exam.uuid,
     name: exam.name,
     category: exam.category,
+    source: exam.source,
+    kn: exam.kn,
     gradeInfo: exam.gradeInfo,
     createdAt: new Date().toISOString(),
     startTime: new Date(Date.now() + 86400000).toISOString(),
