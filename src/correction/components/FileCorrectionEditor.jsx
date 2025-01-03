@@ -104,7 +104,7 @@ const createSubmitExam = (exam, markdownLines) => {
             : "selection", //TODO: 需要有type的取值规则
         category: exam.category,
         order_in_section: question.order, // 添加 order_in_section 字段
-        kn: "", // TODO: 假设的知识点
+        kn: exam.kn,
         gradeInfo: exam.gradeInfo,
         source: exam.source,
         tags: [],
@@ -174,6 +174,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
 
   const { dictionaries } = useDictionaries();
 
@@ -928,14 +929,29 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     window.scrollTo(0, scrollPosition);
   }, [exam, scrollPosition]);
 
+  useEffect(() => {
+    if (exam.category && dictionaries.CategoryKNMapping) {
+      const knList = dictionaries.CategoryKNMapping[exam.category] || [];
+      setAvailableKnowledgeNodes(knList);
+      // 如果当前选中的知识点不在新的列表中,重置知识点
+      if (knList.length > 0 && !knList.includes(exam.kn)) {
+        setExam((prevData) => ({ ...prevData, kn: "" }));
+      }
+    } else {
+      setAvailableKnowledgeNodes([]);
+    }
+  }, [exam.category, dictionaries.CategoryKNMapping, exam.kn]);
+
   if (isLoading) {
     return <div>加载中...</div>; // 或者使用一个加载指示器组件
   }
 
   return (
     <Box sx={{ maxWidth: 1200, margin: "0 auto", mt: 4, mb: 8 }}>
-      <StyledPaper elevation={3}>
-        <SectionTitle variant="h5">文件信息</SectionTitle>
+      <StyledPaper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        <SectionTitle variant="h5" sx={{ mb: 3 }}>
+          文件信息
+        </SectionTitle>
         <Divider sx={{ my: 2 }} />
 
         <Grid container spacing={3}>
@@ -947,11 +963,12 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               value={exam.name}
               onChange={(e) => setExam({ ...exam, name: e.target.value })}
               variant="outlined"
+              sx={{ mb: 2 }}
             />
           </Grid>
 
           <Grid item xs={12} sm={4}>
-            <FormControl required fullWidth variant="outlined">
+            <FormControl required fullWidth variant="outlined" sx={{ mb: 2 }}>
               <InputLabel>科目</InputLabel>
               <Select
                 value={exam.category}
@@ -976,6 +993,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               value={exam.source || ""}
               onChange={(e) => setExam({ ...exam, source: e.target.value })}
               variant="outlined"
+              sx={{ mb: 2 }}
             />
           </Grid>
 
@@ -989,7 +1007,25 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               readOnly={false}
               inline={true}
               required={true}
+              sx={{ mb: 2 }}
             />
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <FormControl required fullWidth variant="outlined" sx={{ mb: 2 }}>
+              <InputLabel>知识点</InputLabel>
+              <Select
+                value={exam.kn}
+                onChange={(e) => setExam({ ...exam, kn: e.target.value })}
+                label="知识点"
+              >
+                {availableKnowledgeNodes.map((kn) => (
+                  <MenuItem key={kn} value={kn}>
+                    {dictionaries.KNDict[kn] || kn}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
       </StyledPaper>
