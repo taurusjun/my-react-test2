@@ -44,6 +44,12 @@ export const KNDict = {
   geometry: "几何",
   calculus: "微积分",
 
+  // 英语知识点
+  grammar: "语法",
+  vocabulary: "词汇",
+  readingComprehension: "阅读理解",
+  writing: "写作",
+
   // 可以根据需要添加更多知识点
 };
 
@@ -52,6 +58,7 @@ export const CategoryKNMapping = {
   chemistry: ["organicChemistry", "inorganicChemistry", "physicalChemistry"],
   biology: ["cellBiology", "genetics", "ecology"],
   math: ["algebra", "geometry", "calculus"],
+  english: ["grammar", "vocabulary", "readingComprehension", "writing"],
 };
 
 // 学校类型字典

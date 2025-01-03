@@ -896,7 +896,13 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         } else {
           setMdMap(newMdMap);
         }
-        setExam({ ...exam, uuid: uuidv4(), sections: newSections });
+
+        const examData = response.data.examData;
+        if (examData && examData.uuid) {
+          setExam({ ...exam, ...examData, sections: newSections });
+        } else {
+          setExam({ ...exam, uuid: uuidv4(), sections: newSections });
+        }
       } catch (error) {
         console.error("获取文件内容时出错:", error);
         // 这里可以添加错误处理，比如显示一个错误消息
