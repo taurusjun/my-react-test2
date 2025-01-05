@@ -86,9 +86,11 @@ const FileCorrectionEditorPage = () => {
           message: "暂时保存成功",
           severity: "success",
         });
+        return Promise.resolve();
       } catch (error) {
         console.error("暂时保存失败:", error);
         setSnackbar({ open: true, message: "暂时保存失败", severity: "error" });
+        return Promise.reject();
       }
     } else {
       setSnackbar({
@@ -96,6 +98,7 @@ const FileCorrectionEditorPage = () => {
         message: "没有可保存的数据",
         severity: "warning",
       });
+      return Promise.reject();
     }
   };
 
@@ -156,7 +159,13 @@ const FileCorrectionEditorPage = () => {
   };
 
   const handleNextStep = () => {
-    setCurrentStep(currentStep + 1);
+    if (currentStep === 1) {
+      handleTemporarySave().then(() => {
+        setCurrentStep(currentStep + 1);
+      });
+    } else {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const handleBackStep = () => {
