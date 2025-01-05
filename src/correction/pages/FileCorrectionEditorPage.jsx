@@ -114,13 +114,9 @@ const FileCorrectionEditorPage = () => {
       }
 
       try {
-        const markMap = editorState.mdMap.toJSON();
         const examData = editorState.exam;
 
-        await axios.post(`/api/file-corrections/${fileUuid}/submit`, {
-          markMap,
-          examData,
-        });
+        await axios.post(`/api/file-corrections/${fileUuid}/submit`, examData);
 
         setSnackbar({
           open: true,
