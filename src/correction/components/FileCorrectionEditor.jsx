@@ -295,7 +295,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           .map((line) => line.content)
           .join("\n");
         const response = await axios.post(
-          `/api/file-corrections/${fileUuid}/save-content`,
+          `/api/file-corrections/${fileUuid}/save`,
           { content: contentToSave }
         );
 

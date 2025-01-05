@@ -191,18 +191,22 @@ export const setupFileCorrectionMocks = (mock) => {
     return [200, { files: paginatedFiles, totalCount: mockFiles.length }];
   });
 
-  // mock.onGet(/\/api\/file-corrections\/.+/).reply((config) => {
-  //   const uuid = config.url.split("/").pop();
-  //   const file = mockFiles.find((file) => file.uuid === uuid);
-  //   if (file) {
-  //     return [
-  //       200,
-  //       { content: mdContent, mdMap: mockMdMap, examData: examData },
-  //     ];
-  //   } else {
-  //     return [404, { message: "文件未找到" }];
-  //   }
-  // });
+  mock.onGet(/\/api\/file-corrections\/.+/).reply((config) => {
+    const uuid = config.url.split("/").pop();
+    const file = mockFiles.find((file) => file.uuid === uuid);
+    if (file) {
+      return [
+        200,
+        {
+          code: 0,
+          message: "ok",
+          data: { content: mdContent, mdMap: mockMdMap, examData: examData },
+        },
+      ];
+    } else {
+      return [404, { message: "文件未找到" }];
+    }
+  });
 
   // 添加新的 mock API 用于暂时保存
   mock.onPost(/\/api\/file-corrections\/.+\/temporary-save/).reply((config) => {
