@@ -270,7 +270,7 @@ const FileCorrectionEditorPage = () => {
                 bgcolor: "error.main",
                 "&:hover": { bgcolor: "error.dark" },
               }}
-              disabled={editorState && editorState.status === "done"}
+              // disabled={editorState && editorState.status === "done"}
             >
               提交
             </Button>

@@ -89,44 +89,47 @@ const ExamEditor = ({ exam, onExamChange }) => {
     onExamChange({ ...editedExam, sections: updatedSections });
   };
 
-  const handleImageUpload = (
+  const convertFilesToBase64 = (files) => {
+    const images = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result); // 读取结果是 Base64 编码的字符串
+          };
+          reader.onerror = (error) => {
+            reject(error);
+          };
+          reader.readAsDataURL(file); // 读取文件为 Data URL
+        });
+      });
+
+    return Promise.all(images); // 返回一个 Promise，解析为所有 Base64 图像
+  };
+
+  const handleQuestionImageUpload = (
     sectionIndex,
     questionIndex,
     detailIndex,
     files
   ) => {
     const updatedSections = [...editedExam.sections];
-    const images = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
-      .map((file) => URL.createObjectURL(file));
-    if (images.length > 0) {
-      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-        detailIndex
-      ].questionContent.images.push(...images);
-      setEditedExam({ ...editedExam, sections: updatedSections });
-      onExamChange({ ...editedExam, sections: updatedSections });
-    }
-    fileInputRefs.current[detailIndex].value = "";
-  };
 
-  const handleImageDelete = (
-    sectionIndex,
-    questionIndex,
-    detailIndex,
-    imageIndex
-  ) => {
-    const updatedSections = [...editedExam.sections];
-    const images =
-      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-        detailIndex
-      ].questionContent.images;
-    images.splice(imageIndex, 1);
-    updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-      detailIndex
-    ].questionContent.images = images;
-    setEditedExam({ ...editedExam, sections: updatedSections });
-    onExamChange({ ...editedExam, sections: updatedSections });
-    fileInputRefs.current[detailIndex].value = "";
+    convertFilesToBase64(files).then((base64Images) => {
+      if (base64Images.length > 0) {
+        updatedSections[sectionIndex].questions[questionIndex].questionDetails[
+          detailIndex
+        ].questionContent.images.push(...base64Images);
+        setEditedExam({ ...editedExam, sections: updatedSections });
+        onExamChange({ ...editedExam, sections: updatedSections });
+      }
+
+      // 清空文件输入的值
+      if (fileInputRefs.current[detailIndex]) {
+        fileInputRefs.current[detailIndex].value = ""; // 仅在存在时设置值
+      }
+    });
   };
 
   const handleRowImageUpload = (
@@ -137,28 +140,31 @@ const ExamEditor = ({ exam, onExamChange }) => {
     files
   ) => {
     const updatedSections = [...editedExam.sections];
-    const images = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
-      .map((file) => URL.createObjectURL(file));
 
-    if (images.length > 0) {
-      if (
-        !updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-          detailIndex
-        ].rows[rowIndex].images
-      ) {
+    convertFilesToBase64(files).then((base64Images) => {
+      if (base64Images.length > 0) {
+        if (
+          !updatedSections[sectionIndex].questions[questionIndex]
+            .questionDetails[detailIndex].rows[rowIndex].images
+        ) {
+          updatedSections[sectionIndex].questions[
+            questionIndex
+          ].questionDetails[detailIndex].rows[rowIndex].images = [];
+        }
+
         updatedSections[sectionIndex].questions[questionIndex].questionDetails[
           detailIndex
-        ].rows[rowIndex].images = [];
+        ].rows[rowIndex].images.push(...base64Images);
+
+        setEditedExam({ ...editedExam, sections: updatedSections });
+        onExamChange({ ...editedExam, sections: updatedSections });
       }
 
-      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-        detailIndex
-      ].rows[rowIndex].images.push(...images);
-
-      setEditedExam({ ...editedExam, sections: updatedSections });
-      onExamChange({ ...editedExam, sections: updatedSections });
-    }
+      // 清空文件输入的值
+      if (fileInputRefs.current[detailIndex]) {
+        fileInputRefs.current[detailIndex].value = ""; // 仅在存在时设置值
+      }
+    });
   };
 
   const handleRowImageDelete = (
@@ -182,37 +188,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
 
   const handleSave = () => {
     onExamChange(editedExam);
-  };
-
-  const handleQuestionImageUpload = (
-    sectionIndex,
-    questionIndex,
-    detailIndex,
-    files
-  ) => {
-    const updatedSections = [...editedExam.sections];
-    const images = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
-      .map((file) => URL.createObjectURL(file));
-
-    if (images.length > 0) {
-      if (
-        !updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-          detailIndex
-        ].questionContent.images
-      ) {
-        updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-          detailIndex
-        ].questionContent.images = [];
-      }
-
-      updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-        detailIndex
-      ].questionContent.images.push(...images);
-
-      setEditedExam({ ...editedExam, sections: updatedSections });
-      onExamChange({ ...editedExam, sections: updatedSections });
-    }
   };
 
   const handleQuestionImageDelete = (
