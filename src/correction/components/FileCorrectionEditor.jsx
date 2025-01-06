@@ -173,6 +173,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
   const [content, setContent] = useState(null);
+  const [status, setStatus] = useState("done");
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -889,6 +890,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         const extra = content.split("\n").map((content) => ({ content }));
         setMarkdownLines(extra);
         setContent(content);
+        setStatus(responseData.status);
         const newMdMap = new MdMap(extra.length);
         let newSections = [];
         if (responseData.mdMap) {
@@ -932,7 +934,13 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   useEffect(() => {
     if (mdMap && exam) {
       const createdExam = createSubmitExam(exam, markdownLines);
-      setEditorState({ name: exam.name, content, mdMap, exam: createdExam });
+      setEditorState({
+        name: exam.name,
+        status,
+        content,
+        mdMap,
+        exam: createdExam,
+      });
     }
   }, [mdMap, exam, setEditorState]);
 
