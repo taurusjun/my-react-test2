@@ -77,6 +77,7 @@ const FileCorrectionEditorPage = () => {
         };
 
         await axios.post(`/api/file-corrections/${fileUuid}/save`, {
+          content: editorState.content,
           mdMap: JSON.stringify(markMap),
           examData: JSON.stringify(examData),
         });
