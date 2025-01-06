@@ -198,7 +198,6 @@ export const setupFileCorrectionMocks = (mock) => {
   //     return [
   //       200,
   //       {
-  //         code: 0,
   //         message: "ok",
   //         data: { content: mdContent, mdMap: mockMdMap, examData: examData },
   //       },
@@ -209,61 +208,66 @@ export const setupFileCorrectionMocks = (mock) => {
   // });
 
   // 添加新的 mock API 用于暂时保存
-  mock.onPost(/\/api\/file-corrections\/.+\/temporary-save/).reply((config) => {
-    const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
-    const { markMap, examData } = JSON.parse(config.data);
+  // mock.onPost(/\/api\/file-corrections\/.+\/save/).reply((config) => {
+  //   const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
+  //   const { content, mdMap, examData } = JSON.parse(config.data);
 
-    // 检查 fileUuid 是否存在
-    const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
+  //   // 检查 fileUuid 是否存在
+  //   const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
 
-    if (!fileExists) {
-      return [404, { message: "文件未找到" }];
-    }
+  //   if (!fileExists) {
+  //     return [404, { message: "文件未找到" }];
+  //   }
 
-    // 在实际应用中，这里应该保存 markMap
-    // 但在 mock 中，我们只需要返回一个成功响应
-    console.log(`Temporary save for file ${fileUuid}:`, markMap, examData);
+  //   // 在实际应用中，这里应该保存 markMap
+  //   // 但在 mock 中，我们只需要返回一个成功响应
+  //   console.log(
+  //     `Temporary save for file ${fileUuid}:`,
+  //     content,
+  //     mdMap,
+  //     examData
+  //   );
 
-    return [200, { message: "暂时保存成功" }];
-  });
+  //   return [200, { message: "暂时保存成功" }];
+  // });
 
   // 添加新的 mock API 用于提交
-  mock.onPost(/\/api\/file-corrections\/.+\/submit/).reply((config) => {
-    const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
-    const examData = JSON.parse(config.data);
+  // mock.onPost(/\/api\/file-corrections\/.+\/submit/).reply((config) => {
+  //   const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
+  //   const { markMap, examData } = JSON.parse(config.data);
 
-    // 检查 fileUuid 是否存在
-    const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
+  //   // 检查 fileUuid 是否存在
+  //   const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
 
-    if (!fileExists) {
-      return [404, { message: "文件未找到" }];
-    }
+  //   if (!fileExists) {
+  //     return [404, { message: "文件未找到" }];
+  //   }
 
-    // 在实际应用中，这里应该保存 examData，并进行进一步处理
-    // 但在 mock 中，我们只需要返回一个成功响应
-    console.log(`Submit for file ${fileUuid}:`, examData);
+  //   // 在实际应用中，这里应该保存 markMap 和 examData，并进行进一步处理
+  //   // 但在 mock 中，我们只需要返回一个成功响应
+  //   console.log(`Submit for file ${fileUuid}:`, { markMap, examData });
 
-    return [200, { message: "提交成功" }];
-  });
+  //   return [200, { message: "提交成功" }];
+  // });
 
   // 添加新的 mock API 用于保存内容
-  mock.onPost(/\/api\/file-corrections\/.+\/save-content/).reply((config) => {
-    const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
-    const { content } = JSON.parse(config.data); // 获取请求体中的内容
+  // mock.onPost(/\/api\/file-corrections\/.+\/save-content/).reply((config) => {
+  //   const fileUuid = config.url.split("/")[3]; // 从 URL 中提取 fileUuid
+  //   const { content } = JSON.parse(config.data); // 获取请求体中的内容
 
-    // 检查 fileUuid 是否存在
-    const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
+  //   // 检查 fileUuid 是否存在
+  //   const fileExists = mockFiles.some((file) => file.uuid === fileUuid);
 
-    if (!fileExists) {
-      return [404, { message: "文件未找到" }];
-    }
+  //   if (!fileExists) {
+  //     return [404, { message: "文件未找到" }];
+  //   }
 
-    // 在实际应用中，这里应该保存内容
-    // 但在 mock 中，我们只需要返回一个成功响应
-    console.log(`Save content for file ${fileUuid}:`, content);
+  //   // 在实际应用中，这里应该保存内容
+  //   // 但在 mock 中，我们只需要返回一个成功响应
+  //   console.log(`Save content for file ${fileUuid}:`, content);
 
-    return [200, { message: "内容保存成功" }];
-  });
+  //   return [200, { message: "内容保存成功" }];
+  // });
 };
 
 export default setupFileCorrectionMocks;

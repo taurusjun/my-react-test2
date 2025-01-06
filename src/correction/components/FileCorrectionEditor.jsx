@@ -172,6 +172,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [fixedStartIndex, setFixedStartIndex] = useState(null);
   const [mdMap, setMdMap] = useState(null);
+  const [content, setContent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -294,6 +295,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         const contentToSave = markdownLines
           .map((line) => line.content)
           .join("\n");
+        setContent(contentToSave);
         const response = await axios.post(
           `/api/file-corrections/${fileUuid}/save`,
           { content: contentToSave }
@@ -886,6 +888,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         const content = responseData.content.replace(/\\n/g, "\n");
         const extra = content.split("\n").map((content) => ({ content }));
         setMarkdownLines(extra);
+        setContent(content);
         const newMdMap = new MdMap(extra.length);
         let newSections = [];
         if (responseData.mdMap) {
@@ -929,7 +932,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   useEffect(() => {
     if (mdMap && exam) {
       const createdExam = createSubmitExam(exam, markdownLines);
-      setEditorState({ mdMap, exam: createdExam });
+      setEditorState({ name: exam.name, content, mdMap, exam: createdExam });
     }
   }, [mdMap, exam, setEditorState]);
 
