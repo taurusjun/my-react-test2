@@ -169,46 +169,46 @@ mock.onGet("/api/my-exams").reply((config) => {
 });
 
 // 模拟问题数据的API响应
-mock.onGet(/\/api\/questions\/.*/).reply(200, {
-  uuid: "uuid-question-1",
-  type: "selection",
-  category: "physics",
-  kn: "mechanics",
-  gradeInfo: {
-    school: "primary",
-    grade: "grade5",
-  },
-  source: "2023年春季期中考试",
-  tags: ["frequentlyTested", "important"],
-  digest: "关于力和运动的多选题",
-  material: "以下是关于力和运动的一些描述。",
-  questionDetails: [
-    {
-      uuid: "uuid-question-detail-1",
-      order_in_question: 1,
-      questionContent: {
-        value: "下列关于力和运动的说法，正确的是：",
-        image: null,
-      },
-      rows: [
-        { value: "物体运动一定有力", isAns: false, image: null },
-        { value: "物体受力一定运动", isAns: false, image: null },
-        { value: "力是物体运动状态改变的原因", isAns: true, image: null },
-        { value: "力的作用是相互的", isAns: true, image: null },
-      ],
-      rate: 3,
-      explanation:
-        "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
-      uiType: "multi_selection",
-      answer: ["C", "D"],
-      answerImage: null,
-    },
-  ],
-  relatedSources: [
-    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
-    { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
-  ],
-});
+// mock.onGet(/\/api\/questions\/.*/).reply(200, {
+//   uuid: "uuid-question-1",
+//   type: "selection",
+//   category: "physics",
+//   kn: "mechanics",
+//   gradeInfo: {
+//     school: "primary",
+//     grade: "grade5",
+//   },
+//   source: "2023年春季期中考试",
+//   tags: ["frequentlyTested", "important"],
+//   digest: "关于力和运动的多选题",
+//   material: "以下是关于力和运动的一些描述。",
+//   questionDetails: [
+//     {
+//       uuid: "uuid-question-detail-1",
+//       order_in_question: 1,
+//       questionContent: {
+//         value: "下列关于力和运动的说法，正确的是：",
+//         image: null,
+//       },
+//       rows: [
+//         { value: "物体运动一定有力", isAns: false, image: null },
+//         { value: "物体受力一定运动", isAns: false, image: null },
+//         { value: "力是物体运动状态改变的原因", isAns: true, image: null },
+//         { value: "力的作用是相互的", isAns: true, image: null },
+//       ],
+//       rate: 3,
+//       explanation:
+//         "力是物体运动状态改变的原因，且力的作用是相互的，这是牛顿运动律的基本内容。",
+//       uiType: "multi_selection",
+//       answer: ["C", "D"],
+//       answerImage: null,
+//     },
+//   ],
+//   relatedSources: [
+//     { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+//     { uuid: "uuid-3456-cdef-7890", name: "高中物理教材" },
+//   ],
+// });
 
 // 修改为新的 URL 路径
 mock.onGet(/\/api\/error-questions-detail\/[a-zA-Z0-9-]+$/).reply((config) => {

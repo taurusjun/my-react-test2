@@ -26,6 +26,7 @@ import { useDictionaries } from "../../provider/hooks/useDictionaries";
 import { styled } from "@mui/material/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import { QUESTION_TYPES } from "../../common/constants";
 
 const COLORS = {
   SECTION: "#3f51b5", // 深蓝色
@@ -100,7 +101,7 @@ const createSubmitExam = (exam, markdownLines) => {
         uuid: question.uuid,
         type:
           question.questionDetails[0]?.uiType === "fill_blank"
-            ? "fill_in_blank"
+            ? "fillInBlank"
             : "selection", //TODO: 需要有type的取值规则
         category: exam.category,
         order_in_section: question.order, // 添加 order_in_section 字段

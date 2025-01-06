@@ -7,5 +7,13 @@ export const QUESTION_UI_TYPES = {
   essay: "论述题",
 };
 
+export const QUESTION_TYPES = {
+  selection: "单项选择题",
+  multiSelection: "多项选择题",
+  fillInBlank: "填空题",
+  shortAnswer: "简答题",
+  calculation: "计算题",
+};
+
 // 如果有其他常量，也可以在这里定义和导出
 // 如果有其他常量，也可以在这里定义和导出
