@@ -234,75 +234,75 @@ mock.onGet(/\/api\/error-questions-detail\/[a-zA-Z0-9-]+$/).reply((config) => {
   return [200, mockQuestionDetails];
 });
 
-mock.onGet("/api/questionlist").reply((config) => {
-  const {
-    category,
-    searchType,
-    searchTerm,
-    page = 1,
-    pageSize = 10,
-    relatedSources = [],
-  } = config.params;
+// mock.onGet("/api/questionlist").reply((config) => {
+//   const {
+//     category,
+//     searchType,
+//     searchTerm,
+//     page = 1,
+//     pageSize = 10,
+//     relatedSources = [],
+//   } = config.params;
 
-  // 模拟的问题列表
-  const mockQuestions = Array(100)
-    .fill()
-    .map((_, index) => ({
-      uuid: `question-${index + 1}`,
-      digest: `问题摘要 ${index + 1}`,
-      category: index % 2 === 0 ? "physics" : "biology",
-      kn: `知识点 ${index + 1}`,
-      updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-      relatedSources:
-        index % 2 === 0
-          ? [
-              { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
-              { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
-            ]
-          : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }],
-    }));
+//   // 模拟的问题列表
+//   const mockQuestions = Array(100)
+//     .fill()
+//     .map((_, index) => ({
+//       uuid: `question-${index + 1}`,
+//       digest: `问题摘要 ${index + 1}`,
+//       category: index % 2 === 0 ? "physics" : "biology",
+//       kn: `知识点 ${index + 1}`,
+//       updatedAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+//       relatedSources:
+//         index % 2 === 0
+//           ? [
+//               { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+//               { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
+//             ]
+//           : [{ uuid: "uuid-3456-cdef-7890", name: "高中物理教材" }],
+//     }));
 
-  // 根据搜索条件过滤问题
-  let filteredQuestions = [...mockQuestions];
+//   // 根据搜索条件过滤问题
+//   let filteredQuestions = [...mockQuestions];
 
-  if (category) {
-    filteredQuestions = filteredQuestions.filter(
-      (q) => q.category === category
-    );
-  }
+//   if (category) {
+//     filteredQuestions = filteredQuestions.filter(
+//       (q) => q.category === category
+//     );
+//   }
 
-  if (searchTerm) {
-    filteredQuestions = filteredQuestions.filter((q) => {
-      if (searchType === "digest") {
-        return q.digest.toLowerCase().includes(searchTerm.toLowerCase());
-      } else if (searchType === "knowledge") {
-        return q.kn.toLowerCase().includes(searchTerm.toLowerCase());
-      }
-      return true;
-    });
-  }
+//   if (searchTerm) {
+//     filteredQuestions = filteredQuestions.filter((q) => {
+//       if (searchType === "digest") {
+//         return q.digest.toLowerCase().includes(searchTerm.toLowerCase());
+//       } else if (searchType === "knowledge") {
+//         return q.kn.toLowerCase().includes(searchTerm.toLowerCase());
+//       }
+//       return true;
+//     });
+//   }
 
-  if (relatedSources.length > 0) {
-    filteredQuestions = filteredQuestions.filter((q) =>
-      relatedSources.some((source) =>
-        q.relatedSources.some((relSource) => relSource.uuid === source)
-      )
-    );
-  }
+//   if (relatedSources.length > 0) {
+//     filteredQuestions = filteredQuestions.filter((q) =>
+//       relatedSources.some((source) =>
+//         q.relatedSources.some((relSource) => relSource.uuid === source)
+//       )
+//     );
+//   }
 
-  const totalCount = filteredQuestions.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+//   const totalCount = filteredQuestions.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + pageSize;
+//   const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
 
-  return [
-    200,
-    {
-      items: paginatedQuestions,
-      totalCount: totalCount,
-    },
-  ];
-});
+//   return [
+//     200,
+//     {
+//       items: paginatedQuestions,
+//       totalCount: totalCount,
+//     },
+//   ];
+// });
 
 // 添加创建考试的模拟数据
 mock.onPost("/api/exam/create").reply((config) => {

@@ -107,7 +107,7 @@ const QuestionList = ({
 
   const fetchQuestions = async () => {
     try {
-      const response = await axios.get("/api/questionlist", {
+      const response = await axios.get("/api/questions", {
         params: {
           category: searchParams.category || fixedCategory,
           searchType: searchType,
@@ -119,8 +119,8 @@ const QuestionList = ({
           ),
         },
       });
-      setQuestions(response.data.items);
-      setTotalCount(response.data.totalCount);
+      setQuestions(response.data.data.items);
+      setTotalCount(response.data.data.totalCount);
     } catch (error) {
       console.error("获取问题列表时出错:", error);
     }
@@ -323,11 +323,14 @@ const QuestionList = ({
                   <BodyTableCell>
                     {dictionaries.CategoryDict[question.category]}
                   </BodyTableCell>
-                  <BodyTableCell>{question.kn}</BodyTableCell>
                   <BodyTableCell>
-                    {question.relatedSources
-                      .map((source) => source.name)
-                      .join(", ")}
+                    {dictionaries.KNDict[question.kn]}
+                  </BodyTableCell>
+                  <BodyTableCell>
+                    {question.relatedSources &&
+                      question.relatedSources
+                        .map((source) => source.name)
+                        .join(", ")}
                   </BodyTableCell>
                   <BodyTableCell>
                     {format(
