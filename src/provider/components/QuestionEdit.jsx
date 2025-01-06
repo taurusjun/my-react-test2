@@ -204,7 +204,8 @@ const QuestionEdit = ({
         onSubmit(response.data);
       } else {
         // 更新现有问题
-        response = await axios.put(`/api/questions/${uuid}`, questionData);
+        // response = await axios.put(`/api/questions/${uuid}`, questionData);
+        response = await axios.post(`/api/questions`, questionData);
         setModalTitle("提交成功");
         setModalContent("问题已成功更新");
         setReadyToClose(true);

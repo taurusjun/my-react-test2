@@ -1,0 +1,178 @@
+Date : 2025-01-06 22:36:05
+Directory : /Users/wangjun/PG/my/golangProjects/my-react-test2
+Total : 98 files,  37024 codes, 575 comments, 1388 blanks, all 38987 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| JSON           |          2 |     20,648 |          0 |          2 |     20,650 |
+| JavaScript JSX |         67 |     13,106 |        369 |      1,055 |     14,530 |
+| YAML           |          7 |      2,089 |         22 |        109 |      2,220 |
+| JavaScript     |         14 |      1,006 |        180 |        166 |      1,352 |
+| CSS            |          2 |         96 |          4 |         22 |        122 |
+| Markdown       |          1 |         38 |          0 |         33 |         71 |
+| XML            |          4 |         32 |          0 |          0 |         32 |
+| HTML           |          1 |          9 |          0 |          1 |         10 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                             | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                |         98 |     37,024 |        575 |      1,388 |     38,987 |
+| . (Files)                                                                                                        |          3 |     20,686 |          0 |         35 |     20,721 |
+| .idea                                                                                                            |          4 |         32 |          0 |          0 |         32 |
+| .idea (Files)                                                                                                    |          3 |         26 |          0 |          0 |         26 |
+| .idea/inspectionProfiles                                                                                         |          1 |          6 |          0 |          0 |          6 |
+| api-specs                                                                                                        |          7 |      2,089 |         22 |        109 |      2,220 |
+| public                                                                                                           |          1 |          9 |          0 |          1 |         10 |
+| src                                                                                                              |         83 |     14,208 |        553 |      1,243 |     16,004 |
+| src (Files)                                                                                                      |          4 |        163 |         17 |         17 |        197 |
+| src/common                                                                                                       |          1 |         15 |          2 |          3 |         20 |
+| src/components                                                                                                   |          7 |        347 |          1 |         34 |        382 |
+| src/components (Files)                                                                                           |          6 |        336 |          0 |         29 |        365 |
+| src/components/common                                                                                            |          1 |         11 |          1 |          5 |         17 |
+| src/config                                                                                                       |          2 |         65 |          6 |          8 |         79 |
+| src/contexts                                                                                                     |          1 |         32 |          0 |          8 |         40 |
+| src/correction                                                                                                   |         12 |      2,924 |         51 |        324 |      3,299 |
+| src/correction/components                                                                                        |          9 |      2,376 |         41 |        262 |      2,679 |
+| src/correction/pages                                                                                             |          2 |        347 |          3 |         25 |        375 |
+| src/correction/utils                                                                                             |          1 |        201 |          7 |         37 |        245 |
+| src/exam                                                                                                         |          1 |          4 |          0 |          1 |          5 |
+| src/exam/components                                                                                              |          1 |          4 |          0 |          1 |          5 |
+| src/layouts                                                                                                      |          1 |        157 |          7 |          9 |        173 |
+| src/learning                                                                                                     |          4 |        975 |          6 |         72 |      1,053 |
+| src/learning/components                                                                                          |          1 |        214 |          1 |         13 |        228 |
+| src/learning/hooks                                                                                               |          1 |        312 |          5 |         34 |        351 |
+| src/learning/pages                                                                                               |          2 |        449 |          0 |         25 |        474 |
+| src/mocks                                                                                                        |          3 |      1,668 |        355 |        205 |      2,228 |
+| src/pages                                                                                                        |         24 |      4,694 |         32 |        295 |      5,021 |
+| src/pages (Files)                                                                                                |          2 |         42 |          1 |          6 |         49 |
+| src/pages/auth                                                                                                   |          1 |        104 |          1 |          7 |        112 |
+| src/pages/errorQuestions                                                                                         |          5 |        706 |          3 |         47 |        756 |
+| src/pages/errorQuestions (Files)                                                                                 |          1 |          4 |          0 |          2 |          6 |
+| src/pages/errorQuestions/components                                                                              |          4 |        702 |          3 |         45 |        750 |
+| src/pages/exam                                                                                                   |         14 |      3,604 |         24 |        216 |      3,844 |
+| src/pages/exam (Files)                                                                                           |          3 |        403 |          0 |         26 |        429 |
+| src/pages/exam/component                                                                                         |         11 |      3,201 |         24 |        190 |      3,415 |
+| src/pages/exam/component (Files)                                                                                 |          9 |      3,072 |         23 |        183 |      3,278 |
+| src/pages/exam/component/layouts                                                                                 |          2 |        129 |          1 |          7 |        137 |
+| src/pages/user                                                                                                   |          2 |        238 |          3 |         19 |        260 |
+| src/pages/user (Files)                                                                                           |          1 |        160 |          3 |         13 |        176 |
+| src/pages/user/layouts                                                                                           |          1 |         78 |          0 |          6 |         84 |
+| src/provider                                                                                                     |         18 |      3,007 |         71 |        232 |      3,310 |
+| src/provider (Files)                                                                                             |          1 |         21 |          0 |          2 |         23 |
+| src/provider/components                                                                                          |         14 |      2,852 |         55 |        207 |      3,114 |
+| src/provider/hooks                                                                                               |          1 |         32 |          0 |          5 |         37 |
+| src/provider/layouts                                                                                             |          1 |         20 |          0 |          3 |         23 |
+| src/provider/utils                                                                                               |          1 |         82 |         16 |         15 |        113 |
+| src/styles                                                                                                       |          3 |        121 |          4 |         28 |        153 |
+| src/theme                                                                                                        |          1 |         24 |          1 |          3 |         28 |
+| src/utils                                                                                                        |          1 |         12 |          0 |          4 |         16 |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                         | language       | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/inspectionProfiles/Project_Default.xml                  | XML            |          6 |          0 |          0 |          6 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/modules.xml                                             | XML            |          8 |          0 |          0 |          8 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/my-react-test2.iml                                      | XML            |         12 |          0 |          0 |         12 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/vcs.xml                                                 | XML            |          6 |          0 |          0 |          6 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/README.md                                                     | Markdown       |         38 |          0 |         33 |         71 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/api_all.yaml                                        | YAML           |        465 |          0 |         27 |        492 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/error_question_api.yaml                             | YAML           |        134 |          0 |          9 |        143 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/exam_api.yaml                                       | YAML           |        658 |          0 |         31 |        689 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/file_correction_api.yaml                            | YAML           |        128 |          0 |          5 |        133 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/learning_material_api.yaml                          | YAML           |        239 |          0 |         11 |        250 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/other_api.yaml                                      | YAML           |        191 |          0 |         11 |        202 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/question_api.yaml                                   | YAML           |        274 |         22 |         15 |        311 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/package-lock.json                                             | JSON           |     20,585 |          0 |          1 |     20,586 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/package.json                                                  | JSON           |         63 |          0 |          1 |         64 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/public/index.html                                             | HTML           |          9 |          0 |          1 |         10 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/App.js                                                    | JavaScript     |         42 |          5 |          4 |         51 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/common/constants.js                                       | JavaScript     |         15 |          2 |          3 |         20 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/About.jsx                                      | JavaScript JSX |         16 |          0 |          2 |         18 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/CommonBreadcrumbs.jsx                          | JavaScript JSX |         36 |          0 |          3 |         39 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/Contact.jsx                                    | JavaScript JSX |          6 |          0 |          2 |          8 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/ExamContent.jsx                                | JavaScript JSX |        207 |          0 |         11 |        218 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/InlineEdit.jsx                                 | JavaScript JSX |         57 |          0 |          7 |         64 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/NarrowSelect.jsx                               | JavaScript JSX |         14 |          0 |          4 |         18 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/common/ProtectedRoute.jsx                      | JavaScript JSX |         11 |          1 |          5 |         17 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/config/breadcrumbPaths.js                                 | JavaScript     |         54 |          6 |          7 |         67 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/config/menuItems.js                                       | JavaScript     |         11 |          0 |          1 |         12 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/contexts/UserContext.jsx                                  | JavaScript JSX |         32 |          0 |          8 |         40 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/ExamEditor.jsx                      | JavaScript JSX |        657 |          6 |         37 |        700 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/ExamPreview.jsx                     | JavaScript JSX |         17 |          0 |          4 |         21 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/FileCorrectionEditor.jsx            | JavaScript JSX |        999 |         18 |        115 |      1,132 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/FileCorrectionList.jsx              | JavaScript JSX |         82 |          0 |          7 |         89 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/LineExtractor.jsx                   | JavaScript JSX |         36 |          0 |          5 |         41 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownAnnotator.jsx               | JavaScript JSX |        504 |         16 |         79 |        599 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownViewer.css                  | CSS            |         19 |          1 |          4 |         24 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownViewer.jsx                  | JavaScript JSX |         33 |          0 |          6 |         39 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/useMarkdownAnnotationHelper.js      | JavaScript     |         29 |          0 |          5 |         34 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/pages/FileCorrectionEditorPage.jsx             | JavaScript JSX |        326 |          3 |         21 |        350 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/pages/FileCorrectionListPage.jsx               | JavaScript JSX |         21 |          0 |          4 |         25 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/utils/MdMap.jsx                                | JavaScript JSX |        201 |          7 |         37 |        245 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/exam/components/Constants.jsx                             | JavaScript JSX |          4 |          0 |          1 |          5 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/index.js                                                  | JavaScript     |         25 |          4 |          3 |         32 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/layouts/CommonLayout.jsx                                  | JavaScript JSX |        157 |          7 |          9 |        173 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/components/LearningMaterial.jsx                  | JavaScript JSX |        214 |          1 |         13 |        228 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/hooks/useLearningMaterial.jsx                    | JavaScript JSX |        312 |          5 |         34 |        351 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/pages/LearningMaterialListPage.jsx               | JavaScript JSX |        247 |          0 |         11 |        258 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/pages/LearningPage.jsx                           | JavaScript JSX |        202 |          0 |         14 |        216 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupFileCorrectionMocks.js                         | JavaScript     |        129 |         77 |         74 |        280 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupLearningMocks.js                               | JavaScript     |        458 |         61 |         31 |        550 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupMocks.jsx                                      | JavaScript JSX |      1,081 |        217 |        100 |      1,398 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/Landing.jsx                                         | JavaScript JSX |         17 |          1 |          3 |         21 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/Welcome.jsx                                         | JavaScript JSX |         25 |          0 |          3 |         28 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/auth/Login.jsx                                      | JavaScript JSX |        104 |          1 |          7 |        112 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionDetail.jsx   | JavaScript JSX |        141 |          0 |          9 |        150 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionList.jsx     | JavaScript JSX |        291 |          0 |         16 |        307 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionPractice.jsx | JavaScript JSX |        213 |          2 |         13 |        228 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionView.jsx     | JavaScript JSX |         57 |          1 |          7 |         65 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/index.jsx                            | JavaScript JSX |          4 |          0 |          2 |          6 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/ErrorQuestionsBak.jsx                          | JavaScript JSX |        107 |          0 |         10 |        117 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/MyExams.jsx                                    | JavaScript JSX |        278 |          0 |         14 |        292 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/AnswerSheet.jsx                      | JavaScript JSX |        170 |          0 |         13 |        183 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamGrading.jsx                      | JavaScript JSX |        393 |          1 |         21 |        415 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamPaper.jsx                        | JavaScript JSX |        639 |         10 |         33 |        682 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamResult.jsx                       | JavaScript JSX |        253 |          0 |         12 |        265 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/GradingCenter.jsx                    | JavaScript JSX |        260 |          0 |         14 |        274 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/edit.jsx                             | JavaScript JSX |        797 |          8 |         50 |        855 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/layouts/ExamBreadcrumbs.jsx          | JavaScript JSX |         50 |          0 |          3 |         53 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/layouts/ExamMainLayout.jsx           | JavaScript JSX |         79 |          1 |          4 |         84 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/list.jsx                             | JavaScript JSX |        266 |          1 |         19 |        286 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/new.jsx                              | JavaScript JSX |        153 |          3 |          6 |        162 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/view.jsx                             | JavaScript JSX |        141 |          0 |         15 |        156 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/index.jsx                                      | JavaScript JSX |         18 |          0 |          2 |         20 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/user/UserCenter.jsx                                 | JavaScript JSX |        160 |          3 |         13 |        176 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/user/layouts/MainLayout.jsx                         | JavaScript JSX |         78 |          0 |          6 |         84 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/Provider.jsx                                     | JavaScript JSX |         21 |          0 |          2 |         23 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/AnswerInput.jsx                       | JavaScript JSX |        100 |          0 |          3 |        103 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/HardRating.jsx                        | JavaScript JSX |         41 |          0 |          5 |         46 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/ImageUpload.jsx                       | JavaScript JSX |        120 |          4 |         15 |        139 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/MultiLevelSelect.jsx                  | JavaScript JSX |         83 |          1 |         10 |         94 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/OptionList.jsx                        | JavaScript JSX |         78 |          0 |          4 |         82 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionBreadcrumbs.jsx               | JavaScript JSX |         50 |          0 |          3 |         53 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionDataForm.jsx                  | JavaScript JSX |        442 |         10 |         13 |        465 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionDetailEdit.jsx                | JavaScript JSX |        233 |          3 |         23 |        259 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionEdit.jsx                      | JavaScript JSX |        741 |         19 |         46 |        806 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionEdit_fix.jsx                  | JavaScript JSX |        416 |         16 |         43 |        475 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionList.jsx                      | JavaScript JSX |        377 |          0 |         24 |        401 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionPreview.jsx                   | JavaScript JSX |         99 |          2 |         11 |        112 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/SideBar.jsx                           | JavaScript JSX |          5 |          0 |          2 |          7 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/SubmitModal.jsx                       | JavaScript JSX |         67 |          0 |          5 |         72 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/hooks/useDictionaries.jsx                        | JavaScript JSX |         32 |          0 |          5 |         37 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/layouts/QuestionMainLayout.jsx                   | JavaScript JSX |         20 |          0 |          3 |         23 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/utils/dictionaries.js                            | JavaScript     |         82 |         16 |         15 |        113 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/routeConfig.js                                            | JavaScript     |         86 |          8 |          8 |        102 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/setupProxy.js                                             | JavaScript     |         10 |          0 |          2 |         12 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/StyledFormComponents.jsx                           | JavaScript JSX |         15 |          1 |          4 |         20 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/TableStyles.js                                     | JavaScript     |         29 |          0 |          6 |         35 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/print.css                                          | CSS            |         77 |          3 |         18 |         98 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/theme/theme.js                                            | JavaScript     |         24 |          1 |          3 |         28 |
+| /Users/wangjun/PG/my/golangProjects/my-react-test2/src/utils/auth.js                                             | JavaScript     |         12 |          0 |          4 |         16 |
+| Total                                                                                                            |                |     37,024 |        575 |      1,388 |     38,987 |
++------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+

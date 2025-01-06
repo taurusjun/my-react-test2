@@ -1,0 +1,100 @@
+"filename", "language", "JavaScript JSX", "JavaScript", "XML", "JSON", "HTML", "Markdown", "CSS", "YAML", "comment", "blank", "total"
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/inspectionProfiles/Project_Default.xml", "XML", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 6
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/modules.xml", "XML", 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/my-react-test2.iml", "XML", 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 12
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/.idea/vcs.xml", "XML", 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 6
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/README.md", "Markdown", 0, 0, 0, 0, 0, 38, 0, 0, 0, 33, 71
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/api_all.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 465, 0, 27, 492
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/error_question_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 134, 0, 9, 143
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/exam_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 658, 0, 31, 689
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/file_correction_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 128, 0, 5, 133
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/learning_material_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 239, 0, 11, 250
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/other_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 191, 0, 11, 202
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/api-specs/question_api.yaml", "YAML", 0, 0, 0, 0, 0, 0, 0, 274, 22, 15, 311
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/package-lock.json", "JSON", 0, 0, 0, 20585, 0, 0, 0, 0, 0, 1, 20586
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/package.json", "JSON", 0, 0, 0, 63, 0, 0, 0, 0, 0, 1, 64
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/public/index.html", "HTML", 0, 0, 0, 0, 9, 0, 0, 0, 0, 1, 10
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/App.js", "JavaScript", 0, 42, 0, 0, 0, 0, 0, 0, 5, 4, 51
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/common/constants.js", "JavaScript", 0, 15, 0, 0, 0, 0, 0, 0, 2, 3, 20
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/About.jsx", "JavaScript JSX", 16, 0, 0, 0, 0, 0, 0, 0, 0, 2, 18
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/CommonBreadcrumbs.jsx", "JavaScript JSX", 36, 0, 0, 0, 0, 0, 0, 0, 0, 3, 39
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/Contact.jsx", "JavaScript JSX", 6, 0, 0, 0, 0, 0, 0, 0, 0, 2, 8
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/ExamContent.jsx", "JavaScript JSX", 207, 0, 0, 0, 0, 0, 0, 0, 0, 11, 218
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/InlineEdit.jsx", "JavaScript JSX", 57, 0, 0, 0, 0, 0, 0, 0, 0, 7, 64
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/NarrowSelect.jsx", "JavaScript JSX", 14, 0, 0, 0, 0, 0, 0, 0, 0, 4, 18
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/components/common/ProtectedRoute.jsx", "JavaScript JSX", 11, 0, 0, 0, 0, 0, 0, 0, 1, 5, 17
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/config/breadcrumbPaths.js", "JavaScript", 0, 54, 0, 0, 0, 0, 0, 0, 6, 7, 67
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/config/menuItems.js", "JavaScript", 0, 11, 0, 0, 0, 0, 0, 0, 0, 1, 12
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/contexts/UserContext.jsx", "JavaScript JSX", 32, 0, 0, 0, 0, 0, 0, 0, 0, 8, 40
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/ExamEditor.jsx", "JavaScript JSX", 657, 0, 0, 0, 0, 0, 0, 0, 6, 37, 700
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/ExamPreview.jsx", "JavaScript JSX", 17, 0, 0, 0, 0, 0, 0, 0, 0, 4, 21
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/FileCorrectionEditor.jsx", "JavaScript JSX", 999, 0, 0, 0, 0, 0, 0, 0, 18, 115, 1132
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/FileCorrectionList.jsx", "JavaScript JSX", 82, 0, 0, 0, 0, 0, 0, 0, 0, 7, 89
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/LineExtractor.jsx", "JavaScript JSX", 36, 0, 0, 0, 0, 0, 0, 0, 0, 5, 41
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownAnnotator.jsx", "JavaScript JSX", 504, 0, 0, 0, 0, 0, 0, 0, 16, 79, 599
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownViewer.css", "CSS", 0, 0, 0, 0, 0, 0, 19, 0, 1, 4, 24
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/MarkdownViewer.jsx", "JavaScript JSX", 33, 0, 0, 0, 0, 0, 0, 0, 0, 6, 39
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/components/useMarkdownAnnotationHelper.js", "JavaScript", 0, 29, 0, 0, 0, 0, 0, 0, 0, 5, 34
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/pages/FileCorrectionEditorPage.jsx", "JavaScript JSX", 326, 0, 0, 0, 0, 0, 0, 0, 3, 21, 350
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/pages/FileCorrectionListPage.jsx", "JavaScript JSX", 21, 0, 0, 0, 0, 0, 0, 0, 0, 4, 25
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/correction/utils/MdMap.jsx", "JavaScript JSX", 201, 0, 0, 0, 0, 0, 0, 0, 7, 37, 245
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/exam/components/Constants.jsx", "JavaScript JSX", 4, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/index.js", "JavaScript", 0, 25, 0, 0, 0, 0, 0, 0, 4, 3, 32
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/layouts/CommonLayout.jsx", "JavaScript JSX", 157, 0, 0, 0, 0, 0, 0, 0, 7, 9, 173
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/components/LearningMaterial.jsx", "JavaScript JSX", 214, 0, 0, 0, 0, 0, 0, 0, 1, 13, 228
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/hooks/useLearningMaterial.jsx", "JavaScript JSX", 312, 0, 0, 0, 0, 0, 0, 0, 5, 34, 351
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/pages/LearningMaterialListPage.jsx", "JavaScript JSX", 247, 0, 0, 0, 0, 0, 0, 0, 0, 11, 258
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/learning/pages/LearningPage.jsx", "JavaScript JSX", 202, 0, 0, 0, 0, 0, 0, 0, 0, 14, 216
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupFileCorrectionMocks.js", "JavaScript", 0, 129, 0, 0, 0, 0, 0, 0, 77, 74, 280
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupLearningMocks.js", "JavaScript", 0, 458, 0, 0, 0, 0, 0, 0, 61, 31, 550
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/mocks/setupMocks.jsx", "JavaScript JSX", 1081, 0, 0, 0, 0, 0, 0, 0, 217, 100, 1398
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/Landing.jsx", "JavaScript JSX", 17, 0, 0, 0, 0, 0, 0, 0, 1, 3, 21
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/Welcome.jsx", "JavaScript JSX", 25, 0, 0, 0, 0, 0, 0, 0, 0, 3, 28
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/auth/Login.jsx", "JavaScript JSX", 104, 0, 0, 0, 0, 0, 0, 0, 1, 7, 112
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionDetail.jsx", "JavaScript JSX", 141, 0, 0, 0, 0, 0, 0, 0, 0, 9, 150
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionList.jsx", "JavaScript JSX", 291, 0, 0, 0, 0, 0, 0, 0, 0, 16, 307
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionPractice.jsx", "JavaScript JSX", 213, 0, 0, 0, 0, 0, 0, 0, 2, 13, 228
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/components/ErrorQuestionView.jsx", "JavaScript JSX", 57, 0, 0, 0, 0, 0, 0, 0, 1, 7, 65
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/errorQuestions/index.jsx", "JavaScript JSX", 4, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/ErrorQuestionsBak.jsx", "JavaScript JSX", 107, 0, 0, 0, 0, 0, 0, 0, 0, 10, 117
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/MyExams.jsx", "JavaScript JSX", 278, 0, 0, 0, 0, 0, 0, 0, 0, 14, 292
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/AnswerSheet.jsx", "JavaScript JSX", 170, 0, 0, 0, 0, 0, 0, 0, 0, 13, 183
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamGrading.jsx", "JavaScript JSX", 393, 0, 0, 0, 0, 0, 0, 0, 1, 21, 415
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamPaper.jsx", "JavaScript JSX", 639, 0, 0, 0, 0, 0, 0, 0, 10, 33, 682
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/ExamResult.jsx", "JavaScript JSX", 253, 0, 0, 0, 0, 0, 0, 0, 0, 12, 265
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/GradingCenter.jsx", "JavaScript JSX", 260, 0, 0, 0, 0, 0, 0, 0, 0, 14, 274
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/edit.jsx", "JavaScript JSX", 797, 0, 0, 0, 0, 0, 0, 0, 8, 50, 855
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/layouts/ExamBreadcrumbs.jsx", "JavaScript JSX", 50, 0, 0, 0, 0, 0, 0, 0, 0, 3, 53
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/layouts/ExamMainLayout.jsx", "JavaScript JSX", 79, 0, 0, 0, 0, 0, 0, 0, 1, 4, 84
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/list.jsx", "JavaScript JSX", 266, 0, 0, 0, 0, 0, 0, 0, 1, 19, 286
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/new.jsx", "JavaScript JSX", 153, 0, 0, 0, 0, 0, 0, 0, 3, 6, 162
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/component/view.jsx", "JavaScript JSX", 141, 0, 0, 0, 0, 0, 0, 0, 0, 15, 156
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/exam/index.jsx", "JavaScript JSX", 18, 0, 0, 0, 0, 0, 0, 0, 0, 2, 20
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/user/UserCenter.jsx", "JavaScript JSX", 160, 0, 0, 0, 0, 0, 0, 0, 3, 13, 176
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/pages/user/layouts/MainLayout.jsx", "JavaScript JSX", 78, 0, 0, 0, 0, 0, 0, 0, 0, 6, 84
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/Provider.jsx", "JavaScript JSX", 21, 0, 0, 0, 0, 0, 0, 0, 0, 2, 23
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/AnswerInput.jsx", "JavaScript JSX", 100, 0, 0, 0, 0, 0, 0, 0, 0, 3, 103
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/HardRating.jsx", "JavaScript JSX", 41, 0, 0, 0, 0, 0, 0, 0, 0, 5, 46
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/ImageUpload.jsx", "JavaScript JSX", 120, 0, 0, 0, 0, 0, 0, 0, 4, 15, 139
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/MultiLevelSelect.jsx", "JavaScript JSX", 83, 0, 0, 0, 0, 0, 0, 0, 1, 10, 94
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/OptionList.jsx", "JavaScript JSX", 78, 0, 0, 0, 0, 0, 0, 0, 0, 4, 82
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionBreadcrumbs.jsx", "JavaScript JSX", 50, 0, 0, 0, 0, 0, 0, 0, 0, 3, 53
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionDataForm.jsx", "JavaScript JSX", 442, 0, 0, 0, 0, 0, 0, 0, 10, 13, 465
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionDetailEdit.jsx", "JavaScript JSX", 233, 0, 0, 0, 0, 0, 0, 0, 3, 23, 259
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionEdit.jsx", "JavaScript JSX", 741, 0, 0, 0, 0, 0, 0, 0, 19, 46, 806
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionEdit_fix.jsx", "JavaScript JSX", 416, 0, 0, 0, 0, 0, 0, 0, 16, 43, 475
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionList.jsx", "JavaScript JSX", 377, 0, 0, 0, 0, 0, 0, 0, 0, 24, 401
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/QuestionPreview.jsx", "JavaScript JSX", 99, 0, 0, 0, 0, 0, 0, 0, 2, 11, 112
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/SideBar.jsx", "JavaScript JSX", 5, 0, 0, 0, 0, 0, 0, 0, 0, 2, 7
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/components/SubmitModal.jsx", "JavaScript JSX", 67, 0, 0, 0, 0, 0, 0, 0, 0, 5, 72
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/hooks/useDictionaries.jsx", "JavaScript JSX", 32, 0, 0, 0, 0, 0, 0, 0, 0, 5, 37
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/layouts/QuestionMainLayout.jsx", "JavaScript JSX", 20, 0, 0, 0, 0, 0, 0, 0, 0, 3, 23
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/provider/utils/dictionaries.js", "JavaScript", 0, 82, 0, 0, 0, 0, 0, 0, 16, 15, 113
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/routeConfig.js", "JavaScript", 0, 86, 0, 0, 0, 0, 0, 0, 8, 8, 102
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/setupProxy.js", "JavaScript", 0, 10, 0, 0, 0, 0, 0, 0, 0, 2, 12
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/StyledFormComponents.jsx", "JavaScript JSX", 15, 0, 0, 0, 0, 0, 0, 0, 1, 4, 20
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/TableStyles.js", "JavaScript", 0, 29, 0, 0, 0, 0, 0, 0, 0, 6, 35
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/styles/print.css", "CSS", 0, 0, 0, 0, 0, 0, 77, 0, 3, 18, 98
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/theme/theme.js", "JavaScript", 0, 24, 0, 0, 0, 0, 0, 0, 1, 3, 28
+"/Users/wangjun/PG/my/golangProjects/my-react-test2/src/utils/auth.js", "JavaScript", 0, 12, 0, 0, 0, 0, 0, 0, 0, 4, 16
+"Total", "-", 13106, 1006, 32, 20648, 9, 38, 96, 2089, 575, 1388, 38987
