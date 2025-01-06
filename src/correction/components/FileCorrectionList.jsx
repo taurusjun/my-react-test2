@@ -26,8 +26,8 @@ const FileCorrectionList = () => {
       const response = await axios.get("/api/file-corrections", {
         params: { page: page + 1, pageSize: rowsPerPage },
       });
-      setFiles(response.data.files);
-      setTotalCount(response.data.totalCount);
+      setFiles(response.data.data.files);
+      setTotalCount(response.data.data.totalCount);
     };
     fetchFiles();
   }, [page, rowsPerPage]);

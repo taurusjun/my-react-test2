@@ -183,13 +183,19 @@ export const setupFileCorrectionMocks = (mock) => {
     // ... 添加更多固定的 UUID v4 和名称
   ];
 
-  mock.onGet("/api/file-corrections").reply((config) => {
-    const { page = 1, pageSize = 10 } = config.params;
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + parseInt(pageSize);
-    const paginatedFiles = mockFiles.slice(startIndex, endIndex);
-    return [200, { files: paginatedFiles, totalCount: mockFiles.length }];
-  });
+  // mock.onGet("/api/file-corrections").reply((config) => {
+  //   const { page = 1, pageSize = 10 } = config.params;
+  //   const startIndex = (page - 1) * pageSize;
+  //   const endIndex = startIndex + parseInt(pageSize);
+  //   const paginatedFiles = mockFiles.slice(startIndex, endIndex);
+  //   return [
+  //     200,
+  //     {
+  //       message: "ok",
+  //       data: { files: paginatedFiles, totalCount: mockFiles.length },
+  //     },
+  //   ];
+  // });
 
   // mock.onGet(/\/api\/file-corrections\/.+/).reply((config) => {
   //   const uuid = config.url.split("/").pop();

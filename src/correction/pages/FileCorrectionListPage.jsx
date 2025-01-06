@@ -13,7 +13,7 @@ const FileCorrectionListPage = () => {
       maxWidth="lg"
       showBreadcrumbs={true}
       BreadcrumbsComponent={() => (
-        <CommonBreadcrumbs paths={breadcrumbPaths.learningMaterialList} />
+        <CommonBreadcrumbs paths={breadcrumbPaths.fileCorrectionList} />
       )}
     >
       <FileCorrectionList />
