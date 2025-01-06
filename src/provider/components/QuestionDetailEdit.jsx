@@ -18,18 +18,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import HardRating from "./HardRating";
 import ImageUpload from "./ImageUpload";
+import { QUESTION_UI_TYPES } from "../../common/constants";
+import OptionList from "./OptionList"; // 引入新组件
+import AnswerInput from "./AnswerInput"; // 引入新组件
 
 const QuestionDetailEdit = ({
   questionDetail,
   onQuestionDetailChange,
   errors,
 }) => {
-  const UITypeDict = {
-    single_selection: "单选",
-    multi_selection: "多选",
-    fill_blank: "填空",
-  };
-
   const [localQuestionDetail, setLocalQuestionDetail] =
     useState(questionDetail);
   const [isLocalUpdate, setIsLocalUpdate] = useState(false);
@@ -192,58 +189,15 @@ const QuestionDetailEdit = ({
           handleQuestionContentChange({ image: imageData })
         }
       />
-      {localQuestionDetail.uiType !== "fill_blank" &&
-        localQuestionDetail.rows.map((row, index) => (
-          <Box key={index}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <FormControlLabel
-                control={
-                  localQuestionDetail.uiType === "single_selection" ? (
-                    <Radio
-                      checked={row.isAns}
-                      onChange={(e) =>
-                        handleRowChange(index, "isAns", e.target.checked)
-                      }
-                    />
-                  ) : (
-                    <Checkbox
-                      checked={row.isAns}
-                      onChange={(e) =>
-                        handleRowChange(index, "isAns", e.target.checked)
-                      }
-                    />
-                  )
-                }
-              />
-              <TextField
-                sx={{ flex: 1 }}
-                label={`${String.fromCharCode(index + 65)}选项`}
-                margin="dense"
-                required
-                value={row.value}
-                error={errors && errors.rows && errors.rows[index]}
-                helperText={
-                  errors && errors.rows && errors.rows[index]
-                    ? "选项不能为空"
-                    : ""
-                }
-                onChange={(e) =>
-                  handleRowChange(index, "value", e.target.value)
-                }
-              />
-              <IconButton onClick={() => handleDeleteRow(index)}>
-                <DeleteIcon />
-              </IconButton>
-            </div>
-            <ImageUpload
-              cid={`${questionUuid}_${questionDetail.order_in_question}_${index}`}
-              imageData={row.image}
-              onImageChange={(imageData) =>
-                handleRowChange(index, "image", imageData)
-              }
-            />
-          </Box>
-        ))}
+      <OptionList
+        rows={localQuestionDetail.rows}
+        uiType={localQuestionDetail.uiType}
+        handleRowChange={handleRowChange}
+        handleDeleteRow={handleDeleteRow}
+        errors={errors}
+        questionUuid={questionUuid}
+        questionOrder={questionDetail.order_in_question}
+      />
       <Button startIcon={<AddCircleIcon />} onClick={handleAddRow}>
         添加选项
       </Button>
@@ -257,7 +211,7 @@ const QuestionDetailEdit = ({
             onChange={handleUITypeChange}
             required
           >
-            {Object.entries(UITypeDict).map(([value, label]) => (
+            {Object.entries(QUESTION_UI_TYPES).map(([value, label]) => (
               <MenuItem key={value} value={value}>
                 {label}
               </MenuItem>
@@ -275,49 +229,15 @@ const QuestionDetailEdit = ({
       </Box>
       <Box sx={{ mt: 2, mb: 2 }}>
         <FormControl fullWidth required>
-          {localQuestionDetail.uiType === "fill_blank" ? (
-            <>
-              <TextField
-                label="答案"
-                value={localQuestionDetail.answer[0] || ""}
-                onChange={handleAnswerChange}
-                fullWidth
-                required
-                variant="outlined"
-                error={errors && errors.answer}
-                helperText={errors && errors.answer ? "填空题答案不能为空" : ""}
-              />
-              <Box sx={{ mt: 2 }}>
-                <ImageUpload
-                  cid={`${questionUuid}_${questionDetail.order_in_question}_fill-blank-answer`}
-                  imageData={localQuestionDetail.answerImage}
-                  onImageChange={(imageData) =>
-                    handleChange("answerImage", imageData)
-                  }
-                />
-              </Box>
-            </>
-          ) : (
-            <>
-              <InputLabel id="answer-select-label">答案</InputLabel>
-              <Select
-                labelId="answer-select-label"
-                label="答案"
-                multiple={localQuestionDetail.uiType === "multi_selection"}
-                value={localQuestionDetail.answer}
-                required
-                error={errors && errors.answer}
-                onChange={handleAnswerChange}
-                renderValue={(selected) => selected.sort().join(", ")} // 对显示的答案进行排序
-              >
-                {localQuestionDetail.rows.map((_, index) => (
-                  <MenuItem key={index} value={String.fromCharCode(65 + index)}>
-                    {String.fromCharCode(65 + index)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </>
-          )}
+          <AnswerInput
+            uiType={localQuestionDetail.uiType}
+            answer={localQuestionDetail.answer}
+            onChange={handleAnswerChange}
+            errors={errors}
+            questionUuid={questionUuid}
+            questionOrder={questionDetail.order_in_question}
+            rows={localQuestionDetail.rows}
+          />
         </FormControl>
       </Box>
       <Box>
