@@ -62,9 +62,10 @@ const FileCorrectionList = () => {
                 <TableCell>
                   <Button
                     variant="contained"
+                    color={file.status === "done" ? "success" : "primary"}
                     onClick={() => navigate(`/file-correction/${file.uuid}`)}
                   >
-                    校正
+                    {file.status === "done" ? "完成" : "校正"}
                   </Button>
                 </TableCell>
               </TableRow>
