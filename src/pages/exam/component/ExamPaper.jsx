@@ -32,6 +32,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw"; // 添加此行
 
 const ExamPaper = () => {
   const { uuid } = useParams();
@@ -551,7 +553,9 @@ const ExamPaper = () => {
                     fontSize: "1.1rem",
                   }}
                 >
-                  {currentQuestionData.material}
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                    {currentQuestionData.material}
+                  </ReactMarkdown>
                 </Typography>
               )}
               <Typography variant="body1">
