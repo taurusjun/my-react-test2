@@ -159,7 +159,7 @@ const ExamPaper = () => {
   const renderQuestionOptions = (detail, questionUuid) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
     const isSingleChoice = detail.uiType === "single_selection";
-    const isFillInBlank = detail.uiType === "fill_in_blank";
+    const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
 
@@ -383,7 +383,7 @@ const ExamPaper = () => {
         isRetake,
       });
       setLoading(false);
-      navigate(`/exam-result/${uuid}`);
+      navigate(`/exam/result/${uuid}`);
     } catch (error) {
       console.error("提交答案失败", error);
       setLoading(false);

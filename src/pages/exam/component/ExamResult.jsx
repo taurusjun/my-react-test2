@@ -38,11 +38,11 @@ const ExamResult = () => {
       try {
         const [examResponse, answersResponse, gradesResponse] =
           await Promise.all([
-            axios.get(`/api/examview/${uuid}`),
+            axios.get(`/api/exams/${uuid}`),
             axios.get(`/api/my-exams/${uuid}/answers`),
             axios.get(`/api/my-exams/${uuid}/grades`),
           ]);
-        setExam(examResponse.data);
+        setExam(examResponse.data.data);
         setAnswers(answersResponse.data);
         setGrades(gradesResponse.data);
         setLoading(false);
