@@ -78,8 +78,8 @@ const ExamList = () => {
           category,
         },
       });
-      setExams(response.data.exams);
-      setTotalCount(response.data.totalCount);
+      setExams(response.data.data.exams);
+      setTotalCount(response.data.data.totalCount);
     } catch (error) {
       console.error("获取考试列表失败:", error);
     }

@@ -334,134 +334,134 @@ mock.onPost("/api/exam/create").reply((config) => {
 });
 
 // 更新模拟考试数据
-mock.onGet("/api/exams/list").reply((config) => {
-  const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
+// mock.onGet("/api/exams/list").reply((config) => {
+//   const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
 
-  const mockExams = Array(100)
-    .fill()
-    .map((_, index) => ({
-      uuid: `uuid-exam-${index + 1}`,
-      name: `${2024 - Math.floor(index / 20)}年${
-        ["物理", "化学", "生物", "数学", "英语"][index % 5]
-      }${["期中", "期末"][index % 2]}考试`,
-      category: ["physics", "chemistry", "biology", "math", "english"][
-        index % 5
-      ],
-      createdAt: new Date(Date.now() - Math.random() * 10000000000)
-        .toISOString()
-        .split("T")[0],
-    }));
+//   const mockExams = Array(100)
+//     .fill()
+//     .map((_, index) => ({
+//       uuid: `uuid-exam-${index + 1}`,
+//       name: `${2024 - Math.floor(index / 20)}年${
+//         ["物理", "化学", "生物", "数学", "英语"][index % 5]
+//       }${["期中", "期末"][index % 2]}考试`,
+//       category: ["physics", "chemistry", "biology", "math", "english"][
+//         index % 5
+//       ],
+//       createdAt: new Date(Date.now() - Math.random() * 10000000000)
+//         .toISOString()
+//         .split("T")[0],
+//     }));
 
-  let filteredExams = [...mockExams];
+//   let filteredExams = [...mockExams];
 
-  if (examUuids.length > 0) {
-    filteredExams = filteredExams.filter((exam) =>
-      examUuids.includes(exam.uuid)
-    );
-  }
+//   if (examUuids.length > 0) {
+//     filteredExams = filteredExams.filter((exam) =>
+//       examUuids.includes(exam.uuid)
+//     );
+//   }
 
-  if (category) {
-    filteredExams = filteredExams.filter((exam) => exam.category === category);
-  }
+//   if (category) {
+//     filteredExams = filteredExams.filter((exam) => exam.category === category);
+//   }
 
-  const totalCount = filteredExams.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + parseInt(pageSize);
-  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+//   const totalCount = filteredExams.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + parseInt(pageSize);
+//   const paginatedExams = filteredExams.slice(startIndex, endIndex);
 
-  return [
-    200,
-    {
-      exams: paginatedExams,
-      totalCount: totalCount,
-    },
-  ];
-});
+//   return [
+//     200,
+//     {
+//       exams: paginatedExams,
+//       totalCount: totalCount,
+//     },
+//   ];
+// });
 
 // 修改获取单个考试数据的模拟
-mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
-  const uuid = config.url.split("/").pop();
+// mock.onGet(/\/api\/exams\/[^/]+$/).reply((config) => {
+//   const uuid = config.url.split("/").pop();
 
-  const mockExam = {
-    uuid: uuid,
-    name: "物理模拟考试 1",
-    category: "physics",
-    gradeInfo: {
-      school: "senior",
-      grade: "grade11",
-    },
-    createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-    startTime: format(addDays(new Date(), 7), "yyyy-MM-dd HH:mm:ss"),
-    duration: 120,
-    totalScore: 100,
-    status: "未开始",
-    sections: [
-      {
-        uuid: "section-1",
-        name: "选择题",
-        order_in_exam: 1,
-        questions: [
-          {
-            uuid: "question-1",
-            digest: "这是第一道选择题，考察基本物理概念。",
-            content: "以下哪个是力的单位？",
-            options: ["A. 米(m)", "B. 牛顿(N)", "C. 焦耳(J)", "D. 瓦特(W)"],
-            answer: "B",
-            score: 5,
-            order_in_section: 1,
-            kn: "mechanics",
-          },
-          {
-            uuid: "question-2",
-            digest: "这是第二道选择题，考察运动学知识。",
-            content: "一个物体做匀速直线运动，以下哪个物理量保持不变？",
-            options: ["A. 位移", "B. 速度", "C. 加速度", "D. 时间"],
-            answer: "B",
-            score: 5,
-            order_in_section: 2,
-            kn: "mechanics",
-          },
-        ],
-      },
-      {
-        uuid: "section-2",
-        name: "填空题",
-        order_in_exam: 2,
-        questions: [
-          {
-            uuid: "question-3",
-            digest: "这是一道填空题，考察能量转换。",
-            content: "物体从高处自由落下，重力势能转化为 ______ 能。",
-            answer: "动能",
-            score: 10,
-            order_in_section: 1,
-            kn: "mechanics",
-          },
-        ],
-      },
-      {
-        uuid: "section-3",
-        name: "计算题",
-        order_in_exam: 3,
-        questions: [
-          {
-            uuid: "question-4",
-            digest: "这是一道计算题，考察牛顿运动定律的应用。",
-            content:
-              "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
-            answer:
-              "解答步骤：\n1. 根据牛顿第二定律，F = ma\n2. a = F/m = 5N / 2kg = 2.5 m/s²\n3. 由于初速度为0，使用v = at\n4. v = 2.5 m/s² * 10s = 25 m/s\n所以，10秒后物体的速度为25 m/s。",
-            score: 20,
-            order_in_section: 1,
-            kn: "mechanics",
-          },
-        ],
-      },
-    ],
-  };
+//   const mockExam = {
+//     uuid: uuid,
+//     name: "物理模拟考试 1",
+//     category: "physics",
+//     gradeInfo: {
+//       school: "senior",
+//       grade: "grade11",
+//     },
+//     createdAt: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+//     startTime: format(addDays(new Date(), 7), "yyyy-MM-dd HH:mm:ss"),
+//     duration: 120,
+//     totalScore: 100,
+//     status: "未开始",
+//     sections: [
+//       {
+//         uuid: "section-1",
+//         name: "选择题",
+//         order_in_exam: 1,
+//         questions: [
+//           {
+//             uuid: "question-1",
+//             digest: "这是第一道选择题，考察基本物理概念。",
+//             content: "以下哪个是力的单位？",
+//             options: ["A. 米(m)", "B. 牛顿(N)", "C. 焦耳(J)", "D. 瓦特(W)"],
+//             answer: "B",
+//             score: 5,
+//             order_in_section: 1,
+//             kn: "mechanics",
+//           },
+//           {
+//             uuid: "question-2",
+//             digest: "这是第二道选择题，考察运动学知识。",
+//             content: "一个物体做匀速直线运动，以下哪个物理量保持不变？",
+//             options: ["A. 位移", "B. 速度", "C. 加速度", "D. 时间"],
+//             answer: "B",
+//             score: 5,
+//             order_in_section: 2,
+//             kn: "mechanics",
+//           },
+//         ],
+//       },
+//       {
+//         uuid: "section-2",
+//         name: "填空题",
+//         order_in_exam: 2,
+//         questions: [
+//           {
+//             uuid: "question-3",
+//             digest: "这是一道填空题，考察能量转换。",
+//             content: "物体从高处自由落下，重力势能转化为 ______ 能。",
+//             answer: "动能",
+//             score: 10,
+//             order_in_section: 1,
+//             kn: "mechanics",
+//           },
+//         ],
+//       },
+//       {
+//         uuid: "section-3",
+//         name: "计算题",
+//         order_in_exam: 3,
+//         questions: [
+//           {
+//             uuid: "question-4",
+//             digest: "这是一道计算题，考察牛顿运动定律的应用。",
+//             content:
+//               "一个质量为2kg的物体在光滑水平面上受到5N的水平力作用。计算10秒后物体的速度。",
+//             answer:
+//               "解答步骤：\n1. 根据牛顿第二定律，F = ma\n2. a = F/m = 5N / 2kg = 2.5 m/s²\n3. 由于初速度为0，使用v = at\n4. v = 2.5 m/s² * 10s = 25 m/s\n所以，10秒后物体的速度为25 m/s。",
+//             score: 20,
+//             order_in_section: 1,
+//             kn: "mechanics",
+//           },
+//         ],
+//       },
+//     ],
+//   };
 
-  return [200, mockExam];
-});
+//   return [200, mockExam];
+// });
 
 // 添加更新考试数据的模拟
 mock.onPut(/\/api\/exams\/.*/).reply((config) => {

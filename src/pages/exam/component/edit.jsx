@@ -107,8 +107,8 @@ const EditExam = () => {
     const fetchExamData = async () => {
       try {
         const response = await axios.get(`/api/exams/${uuid}`);
-        setExam(response.data);
-        setInitialExam(JSON.parse(JSON.stringify(response.data))); // 深拷贝
+        setExam(response.data.data);
+        setInitialExam(JSON.parse(JSON.stringify(response.data.data))); // 深拷贝
         setLoading(false);
       } catch (error) {
         console.error("获取考试数据失败:", error);
