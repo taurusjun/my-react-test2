@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -29,6 +29,7 @@ import MenuItem from "@mui/material/MenuItem";
 import TablePagination from "@mui/material/TablePagination";
 import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
+import { UserContext } from "../../contexts/UserContext";
 
 const MyExams = () => {
   const [exams, setExams] = useState([]);
@@ -45,24 +46,30 @@ const MyExams = () => {
   const [examOptions, setExamOptions] = useState([]);
   const [selectedExams, setSelectedExams] = useState([]);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+  const userUuid = user ? user.uuid : null;
 
   useEffect(() => {
-    fetchExams();
-    fetchExamNames(); // 添加这行，在组件加载时获取初始考试名称
-  }, [page, pageSize, filters]);
+    if (userUuid) {
+      fetchExams();
+    }
+    fetchExamNames();
+  }, [page, pageSize, filters, userUuid]);
 
   const fetchExams = async () => {
+    if (!userUuid) return;
     setLoading(true);
     try {
       const response = await axios.get("/api/my-exams", {
         params: {
           page,
           pageSize,
+          userUuid,
           ...filters,
         },
       });
-      setExams(response.data.exams);
-      setTotalCount(response.data.totalCount);
+      setExams(response.data.data.exams);
+      setTotalCount(response.data.data.totalCount);
     } catch (error) {
       console.error("获取考试列表失败", error);
     } finally {
@@ -99,7 +106,7 @@ const MyExams = () => {
     setSelectedExams(newValue);
     setFilters((prevFilters) => ({
       ...prevFilters,
-      examUuids: newValue.map((exam) => exam.uuid),
+      examUuids: newValue.map((exam) => exam.examUuid),
     }));
     setPage(1); // 重置页码
   };
@@ -196,34 +203,31 @@ const MyExams = () => {
               </TableHead>
               <TableBody>
                 {exams.map((exam) => (
-                  <StyledTableRow key={exam.id}>
-                    <BodyTableCell>{exam.name}</BodyTableCell>
+                  <StyledTableRow key={exam.uuid}>
+                    <BodyTableCell>{exam.examName}</BodyTableCell>
                     <BodyTableCell align="center">
                       <Typography
                         variant="body2"
                         sx={{
-                          color:
-                            exam.status === "未参加"
-                              ? "warning.main"
-                              : "success.main",
+                          color: exam.isDone ? "success.main" : "warning.main",
                           fontWeight: "bold",
                         }}
                       >
-                        {exam.status}
+                        {exam.isDone ? "已完成" : "未参加"}
                       </Typography>
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.score || "-"}
+                      {exam.isDone ? exam.maxScore : "-"}
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.examTime || "-"}
+                      {exam.isDone ? exam.doneTime : "-"}
                     </BodyTableCell>
                     <BodyTableCell>
-                      {exam.status === "未参加" ? (
+                      {!exam.isDone ? (
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => handleStartExam(exam.id)}
+                          onClick={() => handleStartExam(exam.examUuid)}
                           startIcon={<PlayArrowIcon />}
                         >
                           开始考试
@@ -233,7 +237,7 @@ const MyExams = () => {
                           <Button
                             variant="outlined"
                             color="primary"
-                            onClick={() => handleStartExam(exam.id)}
+                            onClick={() => handleStartExam(exam.examUuid)}
                             startIcon={<ReplayIcon />}
                             sx={{ mr: 1 }}
                           >
@@ -242,7 +246,7 @@ const MyExams = () => {
                           <Button
                             variant="outlined"
                             color="secondary"
-                            onClick={() => handleViewErrors(exam.id)}
+                            onClick={() => handleViewErrors(exam.examUuid)}
                             startIcon={<ErrorOutlineIcon />}
                           >
                             查看错题

@@ -109,64 +109,64 @@ mock.onGet("/api/dictionaries").reply(200, {
 // });
 
 // 修改 /api/my-exams 的模拟数据
-mock.onGet("/api/my-exams").reply((config) => {
-  const {
-    page = 1,
-    pageSize = 10,
-    examUuids, // 使用 examUuids 替代 examUuid
-    status,
-    minScore,
-    maxScore,
-  } = config.params;
+// mock.onGet("/api/my-exams").reply((config) => {
+//   const {
+//     page = 1,
+//     pageSize = 10,
+//     examUuids, // 使用 examUuids 替代 examUuid
+//     status,
+//     minScore,
+//     maxScore,
+//   } = config.params;
 
-  // 生成更多的模拟数据
-  const mockMyExams = Array(100)
-    .fill()
-    .map((_, index) => ({
-      id: `exam-${index + 1}`,
-      uuid: `uuid-exam-${index + 1}`, // 添加 uuid 字段
-      name: `${2024 - Math.floor(index / 4)}年${
-        ["物理", "化学", "生物", "数学"][index % 4]
-      }${["期中", "期末"][index % 2]}考试`,
-      status: index % 3 === 0 ? "未参加" : "已完成",
-      score: index % 3 === 0 ? null : Math.floor(Math.random() * 41) + 60, // 60-100的随机分数
-      examTime:
-        index % 3 === 0
-          ? null
-          : new Date(Date.now() - Math.random() * 10000000000)
-              .toISOString()
-              .split("T")[0],
-    }));
+//   // 生成更多的模拟数据
+//   const mockMyExams = Array(100)
+//     .fill()
+//     .map((_, index) => ({
+//       id: `exam-${index + 1}`,
+//       uuid: `uuid-exam-${index + 1}`, // 添加 uuid 字段
+//       name: `${2024 - Math.floor(index / 4)}年${
+//         ["物理", "化学", "生物", "数学"][index % 4]
+//       }${["期中", "期末"][index % 2]}考试`,
+//       status: index % 3 === 0 ? "未参加" : "已完成",
+//       score: index % 3 === 0 ? null : Math.floor(Math.random() * 41) + 60, // 60-100的随机分数
+//       examTime:
+//         index % 3 === 0
+//           ? null
+//           : new Date(Date.now() - Math.random() * 10000000000)
+//               .toISOString()
+//               .split("T")[0],
+//     }));
 
-  // 应用过滤器
-  let filteredExams = mockMyExams;
-  if (examUuids && examUuids.length > 0) {
-    filteredExams = filteredExams.filter((exam) =>
-      examUuids.includes(exam.uuid)
-    );
-  }
-  if (status) {
-    filteredExams = filteredExams.filter((exam) => exam.status === status);
-  }
-  if (minScore !== undefined && minScore !== "") {
-    filteredExams = filteredExams.filter(
-      (exam) => exam.score && exam.score >= parseInt(minScore)
-    );
-  }
-  if (maxScore !== undefined && maxScore !== "") {
-    filteredExams = filteredExams.filter(
-      (exam) => exam.score && exam.score <= parseInt(maxScore)
-    );
-  }
+//   // 应用过滤器
+//   let filteredExams = mockMyExams;
+//   if (examUuids && examUuids.length > 0) {
+//     filteredExams = filteredExams.filter((exam) =>
+//       examUuids.includes(exam.uuid)
+//     );
+//   }
+//   if (status) {
+//     filteredExams = filteredExams.filter((exam) => exam.status === status);
+//   }
+//   if (minScore !== undefined && minScore !== "") {
+//     filteredExams = filteredExams.filter(
+//       (exam) => exam.score && exam.score >= parseInt(minScore)
+//     );
+//   }
+//   if (maxScore !== undefined && maxScore !== "") {
+//     filteredExams = filteredExams.filter(
+//       (exam) => exam.score && exam.score <= parseInt(maxScore)
+//     );
+//   }
 
-  // 应用分页
-  const totalCount = filteredExams.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + parseInt(pageSize);
-  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+//   // 应用分页
+//   const totalCount = filteredExams.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + parseInt(pageSize);
+//   const paginatedExams = filteredExams.slice(startIndex, endIndex);
 
-  return [200, { exams: paginatedExams, totalCount }];
-});
+//   return [200, { exams: paginatedExams, totalCount }];
+// });
 
 // 模拟问题数据的API响应
 // mock.onGet(/\/api\/questions\/.*/).reply(200, {
