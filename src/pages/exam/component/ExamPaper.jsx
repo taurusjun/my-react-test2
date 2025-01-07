@@ -493,7 +493,8 @@ const ExamPaper = () => {
           {exam.sections.map((section, sectionIndex) => (
             <Box key={section.uuid} sx={{ mb: 2 }}>
               <Typography variant="subtitle2" gutterBottom>
-                {`第${section.order_in_exam}部分 ${section.name}`}
+                {/* {`第${section.order_in_exam}部分 ${section.name}`} */}
+                {`第${section.order_in_exam}部分`}
               </Typography>
               <Grid container spacing={1}>
                 {section.questions.flatMap((question, questionIndex) =>
@@ -503,6 +504,10 @@ const ExamPaper = () => {
                       questionIndex,
                       detailIndex
                     );
+                    const isActive =
+                      currentSection === sectionIndex &&
+                      currentQuestion === questionIndex &&
+                      currentDetail === detailIndex;
                     return (
                       <Grid item key={`${question.uuid}-${detailIndex}`} xs={6}>
                         <Button
@@ -513,7 +518,11 @@ const ExamPaper = () => {
                             setCurrentQuestion(questionIndex);
                             setCurrentDetail(detailIndex);
                           }}
-                          sx={{ width: "100%", minWidth: "30px" }}
+                          sx={{
+                            width: "100%",
+                            minWidth: "30px",
+                            backgroundColor: isActive ? "red" : "inherit",
+                          }}
                         >
                           {detailNumber}
                         </Button>
