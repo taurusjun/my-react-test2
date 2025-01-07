@@ -55,9 +55,9 @@ const ExamPaper = () => {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const response = await axios.get(`/api/examview/${uuid}`);
-        setExam(response.data);
-        initializeAnswers(response.data);
+        const response = await axios.get(`/api/exams/${uuid}`);
+        setExam(response.data.data);
+        initializeAnswers(response.data.data);
 
         // 检查是否是重新参加考试
         const retakeStatus = new URLSearchParams(window.location.search).get(
