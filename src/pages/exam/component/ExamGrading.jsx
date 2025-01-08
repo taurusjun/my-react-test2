@@ -33,6 +33,7 @@ const ExamGrading = () => {
   const studentName = searchParams.get("studentName");
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState(null);
+  const [points, setPoints] = useState(null);
   const [grades, setGrades] = useState({});
   const [totalScore, setTotalScore] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,7 @@ const ExamGrading = () => {
         const responseData = response.data.data;
         setExam(responseData.examData);
         setAnswers(responseData.answerScoreMap);
+        setPoints(responseData.pointMap);
         setLoading(false);
         autoGrade(responseData.examData, responseData.answerScoreMap);
       } catch (error) {
@@ -96,7 +98,7 @@ const ExamGrading = () => {
                 studentSet.size === correctSet.size &&
                 [...studentSet].every((value) => correctSet.has(value))
               ) {
-                score = detail.score;
+                score = points[detail.uuid]?.score || 0;
               } else {
                 score = 0; // 选择题答错设为 0 分
               }
@@ -346,7 +348,7 @@ const ExamGrading = () => {
                             variant="body2"
                             sx={{ whiteSpace: "nowrap" }}
                           >
-                            / {detail.score}
+                            / {points[detail.uuid] || 0}
                           </Typography>
                         </Box>
                       </TableCell>
