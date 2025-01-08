@@ -113,10 +113,7 @@ const ExamGrading = () => {
             }
           }
 
-          newGrades[question.uuid] = {
-            ...newGrades[question.uuid],
-            [detail.uuid]: score,
-          };
+          newGrades[detail.uuid] = score;
           if (score >= 0) newTotalScore += score; // 只计算已评分的题目
         });
       });
@@ -126,25 +123,17 @@ const ExamGrading = () => {
     setTotalScore(newTotalScore);
   };
 
-  const handleGradeChange = (questionUuid, detailUuid, score) => {
+  const handleGradeChange = (detailUuid, score) => {
     setGrades((prevGrades) => ({
       ...prevGrades,
-      [questionUuid]: {
-        ...prevGrades[questionUuid],
-        [detailUuid]: Number(score),
-      },
+      [detailUuid]: Number(score),
     }));
     calculateTotalScore();
   };
 
   const calculateTotalScore = () => {
     const total = Object.values(grades).reduce(
-      (acc, question) =>
-        acc +
-        Object.values(question).reduce(
-          (sum, score) => sum + (score >= 0 ? Number(score) : 0),
-          0
-        ),
+      (sum, score) => sum + (score >= 0 ? Number(score) : 0),
       0
     );
     setTotalScore(total);
@@ -153,8 +142,8 @@ const ExamGrading = () => {
   const handleSubmitGrades = async () => {
     console.log("grades", grades);
     // 检查是否存在未评分的题目
-    const hasUngradedQuestions = Object.values(grades).some((question) =>
-      Object.values(question).some((score) => score === -1)
+    const hasUngradedQuestions = Object.values(grades).some(
+      (score) => score === -1
     );
 
     if (hasUngradedQuestions) {
@@ -296,7 +285,7 @@ const ExamGrading = () => {
                 section.questions.map((question) =>
                   question.questionDetails.map((detail, index) => (
                     <TableRow
-                      key={`${question.uuid}-${detail.uuid}`}
+                      key={detail.uuid}
                       sx={{
                         "&:nth-of-type(odd)": { backgroundColor: "#fafafa" },
                       }}
@@ -324,19 +313,15 @@ const ExamGrading = () => {
                             type="number"
                             inputProps={{ min: 0, max: detail.score }}
                             value={
-                              grades[question.uuid]?.[detail.uuid] === -1
+                              grades[detail.uuid] === -1
                                 ? ""
-                                : grades[question.uuid]?.[detail.uuid]
+                                : grades[detail.uuid]
                             }
                             onChange={(e) =>
-                              handleGradeChange(
-                                question.uuid,
-                                detail.uuid,
-                                e.target.value
-                              )
+                              handleGradeChange(detail.uuid, e.target.value)
                             }
                             onBlur={calculateTotalScore}
-                            error={grades[question.uuid]?.[detail.uuid] === -1}
+                            error={grades[detail.uuid] === -1}
                             size="small"
                             sx={{
                               width: "60px",
@@ -349,9 +334,7 @@ const ExamGrading = () => {
                               },
                             }}
                             helperText={
-                              grades[question.uuid]?.[detail.uuid] === -1
-                                ? "请评分"
-                                : " "
+                              grades[detail.uuid] === -1 ? "请评分" : " "
                             }
                           />
                           <Typography
