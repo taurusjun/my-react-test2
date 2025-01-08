@@ -38,7 +38,7 @@ const ErrorQuestionList = () => {
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [examOptions, setExamOptions] = useState([]);
   const [selectedExams, setSelectedExams] = useState([]);
-  const [errorCountFilter, setErrorCountFilter] = useState("");
+  const [errorCountFilter, setErrorCountFilter] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedQuestionUuid, setSelectedQuestionUuid] = useState(null);
   const [selectAll, setSelectAll] = useState(false);
@@ -68,8 +68,8 @@ const ErrorQuestionList = () => {
           pageSize: rowsPerPage,
         },
       });
-      setErrorQuestions(response.data.items);
-      setTotalCount(response.data.totalCount);
+      setErrorQuestions(response.data.data.items);
+      setTotalCount(response.data.data.totalCount);
     } catch (error) {
       console.error("获取错题列表失败:", error);
     }

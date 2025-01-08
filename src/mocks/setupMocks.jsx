@@ -509,58 +509,58 @@ mock.onPut(/\/api\/exams\/.*/).reply((config) => {
 
 // 在文件的适当位置添加以下代码
 
-mock.onGet("/api/error-questions").reply((config) => {
-  const {
-    examUuids = [],
-    errorCountFilter,
-    page = 1,
-    pageSize = 10,
-  } = config.params;
+// mock.onGet("/api/error-questions").reply((config) => {
+//   const {
+//     examUuids = [],
+//     errorCountFilter,
+//     page = 1,
+//     pageSize = 10,
+//   } = config.params;
 
-  const mockErrorQuestions = Array(100)
-    .fill()
-    .map((_, index) => ({
-      uuid: `error-question-${index + 1}`,
-      examUuid: `uuid-exam-${Math.floor(index / 20) + 1}`,
-      examName: `${2024 - Math.floor(index / 20)}年${
-        ["物理", "化学", "生物", "数学", "英语"][index % 5]
-      }${["期中", "期末"][index % 2]}考试`,
-      digest: `错题摘要 ${index + 1}`,
-      errorCount: Math.floor(Math.random() * 3) + 1,
-    }));
+//   const mockErrorQuestions = Array(100)
+//     .fill()
+//     .map((_, index) => ({
+//       uuid: `error-question-${index + 1}`,
+//       examUuid: `uuid-exam-${Math.floor(index / 20) + 1}`,
+//       examName: `${2024 - Math.floor(index / 20)}年${
+//         ["物理", "化学", "生物", "数学", "英语"][index % 5]
+//       }${["期中", "期末"][index % 2]}考试`,
+//       digest: `错题摘要 ${index + 1}`,
+//       errorCount: Math.floor(Math.random() * 3) + 1,
+//     }));
 
-  let filteredQuestions = [...mockErrorQuestions];
+//   let filteredQuestions = [...mockErrorQuestions];
 
-  if (examUuids.length > 0) {
-    filteredQuestions = filteredQuestions.filter((q) =>
-      examUuids.includes(q.examUuid)
-    );
-  }
+//   if (examUuids.length > 0) {
+//     filteredQuestions = filteredQuestions.filter((q) =>
+//       examUuids.includes(q.examUuid)
+//     );
+//   }
 
-  if (errorCountFilter) {
-    const count = parseInt(errorCountFilter);
-    if (count === 3) {
-      filteredQuestions = filteredQuestions.filter((q) => q.errorCount >= 3);
-    } else {
-      filteredQuestions = filteredQuestions.filter(
-        (q) => q.errorCount === count
-      );
-    }
-  }
+//   if (errorCountFilter) {
+//     const count = parseInt(errorCountFilter);
+//     if (count === 3) {
+//       filteredQuestions = filteredQuestions.filter((q) => q.errorCount >= 3);
+//     } else {
+//       filteredQuestions = filteredQuestions.filter(
+//         (q) => q.errorCount === count
+//       );
+//     }
+//   }
 
-  const totalCount = filteredQuestions.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + parseInt(pageSize);
-  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+//   const totalCount = filteredQuestions.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + parseInt(pageSize);
+//   const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
 
-  return [
-    200,
-    {
-      items: paginatedQuestions,
-      totalCount: totalCount,
-    },
-  ];
-});
+//   return [
+//     200,
+//     {
+//       items: paginatedQuestions,
+//       totalCount: totalCount,
+//     },
+//   ];
+// });
 
 // 添加以下代码来模拟获取单个错题详情的 API
 mock.onGet(/\/api\/error-questions\/[a-zA-Z0-9-]+$/).reply((config) => {
