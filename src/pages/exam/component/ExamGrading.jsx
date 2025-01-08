@@ -50,13 +50,7 @@ const ExamGrading = () => {
   useEffect(() => {
     const fetchExamAndAnswers = async () => {
       try {
-        // const [examResponse, answersResponse] = await Promise.all([
-        //   axios.get(`/api/exams/${examUuid}`),
-        //   axios.get(`/api/my-exams/${examUuid}/answers`),
-        // ]);
-        // setExam(examResponse.data.data);
-        // setAnswers(answersResponse.data);
-        const response = await axios.get(`/api/my-exams/grading/${uuid}`);
+        const response = await axios.get(`/api/my-exams/${uuid}/grading`);
         const responseData = response.data.data;
         setExam(responseData.examData);
         setAnswers(responseData.answerScoreMap);
@@ -156,8 +150,8 @@ const ExamGrading = () => {
     }
 
     try {
-      await axios.post(`/api/my-exams/${examUuid}/grades`, {
-        studentUuid,
+      await axios.post(`/api/my-exams/${uuid}/grades`, {
+        grades,
       });
       setSnackbar({
         open: true,
