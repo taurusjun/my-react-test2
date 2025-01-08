@@ -33,8 +33,8 @@ const ViewExam = () => {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const response = await axios.get(`/api/examview/${uuid}`);
-        setExam(response.data);
+        const response = await axios.get(`/api/exams/${uuid}`);
+        setExam(response.data.data);
       } catch (error) {
         console.error("获取考试数据失败", error);
       } finally {
