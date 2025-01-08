@@ -150,7 +150,7 @@ const ExamGrading = () => {
     }
 
     try {
-      await axios.post(`/api/my-exams/${uuid}/grades`, {
+      await axios.post(`/api/my-exams/${uuid}/grading`, {
         grades,
       });
       setSnackbar({
@@ -294,7 +294,9 @@ const ExamGrading = () => {
                           answers[detail.uuid]?.userAnswer || "未作答"
                         )}
                       </TableCell>
-                      <TableCell>{answers[detail.uuid]?.score || 0}</TableCell>
+                      <TableCell>
+                        {answers[detail.uuid]?.userScore || 0}
+                      </TableCell>
                       <TableCell>
                         <Box
                           sx={{
