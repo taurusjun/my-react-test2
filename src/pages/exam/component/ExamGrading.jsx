@@ -279,6 +279,7 @@ const ExamGrading = () => {
                 <TableCell sx={headerCellStyle}>题目</TableCell>
                 <TableCell sx={headerCellStyle}>标准答案</TableCell>
                 <TableCell sx={headerCellStyle}>学生答案</TableCell>
+                <TableCell sx={headerCellStyle}>已有分数</TableCell>
                 <TableCell sx={headerCellStyle}>分数</TableCell>
               </TableRow>
             </TableHead>
@@ -302,6 +303,7 @@ const ExamGrading = () => {
                           answers[detail.uuid]?.userAnswer || "未作答"
                         )}
                       </TableCell>
+                      <TableCell>{answers[detail.uuid]?.score || 0}</TableCell>
                       <TableCell>
                         <Box
                           sx={{
