@@ -69,8 +69,8 @@ const GradingCenter = () => {
             pageSize: rowsPerPage,
           },
         });
-        setSubmissions(response.data.submissions);
-        setTotalCount(response.data.totalCount);
+        setSubmissions(response.data.data.submissions);
+        setTotalCount(response.data.data.totalCount);
         setLoading(false);
       } catch (error) {
         console.error("获取提交数据失败:", error);
@@ -88,19 +88,21 @@ const GradingCenter = () => {
     rowsPerPage,
   ]);
 
-  const handleStartGrading = (uuid, studentClass, studentName) => {
+  const handleStartGrading = (uuid, examUuid, studentUuid, studentName) => {
     navigate(
-      `/exam/grading/${uuid}?class=${encodeURIComponent(
-        studentClass
-      )}&name=${encodeURIComponent(studentName)}`
+      `/exam/grading/${uuid}?examUuid=${encodeURIComponent(
+        examUuid
+      )}&studentUuid=${encodeURIComponent(
+        studentUuid
+      )}&studentName=${encodeURIComponent(studentName)}`
     );
   };
 
-  const handleViewResult = (uuid, studentClass, studentName) => {
+  const handleViewResult = (uuid, studentUuid, studentName) => {
     navigate(
-      `/exam/result/${uuid}?class=${encodeURIComponent(
-        studentClass
-      )}&name=${encodeURIComponent(studentName)}`
+      `/exam/result/${uuid}?studentUuid=${encodeURIComponent(
+        studentUuid
+      )}&studentName=${encodeURIComponent(studentName)}`
     );
   };
 
@@ -210,7 +212,7 @@ const GradingCenter = () => {
                   <BodyTableCell>
                     {submission.isGraded ? submission.score : "未批改"}
                   </BodyTableCell>
-                  <BodyTableCell>{submission.submissionTime}</BodyTableCell>
+                  <BodyTableCell>{submission.doneTime}</BodyTableCell>
                   <BodyTableCell>
                     <Typography
                       color={
@@ -228,7 +230,7 @@ const GradingCenter = () => {
                         onClick={() =>
                           handleViewResult(
                             submission.uuid,
-                            submission.studentClass,
+                            submission.studentUuid,
                             submission.studentName
                           )
                         }
@@ -242,7 +244,8 @@ const GradingCenter = () => {
                         onClick={() =>
                           handleStartGrading(
                             submission.uuid,
-                            submission.studentClass,
+                            submission.examUuid,
+                            submission.studentUuid,
                             submission.studentName
                           )
                         }

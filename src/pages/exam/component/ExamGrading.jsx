@@ -28,8 +28,9 @@ const ExamGrading = () => {
   const { uuid } = useParams();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const studentClass = searchParams.get("class");
-  const studentName = searchParams.get("name");
+  const examUuid = searchParams.get("examUuid");
+  const studentUuid = searchParams.get("studentUuid");
+  const studentName = searchParams.get("studentName");
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState(null);
   const [grades, setGrades] = useState({});
@@ -47,14 +48,18 @@ const ExamGrading = () => {
   useEffect(() => {
     const fetchExamAndAnswers = async () => {
       try {
-        const [examResponse, answersResponse] = await Promise.all([
-          axios.get(`/api/examview/${uuid}`),
-          axios.get(`/api/my-exams/${uuid}/answers`),
-        ]);
-        setExam(examResponse.data);
-        setAnswers(answersResponse.data);
+        // const [examResponse, answersResponse] = await Promise.all([
+        //   axios.get(`/api/exams/${examUuid}`),
+        //   axios.get(`/api/my-exams/${examUuid}/answers`),
+        // ]);
+        // setExam(examResponse.data.data);
+        // setAnswers(answersResponse.data);
+        const response = await axios.get(`/api/my-exams/grading/${uuid}`);
+        const responseData = response.data.data;
+        setExam(responseData.examData);
+        setAnswers(responseData.answerScoreMap);
         setLoading(false);
-        autoGrade(examResponse.data, answersResponse.data);
+        autoGrade(responseData.examData, responseData.answerScoreMap);
       } catch (error) {
         console.error("Error fetching exam and answers:", error);
         setSnackbar({
@@ -67,7 +72,7 @@ const ExamGrading = () => {
     };
 
     fetchExamAndAnswers();
-  }, [uuid]);
+  }, [examUuid, studentUuid]);
 
   const autoGrade = (exam, answers) => {
     const newGrades = {};
@@ -76,8 +81,7 @@ const ExamGrading = () => {
     exam.sections.forEach((section) => {
       section.questions.forEach((question) => {
         question.questionDetails.forEach((detail) => {
-          const studentAnswer =
-            answers.answers[question.uuid]?.[detail.uuid] || [];
+          const studentAnswer = answers[detail.uuid]?.userAnswer || [];
           const correctAnswer = detail.answer;
           let score = -1; // 默认分数设为 -1
 
@@ -153,7 +157,9 @@ const ExamGrading = () => {
     }
 
     try {
-      await axios.post(`/api/my-exams/${uuid}/grades`, { grades, totalScore });
+      await axios.post(`/api/my-exams/${examUuid}/grades`, {
+        studentUuid,
+      });
       setSnackbar({
         open: true,
         message: "成绩提交成功",
@@ -256,9 +262,9 @@ const ExamGrading = () => {
           {exam?.name || "试卷"} - 批改
         </Typography>
         <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle1">
+          {/* <Typography variant="subtitle1">
             考生班级：{studentClass || "未知"}
-          </Typography>
+          </Typography> */}
           <Typography variant="subtitle1">
             考生姓名：{studentName || "未知"}
           </Typography>
@@ -291,8 +297,7 @@ const ExamGrading = () => {
                       <TableCell>{renderAnswer(detail.answer)}</TableCell>
                       <TableCell>
                         {renderAnswer(
-                          answers.answers[question.uuid]?.[detail.uuid] ||
-                            "未作答"
+                          answers[detail.uuid]?.userAnswer || "未作答"
                         )}
                       </TableCell>
                       <TableCell>
