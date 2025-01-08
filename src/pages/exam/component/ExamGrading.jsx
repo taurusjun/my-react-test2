@@ -87,7 +87,8 @@ const ExamGrading = () => {
         question.questionDetails.forEach((detail) => {
           const studentAnswer = answers[detail.uuid]?.userAnswer || [];
           const correctAnswer = detail.answer;
-          let score = -1; // 默认分数设为 -1
+          // let score = -1; // 默认分数设为 -1
+          let score = answers[detail.uuid]?.userScore || -1;
 
           if (
             detail.uiType === "single_selection" ||
