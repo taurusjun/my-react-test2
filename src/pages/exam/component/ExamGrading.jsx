@@ -36,6 +36,7 @@ const ExamGrading = () => {
   const [points, setPoints] = useState(null);
   const [grades, setGrades] = useState({});
   const [totalScore, setTotalScore] = useState(0);
+  const [examTotalScore, setExamTotalScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -60,6 +61,13 @@ const ExamGrading = () => {
         setExam(responseData.examData);
         setAnswers(responseData.answerScoreMap);
         setPoints(responseData.pointMap);
+        // pointMap例子是{"03f7d20b-2f1c-4b7b-9a96-8ebb3675e2c8": 2}, 计算总分值
+        const examTotalScore = Object.values(responseData.pointMap).reduce(
+          (sum, point) => sum + point,
+          0
+        );
+        setExamTotalScore(examTotalScore);
+
         setLoading(false);
         autoGrade(responseData.examData, responseData.answerScoreMap);
       } catch (error) {
@@ -374,7 +382,7 @@ const ExamGrading = () => {
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          总分: {totalScore} / {exam.totalScore}
+          总分: {totalScore} / {examTotalScore}
         </Typography>
         <Button
           variant="contained"
