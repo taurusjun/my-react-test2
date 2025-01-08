@@ -161,6 +161,7 @@ const ExamPaper = () => {
     const isSingleChoice = detail.uiType === "single_selection";
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
+    const isShortAnswer = detail.uiType === "short_answer";
     const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
 
     if (isMultipleChoice) {
@@ -293,6 +294,19 @@ const ExamPaper = () => {
             )}
           </Box>
         </Box>
+      );
+    } else if (isShortAnswer) {
+      return (
+        <TextField
+          fullWidth
+          variant="outlined"
+          value={currentAnswer[0] || ""}
+          onChange={(e) =>
+            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
+          }
+          placeholder="在此输入您的简答"
+          sx={{ mt: 2 }}
+        />
       );
     }
   };
