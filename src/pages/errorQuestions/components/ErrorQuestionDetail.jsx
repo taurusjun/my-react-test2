@@ -12,7 +12,7 @@ import {
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
-const ErrorQuestionDetail = ({ questionDetailUuid }) => {
+const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
   const [questionDetail, setQuestionDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,10 +21,13 @@ const ErrorQuestionDetail = ({ questionDetailUuid }) => {
     const fetchQuestionDetail = async () => {
       try {
         setLoading(true);
+        // const response = await axios.get(
+        //   `/api/error-questions-detail/${questionDetailUuid}`
+        // );
         const response = await axios.get(
-          `/api/error-questions-detail/${questionDetailUuid}`
+          `/api/question-details/${questionDetailUuid}/error-explanation`
         );
-        setQuestionDetail(response.data);
+        setQuestionDetail(response.data.data);
         setLoading(false);
       } catch (err) {
         console.error("获取错题详情失败:", err);
@@ -78,7 +81,7 @@ const ErrorQuestionDetail = ({ questionDetailUuid }) => {
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom color="primary">
-        {questionDetail.examName}
+        {examName}
       </Typography>
       <Divider sx={{ my: 2 }} />
       <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -109,7 +112,7 @@ const ErrorQuestionDetail = ({ questionDetailUuid }) => {
         paragraph
         sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
       >
-        {questionDetail.content}
+        {questionDetail.content.value}
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <CheckCircleOutlineIcon color="success" sx={{ mr: 1 }} />

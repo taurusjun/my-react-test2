@@ -312,6 +312,11 @@ const ErrorQuestionList = () => {
             {selectedQuestionDetailUuid && (
               <ErrorQuestionDetail
                 questionDetailUuid={selectedQuestionDetailUuid}
+                examName={
+                  errorQuestions.find(
+                    (erq) => erq.qDetailUuid === selectedQuestionDetailUuid
+                  ).examName
+                }
               />
             )}
             <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
