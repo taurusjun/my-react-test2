@@ -54,7 +54,7 @@ const ErrorQuestionList = () => {
       const response = await axios.get("/api/exam-names", {
         params: { query: inputValue },
       });
-      setExamOptions(response.data);
+      setExamOptions(response.data.data);
     } catch (error) {
       console.error("获取考试名称失败:", error);
     }
@@ -62,14 +62,20 @@ const ErrorQuestionList = () => {
 
   const fetchErrorQuestions = useCallback(async () => {
     try {
-      const response = await axios.get("/api/record/wrong-questions", {
-        params: {
-          // examUuids: selectedExams.map((exam) => exam.uuid),
-          errorThreshold: errorCountFilter,
-          page: page + 1,
-          pageSize: rowsPerPage,
-        },
+      const params = new URLSearchParams();
+
+      selectedExams.forEach((exam) => {
+        params.append("examUuids", exam.uuid);
       });
+
+      params.append("errorThreshold", errorCountFilter);
+      params.append("page", page + 1);
+      params.append("pageSize", rowsPerPage);
+
+      const response = await axios.get("/api/record/wrong-questions", {
+        params: params,
+      });
+
       setErrorQuestions(response.data.data.items);
       setTotalCount(response.data.data.totalCount);
     } catch (error) {
