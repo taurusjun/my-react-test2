@@ -12,6 +12,8 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
@@ -27,20 +29,33 @@ const ErrorQuestionPractice = () => {
   const [results, setResults] = useState(null);
 
   useEffect(() => {
-    const uuids = location.state?.uuids || [];
-    if (uuids.length === 0) {
+    const params = location.state?.params || [];
+    if (params.length === 0) {
       navigate("/error-questions");
       return;
     }
-    fetchQuestions(uuids);
+    fetchQuestions(params);
   }, []);
 
-  const fetchQuestions = async (uuids) => {
+  // const fetchQuestions = async (uuids) => {
+  //   try {
+  //     const response = await axios.get("/api/error-questions-practice", {
+  //       params: { uuids },
+  //     });
+  //     setQuestions(response.data);
+  //   } catch (error) {
+  //     console.error("获取错题练习详情失败:", error);
+  //     // 这里可以添加错误处理逻辑，比如显示错误消息
+  //   }
+  // };
+
+  const fetchQuestions = async (paramsValue) => {
     try {
-      const response = await axios.get("/api/error-questions-practice", {
-        params: { uuids },
+      const params = new URLSearchParams(paramsValue);
+      const response = await axios.get("/api/record/wrong-questions/details", {
+        params,
       });
-      setQuestions(response.data);
+      setQuestions(response.data.data.items);
     } catch (error) {
       console.error("获取错题练习详情失败:", error);
       // 这里可以添加错误处理逻辑，比如显示错误消息
@@ -103,13 +118,42 @@ const ErrorQuestionPractice = () => {
           <Typography variant="h5" gutterBottom sx={{ color: "#1976d2" }}>
             问题 {currentQuestionIndex + 1} / {questions.length}
           </Typography>
+          {questions[currentQuestionIndex].material ? (
+            <>
+              <Typography
+                variant="body1"
+                paragraph
+                sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
+              >
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                  {questions[currentQuestionIndex].material}
+                </ReactMarkdown>
+              </Typography>
+            </>
+          ) : null}
           <Typography
             variant="body1"
             paragraph
             sx={{ fontWeight: "bold", mb: 2 }}
           >
-            {questions[currentQuestionIndex].content}
+            {questions[currentQuestionIndex].content.value}
           </Typography>
+          {questions[currentQuestionIndex].content.images &&
+            questions[currentQuestionIndex].content.images.length > 0 &&
+            questions[currentQuestionIndex].content.images.map(
+              (image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`问题图片 ${index + 1}`}
+                  style={{
+                    width: "150px",
+                    height: "auto",
+                    marginTop: "8px",
+                  }}
+                />
+              )
+            )}
           <RadioGroup
             value={userAnswers[questions[currentQuestionIndex].id] || ""}
             onChange={handleAnswerChange}

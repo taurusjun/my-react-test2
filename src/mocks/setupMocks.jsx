@@ -615,10 +615,11 @@ mock.onGet("/api/error-questions-practice").reply((config) => {
     // 可以继续添加更多模拟错题...
   ];
 
-  const requestedQuestions = mockErrorQuestions.filter((q) =>
-    uuids.includes(q.uuid)
-  );
-  return [200, requestedQuestions];
+  // const requestedQuestions = mockErrorQuestions.filter((q) =>
+  //   uuids.includes(q.uuid)
+  // );
+  // return [200, requestedQuestions];
+  return [200, mockErrorQuestions];
 });
 
 // 添加新的 mock 数据

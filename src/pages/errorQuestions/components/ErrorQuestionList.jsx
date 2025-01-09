@@ -117,12 +117,27 @@ const ErrorQuestionList = () => {
     setSelectedQuestionDetailUuid(null);
   };
 
+  // const handleStartPractice = () => {
+  //   if (selectedQuestions.length > 0) {
+  //     navigate("/error-questions/practice", {
+  //       state: { uuids: selectedQuestions },
+  //     });
+  //   }
+  // };
+
   const handleStartPractice = () => {
-    if (selectedQuestions.length > 0) {
-      navigate("/error-questions/practice", {
-        state: { uuids: selectedQuestions },
-      });
-    }
+    const params = new URLSearchParams();
+
+    selectedExams.forEach((exam) => {
+      params.append("examUuids", exam.uuid);
+    });
+
+    params.append("errorThreshold", errorCountFilter);
+    params.append("page", page + 1);
+    params.append("pageSize", rowsPerPage);
+    navigate("/error-questions/practice", {
+      state: { params: params.toString() },
+    });
   };
 
   const handleChangePage = (event, newPage) => {
