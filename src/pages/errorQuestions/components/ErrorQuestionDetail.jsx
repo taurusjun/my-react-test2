@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import {
   Typography,
   Box,
@@ -104,6 +106,22 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
           />
         </Grid>
       </Grid>
+      {questionDetail.material ? (
+        <>
+          <Typography variant="h6" gutterBottom>
+            题目材料
+          </Typography>
+          <Typography
+            variant="body1"
+            paragraph
+            sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
+          >
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {questionDetail.material}
+            </ReactMarkdown>
+          </Typography>
+        </>
+      ) : null}
       <Typography variant="h6" gutterBottom>
         题目内容
       </Typography>
