@@ -13,8 +13,10 @@ import {
 } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { useDictionaries } from "../../../provider/hooks/useDictionaries";
 
 const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
+  const { dictionaries } = useDictionaries();
   const [questionDetail, setQuestionDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,7 +97,10 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
         </Grid>
         <Grid item>
           <Chip
-            label={`知识点: ${questionDetail.knowledgePoint}`}
+            label={`知识点: ${
+              dictionaries.KNDict[questionDetail.knowledgePoint] ||
+              questionDetail.knowledgePoint
+            }`}
             color="info"
           />
         </Grid>
