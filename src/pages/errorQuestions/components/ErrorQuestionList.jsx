@@ -41,7 +41,8 @@ const ErrorQuestionList = () => {
   const [selectedExams, setSelectedExams] = useState([]);
   const [errorCountFilter, setErrorCountFilter] = useState(0);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedQuestionUuid, setSelectedQuestionUuid] = useState(null);
+  const [selectedQuestionDetailUuid, setSelectedQuestionDetailUuid] =
+    useState(null);
   const [selectAll, setSelectAll] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -100,14 +101,14 @@ const ErrorQuestionList = () => {
     );
   };
 
-  const handleViewErrorQuestion = (questionUuid) => {
-    setSelectedQuestionUuid(questionUuid);
+  const handleViewErrorQuestion = (questionDetailUuid) => {
+    setSelectedQuestionDetailUuid(questionDetailUuid);
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setSelectedQuestionUuid(null);
+    setSelectedQuestionDetailUuid(null);
   };
 
   const handleStartPractice = () => {
@@ -231,8 +232,10 @@ const ErrorQuestionList = () => {
                 <StyledTableRow key={question.qDetailUuid}>
                   <BodyTableCell>
                     <Checkbox
-                      checked={selectedQuestions.includes(question.uuid)}
-                      onChange={() => handleSelectQuestion(question.uuid)}
+                      checked={selectedQuestions.includes(question.qDetailUuid)}
+                      onChange={() =>
+                        handleSelectQuestion(question.qDetailUuid)
+                      }
                     />
                   </BodyTableCell>
                   <BodyTableCell>{question.examName}</BodyTableCell>
@@ -260,7 +263,9 @@ const ErrorQuestionList = () => {
                   <BodyTableCell>
                     <Button
                       variant="outlined"
-                      onClick={() => handleViewErrorQuestion(question.uuid)}
+                      onClick={() =>
+                        handleViewErrorQuestion(question.qDetailUuid)
+                      }
                     >
                       查看错题
                     </Button>
@@ -304,8 +309,10 @@ const ErrorQuestionList = () => {
               borderRadius: 2,
             }}
           >
-            {selectedQuestionUuid && (
-              <ErrorQuestionDetail questionUuid={selectedQuestionUuid} />
+            {selectedQuestionDetailUuid && (
+              <ErrorQuestionDetail
+                questionDetailUuid={selectedQuestionDetailUuid}
+              />
             )}
             <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={handleCloseModal} variant="contained">

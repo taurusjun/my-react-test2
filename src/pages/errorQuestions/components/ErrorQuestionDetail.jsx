@@ -12,7 +12,7 @@ import {
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
-const ErrorQuestionDetail = ({ questionUuid }) => {
+const ErrorQuestionDetail = ({ questionDetailUuid }) => {
   const [questionDetail, setQuestionDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +22,7 @@ const ErrorQuestionDetail = ({ questionUuid }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `/api/error-questions-detail/${questionUuid}`
+          `/api/error-questions-detail/${questionDetailUuid}`
         );
         setQuestionDetail(response.data);
         setLoading(false);
@@ -34,7 +34,7 @@ const ErrorQuestionDetail = ({ questionUuid }) => {
     };
 
     fetchQuestionDetail();
-  }, [questionUuid]);
+  }, [questionDetailUuid]);
 
   if (loading) {
     return (
