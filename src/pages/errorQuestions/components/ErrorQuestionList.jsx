@@ -18,6 +18,7 @@ import {
   TablePagination,
   Autocomplete,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import {
   StyledTableCell,
@@ -60,10 +61,10 @@ const ErrorQuestionList = () => {
 
   const fetchErrorQuestions = useCallback(async () => {
     try {
-      const response = await axios.get("/api/error-questions", {
+      const response = await axios.get("/api/record/wrong-questions", {
         params: {
-          examUuids: selectedExams.map((exam) => exam.uuid),
-          errorCountFilter,
+          // examUuids: selectedExams.map((exam) => exam.uuid),
+          errorThreshold: errorCountFilter,
           page: page + 1,
           pageSize: rowsPerPage,
         },
@@ -220,13 +221,14 @@ const ErrorQuestionList = () => {
                 </StyledTableCell>
                 <StyledTableCell>考试名称</StyledTableCell>
                 <StyledTableCell>题目摘要</StyledTableCell>
+                <StyledTableCell>题目内容</StyledTableCell>
                 <StyledTableCell>错误次数</StyledTableCell>
                 <StyledTableCell>操作</StyledTableCell>
               </StyledTableRow>
             </TableHead>
             <TableBody>
               {errorQuestions.map((question) => (
-                <StyledTableRow key={question.uuid}>
+                <StyledTableRow key={question.qDetailUuid}>
                   <BodyTableCell>
                     <Checkbox
                       checked={selectedQuestions.includes(question.uuid)}
@@ -235,6 +237,20 @@ const ErrorQuestionList = () => {
                   </BodyTableCell>
                   <BodyTableCell>{question.examName}</BodyTableCell>
                   <BodyTableCell>{question.digest}</BodyTableCell>
+                  <BodyTableCell>
+                    <Tooltip title={question.question} arrow>
+                      <div
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "200px",
+                        }}
+                      >
+                        {question.question}
+                      </div>
+                    </Tooltip>
+                  </BodyTableCell>
                   <BodyTableCell>
                     <Chip
                       label={question.errorCount}
