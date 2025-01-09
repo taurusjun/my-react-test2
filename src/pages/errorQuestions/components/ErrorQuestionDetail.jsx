@@ -132,6 +132,20 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
       >
         {questionDetail.content.value}
       </Typography>
+      {questionDetail.content.images &&
+        questionDetail.content.images.length > 0 &&
+        questionDetail.content.images.map((image, index) => (
+          <img
+            key={index}
+            src={image}
+            alt={`问题图片 ${index + 1}`}
+            style={{
+              width: "150px",
+              height: "auto",
+              marginTop: "8px",
+            }}
+          />
+        ))}
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <CheckCircleOutlineIcon color="success" sx={{ mr: 1 }} />
         <Typography variant="h6">正确答案</Typography>
