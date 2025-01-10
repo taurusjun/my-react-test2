@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, RadioGroup, FormControlLabel } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import ReactMarkdown from "react-markdown";
@@ -25,14 +25,24 @@ const QuestionDetailView = ({
   const [answers, setAnswers] = useState({});
   const fileInputRefs = useRef({});
 
+  useEffect(() => {
+    console.log(answers);
+  }, [answers]);
+
   const handleAnswerChange = (detailUuid, newContent) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [detailUuid]: {
-        ...prevAnswers[detailUuid],
-        content: newContent,
-      },
-    }));
+    setAnswers((prevAnswers) => {
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: "",
+        images: [],
+      };
+      return {
+        ...prevAnswers,
+        [detailUuid]: {
+          ...currentAnswer,
+          content: newContent,
+        },
+      };
+    });
   };
 
   const handleImageUpload = (event, detailUuid) => {
