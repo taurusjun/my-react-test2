@@ -72,7 +72,7 @@ const ErrorQuestionList = () => {
       params.append("page", page + 1);
       params.append("pageSize", rowsPerPage);
 
-      const response = await axios.get("/api/record/wrong-questions", {
+      const response = await axios.get("/api/record/wrong-questions/summary", {
         params: params,
       });
 
