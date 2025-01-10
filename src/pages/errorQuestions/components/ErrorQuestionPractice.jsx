@@ -58,11 +58,8 @@ const ErrorQuestionPractice = () => {
     }
   };
 
-  const handleAnswerChange = (event) => {
-    setUserAnswers({
-      ...userAnswers,
-      [questions[currentQuestionIndex].id]: event.target.value,
-    });
+  const handleAnswerChange = (answers) => {
+    setUserAnswers(answers);
   };
 
   const handleNextQuestion = () => {
@@ -113,7 +110,6 @@ const ErrorQuestionPractice = () => {
         <Box sx={{ backgroundColor: "#f5f5f5", padding: 3, borderRadius: 2 }}>
           <QuestionDetailView
             questionDetail={questions[currentQuestionIndex]}
-            userAnswer={userAnswers[questions[currentQuestionIndex].id] || ""}
             onAnswerChange={handleAnswerChange}
             header={`问题 ${currentQuestionIndex + 1} / ${questions.length}`}
           />

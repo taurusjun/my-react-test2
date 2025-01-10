@@ -16,16 +16,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRef } from "react";
 
-const QuestionDetailView = ({
-  questionDetail,
-  userAnswer,
-  onAnswerChange,
-  header,
-}) => {
+const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
   const [answers, setAnswers] = useState({});
   const fileInputRefs = useRef({});
 
   useEffect(() => {
+    onAnswerChange(answers);
     console.log(answers);
   }, [answers]);
 
