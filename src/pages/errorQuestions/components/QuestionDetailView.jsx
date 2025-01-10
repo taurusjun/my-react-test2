@@ -25,12 +25,12 @@ const QuestionDetailView = ({
   const [answers, setAnswers] = useState({});
   const fileInputRefs = useRef({});
 
-  const handleAnswerChange = (detailUuid, newAnswer) => {
+  const handleAnswerChange = (detailUuid, newContent) => {
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
-      answers: {
-        ...prevAnswers.answers,
-        [detailUuid]: newAnswer,
+      [detailUuid]: {
+        ...prevAnswers[detailUuid],
+        content: newContent,
       },
     }));
   };
@@ -42,12 +42,15 @@ const QuestionDetailView = ({
       reader.onloadend = () => {
         const imageDataUrl = reader.result;
         setAnswers((prevAnswers) => {
-          const currentAnswer = prevAnswers.answers[detailUuid] || ["", ""];
+          const currentAnswer = prevAnswers[detailUuid] || {
+            content: "",
+            images: [],
+          };
           return {
             ...prevAnswers,
-            answers: {
-              ...prevAnswers.answers,
-              [detailUuid]: [currentAnswer[0], imageDataUrl],
+            [detailUuid]: {
+              ...currentAnswer,
+              images: [...currentAnswer.images, imageDataUrl],
             },
           };
         });
@@ -56,14 +59,19 @@ const QuestionDetailView = ({
     }
   };
 
-  const handleDeleteImage = (detailUuid) => {
+  const handleDeleteImage = (detailUuid, imageIndex) => {
     setAnswers((prevAnswers) => {
-      const currentAnswer = prevAnswers.answers[detailUuid] || ["", ""];
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: "",
+        images: [],
+      };
       return {
         ...prevAnswers,
-        answers: {
-          ...prevAnswers.answers,
-          [detailUuid]: [currentAnswer[0], ""], // 保留文本答案，删除图片
+        [detailUuid]: {
+          ...currentAnswer,
+          images: currentAnswer.images.filter(
+            (_, index) => index !== imageIndex
+          ),
         },
       };
     });
@@ -80,7 +88,7 @@ const QuestionDetailView = ({
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const isShortAnswer = detail.uiType === "short_answer";
-    const currentAnswer = answers[detail.uuid] || [];
+    const currentAnswer = answers[detail.uuid] || { content: "", images: [] };
 
     if (isMultipleChoice) {
       return (
@@ -90,13 +98,16 @@ const QuestionDetailView = ({
               key={rowIndex}
               control={
                 <Checkbox
-                  checked={currentAnswer.includes(
+                  checked={currentAnswer.content.includes(
                     String.fromCharCode(65 + rowIndex)
                   )}
                   onChange={(e) => {
                     const newAnswer = e.target.checked
-                      ? [...currentAnswer, String.fromCharCode(65 + rowIndex)]
-                      : currentAnswer.filter(
+                      ? [
+                          ...currentAnswer.content,
+                          String.fromCharCode(65 + rowIndex),
+                        ]
+                      : currentAnswer.content.filter(
                           (item) => item !== String.fromCharCode(65 + rowIndex)
                         );
                     handleAnswerChange(detail.uuid, newAnswer);
@@ -111,8 +122,8 @@ const QuestionDetailView = ({
     } else if (isSingleChoice) {
       return (
         <RadioGroup
-          value={currentAnswer[0] || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
+          value={currentAnswer.content || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
         >
           {detail.rows.map((row, rowIndex) => (
             <FormControlLabel
@@ -129,8 +140,8 @@ const QuestionDetailView = ({
         <TextField
           fullWidth
           variant="standard"
-          value={currentAnswer[0] || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
+          value={currentAnswer.content || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
           placeholder="在此输入您的答案"
           InputProps={{
             disableUnderline: true,
@@ -158,13 +169,8 @@ const QuestionDetailView = ({
             multiline
             rows={4}
             variant="outlined"
-            value={currentAnswer[0] || ""}
-            onChange={(e) =>
-              handleAnswerChange(detail.uuid, [
-                e.target.value,
-                currentAnswer[1] || "",
-              ])
-            }
+            value={currentAnswer.content || ""}
+            onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
             placeholder="在此输入您的计算过程和答案"
           />
           <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
@@ -185,11 +191,14 @@ const QuestionDetailView = ({
                 上传解题图片
               </Button>
             </label>
-            {currentAnswer[1] && (
-              <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
+            {currentAnswer.images.map((image, index) => (
+              <Box
+                key={index}
+                sx={{ ml: 2, display: "flex", alignItems: "center" }}
+              >
                 <img
-                  src={currentAnswer[1]}
-                  alt="解题图片"
+                  src={image}
+                  alt={`解题图片 ${index + 1}`}
                   style={{
                     maxWidth: "100px",
                     maxHeight: "100px",
@@ -197,13 +206,13 @@ const QuestionDetailView = ({
                   }}
                 />
                 <IconButton
-                  onClick={() => handleDeleteImage(detail.uuid)}
+                  onClick={() => handleDeleteImage(detail.uuid, index)}
                   sx={{ ml: 1 }}
                 >
                   <DeleteIcon />
                 </IconButton>
               </Box>
-            )}
+            ))}
           </Box>
         </Box>
       );
@@ -212,8 +221,8 @@ const QuestionDetailView = ({
         <TextField
           fullWidth
           variant="outlined"
-          value={currentAnswer[0] || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
+          value={currentAnswer.content || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
           placeholder="在此输入您的简答"
           sx={{ mt: 2 }}
         />
