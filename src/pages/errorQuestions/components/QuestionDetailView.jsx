@@ -28,9 +28,31 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
   const handleAnswerChange = (detailUuid, newContent) => {
     setAnswers((prevAnswers) => {
       const currentAnswer = prevAnswers[detailUuid] || {
-        content: "",
+        content: [],
         images: [],
       };
+      return {
+        ...prevAnswers,
+        [detailUuid]: {
+          ...currentAnswer,
+          content: newContent,
+        },
+      };
+    });
+  };
+
+  const handleMultipleChoiceChange = (detailUuid, choice) => {
+    setAnswers((prevAnswers) => {
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: [],
+        images: [],
+      };
+      const newContent = currentAnswer.content.includes(choice)
+        ? currentAnswer.content.filter((item) => item !== choice)
+        : [...currentAnswer.content, choice];
+
+      newContent.sort();
+
       return {
         ...prevAnswers,
         [detailUuid]: {
@@ -94,7 +116,7 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const isShortAnswer = detail.uiType === "short_answer";
-    const currentAnswer = answers[detail.uuid] || { content: "", images: [] };
+    const currentAnswer = answers[detail.uuid] || { content: [], images: [] };
 
     if (isMultipleChoice) {
       return (
@@ -107,17 +129,12 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
                   checked={currentAnswer.content.includes(
                     String.fromCharCode(65 + rowIndex)
                   )}
-                  onChange={(e) => {
-                    const newAnswer = e.target.checked
-                      ? [
-                          ...currentAnswer.content,
-                          String.fromCharCode(65 + rowIndex),
-                        ]
-                      : currentAnswer.content.filter(
-                          (item) => item !== String.fromCharCode(65 + rowIndex)
-                        );
-                    handleAnswerChange(detail.uuid, newAnswer);
-                  }}
+                  onChange={() =>
+                    handleMultipleChoiceChange(
+                      detail.uuid,
+                      String.fromCharCode(65 + rowIndex)
+                    )
+                  }
                 />
               }
               label={`${String.fromCharCode(65 + rowIndex)}. ${row.value}`}
@@ -128,8 +145,8 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
     } else if (isSingleChoice) {
       return (
         <RadioGroup
-          value={currentAnswer.content || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
         >
           {detail.rows.map((row, rowIndex) => (
             <FormControlLabel
@@ -145,26 +162,10 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
       return (
         <TextField
           fullWidth
-          variant="standard"
-          value={currentAnswer.content || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
+          variant="outlined"
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
           placeholder="在此输入您的答案"
-          InputProps={{
-            disableUnderline: true,
-            startAdornment: (
-              <InputAdornment position="start">答：</InputAdornment>
-            ),
-          }}
-          sx={{
-            mt: 2,
-            "& .MuiInputBase-root": {
-              borderBottom: "1px solid #000",
-              paddingBottom: "4px",
-            },
-            "& .MuiInputBase-input": {
-              padding: "0 0 4px",
-            },
-          }}
         />
       );
     } else if (isCalculation) {
@@ -175,8 +176,8 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
             multiline
             rows={4}
             variant="outlined"
-            value={currentAnswer.content || ""}
-            onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
+            value={currentAnswer.content[0] || ""}
+            onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
             placeholder="在此输入您的计算过程和答案"
           />
           <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
@@ -227,8 +228,8 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
         <TextField
           fullWidth
           variant="outlined"
-          value={currentAnswer.content || ""}
-          onChange={(e) => handleAnswerChange(detail.uuid, e.target.value)}
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
           placeholder="在此输入您的简答"
           sx={{ mt: 2 }}
         />
