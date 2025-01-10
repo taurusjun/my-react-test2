@@ -4,20 +4,16 @@ import {
   Typography,
   Box,
   Button,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import axios from "axios";
+import QuestionDetailView from "./QuestionDetailView";
 
 const ErrorQuestionPractice = () => {
   const location = useLocation();
@@ -115,61 +111,12 @@ const ErrorQuestionPractice = () => {
     >
       {questions.length > 0 && (
         <Box sx={{ backgroundColor: "#f5f5f5", padding: 3, borderRadius: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ color: "#1976d2" }}>
-            问题 {currentQuestionIndex + 1} / {questions.length}
-          </Typography>
-          {questions[currentQuestionIndex].material ? (
-            <>
-              <Typography
-                variant="body1"
-                paragraph
-                sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
-              >
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                  {questions[currentQuestionIndex].material}
-                </ReactMarkdown>
-              </Typography>
-            </>
-          ) : null}
-          <Typography
-            variant="body1"
-            paragraph
-            sx={{ fontWeight: "bold", mb: 2 }}
-          >
-            {questions[currentQuestionIndex].content.value}
-          </Typography>
-          {questions[currentQuestionIndex].content.images &&
-            questions[currentQuestionIndex].content.images.length > 0 &&
-            questions[currentQuestionIndex].content.images.map(
-              (image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`问题图片 ${index + 1}`}
-                  style={{
-                    width: "150px",
-                    height: "auto",
-                    marginTop: "8px",
-                  }}
-                />
-              )
-            )}
-          <RadioGroup
-            value={userAnswers[questions[currentQuestionIndex].id] || ""}
-            onChange={handleAnswerChange}
-          >
-            {questions[currentQuestionIndex].options.map((option, index) => (
-              <FormControlLabel
-                key={index}
-                value={option}
-                control={<Radio color="primary" />}
-                label={
-                  <Typography sx={{ fontSize: "1.1rem" }}>{option}</Typography>
-                }
-                sx={{ mb: 1 }}
-              />
-            ))}
-          </RadioGroup>
+          <QuestionDetailView
+            questionDetail={questions[currentQuestionIndex]}
+            userAnswer={userAnswers[questions[currentQuestionIndex].id] || ""}
+            onAnswerChange={handleAnswerChange}
+            header={`问题 ${currentQuestionIndex + 1} / ${questions.length}`}
+          />
           <Box
             sx={{
               mt: 3,
