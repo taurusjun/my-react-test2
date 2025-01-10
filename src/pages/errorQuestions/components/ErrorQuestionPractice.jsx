@@ -74,10 +74,26 @@ const ErrorQuestionPractice = () => {
     }
   };
 
+  // const handleSubmit = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "/api/error-questions-practice/submit",
+  //       {
+  //         answers: userAnswers,
+  //       }
+  //     );
+  //     setResults(response.data);
+  //     setShowResults(true);
+  //   } catch (error) {
+  //     console.error("提交答案失败:", error);
+  //     // 这里可以添加错误处理逻辑，比如显示错误消息
+  //   }
+  // };
+
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
-        "/api/error-questions-practice/submit",
+        "/api/my-exams/wrong-questions/practice",
         {
           answers: userAnswers,
         }
