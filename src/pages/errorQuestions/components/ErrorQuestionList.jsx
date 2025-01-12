@@ -334,11 +334,10 @@ const ErrorQuestionList = () => {
             {selectedQuestionDetailUuid && (
               <ErrorQuestionDetail
                 questionDetailUuid={selectedQuestionDetailUuid}
-                examName={
-                  errorQuestions.find(
-                    (erq) => erq.qDetailUuid === selectedQuestionDetailUuid
-                  ).examName
-                }
+                examName={errorQuestions
+                  .find((erq) => erq.qDetailUuid === selectedQuestionDetailUuid)
+                  .examInfos.map((info) => info.examName)
+                  .join(", ")}
               />
             )}
             <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
