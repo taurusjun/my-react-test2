@@ -86,7 +86,7 @@ const QuestionList = ({
       const response = await axios.get("/api/exam-names", {
         params: { query: input },
       });
-      setRelatedSourceOptions(response.data);
+      setRelatedSourceOptions(response.data.data);
     } catch (error) {
       console.error("获取关联资源选项时出错:", error);
     }

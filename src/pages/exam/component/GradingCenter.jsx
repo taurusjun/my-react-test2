@@ -46,7 +46,7 @@ const GradingCenter = () => {
         const response = await axios.get("/api/exam-names", {
           params: { query: "" },
         });
-        setExams(response.data);
+        setExams(response.data.data);
       } catch (error) {
         console.error("获取考试列表失败:", error);
       }

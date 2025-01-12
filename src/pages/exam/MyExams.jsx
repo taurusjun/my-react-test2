@@ -82,7 +82,7 @@ const MyExams = () => {
       const response = await axios.get("/api/exam-names", {
         params: { query: inputValue },
       });
-      setExamOptions(response.data);
+      setExamOptions(response.data.data);
     } catch (error) {
       console.error("获取考试名称失败", error);
     }

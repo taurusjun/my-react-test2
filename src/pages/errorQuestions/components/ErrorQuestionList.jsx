@@ -211,7 +211,6 @@ const ErrorQuestionList = () => {
               variant="contained"
               color="primary"
               onClick={handleStartPractice}
-              disabled={selectedQuestions.length === 0}
               sx={{
                 height: "40px",
                 minWidth: 120,
@@ -223,7 +222,7 @@ const ErrorQuestionList = () => {
                 },
               }}
             >
-              开始练习 ({selectedQuestions.length})
+              开始练习
             </Button>
           </Grid>
         </Grid>
@@ -231,17 +230,7 @@ const ErrorQuestionList = () => {
           <Table>
             <TableHead>
               <StyledTableRow>
-                <StyledTableCell>
-                  <Checkbox
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                    indeterminate={
-                      selectedQuestions.length > 0 &&
-                      selectedQuestions.length < errorQuestions.length
-                    }
-                  />
-                </StyledTableCell>
-                <StyledTableCell>考试名称</StyledTableCell>
+                <StyledTableCell>关联考试</StyledTableCell>
                 <StyledTableCell>题目摘要</StyledTableCell>
                 <StyledTableCell>题目内容</StyledTableCell>
                 <StyledTableCell>错误次数</StyledTableCell>
@@ -250,16 +239,28 @@ const ErrorQuestionList = () => {
             </TableHead>
             <TableBody>
               {errorQuestions.map((question) => (
-                <StyledTableRow key={question.qDetailUuid}>
+                <StyledTableRow key={question.uuid}>
                   <BodyTableCell>
-                    <Checkbox
-                      checked={selectedQuestions.includes(question.qDetailUuid)}
-                      onChange={() =>
-                        handleSelectQuestion(question.qDetailUuid)
-                      }
-                    />
+                    <Tooltip
+                      title={question.examInfos
+                        .map((info) => info.examName)
+                        .join(", ")}
+                      arrow
+                    >
+                      <div
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "200px",
+                        }}
+                      >
+                        {question.examInfos
+                          .map((info) => info.examName)
+                          .join(", ")}
+                      </div>
+                    </Tooltip>
                   </BodyTableCell>
-                  <BodyTableCell>{question.examName}</BodyTableCell>
                   <BodyTableCell>{question.digest}</BodyTableCell>
                   <BodyTableCell>
                     <Tooltip title={question.question} arrow>
