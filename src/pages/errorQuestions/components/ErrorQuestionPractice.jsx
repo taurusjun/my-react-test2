@@ -92,6 +92,11 @@ const ErrorQuestionPractice = () => {
 
   const handleSubmit = async () => {
     try {
+      // TODO: 检查userAnswers是否为空
+      if (Object.keys(userAnswers).length < questions.length) {
+        console.error("用户未完成所有题目");
+        return;
+      }
       const response = await axios.post(
         "/api/my-exams/wrong-questions/practice",
         {
