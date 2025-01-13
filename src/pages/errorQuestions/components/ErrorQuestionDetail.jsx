@@ -171,8 +171,23 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
         paragraph
         sx={{ backgroundColor: "#ffebee", p: 2, borderRadius: 1 }}
       >
-        {questionDetail.userAnswer}
+        {questionDetail.userAnswer.value}
       </Typography>
+      {questionDetail.userAnswer.images &&
+        questionDetail.userAnswer.images.length > 0 &&
+        questionDetail.userAnswer.images.map((image, index) => (
+          <img
+            key={index}
+            src={image}
+            alt={`用户答案图片 ${index + 1}`}
+            style={{
+              width: "150px",
+              height: "auto",
+              marginTop: "8px",
+            }}
+          />
+        ))}
+
       <Typography variant="h6" gutterBottom>
         解释
       </Typography>
