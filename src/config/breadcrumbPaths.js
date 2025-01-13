@@ -35,6 +35,11 @@ export const getBreadcrumbPaths = () => ({
     { name: "错题练习", url: "" },
   ],
 
+  errorQuestionPracticeDetails: [
+    { name: "错题集", url: "/error-questions" },
+    { name: "错题详情", url: "" },
+  ],
+
   // 添加阅卷中心路径
   gradingCenter: [{ name: "阅卷中心", url: "/grading-center" }],
   examGrading: [

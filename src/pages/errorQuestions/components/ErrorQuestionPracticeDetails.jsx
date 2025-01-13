@@ -9,10 +9,15 @@ import {
 } from "@mui/material";
 import { useDictionaries } from "../../../provider/hooks/useDictionaries";
 import ErrorQuestionDisplay from "./ErrorQuestionDisplay";
+import { useParams } from "react-router-dom";
+import CommonLayout from "../../../layouts/CommonLayout";
+import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
+import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 
-const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
+const ErrorQuestionPracticeDetails = () => {
+  const { uuid } = useParams();
   const { dictionaries } = useDictionaries();
-  const [questionDetail, setQuestionDetail] = useState(null);
+  const [questionDetails, setQuestionDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,9 +26,9 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `/api/question-details/${questionDetailUuid}/error-explanation`
+          `/api/record/${uuid}/error-explanation-list`
         );
-        setQuestionDetail(response.data.data);
+        setQuestionDetails(response.data.data.items);
         setLoading(false);
       } catch (err) {
         console.error("获取错题详情失败:", err);
@@ -33,7 +38,7 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
     };
 
     fetchQuestionDetail();
-  }, [questionDetailUuid]);
+  }, [uuid]);
 
   if (loading) {
     return (
@@ -61,7 +66,7 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
     );
   }
 
-  if (!questionDetail) {
+  if (!questionDetails || questionDetails.length === 0) {
     return (
       <Box
         display="flex"
@@ -74,18 +79,40 @@ const ErrorQuestionDetail = ({ questionDetailUuid, examName }) => {
     );
   }
 
+  const breadcrumbPaths = getBreadcrumbPaths();
+
   return (
-    <Paper elevation={3} sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom color="primary">
-        {examName}
-      </Typography>
-      <Divider sx={{ my: 2 }} />
-      <ErrorQuestionDisplay
-        questionDetail={questionDetail}
-        dictionaries={dictionaries}
-      />
-    </Paper>
+    <CommonLayout
+      currentPage="错题强化"
+      maxWidth="xl"
+      showBreadcrumbs={true}
+      BreadcrumbsComponent={() => (
+        <CommonBreadcrumbs
+          paths={breadcrumbPaths.errorQuestionPracticeDetails}
+        />
+      )}
+    >
+      <Paper
+        elevation={3}
+        sx={{ p: 3, bgcolor: "#f5f5f5", borderRadius: "8px" }}
+      >
+        <Typography variant="h5" gutterBottom color="primary" align="center">
+          错题详情
+        </Typography>
+        {questionDetails.map((questionDetail) => (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Box key={questionDetail.uuid} sx={{ mb: 2 }}>
+              <ErrorQuestionDisplay
+                questionDetail={questionDetail}
+                dictionaries={dictionaries}
+              />
+            </Box>
+          </>
+        ))}
+      </Paper>
+    </CommonLayout>
   );
 };
 
-export default ErrorQuestionDetail;
+export default ErrorQuestionPracticeDetails;

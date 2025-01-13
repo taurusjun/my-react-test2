@@ -140,6 +140,12 @@ const ErrorQuestionList = () => {
     });
   };
 
+  const handlePracticeRecord = () => {
+    navigate(
+      "/error-questions/practice/practice_ed89f9c7-38cc-45ef-9526-58a3873ac24d"
+    );
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -223,6 +229,25 @@ const ErrorQuestionList = () => {
               }}
             >
               开始练习
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm="auto">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePracticeRecord}
+              sx={{
+                height: "40px",
+                minWidth: 120,
+                boxShadow: "0 3px 5px 2px rgba(33, 150, 243, .3)",
+                transition: "all 0.3s",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 10px 4px rgba(33, 150, 243, .3)",
+                },
+              }}
+            >
+              练习记录
             </Button>
           </Grid>
         </Grid>
