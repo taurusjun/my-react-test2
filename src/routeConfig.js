@@ -22,6 +22,7 @@ import {
   ErrorQuestionView,
   ErrorQuestionPractice,
   ErrorQuestionPracticeDetails,
+  ErrorQuestionPracticeList,
 } from "./pages/errorQuestions";
 // 导入新的学习相关组件
 import LearningMaterialListPage from "./learning/pages/LearningMaterialListPage";
@@ -71,6 +72,11 @@ export const routeConfig = [
   {
     path: "/error-questions/practice/:uuid",
     element: ErrorQuestionPracticeDetails,
+    protected: true,
+  },
+  {
+    path: "/error-questions/practice/list",
+    element: ErrorQuestionPracticeList,
     protected: true,
   },
 

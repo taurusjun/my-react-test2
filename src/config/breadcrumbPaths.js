@@ -35,8 +35,14 @@ export const getBreadcrumbPaths = () => ({
     { name: "错题练习", url: "" },
   ],
 
+  errorQuestionPracticeList: [
+    { name: "错题集", url: "/error-questions" },
+    { name: "错题练习记录", url: "/error-questions/practice/list" },
+  ],
+
   errorQuestionPracticeDetails: [
     { name: "错题集", url: "/error-questions" },
+    { name: "错题练习记录", url: "/error-questions/practice/list" },
     { name: "错题详情", url: "" },
   ],
 

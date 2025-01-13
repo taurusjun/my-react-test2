@@ -141,9 +141,7 @@ const ErrorQuestionList = () => {
   };
 
   const handlePracticeRecord = () => {
-    navigate(
-      "/error-questions/practice/practice_ed89f9c7-38cc-45ef-9526-58a3873ac24d"
-    );
+    navigate("/error-questions/practice/list");
   };
 
   const handleChangePage = (event, newPage) => {
