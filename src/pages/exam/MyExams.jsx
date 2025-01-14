@@ -113,6 +113,21 @@ const MyExams = () => {
 
   const breadcrumbPaths = getBreadcrumbPaths();
 
+  const getExamStatusText = (status) => {
+    switch (status) {
+      case "init":
+        return "未开始";
+      case "progress":
+        return "进行中";
+      case "submit":
+        return "已交卷";
+      case "graded":
+        return "完成评分";
+      default:
+        return "未知";
+    }
+  };
+
   const content = (
     <Box>
       <Box display="flex" flexWrap="wrap" alignItems="center" mb={2}>
@@ -195,9 +210,10 @@ const MyExams = () => {
               <TableHead>
                 <StyledTableRow>
                   <StyledTableCell>考试名称</StyledTableCell>
-                  <StyledTableCell align="center">状态</StyledTableCell>
-                  <StyledTableCell align="center">分数</StyledTableCell>
-                  <StyledTableCell align="center">考试时间</StyledTableCell>
+                  <StyledTableCell align="center">最新状态</StyledTableCell>
+                  <StyledTableCell align="center">最高分数</StyledTableCell>
+                  <StyledTableCell align="center">完成考试次数</StyledTableCell>
+                  <StyledTableCell align="center">最近考试时间</StyledTableCell>
                   <StyledTableCell>操作</StyledTableCell>
                 </StyledTableRow>
               </TableHead>
@@ -213,14 +229,17 @@ const MyExams = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        {exam.isDone ? "已完成" : "未参加"}
+                        {getExamStatusText(exam.status)}
                       </Typography>
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.isDone ? exam.maxScore : "-"}
+                      {exam.maxScore}
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.isDone ? exam.doneTime : "-"}
+                      {exam.examCount}
+                    </BodyTableCell>
+                    <BodyTableCell align="center">
+                      {exam.doneTime}
                     </BodyTableCell>
                     <BodyTableCell>
                       {!exam.isDone ? (
