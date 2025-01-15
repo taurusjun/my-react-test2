@@ -94,8 +94,8 @@ const MyExams = () => {
     setPage(1); // 重置页码
   };
 
-  const handleStartExam = (examId) => {
-    navigate(`/exam/paper/${examId}`);
+  const handleStartExam = (examId, mode) => {
+    navigate(`/exam/paper/${examId}?mode=${mode}`);
   };
 
   const handleViewErrors = (examId) => {
@@ -225,7 +225,10 @@ const MyExams = () => {
                       <Typography
                         variant="body2"
                         sx={{
-                          color: exam.isDone ? "success.main" : "warning.main",
+                          color:
+                            exam.status === "graded"
+                              ? "success.main"
+                              : "warning.main",
                           fontWeight: "bold",
                         }}
                       >
@@ -242,26 +245,38 @@ const MyExams = () => {
                       {exam.doneTime}
                     </BodyTableCell>
                     <BodyTableCell>
-                      {!exam.isDone ? (
+                      {exam.status === "init" ? (
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => handleStartExam(exam.examUuid)}
+                          onClick={() => handleStartExam(exam.examUuid, 0)}
                           startIcon={<PlayArrowIcon />}
                         >
                           开始考试
                         </Button>
                       ) : (
                         <Box>
-                          <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => handleStartExam(exam.examUuid)}
-                            startIcon={<ReplayIcon />}
-                            sx={{ mr: 1 }}
-                          >
-                            再次参加
-                          </Button>
+                          {exam.inProgress ? (
+                            <Button
+                              variant="outlined"
+                              color="primary"
+                              onClick={() => handleStartExam(exam.examUuid, 1)}
+                              startIcon={<ReplayIcon />}
+                              sx={{ mr: 1 }}
+                            >
+                              继续考试
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outlined"
+                              color="primary"
+                              onClick={() => handleStartExam(exam.examUuid, 2)}
+                              startIcon={<ReplayIcon />}
+                              sx={{ mr: 1 }}
+                            >
+                              重新参加
+                            </Button>
+                          )}
                           <Button
                             variant="outlined"
                             color="secondary"

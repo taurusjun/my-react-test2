@@ -52,7 +52,8 @@ const ExamPaper = () => {
     severity: "info",
   });
   const fileInputRefs = useRef({});
-  const [isRetake, setIsRetake] = useState(false);
+  // const [isRetake, setIsRetake] = useState(false);
+  const [mode, setMode] = useState(0); // 0-新考试,1-继续考试,2-重新考试
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -62,10 +63,10 @@ const ExamPaper = () => {
         initializeAnswers(response.data.data);
 
         // 检查是否是重新参加考试
-        const retakeStatus = new URLSearchParams(window.location.search).get(
-          "retake"
-        );
-        setIsRetake(retakeStatus === "true");
+        const mode = new URLSearchParams(window.location.search).get("mode");
+        setMode(mode);
+        //TODO: 根据mode取得答题数据
+        // setIsRetake(mode === "1");
       } catch (error) {
         console.error("获取考试数据失败", error);
         setSnackbar({
@@ -394,7 +395,7 @@ const ExamPaper = () => {
       setLoading(true);
       await axios.post(`/api/my-exams/${uuid}/submit`, {
         ...answers,
-        isRetake,
+        mode,
       });
       setLoading(false);
       navigate(`/exam/result/${uuid}`);
