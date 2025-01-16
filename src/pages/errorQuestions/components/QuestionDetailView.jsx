@@ -270,19 +270,6 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
             }}
           />
         ))}
-      {/* <RadioGroup value={userAnswer} onChange={onAnswerChange}>
-        {questionDetail.options.map((option, index) => (
-          <FormControlLabel
-            key={index}
-            value={option}
-            control={<Radio color="primary" />}
-            label={
-              <Typography sx={{ fontSize: "1.1rem" }}>{option}</Typography>
-            }
-            sx={{ mb: 1 }}
-          />
-        ))}
-      </RadioGroup> */}
       {renderQuestionDetailAnswerArea(questionDetail)}
     </>
   );

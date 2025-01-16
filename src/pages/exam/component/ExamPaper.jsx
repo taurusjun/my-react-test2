@@ -43,7 +43,7 @@ const ExamPaper = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [currentDetail, setCurrentDetail] = useState(0);
-  const [answers, setAnswers] = useState({ examUuid: uuid, answers: {} });
+  const [answers, setAnswers] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState("");
   const [snackbar, setSnackbar] = useState({
@@ -64,7 +64,7 @@ const ExamPaper = () => {
 
         // 检查是否是重新参加考试
         const mode = new URLSearchParams(window.location.search).get("mode");
-        setMode(mode);
+        setMode(mode ? parseInt(mode) : 0);
         //TODO: 根据mode取得答题数据
         // setIsRetake(mode === "1");
       } catch (error) {
@@ -84,48 +84,132 @@ const ExamPaper = () => {
 
   const initializeAnswers = (examData) => {
     const initialAnswers = {};
-    examData.sections.forEach((section) => {
-      section.questions.forEach((question) => {
-        initialAnswers[question.uuid] = {};
-        question.questionDetails.forEach((detail) => {
-          initialAnswers[question.uuid][detail.uuid] = [];
-        });
-      });
-    });
-    setAnswers({ examUuid: uuid, answers: initialAnswers });
+    // examData.sections.forEach((section) => {
+    //   section.questions.forEach((question) => {
+    //     question.questionDetails.forEach((detail) => {
+    //       initialAnswers[detail.uuid] = { content: [], images: [] };
+    //     });
+    //   });
+    // });
+    setAnswers(initialAnswers);
   };
 
-  const handleAnswerChange = (questionUuid, detailUuid, newAnswer) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      answers: {
-        ...prevAnswers.answers,
-        [questionUuid]: {
-          ...prevAnswers.answers[questionUuid],
-          [detailUuid]: newAnswer,
+  // const handleAnswerChange = (questionUuid, detailUuid, newAnswer) => {
+  //   setAnswers((prevAnswers) => ({
+  //     ...prevAnswers,
+  //     answers: {
+  //       ...prevAnswers.answers,
+  //       [questionUuid]: {
+  //         ...prevAnswers.answers[questionUuid],
+  //         [detailUuid]: newAnswer,
+  //       },
+  //     },
+  //   }));
+  // };
+
+  const handleAnswerChange = (detailUuid, newContent) => {
+    setAnswers((prevAnswers) => {
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: [],
+        images: [],
+      };
+      return {
+        ...prevAnswers,
+        [detailUuid]: {
+          ...currentAnswer,
+          content: newContent,
         },
-      },
-    }));
+      };
+    });
   };
 
-  const handleImageUpload = (event, questionUuid, detailUuid) => {
+  const handleMultipleChoiceChange = (detailUuid, choice) => {
+    setAnswers((prevAnswers) => {
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: [],
+        images: [],
+      };
+      const newContent = currentAnswer.content.includes(choice)
+        ? currentAnswer.content.filter((item) => item !== choice)
+        : [...currentAnswer.content, choice];
+
+      newContent.sort();
+
+      return {
+        ...prevAnswers,
+        [detailUuid]: {
+          ...currentAnswer,
+          content: newContent,
+        },
+      };
+    });
+  };
+
+  // const handleImageUpload = (event, questionUuid, detailUuid) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       const imageDataUrl = reader.result;
+  //       setAnswers((prevAnswers) => {
+  //         const currentAnswer = prevAnswers.answers[questionUuid]?.[
+  //           detailUuid
+  //         ] || ["", ""];
+  //         return {
+  //           ...prevAnswers,
+  //           answers: {
+  //             ...prevAnswers.answers,
+  //             [questionUuid]: {
+  //               ...prevAnswers.answers[questionUuid],
+  //               [detailUuid]: [currentAnswer[0], imageDataUrl],
+  //             },
+  //           },
+  //         };
+  //       });
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // const handleDeleteImage = (questionUuid, detailUuid) => {
+  //   setAnswers((prevAnswers) => {
+  //     const currentAnswer = prevAnswers.answers[questionUuid]?.[detailUuid] || [
+  //       "",
+  //       "",
+  //     ];
+  //     return {
+  //       ...prevAnswers,
+  //       answers: {
+  //         ...prevAnswers.answers,
+  //         [questionUuid]: {
+  //           ...prevAnswers.answers[questionUuid],
+  //           [detailUuid]: [currentAnswer[0], ""], // 保留文本答案，删除图片
+  //         },
+  //       },
+  //     };
+  //   });
+  //   // 重置文件输入
+  //   if (fileInputRefs.current[`${questionUuid}-${detailUuid}`]) {
+  //     fileInputRefs.current[`${questionUuid}-${detailUuid}`].value = "";
+  //   }
+  // };
+
+  const handleImageUpload = (event, detailUuid) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const imageDataUrl = reader.result;
         setAnswers((prevAnswers) => {
-          const currentAnswer = prevAnswers.answers[questionUuid]?.[
-            detailUuid
-          ] || ["", ""];
+          const currentAnswer = prevAnswers[detailUuid] || {
+            content: "",
+            images: [],
+          };
           return {
             ...prevAnswers,
-            answers: {
-              ...prevAnswers.answers,
-              [questionUuid]: {
-                ...prevAnswers.answers[questionUuid],
-                [detailUuid]: [currentAnswer[0], imageDataUrl],
-              },
+            [detailUuid]: {
+              ...currentAnswer,
+              images: [...currentAnswer.images, imageDataUrl],
             },
           };
         });
@@ -134,36 +218,35 @@ const ExamPaper = () => {
     }
   };
 
-  const handleDeleteImage = (questionUuid, detailUuid) => {
+  const handleDeleteImage = (detailUuid, imageIndex) => {
     setAnswers((prevAnswers) => {
-      const currentAnswer = prevAnswers.answers[questionUuid]?.[detailUuid] || [
-        "",
-        "",
-      ];
+      const currentAnswer = prevAnswers[detailUuid] || {
+        content: "",
+        images: [],
+      };
       return {
         ...prevAnswers,
-        answers: {
-          ...prevAnswers.answers,
-          [questionUuid]: {
-            ...prevAnswers.answers[questionUuid],
-            [detailUuid]: [currentAnswer[0], ""], // 保留文本答案，删除图片
-          },
+        [detailUuid]: {
+          ...currentAnswer,
+          images: currentAnswer.images.filter(
+            (_, index) => index !== imageIndex
+          ),
         },
       };
     });
     // 重置文件输入
-    if (fileInputRefs.current[`${questionUuid}-${detailUuid}`]) {
-      fileInputRefs.current[`${questionUuid}-${detailUuid}`].value = "";
+    if (fileInputRefs.current[`${detailUuid}`]) {
+      fileInputRefs.current[`${detailUuid}`].value = "";
     }
   };
 
-  const renderQuestionOptions = (detail, questionUuid) => {
+  const renderQuestionDetailAnswerArea = (detail) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
     const isSingleChoice = detail.uiType === "single_selection";
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const isShortAnswer = detail.uiType === "short_answer";
-    const currentAnswer = answers.answers[questionUuid]?.[detail.uuid] || [];
+    const currentAnswer = answers[detail.uuid] || { content: [], images: [] };
 
     if (isMultipleChoice) {
       return (
@@ -173,17 +256,15 @@ const ExamPaper = () => {
               key={rowIndex}
               control={
                 <Checkbox
-                  checked={currentAnswer.includes(
+                  checked={currentAnswer.content.includes(
                     String.fromCharCode(65 + rowIndex)
                   )}
-                  onChange={(e) => {
-                    const newAnswer = e.target.checked
-                      ? [...currentAnswer, String.fromCharCode(65 + rowIndex)]
-                      : currentAnswer.filter(
-                          (item) => item !== String.fromCharCode(65 + rowIndex)
-                        );
-                    handleAnswerChange(questionUuid, detail.uuid, newAnswer);
-                  }}
+                  onChange={() =>
+                    handleMultipleChoiceChange(
+                      detail.uuid,
+                      String.fromCharCode(65 + rowIndex)
+                    )
+                  }
                 />
               }
               label={`${String.fromCharCode(65 + rowIndex)}. ${row.value}`}
@@ -194,10 +275,8 @@ const ExamPaper = () => {
     } else if (isSingleChoice) {
       return (
         <RadioGroup
-          value={currentAnswer[0] || ""}
-          onChange={(e) =>
-            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
-          }
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
         >
           {detail.rows.map((row, rowIndex) => (
             <FormControlLabel
@@ -213,28 +292,10 @@ const ExamPaper = () => {
       return (
         <TextField
           fullWidth
-          variant="standard"
-          value={currentAnswer[0] || ""}
-          onChange={(e) =>
-            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
-          }
+          variant="outlined"
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
           placeholder="在此输入您的答案"
-          InputProps={{
-            disableUnderline: true,
-            startAdornment: (
-              <InputAdornment position="start">答：</InputAdornment>
-            ),
-          }}
-          sx={{
-            mt: 2,
-            "& .MuiInputBase-root": {
-              borderBottom: "1px solid #000",
-              paddingBottom: "4px",
-            },
-            "& .MuiInputBase-input": {
-              padding: "0 0 4px",
-            },
-          }}
         />
       );
     } else if (isCalculation) {
@@ -245,13 +306,8 @@ const ExamPaper = () => {
             multiline
             rows={4}
             variant="outlined"
-            value={currentAnswer[0] || ""}
-            onChange={(e) =>
-              handleAnswerChange(questionUuid, detail.uuid, [
-                e.target.value,
-                currentAnswer[1] || "",
-              ])
-            }
+            value={currentAnswer.content[0] || ""}
+            onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
             placeholder="在此输入您的计算过程和答案"
           />
           <Box sx={{ mt: 2, display: "flex", alignItems: "center" }}>
@@ -260,10 +316,8 @@ const ExamPaper = () => {
               style={{ display: "none" }}
               id={`upload-image-${detail.uuid}`}
               type="file"
-              onChange={(e) => handleImageUpload(e, questionUuid, detail.uuid)}
-              ref={(el) =>
-                (fileInputRefs.current[`${questionUuid}-${detail.uuid}`] = el)
-              }
+              onChange={(e) => handleImageUpload(e, detail.uuid)}
+              ref={(el) => (fileInputRefs.current[`${detail.uuid}`] = el)}
             />
             <label htmlFor={`upload-image-${detail.uuid}`}>
               <Button
@@ -274,11 +328,14 @@ const ExamPaper = () => {
                 上传解题图片
               </Button>
             </label>
-            {currentAnswer[1] && (
-              <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
+            {currentAnswer.images.map((image, index) => (
+              <Box
+                key={index}
+                sx={{ ml: 2, display: "flex", alignItems: "center" }}
+              >
                 <img
-                  src={currentAnswer[1]}
-                  alt="解题图片"
+                  src={image}
+                  alt={`解题图片 ${index + 1}`}
                   style={{
                     maxWidth: "100px",
                     maxHeight: "100px",
@@ -286,13 +343,13 @@ const ExamPaper = () => {
                   }}
                 />
                 <IconButton
-                  onClick={() => handleDeleteImage(questionUuid, detail.uuid)}
+                  onClick={() => handleDeleteImage(detail.uuid, index)}
                   sx={{ ml: 1 }}
                 >
                   <DeleteIcon />
                 </IconButton>
               </Box>
-            )}
+            ))}
           </Box>
         </Box>
       );
@@ -301,10 +358,8 @@ const ExamPaper = () => {
         <TextField
           fullWidth
           variant="outlined"
-          value={currentAnswer[0] || ""}
-          onChange={(e) =>
-            handleAnswerChange(questionUuid, detail.uuid, [e.target.value])
-          }
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
           placeholder="在此输入您的简答"
           sx={{ mt: 2 }}
         />
@@ -394,8 +449,8 @@ const ExamPaper = () => {
       console.log(answers);
       setLoading(true);
       await axios.post(`/api/my-exams/${uuid}/submit`, {
-        ...answers,
-        mode,
+        answers: answers,
+        mode: mode,
       });
       setLoading(false);
       navigate(`/exam/result/${uuid}`);
@@ -581,7 +636,7 @@ const ExamPaper = () => {
                     currentSection,
                     currentQuestion,
                     currentDetail
-                  )}`}{" "}
+                  )}`}
                 </strong>
                 {currentDetailData.questionContent.value}
                 <span style={{ marginLeft: "8px", color: "gray" }}>
@@ -595,10 +650,7 @@ const ExamPaper = () => {
                   style={{ maxWidth: "100%", marginTop: "8px" }}
                 />
               )}
-              {renderQuestionOptions(
-                currentDetailData,
-                currentQuestionData.uuid
-              )}
+              {renderQuestionDetailAnswerArea(currentDetailData)}
             </Box>
           </Paper>
           {/* 添加上一题/下一题按钮 */}
