@@ -68,10 +68,12 @@ const MyExams = () => {
           ...filters,
         },
       });
-      setExams(response.data.data.exams);
-      setTotalCount(response.data.data.totalCount);
+      setExams(response.data.data.exams || []);
+      setTotalCount(response.data.data.totalCount || 0);
     } catch (error) {
       console.error("获取考试列表失败", error);
+      setExams([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -82,9 +84,10 @@ const MyExams = () => {
       const response = await axios.get("/api/exam-names", {
         params: { query: inputValue },
       });
-      setExamOptions(response.data.data);
+      setExamOptions(response.data.data || []);
     } catch (error) {
       console.error("获取考试名称失败", error);
+      setExamOptions([]);
     }
   };
 
@@ -106,7 +109,7 @@ const MyExams = () => {
     setSelectedExams(newValue);
     setFilters((prevFilters) => ({
       ...prevFilters,
-      examUuids: newValue.map((exam) => exam.examUuid),
+      examUuids: newValue ? newValue.map((exam) => exam.examUuid) : [],
     }));
     setPage(1); // 重置页码
   };
@@ -134,7 +137,7 @@ const MyExams = () => {
         <Autocomplete
           multiple
           options={examOptions}
-          getOptionLabel={(option) => option.name}
+          getOptionLabel={(option) => option?.name || ''}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -149,11 +152,11 @@ const MyExams = () => {
           onChange={handleExamChange}
           value={selectedExams}
           renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
+            value && value.map((option, index) => (
               <Chip
-                label={option.name}
+                label={option?.name || ''}
                 {...getTagProps({ index })}
-                key={option.uuid}
+                key={option?.uuid || index}
               />
             ))
           }
@@ -218,49 +221,49 @@ const MyExams = () => {
                 </StyledTableRow>
               </TableHead>
               <TableBody>
-                {exams.map((exam) => (
-                  <StyledTableRow key={exam.uuid}>
-                    <BodyTableCell>{exam.examName}</BodyTableCell>
+                {exams && exams.map((exam) => (
+                  <StyledTableRow key={exam?.uuid || Math.random()}>
+                    <BodyTableCell>{exam?.examName || '未命名考试'}</BodyTableCell>
                     <BodyTableCell align="center">
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color:
-                            exam.status === "graded"
-                              ? "success.main"
-                              : "warning.main",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {getExamStatusText(exam.status)}
-                      </Typography>
+                                              <Typography
+                          variant="body2"
+                          sx={{
+                            color:
+                              exam?.status === "graded"
+                                ? "success.main"
+                                : "warning.main",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {getExamStatusText(exam?.status)}
+                        </Typography>
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.maxScore}
+                      {exam?.maxScore || 0}
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.examCount}
+                      {exam?.examCount || 0}
                     </BodyTableCell>
                     <BodyTableCell align="center">
-                      {exam.doneTime}
+                      {exam?.doneTime || '未知'}
                     </BodyTableCell>
                     <BodyTableCell>
-                      {exam.status === "init" ? (
+                      {exam?.status === "init" ? (
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => handleStartExam(exam.examUuid, 0)}
+                          onClick={() => handleStartExam(exam?.examUuid, 0)}
                           startIcon={<PlayArrowIcon />}
                         >
                           开始考试
                         </Button>
                       ) : (
                         <Box>
-                          {exam.inProgress ? (
+                          {exam?.inProgress ? (
                             <Button
                               variant="outlined"
                               color="primary"
-                              onClick={() => handleStartExam(exam.examUuid, 1)}
+                              onClick={() => handleStartExam(exam?.examUuid, 1)}
                               startIcon={<ReplayIcon />}
                               sx={{ mr: 1 }}
                             >
@@ -270,7 +273,7 @@ const MyExams = () => {
                             <Button
                               variant="outlined"
                               color="primary"
-                              onClick={() => handleStartExam(exam.examUuid, 2)}
+                              onClick={() => handleStartExam(exam?.examUuid, 2)}
                               startIcon={<ReplayIcon />}
                               sx={{ mr: 1 }}
                             >
@@ -280,7 +283,7 @@ const MyExams = () => {
                           <Button
                             variant="outlined"
                             color="secondary"
-                            onClick={() => handleViewErrors(exam.examUuid)}
+                            onClick={() => handleViewErrors(exam?.examUuid)}
                             startIcon={<ErrorOutlineIcon />}
                           >
                             查看错题
