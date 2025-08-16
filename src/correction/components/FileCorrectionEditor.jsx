@@ -56,7 +56,7 @@ const createSubmitExam = (exam, markdownLines) => {
           .map((lineNumber) => markdownLines[lineNumber - 1].content)
           .join("\n")
       : "";
-  };
+};
 
   const convertSection = (section) => {
     const questions = section.questions.map((question) => {
@@ -87,7 +87,10 @@ const createSubmitExam = (exam, markdownLines) => {
         }
 
         if (detail.answer) {
-          result.answer = [getContent(detail.answer.extra)];
+          result.answer = {
+            content: [getContent(detail.answer.extra)],
+            images: [],
+          };
         }
 
         if (detail.explanation) {

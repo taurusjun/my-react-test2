@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Button, CardMedia, Chip } from "@mui/material";
 import { useDictionaries } from "../hooks/useDictionaries";
+import { getAnswerDisplayText } from "../../utils/answerUtils";
 
 const QuestionPreview = ({ questionData, onClose }) => {
   const { dictionaries, loading, error } = useDictionaries();
@@ -88,7 +89,9 @@ const QuestionPreview = ({ questionData, onClose }) => {
 
           <Typography>难度: {detail.rate}</Typography>
           <Typography>解释: {detail.explanation}</Typography>
-          <Typography>答案: {detail.answer.join(", ")}</Typography>
+          <Typography>
+            答案: {getAnswerDisplayText(detail.answer)}
+          </Typography>
 
           {detail.answerImage && (
             <CardMedia

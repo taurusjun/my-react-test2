@@ -12,6 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import axios from "axios";
+import { getAnswerDisplayText } from "../../utils/answerUtils";
 
 const LearningMaterial = ({
   material,
@@ -174,7 +175,9 @@ const LearningMaterial = ({
         {showAnswer && (
           <Box sx={{ mt: 2 }}>
             <Typography variant="h6">正确答案：</Typography>
-            <Typography>{currentQuestionDetail.answer.join(", ")}</Typography>
+            <Typography>
+              {getAnswerDisplayText(currentQuestionDetail.answer)}
+            </Typography>
             <Typography variant="h6" sx={{ mt: 2 }}>
               解释：
             </Typography>

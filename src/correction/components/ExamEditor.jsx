@@ -25,6 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { CategoryDict } from "../../provider/utils/dictionaries";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
+import { normalizeAnswer, createAnswer } from "../../utils/answerUtils";
 
 const ExamEditor = ({ exam, onExamChange }) => {
   const { dictionaries } = useDictionaries();
@@ -53,9 +54,15 @@ const ExamEditor = ({ exam, onExamChange }) => {
     value
   ) => {
     const updatedSections = [...editedExam.sections];
-    updatedSections[sectionIndex].questions[questionIndex].questionDetails[
-      detailIndex
-    ][field] = value;
+    const detail = updatedSections[sectionIndex].questions[questionIndex].questionDetails[detailIndex];
+    
+    // 特殊处理answer字段，确保结构正确
+    if (field === "answer") {
+      detail.answer = normalizeAnswer(value);
+    } else {
+      detail[field] = value;
+    }
+    
     setEditedExam({ ...editedExam, sections: updatedSections });
     onExamChange({ ...editedExam, sections: updatedSections });
   };
@@ -619,14 +626,17 @@ const ExamEditor = ({ exam, onExamChange }) => {
                     <>
                       <Typography variant="subtitle1">答案:</Typography>
                       <Select
-                        value={detail.answer[0] || ""} // 默认选择第一个答案
+                        value={detail.answer?.content?.[0] || ""} // 默认选择第一个答案
                         onChange={(e) =>
                           handleDetailChange(
                             sectionIndex,
                             questionIndex,
                             detailIndex,
                             "answer",
-                            [e.target.value] // 将选择的值作为数组
+                            {
+                              content: [e.target.value],
+                              images: detail.answer?.images || []
+                            }
                           )
                         }
                         fullWidth
@@ -649,14 +659,17 @@ const ExamEditor = ({ exam, onExamChange }) => {
                   ) : (
                     <TextField
                       label="答案"
-                      value={detail.answer.join(", ")}
+                      value={detail.answer?.content?.join(", ") || ""}
                       onChange={(e) =>
                         handleDetailChange(
                           sectionIndex,
                           questionIndex,
                           detailIndex,
                           "answer",
-                          e.target.value.split(", ")
+                          {
+                            content: [e.target.value],
+                            images: detail.answer?.images || []
+                          }
                         )
                       }
                       fullWidth

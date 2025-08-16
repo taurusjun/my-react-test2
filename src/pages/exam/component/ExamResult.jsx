@@ -56,6 +56,51 @@ const ExamResult = () => {
   }, [uuid]);
 
   const renderAnswer = (answer) => {
+    // 处理新的answer对象格式
+    if (answer && typeof answer === 'object' && answer.content) {
+      const content = answer.content;
+      const images = answer.images || [];
+      
+      return (
+        <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+          {/* 渲染文本内容 */}
+          {Array.isArray(content) && content.map((item, index) => (
+            <Box key={`content-${index}`} sx={{ mr: 1, mb: 1 }}>
+              <Typography variant="body2">{item}</Typography>
+            </Box>
+          ))}
+          
+          {/* 渲染图片 */}
+          {Array.isArray(images) && images.map((item, index) => (
+            <Box key={`image-${index}`} sx={{ mr: 1, mb: 1 }}>
+              {item.startsWith("data:image") ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <img
+                    src={item}
+                    alt="答案图片"
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={() => setEnlargedImage(item)}
+                  >
+                    <ZoomInIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ) : (
+                <Typography variant="body2">{item}</Typography>
+              )}
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+    
+    // 处理旧的数组格式（向后兼容）
     if (Array.isArray(answer)) {
       return (
         <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
@@ -87,6 +132,7 @@ const ExamResult = () => {
         </Box>
       );
     }
+    
     return <Typography variant="body2">{answer}</Typography>;
   };
 

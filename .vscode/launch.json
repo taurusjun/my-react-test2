@@ -5,11 +5,102 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Chrome against localhost",
             "type": "chrome",
             "request": "launch",
-            "name": "针对 localhost 启动 Chrome",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*",
+                "webpack:///./src/*": "${webRoot}/*",
+                "webpack:///./*": "${workspaceFolder}/*",
+                "webpack:///*": "*",
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*"
+            },
+            "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**",
+                "**/parse5/**"
+            ],
+            "sourceMaps": true,
+            "disableNetworkCache": true
+        },
+        {
+            "name": "Attach to Chrome",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*",
+                "webpack:///./src/*": "${webRoot}/*",
+                "webpack:///./*": "${workspaceFolder}/*",
+                "webpack:///*": "*",
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*"
+            },
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**",
+                "**/parse5/**"
+            ],
+            "sourceMaps": true
+        },
+        {
+            "name": "Launch Firefox against localhost",
+            "type": "firefox",
+            "request": "launch",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/src",
+            "pathMappings": [
+                {
+                    "url": "webpack:///src",
+                    "path": "${webRoot}"
+                },
+                {
+                    "url": "webpack:///./src",
+                    "path": "${webRoot}"
+                },
+                {
+                    "url": "webpack:///./~",
+                    "path": "${workspaceFolder}/node_modules"
+                }
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**",
+                "**/parse5/**"
+            ]
+        },
+        {
+            "name": "Attach to Firefox",
+            "type": "firefox",
+            "request": "attach",
+            "port": 6000,
+            "webRoot": "${workspaceFolder}/src",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**",
+                "**/parse5/**"
+            ]
+        },
+        {
+            "name": "Debug React Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/react-scripts",
+            "args": ["test", "--runInBand", "--no-cache", "--watchAll=false"],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "env": {
+                "CI": "false"
+            },
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**",
+                "**/parse5/**"
+            ]
         }
     ]
 }
