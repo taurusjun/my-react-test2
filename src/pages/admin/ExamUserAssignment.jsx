@@ -55,6 +55,7 @@ const ExamUserAssignment = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [filterExamUuid, setFilterExamUuid] = useState('');
   const [filterUserUuid, setFilterUserUuid] = useState('');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // 初始化数据
   useEffect(() => {
@@ -69,12 +70,18 @@ const ExamUserAssignment = () => {
               pageSize: 100,
             },
           }),
-          axios.get('/api/users')
+          axios.get('/api/users', {
+            params: {
+              page: 1,
+              pageSize: 100,
+            },
+          })
         ]);
 
         const examsData = examsResponse.data.data?.exams || [];
         setExams(examsData);
-        setUsers(usersResponse.data.data || []);
+        const usersData = usersResponse.data.data?.users || [];
+        setUsers(usersData);
       } catch (error) {
         console.error('初始化数据失败:', error);
         setSnackbar({
@@ -93,7 +100,7 @@ const ExamUserAssignment = () => {
   // 搜索数据
   useEffect(() => {
     fetchData();
-  }, [page, pageSize, filterExamUuid, filterUserUuid]);
+  }, [page, pageSize, filterExamUuid, filterUserUuid, refreshTrigger]);
 
   // 检查管理员权限
   if (!user || user.role !== USER_ROLES.ADMIN) {
@@ -133,7 +140,7 @@ const ExamUserAssignment = () => {
     }
   };
 
-  const handleAddAssignment = () => {
+  const handleAddAssignment = async () => {
     if (!filterExamUuid || !filterUserUuid) {
       setSnackbar({
         open: true,
@@ -155,26 +162,45 @@ const ExamUserAssignment = () => {
       return;
     }
 
-    const newAssignment = {
-      examUuid: exam.uuid,
-      userUuid: user.uuid,
-      examName: exam.name,
-      userName: user.name,
-      status: 'init',
-      assignedAt: new Date().toISOString()
-    };
+    setLoading(true);
+    try {
+      const newAssignment = {
+        examUuid: exam.uuid,
+        userUuid: user.uuid,
+        examName: exam.name,
+        userName: user.name,
+        status: 'init',
+        assignedAt: new Date().toISOString()
+      };
 
-    setAssignments(prev => [...prev, newAssignment]);
-    
-    // 清除过滤条件
-    setFilterExamUuid('');
-    setFilterUserUuid('');
+      // 调用批量保存API（单个关联也使用批量API）
+      await axios.post('/api/user-exam/batch', {
+        assignments: [{
+          examUuid: exam.uuid,
+          userUuid: user.uuid
+        }]
+      });
 
-    setSnackbar({
-      open: true,
-      message: '已添加关联',
-      severity: 'success'
-    });
+      // 清除过滤条件并触发useEffect重新获取数据
+      setFilterExamUuid('');
+      setFilterUserUuid('');
+      setRefreshTrigger(prev => prev + 1);
+
+      setSnackbar({
+        open: true,
+        message: '已添加关联',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('添加关联失败:', error);
+      setSnackbar({
+        open: true,
+        message: '添加关联失败',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemoveAssignment = (assignmentId) => {
@@ -188,21 +214,43 @@ const ExamUserAssignment = () => {
 
 
 
-  const handleBatchAssign = (batchAssignments) => {
-    const newAssignments = batchAssignments.map(assignment => ({
-      ...assignment,
-      status: 'init',
-      assignedAt: new Date().toISOString()
-    }));
+  const handleBatchAssign = async (batchAssignments) => {
+    setLoading(true);
+    try {
+      const newAssignments = batchAssignments.map(assignment => ({
+        ...assignment,
+        status: 'init',
+        assignedAt: new Date().toISOString()
+      }));
 
-    setAssignments(prev => [...prev, ...newAssignments]);
-    setBatchModalOpen(false);
+      // 调用批量保存API
+      await axios.post('/api/user-exam/batch', {
+        assignments: newAssignments.map(a => ({
+          examUuid: a.examUuid,
+          userUuid: a.userUuid
+        }))
+      });
 
-    setSnackbar({
-      open: true,
-      message: `已批量添加 ${newAssignments.length} 个关联`,
-      severity: 'success'
-    });
+      setBatchModalOpen(false);
+      
+      // 触发useEffect重新获取数据
+      setRefreshTrigger(prev => prev + 1);
+
+      setSnackbar({
+        open: true,
+        message: `已批量添加 ${newAssignments.length} 个关联`,
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('批量关联失败:', error);
+      setSnackbar({
+        open: true,
+        message: '批量关联失败',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusColor = (status) => {

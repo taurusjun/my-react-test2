@@ -946,264 +946,264 @@ mock.onPost(/\/api\/my-exams\/[^/]+\/grades$/).reply((config) => {
 });
 
 // 考试用户关联管理相关API
-mock.onGet("/api/exams/list").reply((config) => {
-  const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
+// mock.onGet("/api/exams/list").reply((config) => {
+//   const { page = 1, pageSize = 10, examUuids = [], category } = config.params;
 
-  const mockExamsList = [
-    {
-      uuid: 'exam-1',
-      name: '数学期中考试',
-      category: '数学',
-      gradeInfo: { school: '初中', grade: '七年级' },
-      status: 'active',
-      createdAt: '2024-01-15T10:00:00Z',
-      totalQuestions: 20,
-      totalScore: 100
-    },
-    {
-      uuid: 'exam-2',
-      name: '英语期末考试',
-      category: '英语',
-      gradeInfo: { school: '初中', grade: '七年级' },
-      status: 'active',
-      createdAt: '2024-01-16T09:00:00Z',
-      totalQuestions: 25,
-      totalScore: 100
-    },
-    {
-      uuid: 'exam-3',
-      name: '物理单元测试',
-      category: '物理',
-      gradeInfo: { school: '初中', grade: '八年级' },
-      status: 'draft',
-      createdAt: '2024-01-17T14:00:00Z',
-      totalQuestions: 15,
-      totalScore: 50
-    },
-    {
-      uuid: 'exam-4',
-      name: '化学期中考试',
-      category: '化学',
-      gradeInfo: { school: '初中', grade: '九年级' },
-      status: 'active',
-      createdAt: '2024-01-18T11:00:00Z',
-      totalQuestions: 30,
-      totalScore: 100
-    }
-  ];
+//   const mockExamsList = [
+//     {
+//       uuid: 'exam-1',
+//       name: '数学期中考试',
+//       category: '数学',
+//       gradeInfo: { school: '初中', grade: '七年级' },
+//       status: 'active',
+//       createdAt: '2024-01-15T10:00:00Z',
+//       totalQuestions: 20,
+//       totalScore: 100
+//     },
+//     {
+//       uuid: 'exam-2',
+//       name: '英语期末考试',
+//       category: '英语',
+//       gradeInfo: { school: '初中', grade: '七年级' },
+//       status: 'active',
+//       createdAt: '2024-01-16T09:00:00Z',
+//       totalQuestions: 25,
+//       totalScore: 100
+//     },
+//     {
+//       uuid: 'exam-3',
+//       name: '物理单元测试',
+//       category: '物理',
+//       gradeInfo: { school: '初中', grade: '八年级' },
+//       status: 'draft',
+//       createdAt: '2024-01-17T14:00:00Z',
+//       totalQuestions: 15,
+//       totalScore: 50
+//     },
+//     {
+//       uuid: 'exam-4',
+//       name: '化学期中考试',
+//       category: '化学',
+//       gradeInfo: { school: '初中', grade: '九年级' },
+//       status: 'active',
+//       createdAt: '2024-01-18T11:00:00Z',
+//       totalQuestions: 30,
+//       totalScore: 100
+//     }
+//   ];
 
-  let filteredExams = [...mockExamsList];
+//   let filteredExams = [...mockExamsList];
 
-  if (examUuids.length > 0) {
-    filteredExams = filteredExams.filter((exam) =>
-      examUuids.includes(exam.uuid)
-    );
-  }
+//   if (examUuids.length > 0) {
+//     filteredExams = filteredExams.filter((exam) =>
+//       examUuids.includes(exam.uuid)
+//     );
+//   }
 
-  if (category) {
-    filteredExams = filteredExams.filter((exam) => exam.category === category);
-  }
+//   if (category) {
+//     filteredExams = filteredExams.filter((exam) => exam.category === category);
+//   }
 
-  const totalCount = filteredExams.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + parseInt(pageSize);
-  const paginatedExams = filteredExams.slice(startIndex, endIndex);
+//   const totalCount = filteredExams.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + parseInt(pageSize);
+//   const paginatedExams = filteredExams.slice(startIndex, endIndex);
 
-  return [
-    200,
-    {
-      success: true,
-      data: {
-        exams: paginatedExams,
-        totalCount: totalCount
-      },
-      message: '获取考试列表成功'
-    }
-  ];
-});
+//   return [
+//     200,
+//     {
+//       success: true,
+//       data: {
+//         exams: paginatedExams,
+//         totalCount: totalCount
+//       },
+//       message: '获取考试列表成功'
+//     }
+//   ];
+// });
 
-mock.onGet("/api/users").reply((config) => {
-  const mockUsers = [
-    {
-      uuid: 'user-1',
-      name: '张三',
-      username: 'zhangsan',
-      role: 'student'
-    },
-    {
-      uuid: 'user-2',
-      name: '李四',
-      username: 'lisi',
-      role: 'student'
-    },
-    {
-      uuid: 'user-3',
-      name: '王五',
-      username: 'wangwu',
-      role: 'student'
-    },
-    {
-      uuid: 'user-4',
-      name: '赵六',
-      username: 'zhaoliu',
-      role: 'teacher'
-    },
-    {
-      uuid: 'user-5',
-      name: '钱七',
-      username: 'qianqi',
-      role: 'student'
-    }
-  ];
+// mock.onGet("/api/users").reply((config) => {
+//   const mockUsers = [
+//     {
+//       uuid: 'user-1',
+//       name: '张三',
+//       username: 'zhangsan',
+//       role: 'student'
+//     },
+//     {
+//       uuid: 'user-2',
+//       name: '李四',
+//       username: 'lisi',
+//       role: 'student'
+//     },
+//     {
+//       uuid: 'user-3',
+//       name: '王五',
+//       username: 'wangwu',
+//       role: 'student'
+//     },
+//     {
+//       uuid: 'user-4',
+//       name: '赵六',
+//       username: 'zhaoliu',
+//       role: 'teacher'
+//     },
+//     {
+//       uuid: 'user-5',
+//       name: '钱七',
+//       username: 'qianqi',
+//       role: 'student'
+//     }
+//   ];
   
-  return [
-    200,
-    {
-      success: true,
-      data: mockUsers,
-      message: '获取用户列表成功'
-    }
-  ];
-});
+//   return [
+//     200,
+//     {
+//       success: true,
+//       data: mockUsers,
+//       message: '获取用户列表成功'
+//     }
+//   ];
+// });
 
-mock.onGet("/api/user-exam/list").reply((config) => {
-  const { 
-    page = 1, 
-    pageSize = 10, 
-    exam_uuid, 
-    user_uuid 
-  } = config.params;
+// mock.onGet("/api/user-exam/list").reply((config) => {
+//   const { 
+//     page = 1, 
+//     pageSize = 10, 
+//     exam_uuid, 
+//     user_uuid 
+//   } = config.params;
 
-  const mockAssignments = [
-    {
-      uuid: '1',
-      examUuid: 'exam-1',
-      userUuid: 'user-1',
-      examName: '数学期中考试',
-      userName: '张三',
-      status: 'init',
-      assignedAt: '2024-01-15T10:00:00Z'
-    },
-    {
-      uuid: '2',
-      examUuid: 'exam-1',
-      userUuid: 'user-2',
-      examName: '数学期中考试',
-      userName: '李四',
-      status: 'progress',
-      assignedAt: '2024-01-15T11:00:00Z'
-    },
-    {
-      uuid: '3',
-      examUuid: 'exam-2',
-      userUuid: 'user-1',
-      examName: '英语期末考试',
-      userName: '张三',
-      status: 'submit',
-      assignedAt: '2024-01-16T09:00:00Z'
-    },
-    {
-      uuid: '4',
-      examUuid: 'exam-3',
-      userUuid: 'user-3',
-      examName: '物理单元测试',
-      userName: '王五',
-      status: 'graded',
-      assignedAt: '2024-01-10T14:00:00Z'
-    },
-    {
-      uuid: '5',
-      examUuid: 'exam-2',
-      userUuid: 'user-2',
-      examName: '英语期末考试',
-      userName: '李四',
-      status: 'init',
-      assignedAt: '2024-01-17T08:00:00Z'
-    },
-    {
-      uuid: '6',
-      examUuid: 'exam-4',
-      userUuid: 'user-1',
-      examName: '化学期中考试',
-      userName: '张三',
-      status: 'progress',
-      assignedAt: '2024-01-18T14:00:00Z'
-    },
-    {
-      uuid: '7',
-      examUuid: 'exam-4',
-      userUuid: 'user-4',
-      examName: '化学期中考试',
-      userName: '赵六',
-      status: 'graded',
-      assignedAt: '2024-01-19T09:00:00Z'
-    },
-    {
-      uuid: '8',
-      examUuid: 'exam-3',
-      userUuid: 'user-5',
-      examName: '物理单元测试',
-      userName: '钱七',
-      status: 'submit',
-      assignedAt: '2024-01-20T16:00:00Z'
-    }
-  ];
+//   const mockAssignments = [
+//     {
+//       uuid: '1',
+//       examUuid: 'exam-1',
+//       userUuid: 'user-1',
+//       examName: '数学期中考试',
+//       userName: '张三',
+//       status: 'init',
+//       assignedAt: '2024-01-15T10:00:00Z'
+//     },
+//     {
+//       uuid: '2',
+//       examUuid: 'exam-1',
+//       userUuid: 'user-2',
+//       examName: '数学期中考试',
+//       userName: '李四',
+//       status: 'progress',
+//       assignedAt: '2024-01-15T11:00:00Z'
+//     },
+//     {
+//       uuid: '3',
+//       examUuid: 'exam-2',
+//       userUuid: 'user-1',
+//       examName: '英语期末考试',
+//       userName: '张三',
+//       status: 'submit',
+//       assignedAt: '2024-01-16T09:00:00Z'
+//     },
+//     {
+//       uuid: '4',
+//       examUuid: 'exam-3',
+//       userUuid: 'user-3',
+//       examName: '物理单元测试',
+//       userName: '王五',
+//       status: 'graded',
+//       assignedAt: '2024-01-10T14:00:00Z'
+//     },
+//     {
+//       uuid: '5',
+//       examUuid: 'exam-2',
+//       userUuid: 'user-2',
+//       examName: '英语期末考试',
+//       userName: '李四',
+//       status: 'init',
+//       assignedAt: '2024-01-17T08:00:00Z'
+//     },
+//     {
+//       uuid: '6',
+//       examUuid: 'exam-4',
+//       userUuid: 'user-1',
+//       examName: '化学期中考试',
+//       userName: '张三',
+//       status: 'progress',
+//       assignedAt: '2024-01-18T14:00:00Z'
+//     },
+//     {
+//       uuid: '7',
+//       examUuid: 'exam-4',
+//       userUuid: 'user-4',
+//       examName: '化学期中考试',
+//       userName: '赵六',
+//       status: 'graded',
+//       assignedAt: '2024-01-19T09:00:00Z'
+//     },
+//     {
+//       uuid: '8',
+//       examUuid: 'exam-3',
+//       userUuid: 'user-5',
+//       examName: '物理单元测试',
+//       userName: '钱七',
+//       status: 'submit',
+//       assignedAt: '2024-01-20T16:00:00Z'
+//     }
+//   ];
 
-  // 应用过滤条件
-  let filteredAssignments = [...mockAssignments];
+//   // 应用过滤条件
+//   let filteredAssignments = [...mockAssignments];
   
-  if (exam_uuid) {
-    filteredAssignments = filteredAssignments.filter(
-      assignment => assignment.examUuid === exam_uuid
-    );
-  }
+//   if (exam_uuid) {
+//     filteredAssignments = filteredAssignments.filter(
+//       assignment => assignment.examUuid === exam_uuid
+//     );
+//   }
   
-  if (user_uuid) {
-    filteredAssignments = filteredAssignments.filter(
-      assignment => assignment.userUuid === user_uuid
-    );
-  }
+//   if (user_uuid) {
+//     filteredAssignments = filteredAssignments.filter(
+//       assignment => assignment.userUuid === user_uuid
+//     );
+//   }
 
-  // 应用分页
-  const totalCount = filteredAssignments.length;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + parseInt(pageSize);
-  const paginatedAssignments = filteredAssignments.slice(startIndex, endIndex);
+//   // 应用分页
+//   const totalCount = filteredAssignments.length;
+//   const startIndex = (page - 1) * pageSize;
+//   const endIndex = startIndex + parseInt(pageSize);
+//   const paginatedAssignments = filteredAssignments.slice(startIndex, endIndex);
   
-  return [
-    200,
-    {
-      success: true,
-      data: {
-        assignments: paginatedAssignments,
-        totalCount: totalCount,
-        page: parseInt(page),
-        pageSize: parseInt(pageSize)
-      },
-      message: '获取关联列表成功'
-    }
-  ];
-});
+//   return [
+//     200,
+//     {
+//       success: true,
+//       data: {
+//         assignments: paginatedAssignments,
+//         totalCount: totalCount,
+//         page: parseInt(page),
+//         pageSize: parseInt(pageSize)
+//       },
+//       message: '获取关联列表成功'
+//     }
+//   ];
+// });
 
-mock.onPost("/api/user-exam/batch").reply((config) => {
-  const { assignments } = JSON.parse(config.data);
+// mock.onPost("/api/user-exam/batch").reply((config) => {
+//   const { assignments } = JSON.parse(config.data);
   
-  console.log('批量保存关联:', assignments);
+//   console.log('批量保存关联:', assignments);
   
-  // 模拟保存操作
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        200,
-        {
-          success: true,
-          data: assignments,
-          message: '批量保存成功'
-        }
-      ]);
-    }, 1000);
-  });
-});
+//   // 模拟保存操作
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve([
+//         200,
+//         {
+//           success: true,
+//           data: assignments,
+//           message: '批量保存成功'
+//         }
+//       ]);
+//     }, 1000);
+//   });
+// });
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();
