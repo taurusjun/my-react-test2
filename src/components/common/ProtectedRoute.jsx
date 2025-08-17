@@ -89,8 +89,8 @@ const ProtectedRoute = ({
     return <Navigate to={fallbackPath} replace />;
   }
 
-  // 检查路径权限
-  if (!hasPathPermission(userRole, location.pathname)) {
+  // 如果没有指定allowedRoles，则使用路径权限检查
+  if (!allowedRoles && !hasPathPermission(userRole, location.pathname)) {
     if (showAccessDenied) {
       return (
         <Box

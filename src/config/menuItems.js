@@ -103,7 +103,40 @@ export const hasMenuPermission = (userRole, menuText) => {
 
 // 检查用户是否有权限访问某个路径
 export const hasPathPermission = (userRole, path) => {
-  const menuItem = menuItemConfigs.find(item => item.link === path);
-  if (!menuItem) return false;
-  return menuItem.roles.includes(userRole);
+  // 首先尝试精确匹配
+  const exactMatch = menuItemConfigs.find(item => item.link === path);
+  if (exactMatch) {
+    return exactMatch.roles.includes(userRole);
+  }
+  
+  // 如果没有精确匹配，尝试路径模式匹配
+  const pathPatterns = [
+    { pattern: '/exam/view/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/exam/edit/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/exam/paper/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/exam/grading/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/exam/result/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/question-edit/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/error-questions/view/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/error-questions/practice/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/learning/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/file-correction/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/my-exams/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/exams/', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/questions', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/grading-center', roles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/user-center', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+    { pattern: '/user-management', roles: [USER_ROLES.ADMIN] },
+    { pattern: '/system-settings', roles: [USER_ROLES.ADMIN] },
+    { pattern: '/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] }
+  ];
+  
+  for (const pattern of pathPatterns) {
+    if (path.startsWith(pattern.pattern)) {
+      return pattern.roles.includes(userRole);
+    }
+  }
+  
+  // 如果没有匹配的模式，默认允许访问（向后兼容）
+  return true;
 };
