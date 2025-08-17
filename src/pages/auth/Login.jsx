@@ -34,9 +34,16 @@ const Login = () => {
       const response = await axios.post("/api/login", { username, password });
       const { accessToken, user } = response.data.data; // 假设后端返回了 token 和 user 信息
       setToken(accessToken);
-      login(user); // 使用 login 函数将用户信息添加到 UserContext 中
-      const userData = { ...user, username }; // 创建一个包含用户信息和用户名的对象
-      localStorage.setItem("user", JSON.stringify(userData)); // 登录成功后保存用户信息和用户名
+      
+      // 确保用户对象包含角色信息，如果没有则默认为学生
+      const userWithRole = {
+        ...user,
+        username,
+        role: user.role || 'student' // 确保有角色信息
+      };
+      
+      login(userWithRole); // 使用 login 函数将用户信息添加到 UserContext 中
+      localStorage.setItem("user", JSON.stringify(userWithRole)); // 登录成功后保存用户信息和用户名
       // 重定向到之前尝试访问的页面，如果没有则默认到 "/exams/list"
       const from = location.state?.from?.pathname || "/";
       navigate(from, { replace: true });

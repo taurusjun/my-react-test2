@@ -19,7 +19,8 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserContext } from "../contexts/UserContext";
-import { menuItems as defaultMenuItems } from "../config/menuItems"; // 导入默认菜单项
+import { getMenuItemsByRole, USER_ROLES } from "../config/menuItems"; // 导入角色菜单函数
+import RoleDisplay from "../components/common/RoleDisplay";
 
 const drawerWidth = 200;
 
@@ -47,7 +48,9 @@ const CommonLayout = ({
     setMobileOpen(!mobileOpen);
   };
 
-  const finalMenuItems = menuItems.length > 0 ? menuItems : defaultMenuItems;
+  // 根据用户角色获取菜单项
+  const userRole = user?.role || USER_ROLES.STUDENT;
+  const finalMenuItems = menuItems.length > 0 ? menuItems : getMenuItemsByRole(userRole);
 
   const drawer = (
     <Box>
@@ -97,8 +100,9 @@ const CommonLayout = ({
           ))}
           {user ? (
             <>
+              <RoleDisplay showLabel={false} variant="filled" />
               <Button color="inherit" onClick={() => navigate("/user-center")}>
-                {user.nickname}
+                {user.nickname || user.username}
               </Button>
               <Button color="inherit" onClick={handleLogout}>
                 登出
