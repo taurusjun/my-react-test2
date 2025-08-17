@@ -72,6 +72,12 @@ const menuItemConfigs = [
     link: "/system-settings",
     roles: [USER_ROLES.ADMIN],
     icon: null
+  },
+  {
+    text: "考试用户关联",
+    link: "/exam-user-assignment",
+    roles: [USER_ROLES.ADMIN],
+    icon: null
   }
 ];
 
@@ -128,6 +134,7 @@ export const hasPathPermission = (userRole, path) => {
     { pattern: '/user-center', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
     { pattern: '/user-management', roles: [USER_ROLES.ADMIN] },
     { pattern: '/system-settings', roles: [USER_ROLES.ADMIN] },
+    { pattern: '/exam-user-assignment', roles: [USER_ROLES.ADMIN] },
     { pattern: '/', roles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] }
   ];
   

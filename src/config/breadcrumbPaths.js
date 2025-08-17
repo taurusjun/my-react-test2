@@ -73,5 +73,8 @@ export const getBreadcrumbPaths = () => ({
     { name: "文件校正编辑", url: "" },
   ],
 
+  // 添加考试用户关联管理路径
+  examUserAssignment: [{ name: "考试用户关联管理", url: "/exam-user-assignment" }],
+
   // ... 其他路径保持不变 ...
 });

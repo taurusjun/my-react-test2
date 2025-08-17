@@ -32,6 +32,9 @@ import LearningPage from "./learning/pages/LearningPage";
 import FileCorrectionListPage from "./correction/pages/FileCorrectionListPage";
 import FileCorrectionEditorPage from "./correction/pages/FileCorrectionEditorPage";
 
+// 导入管理员页面
+import ExamUserAssignment from "./pages/admin/ExamUserAssignment";
+
 import { USER_ROLES } from "./config/menuItems";
 
 // 保留现有的路由配置并添加新的错题集路由和阅卷中心路由
@@ -120,5 +123,11 @@ export const routeConfig = [
     element: FileCorrectionEditorPage,
     protected: true,
     allowedRoles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN]
+  },
+  {
+    path: "/exam-user-assignment",
+    element: ExamUserAssignment,
+    protected: true,
+    allowedRoles: [USER_ROLES.ADMIN]
   },
 ];
