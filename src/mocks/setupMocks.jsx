@@ -1204,6 +1204,26 @@ mock.onPost(/\/api\/my-exams\/[^/]+\/grades$/).reply((config) => {
 //     }, 1000);
 //   });
 // });
+
+// // 删除单个关联
+// mock.onDelete(/\/api\/user-exam\/.*/).reply((config) => {
+//   const assignmentId = config.url.split("/").pop();
+  
+//   console.log('删除关联:', assignmentId);
+  
+//   // 模拟删除操作
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve([
+//         200,
+//         {
+//           success: true,
+//           message: '删除成功'
+//         }
+//       ]);
+//     }, 500);
+//   });
+// });
 // 为 /api/exams/view/${uuid} 添加模拟数据
 mock.onGet(/\/api\/examview\/.*/).reply((config) => {
   const uuid = config.url.split("/").pop();

@@ -203,13 +203,30 @@ const ExamUserAssignment = () => {
     }
   };
 
-  const handleRemoveAssignment = (assignmentId) => {
-    setAssignments(prev => prev.filter(a => a.uuid !== assignmentId));
-    setSnackbar({
-      open: true,
-      message: '已移除关联',
-      severity: 'success'
-    });
+  const handleRemoveAssignment = async (assignmentId) => {
+    setLoading(true);
+    try {
+      // 调用删除API
+      await axios.delete(`/api/user-exam/${assignmentId}`);
+
+      // 触发useEffect重新获取数据
+      setRefreshTrigger(prev => prev + 1);
+
+      setSnackbar({
+        open: true,
+        message: '已移除关联',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('移除关联失败:', error);
+      setSnackbar({
+        open: true,
+        message: '移除关联失败',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
 
