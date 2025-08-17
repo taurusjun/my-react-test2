@@ -174,12 +174,17 @@ const ExamUserAssignment = () => {
       };
 
       // 调用批量保存API（单个关联也使用批量API）
-      await axios.post('/api/user-exam/batch', {
+      const response = await axios.post('/api/user-exam/batch', {
         assignments: [{
           examUuid: exam.uuid,
           userUuid: user.uuid
         }]
       });
+
+      // 检查API返回结果
+      if (response.data.success === false) {
+        throw new Error(response.data.message || '添加关联失败');
+      }
 
       // 清除过滤条件并触发useEffect重新获取数据
       setFilterExamUuid('');
@@ -195,7 +200,7 @@ const ExamUserAssignment = () => {
       console.error('添加关联失败:', error);
       setSnackbar({
         open: true,
-        message: '添加关联失败',
+        message: error.message || '添加关联失败',
         severity: 'error'
       });
     } finally {
@@ -207,7 +212,12 @@ const ExamUserAssignment = () => {
     setLoading(true);
     try {
       // 调用删除API
-      await axios.delete(`/api/user-exam/${assignmentId}`);
+      const response = await axios.delete(`/api/user-exam/${assignmentId}`);
+
+      // 检查API返回结果
+      if (response.data.success === false) {
+        throw new Error(response.data.message || '删除关联失败');
+      }
 
       // 触发useEffect重新获取数据
       setRefreshTrigger(prev => prev + 1);
@@ -221,7 +231,7 @@ const ExamUserAssignment = () => {
       console.error('移除关联失败:', error);
       setSnackbar({
         open: true,
-        message: '移除关联失败',
+        message: error.message || '移除关联失败',
         severity: 'error'
       });
     } finally {
@@ -241,13 +251,18 @@ const ExamUserAssignment = () => {
       }));
 
       // 调用批量保存API
-      await axios.post('/api/user-exam/batch', {
+      const response = await axios.post('/api/user-exam/batch', {
         assignments: newAssignments.map(a => ({
           examUuid: a.examUuid,
           userUuid: a.userUuid
         }))
       });
 
+      // 检查API返回结果
+      if (response.data.success === false) {
+        throw new Error(response.data.message || '批量关联失败');
+      }
+      
       setBatchModalOpen(false);
       
       // 触发useEffect重新获取数据
@@ -262,7 +277,7 @@ const ExamUserAssignment = () => {
       console.error('批量关联失败:', error);
       setSnackbar({
         open: true,
-        message: '批量关联失败',
+        message: error.message || '批量关联失败',
         severity: 'error'
       });
     } finally {
