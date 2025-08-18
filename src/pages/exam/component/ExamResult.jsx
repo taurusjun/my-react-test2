@@ -43,7 +43,7 @@ const ExamResult = () => {
             axios.get(`/api/my-exams/${uuid}/grades`),
           ]);
         setExam(examResponse.data.data);
-        setAnswers(answersResponse.data);
+        setAnswers(answersResponse.data.data);
         setGrades(gradesResponse.data);
         setLoading(false);
       } catch (error) {

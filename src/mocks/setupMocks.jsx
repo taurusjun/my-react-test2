@@ -821,63 +821,63 @@ mock.onGet("/api/exam-names").reply((config) => {
 //   ];
 // });
 
-// 模拟获取单个考试答案的请求
-mock.onGet(/\/api\/my-exams\/[^/]+\/answers$/).reply((config) => {
-  const uuid = config.url.split("/")[3];
+// // 模拟获取单个考试答案的请求
+// mock.onGet(/\/api\/my-exams\/[^/]+\/answers$/).reply((config) => {
+//   const uuid = config.url.split("/")[3];
 
-  const mockAnswers = {
-    examUuid: uuid,
-    answers: {
-      "question-1": {
-        "question_detail-1": ["C", "D"],
-        "question_detail-2": ["A", "B"],
-      },
-      "question-2": {
-        "question_detail-3": ["B"],
-      },
-      "question-3": {
-        "question_detail-4": ["动能"],
-      },
-      "question-4": {
-        "question_detail-5": ["25 m/s"],
-      },
-      "question-5": {
-        "question_detail-6": ["C"],
-      },
-      "question-6": {
-        "question_detail-7": ["A"],
-      },
-      "question-7": {
-        "question_detail-8": ["D"],
-      },
-      "question-8": {
-        "question_detail-9": ["B"],
-      },
-      "question-9": {
-        "question_detail-10": ["C"],
-      },
-      "question-10": {
-        "question_detail-11": ["折射率"],
-      },
-      "question-11": {
-        "question_detail-12": ["20 m/s"],
-      },
-      "question-12": {
-        "question_detail-13": ["75 m"],
-      },
-      "question-13": {
-        "question_detail-14": [
-          "14 m/s",
-          "这里可以是计算过程或额外解释",
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // 这是一个1x1像素的透明PNG图片的base64编码，您应该替换为实际的图片数据
-        ],
-      },
-    },
-    submissionTime: "2024-03-15T10:30:00Z",
-  };
+//   const mockAnswers = {
+//     examUuid: uuid,
+//     answers: {
+//       "question-1": {
+//         "question_detail-1": ["C", "D"],
+//         "question_detail-2": ["A", "B"],
+//       },
+//       "question-2": {
+//         "question_detail-3": ["B"],
+//       },
+//       "question-3": {
+//         "question_detail-4": ["动能"],
+//       },
+//       "question-4": {
+//         "question_detail-5": ["25 m/s"],
+//       },
+//       "question-5": {
+//         "question_detail-6": ["C"],
+//       },
+//       "question-6": {
+//         "question_detail-7": ["A"],
+//       },
+//       "question-7": {
+//         "question_detail-8": ["D"],
+//       },
+//       "question-8": {
+//         "question_detail-9": ["B"],
+//       },
+//       "question-9": {
+//         "question_detail-10": ["C"],
+//       },
+//       "question-10": {
+//         "question_detail-11": ["折射率"],
+//       },
+//       "question-11": {
+//         "question_detail-12": ["20 m/s"],
+//       },
+//       "question-12": {
+//         "question_detail-13": ["75 m"],
+//       },
+//       "question-13": {
+//         "question_detail-14": [
+//           "14 m/s",
+//           "这里可以是计算过程或额外解释",
+//           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // 这是一个1x1像素的透明PNG图片的base64编码，您应该替换为实际的图片数据
+//         ],
+//       },
+//     },
+//     submissionTime: "2024-03-15T10:30:00Z",
+//   };
 
-  return [200, mockAnswers];
-});
+//   return [200, mockAnswers];
+// });
 
 // 模拟获取单个考试成绩的请求
 mock.onGet(/\/api\/my-exams\/[^/]+\/grades$/).reply((config) => {
