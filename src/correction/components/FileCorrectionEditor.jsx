@@ -34,7 +34,8 @@ import { QUESTION_TYPES } from "../../common/constants";
 const COLORS = {
   SECTION: "#3f51b5", // 深蓝色
   QUESTION: "#4caf50", // 绿色
-  QUESTION_MATERIAL: "#81c784", // 浅绿色
+  SIMPLE_QUESTION: "#8bc34a", // 浅绿色，与复杂题区分
+  QUESTION_MATERIAL: "#81c784", // 涅绿色
   QUESTION_DETAIL: "#2196f3", // 蓝色
   QUESTION_DETAIL_CONTENT: "#90caf9", // 浅蓝色
   QUESTION_DETAIL_OPTION: "#64b5f6", // 中等蓝色，与内容接近
@@ -63,24 +64,25 @@ const createSubmitExam = (exam, markdownLines) => {
 
   const convertSection = (section) => {
     const questions = section.questions.map((question) => {
-      const questionDetails = question.questionDetails.map((detail) => {
+      if (question.type === "simpleQuestion") {
+        // 简单题处理：直接转换为一个 questionDetail
         const result = {
-          uuid: detail.uuid,
-          order_in_question: detail.order,
+          uuid: uuidv4(),
+          order_in_question: 1,
           questionContent: {
             value: getContent([
-              ...detail.extra,
-              ...detail.questionContent.extra,
+              ...question.extra,
+              ...(question.questionContent?.extra || []),
             ]),
             images: [],
           },
-          uiType: detail.uiType,
+          uiType: question.rows && question.rows.length > 0 ? "single_selection" : "fill_blank",
           score: 0,
           rate: 0,
         };
 
-        if (detail.rows && detail.rows.length > 0) {
-          result.rows = detail.rows.map((row) => ({
+        if (question.rows && question.rows.length > 0) {
+          result.rows = question.rows.map((row) => ({
             value: getContent(row.extra),
             isAns: row.isAns || false,
             images: [],
@@ -89,37 +91,91 @@ const createSubmitExam = (exam, markdownLines) => {
           result.rows = [];
         }
 
-        if (detail.answer) {
+        if (question.answer) {
           result.answer = {
-            content: [getContent(detail.answer.extra)],
+            content: [getContent(question.answer.extra)],
             images: [],
           };
         }
 
-        if (detail.explanation) {
-          result.explanation = getContent(detail.explanation.extra);
+        if (question.explanation) {
+          result.explanation = getContent(question.explanation.extra);
         }
 
-        return result;
-      });
+        return {
+          uuid: question.uuid,
+          type: result.uiType === "fill_blank" ? "fillInBlank" : "selection",
+          category: exam.category,
+          order_in_section: question.order,
+          kn: exam.kn,
+          gradeInfo: exam.gradeInfo,
+          source: exam.source,
+          tags: [],
+          digest: question.name,
+          material: getContent(question.material?.extra || []),
+          questionDetails: [result], // 简单题只有一个 questionDetail
+          relatedSources: [],
+        };
+      } else {
+        // 复杂题处理
+        const questionDetails = question.questionDetails ? question.questionDetails.map((detail) => {
+          const result = {
+            uuid: detail.uuid,
+            order_in_question: detail.order,
+            questionContent: {
+              value: getContent([
+                ...detail.extra,
+                ...detail.questionContent.extra,
+              ]),
+              images: [],
+            },
+            uiType: detail.uiType,
+            score: 0,
+            rate: 0,
+          };
 
-      return {
-        uuid: question.uuid,
-        type:
-          question.questionDetails[0]?.uiType === "fill_blank"
-            ? "fillInBlank"
-            : "selection", //TODO: 需要有type的取值规则
-        category: exam.category,
-        order_in_section: question.order, // 添加 order_in_section 字段
-        kn: exam.kn,
-        gradeInfo: exam.gradeInfo,
-        source: exam.source,
-        tags: [],
-        digest: question.name,
-        material: getContent(question.material.extra),
-        questionDetails: questionDetails,
-        relatedSources: [],
-      };
+          if (detail.rows && detail.rows.length > 0) {
+            result.rows = detail.rows.map((row) => ({
+              value: getContent(row.extra),
+              isAns: row.isAns || false,
+              images: [],
+            }));
+          } else {
+            result.rows = [];
+          }
+
+          if (detail.answer) {
+            result.answer = {
+              content: [getContent(detail.answer.extra)],
+              images: [],
+            };
+          }
+
+          if (detail.explanation) {
+            result.explanation = getContent(detail.explanation.extra);
+          }
+
+          return result;
+        }) : [];
+
+        return {
+          uuid: question.uuid,
+          type:
+            question.questionDetails && question.questionDetails[0]?.uiType === "fill_blank"
+              ? "fillInBlank"
+              : "selection",
+          category: exam.category,
+          order_in_section: question.order,
+          kn: exam.kn,
+          gradeInfo: exam.gradeInfo,
+          source: exam.source,
+          tags: [],
+          digest: question.name,
+          material: getContent(question.material?.extra || []),
+          questionDetails: questionDetails,
+          relatedSources: [],
+        };
+      }
     });
 
     return {
@@ -192,6 +248,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   const convertMdMapToExamStructure = (mdMap) => {
     const sections = [];
     const questions = [];
+    const simpleQuestions = [];
     const questionDetails = [];
     const rows = [];
 
@@ -216,6 +273,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             question = {
               uuid: value.uuid,
               type: "question",
+              questionType: "complex",
               extra: [],
               questionDetails: [],
               material: [],
@@ -226,6 +284,28 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           const lastSection = sections[sections.length - 1];
           if (lastSection) {
             upsertByUuid(lastSection.questions, question);
+          }
+        } else if (value.type === "simpleQuestion") {
+          let simpleQuestion = simpleQuestions.find((d) => d.uuid === value.uuid);
+          if (!simpleQuestion) {
+            simpleQuestion = {
+              uuid: value.uuid,
+              type: "simpleQuestion",
+              questionType: "simple",
+              uiType: value.uiType, // 保存题型
+              extra: [],
+              questionContent: [],
+              material: [],
+              explanation: [],
+              answer: [],
+              rows: [],
+            };
+            simpleQuestions.push(simpleQuestion);
+          }
+          simpleQuestion.extra.push(i);
+          const lastSection = sections[sections.length - 1];
+          if (lastSection) {
+            upsertByUuid(lastSection.questions, simpleQuestion);
           }
         } else if (value.type === "questionDetail") {
           let questionDetail = questionDetails.find(
@@ -255,22 +335,58 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             lastQuestion.material.push(i);
           }
         } else if (value.type === "questionDetail_content") {
-          const lastQuestionDetail =
-            questionDetails[questionDetails.length - 1];
-          if (lastQuestionDetail) {
+          const lastQuestionDetail = questionDetails[questionDetails.length - 1];
+          const lastSimpleQuestion = simpleQuestions[simpleQuestions.length - 1];
+          
+          let shouldAssignToSimple = false;
+          if (lastSimpleQuestion && lastQuestionDetail) {
+            const simpleQuestionLastLine = Math.max(...lastSimpleQuestion.extra);
+            const questionDetailLastLine = Math.max(...lastQuestionDetail.extra);
+            shouldAssignToSimple = simpleQuestionLastLine > questionDetailLastLine;
+          } else if (lastSimpleQuestion && !lastQuestionDetail) {
+            shouldAssignToSimple = true;
+          }
+          
+          if (shouldAssignToSimple && lastSimpleQuestion) {
+            lastSimpleQuestion.questionContent.push(i);
+          } else if (lastQuestionDetail) {
             lastQuestionDetail.questionContent.push(i);
           }
         } else if (value.type === "questionDetail_explanation") {
-          const lastQuestionDetail =
-            questionDetails[questionDetails.length - 1];
-          if (lastQuestionDetail) {
+          const lastQuestionDetail = questionDetails[questionDetails.length - 1];
+          const lastSimpleQuestion = simpleQuestions[simpleQuestions.length - 1];
+          
+          let shouldAssignToSimple = false;
+          if (lastSimpleQuestion && lastQuestionDetail) {
+            const simpleQuestionLastLine = Math.max(...lastSimpleQuestion.extra);
+            const questionDetailLastLine = Math.max(...lastQuestionDetail.extra);
+            shouldAssignToSimple = simpleQuestionLastLine > questionDetailLastLine;
+          } else if (lastSimpleQuestion && !lastQuestionDetail) {
+            shouldAssignToSimple = true;
+          }
+          
+          if (shouldAssignToSimple && lastSimpleQuestion) {
+            lastSimpleQuestion.explanation.push(i);
+          } else if (lastQuestionDetail) {
             lastQuestionDetail.explanation.push(i);
           }
         } else if (value.type === "questionDetail_answer") {
-          const lastQuestionDetail =
-            questionDetails[questionDetails.length - 1];
-          if (lastQuestionDetail) {
-            lastQuestionDetail.answer.push(i); // 将行号添加到 answer 字段中
+          const lastQuestionDetail = questionDetails[questionDetails.length - 1];
+          const lastSimpleQuestion = simpleQuestions[simpleQuestions.length - 1];
+          
+          let shouldAssignToSimple = false;
+          if (lastSimpleQuestion && lastQuestionDetail) {
+            const simpleQuestionLastLine = Math.max(...lastSimpleQuestion.extra);
+            const questionDetailLastLine = Math.max(...lastQuestionDetail.extra);
+            shouldAssignToSimple = simpleQuestionLastLine > questionDetailLastLine;
+          } else if (lastSimpleQuestion && !lastQuestionDetail) {
+            shouldAssignToSimple = true;
+          }
+          
+          if (shouldAssignToSimple && lastSimpleQuestion) {
+            lastSimpleQuestion.answer.push(i);
+          } else if (lastQuestionDetail) {
+            lastQuestionDetail.answer.push(i);
           }
         } else if (value.type === "questionDetail_row") {
           let row = rows.find((d) => d.uuid === value.uuid);
@@ -284,9 +400,29 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             rows.push(row);
           }
           row.extra.push(i);
-          const lastQuestionDetail =
-            questionDetails[questionDetails.length - 1];
-          if (lastQuestionDetail) {
+          
+          // 需要确定这个选项属于哪个容器：复杂题的小题还是简单题
+          const lastQuestionDetail = questionDetails[questionDetails.length - 1];
+          const lastSimpleQuestion = simpleQuestions[simpleQuestions.length - 1];
+          
+          let shouldAssignToSimple = false;
+          
+          if (lastSimpleQuestion && lastQuestionDetail) {
+            // 如果两者都存在，比较它们的最后一行位置
+            const simpleQuestionLastLine = Math.max(...lastSimpleQuestion.extra);
+            const questionDetailLastLine = Math.max(...lastQuestionDetail.extra);
+            shouldAssignToSimple = simpleQuestionLastLine > questionDetailLastLine;
+          } else if (lastSimpleQuestion && !lastQuestionDetail) {
+            // 只有 simpleQuestion
+            shouldAssignToSimple = true;
+          } else if (!lastSimpleQuestion && lastQuestionDetail) {
+            // 只有 questionDetail
+            shouldAssignToSimple = false;
+          }
+          
+          if (shouldAssignToSimple && lastSimpleQuestion) {
+            upsertByUuid(lastSimpleQuestion.rows, row);
+          } else if (lastQuestionDetail) {
             upsertByUuid(lastQuestionDetail.rows, row);
           }
         }
@@ -380,21 +516,6 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     }
   }, [selectedLines.length, mousePosition.x, mousePosition.y]);
 
-  // 添加处理学习阶段变化的函数
-  const handleSchoolLevelChange = (event) => {
-    const newSchoolLevel = event.target.value;
-    setExam((prev) => ({
-      ...prev,
-      gradeInfo: { ...prev.gradeInfo, school: newSchoolLevel, grade: "" },
-    }));
-    setEditorState((prevState) => ({
-      ...prevState,
-      exam: {
-        ...prevState.exam,
-        gradeInfo: exam.gradeInfo,
-      },
-    }));
-  };
 
   // 修改处理 gradeInfo 变化的函数
   const handleGradeInfoChange = useCallback((school, grade) => {
@@ -411,64 +532,104 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       const sortedQuestions = section.questions
         .sort((q1, q2) => Math.min(...q1.extra) - Math.min(...q2.extra))
         .map((question, questionIndex) => {
-          const sortedQuestionDetails = question.questionDetails
-            ? question.questionDetails
-                .sort((d1, d2) => Math.min(...d1.extra) - Math.min(...d2.extra))
-                .map((detail, detailIndex) => {
-                  const sortedQuestionContent = {
-                    extra: detail.questionContent,
-                    name: `小题${index + 1}.${questionIndex + 1}.${
-                      detailIndex + 1
-                    }_内容`,
-                  };
+          if (question.type === "simpleQuestion") {
+            // 简单题处理
+            const sortedQuestionContent = {
+              extra: question.questionContent,
+              name: `简单题${index + 1}.${questionIndex + 1}_内容`,
+            };
 
-                  const sortedExplanation = {
-                    extra: detail.explanation,
-                    name: `小题${index + 1}.${questionIndex + 1}.${
-                      detailIndex + 1
-                    }_解析`,
-                  };
+            const sortedExplanation = {
+              extra: question.explanation,
+              name: `简单题${index + 1}.${questionIndex + 1}_解析`,
+            };
 
-                  const sortedAnswer = {
-                    extra: detail.answer,
-                    name: `小题${index + 1}.${questionIndex + 1}.${
-                      detailIndex + 1
-                    }_答案`,
-                  };
+            const sortedAnswer = {
+              extra: question.answer,
+              name: `简单题${index + 1}.${questionIndex + 1}_答案`,
+            };
 
-                  const sortedRows = detail.rows.map((row, rowIndex) => ({
-                    ...row,
-                    name: `小题${index + 1}.${questionIndex + 1}.${
-                      detailIndex + 1
-                    }_选项${rowIndex + 1}`,
-                  }));
+            const sortedRows = question.rows ? question.rows.map((row, rowIndex) => ({
+              ...row,
+              name: `简单题${index + 1}.${questionIndex + 1}_选项${String.fromCharCode(65 + rowIndex)}`,
+            })) : [];
 
-                  return {
-                    ...detail,
-                    order: detailIndex + 1,
-                    name: `小题${index + 1}.${questionIndex + 1}.${
-                      detailIndex + 1
-                    } (${QUESTION_UI_TYPES[detail.uiType]})`,
-                    questionContent: sortedQuestionContent,
-                    explanation: sortedExplanation,
-                    answer: sortedAnswer, // 更新 answer
-                    rows: sortedRows, // 更新 rows
-                  };
-                })
-            : [];
+            const sortedMaterial = {
+              extra: question.material,
+              name: `简单题${index + 1}.${questionIndex + 1}_材料`,
+            };
 
-          const sortedMaterial = {
-            extra: question.material,
-            name: `复杂题${index + 1}.${questionIndex + 1}_材料`,
-          };
+            return {
+              ...question,
+              order: questionIndex + 1,
+              name: `简单题${index + 1}.${questionIndex + 1} (${QUESTION_UI_TYPES[question.uiType] || question.uiType || '未知题型'})`,
+              questionContent: sortedQuestionContent,
+              explanation: sortedExplanation,
+              answer: sortedAnswer,
+              rows: sortedRows,
+              material: sortedMaterial,
+            };
+          } else {
+            // 复杂题处理
+            const sortedQuestionDetails = question.questionDetails
+              ? question.questionDetails
+                  .sort((d1, d2) => Math.min(...d1.extra) - Math.min(...d2.extra))
+                  .map((detail, detailIndex) => {
+                    const sortedQuestionContent = {
+                      extra: detail.questionContent,
+                      name: `小题${index + 1}.${questionIndex + 1}.${
+                        detailIndex + 1
+                      }_内容`,
+                    };
 
-          return {
-            ...question,
-            order: questionIndex + 1,
-            name: `复杂题${index + 1}.${questionIndex + 1}`,
-            questionDetails: sortedQuestionDetails,
-            material: sortedMaterial,
-          };
+                    const sortedExplanation = {
+                      extra: detail.explanation,
+                      name: `小题${index + 1}.${questionIndex + 1}.${
+                        detailIndex + 1
+                      }_解析`,
+                    };
+
+                    const sortedAnswer = {
+                      extra: detail.answer,
+                      name: `小题${index + 1}.${questionIndex + 1}.${
+                        detailIndex + 1
+                      }_答案`,
+                    };
+
+                    const sortedRows = detail.rows.map((row, rowIndex) => ({
+                      ...row,
+                      name: `小题${index + 1}.${questionIndex + 1}.${
+                        detailIndex + 1
+                      }_选项${rowIndex + 1}`,
+                    }));
+
+                    return {
+                      ...detail,
+                      order: detailIndex + 1,
+                      name: `小题${index + 1}.${questionIndex + 1}.${
+                        detailIndex + 1
+                      } (${QUESTION_UI_TYPES[detail.uiType]})`,
+                      questionContent: sortedQuestionContent,
+                      explanation: sortedExplanation,
+                      answer: sortedAnswer, // 更新 answer
+                      rows: sortedRows, // 更新 rows
+                    };
+                  })
+              : [];
+
+            const sortedMaterial = {
+              extra: question.material,
+              name: `复杂题${index + 1}.${questionIndex + 1}_材料`,
+            };
+
+            return {
+              ...question,
+              order: questionIndex + 1,
+              name: `复杂题${index + 1}.${questionIndex + 1}`,
+              questionDetails: sortedQuestionDetails,
+              material: sortedMaterial,
+            };
+          }
         });
 
       return {
@@ -485,7 +646,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
       prevLines.map((line, index) => {
         const lineNumber = index + 1;
         const sectionForLine = sections.find((section) =>
-          section.extra.includes(lineNumber)
+          section.extra && section.extra.includes(lineNumber)
         );
 
         if (sectionForLine) {
@@ -498,21 +659,26 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const questionForLine = sections
           .flatMap((section) => section.questions)
-          .find((question) => question.extra.includes(lineNumber));
+          .find((question) => question.extra && question.extra.includes(lineNumber));
 
         if (questionForLine) {
+          const backgroundColor = questionForLine.type === "simpleQuestion" 
+            ? COLORS.SIMPLE_QUESTION 
+            : COLORS.QUESTION;
           return {
             ...line,
-            backgroundColor: COLORS.QUESTION,
+            backgroundColor: backgroundColor,
             label: questionForLine.name,
           };
         }
 
         const questionDetailForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) => question.questionDetails)
+            section.questions
+              .filter((question) => question.questionDetails && Array.isArray(question.questionDetails))
+              .flatMap((question) => question.questionDetails)
           )
-          .find((detail) => detail.extra.includes(lineNumber));
+          .find((detail) => detail && detail.extra && detail.extra.includes(lineNumber));
 
         if (questionDetailForLine) {
           return {
@@ -524,9 +690,11 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const materialForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) => question.material)
+            section.questions
+              .filter((question) => question.material)
+              .map((question) => question.material)
           )
-          .find((material) => material.extra.includes(lineNumber));
+          .find((material) => material && material.extra && material.extra.includes(lineNumber));
 
         if (materialForLine) {
           return {
@@ -538,14 +706,16 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const questionContentForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) =>
-              question.questionDetails.flatMap(
-                (detail) => detail.questionContent
+            section.questions
+              .filter((question) => question.questionDetails && Array.isArray(question.questionDetails))
+              .flatMap((question) =>
+                question.questionDetails
+                  .filter((detail) => detail && detail.questionContent)
+                  .map((detail) => detail.questionContent)
               )
-            )
           )
           .find((questionContent) =>
-            questionContent.extra.includes(lineNumber)
+            questionContent && questionContent.extra && questionContent.extra.includes(lineNumber)
           );
 
         if (questionContentForLine) {
@@ -558,11 +728,15 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const explanationForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) =>
-              question.questionDetails.flatMap((detail) => detail.explanation)
-            )
+            section.questions
+              .filter((question) => question.questionDetails && Array.isArray(question.questionDetails))
+              .flatMap((question) =>
+                question.questionDetails
+                  .filter((detail) => detail && detail.explanation)
+                  .map((detail) => detail.explanation)
+              )
           )
-          .find((explanation) => explanation.extra.includes(lineNumber));
+          .find((explanation) => explanation && explanation.extra && explanation.extra.includes(lineNumber));
 
         if (explanationForLine) {
           return {
@@ -574,11 +748,15 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const answerForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) =>
-              question.questionDetails.flatMap((detail) => detail.answer)
-            )
+            section.questions.flatMap((question) => {
+              if (question.type === "simpleQuestion") {
+                return question.answer ? [question.answer] : [];
+              } else {
+                return question.questionDetails ? question.questionDetails.flatMap((detail) => detail.answer) : [];
+              }
+            })
           )
-          .find((answer) => answer.extra.includes(lineNumber));
+          .find((answer) => answer.extra && answer.extra.includes(lineNumber));
 
         if (answerForLine) {
           return {
@@ -590,11 +768,15 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const rowForLine = sections
           .flatMap((section) =>
-            section.questions.flatMap((question) =>
-              question.questionDetails.flatMap((detail) => detail.rows)
-            )
+            section.questions.flatMap((question) => {
+              if (question.type === "simpleQuestion") {
+                return question.rows || [];
+              } else {
+                return question.questionDetails ? question.questionDetails.flatMap((detail) => detail.rows) : [];
+              }
+            })
           )
-          .find((row) => row.extra.includes(lineNumber));
+          .find((row) => row.extra && row.extra.includes(lineNumber));
 
         if (rowForLine) {
           return {
@@ -603,6 +785,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             label: rowForLine.name,
           };
         }
+
 
         return line;
       })
@@ -743,6 +926,25 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     });
   };
 
+  const onMarkSimpleQuestion = (selectedLineNumbers, selectedQuestionType) => {
+    saveScrollPosition();
+    setExam((prevExam) => {
+      const newSimpleQuestion = {
+        uuid: uuidv4(), // 添加 uuid
+        type: "simpleQuestion", // 添加 type 属性
+        uiType: selectedQuestionType, // 添加题型
+      };
+
+      mdMap.setMultiLinesWithLock(selectedLineNumbers, newSimpleQuestion);
+
+      let newSections = convertMdMapToExamStructure(mdMap);
+
+      //重新排序
+      newSections = sortAndRenameSections(newSections);
+      return { ...prevExam, sections: newSections };
+    });
+  };
+
   const onMarkMaterial = (selectedLineNumbers) => {
     saveScrollPosition();
     setExam((prevExam) => {
@@ -751,7 +953,6 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         type: "question_material", // 添加 type 属性
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionMaterial);
 
       let newSections = convertMdMapToExamStructure(mdMap);
@@ -770,7 +971,6 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         type: "questionDetail_content", // 添加 type 属性
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newQuestionContent);
 
       let newSections = convertMdMapToExamStructure(mdMap);
@@ -789,7 +989,6 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         type: "questionDetail_explanation", // 添加 type 属性
       };
 
-      const selectedLineNumbers = selectedLines.map((index) => index + 1);
       mdMap.setMultiLinesWithLock(selectedLineNumbers, newExplanation);
 
       let newSections = convertMdMapToExamStructure(mdMap);
@@ -1317,6 +1516,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             onClose={() => setAnchorPosition(null)}
             onMarkSection={onMarkSection}
             onMarkQuestion={onMarkQuestion}
+            onMarkSimpleQuestion={onMarkSimpleQuestion}
             onMarkQuestionDetail={onMarkQuestionDetail}
             onCancelAnnotation={onCancelAnnotation}
             onMarkMaterial={onMarkMaterial}

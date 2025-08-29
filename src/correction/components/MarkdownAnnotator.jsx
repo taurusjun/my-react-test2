@@ -15,16 +15,27 @@ import { QUESTION_UI_TYPES } from "../../common/constants";
 
 // 定义操作配置
 const actionConfig = {
-  section: ["markQuestion"],
+  section: ["markQuestion", "markSimpleQuestion"],
   question: [
     "markSection",
     "markQuestion",
+    "markSimpleQuestion",
     "markMaterial",
     "markQuestionDetail",
+  ],
+  simpleQuestion: [
+    "markSection",
+    "markQuestion",
+    "markSimpleQuestion",
+    "markQuestionContent",
+    "markRow",
+    "markAnswer",
+    "markExplanation",
   ],
   questionDetail: [
     "markSection",
     "markQuestion",
+    "markSimpleQuestion",
     "markQuestionDetail",
     "markQuestionContent",
     "markRow",
@@ -45,6 +56,12 @@ const buttonConfig = {
     label: "标注为复杂题",
     color: "QUESTION",
     handler: "handleMarkQuestion",
+  },
+  markSimpleQuestion: {
+    label: "标注为简单题",
+    color: "SIMPLE_QUESTION",
+    handler: "handleMarkSimpleQuestion",
+    requiresQuestionType: true,
   },
   markMaterial: {
     label: "标注材料",
@@ -85,6 +102,7 @@ const MarkdownAnnotator = ({
   onClose,
   onMarkSection,
   onMarkQuestion,
+  onMarkSimpleQuestion,
   onMarkQuestionDetail,
   onCancelAnnotation,
   onMarkMaterial,
@@ -118,9 +136,12 @@ const MarkdownAnnotator = ({
       map.set(section.uuid, section);
       section.questions.forEach((question) => {
         map.set(question.uuid, question);
-        question.questionDetails.forEach((detail) => {
-          map.set(detail.uuid, detail);
-        });
+        // 只有复杂题才有 questionDetails
+        if (question.questionDetails && Array.isArray(question.questionDetails)) {
+          question.questionDetails.forEach((detail) => {
+            map.set(detail.uuid, detail);
+          });
+        }
       });
     });
 
@@ -175,6 +196,12 @@ const MarkdownAnnotator = ({
       return;
     }
 
+    // 检查是否选择了题型
+    if (!selectedQuestionType) {
+      setErrorMessage("请选择题型");
+      return;
+    }
+
     // 检查重叠
     const selectedSectionObject = quickLookupMap.get(selectedSection);
 
@@ -215,8 +242,6 @@ const MarkdownAnnotator = ({
       setErrorMessage("未找到所属的大题");
       return;
     }
-    const currentSection = quickLookupMap.get(currentSectionInMap.uuid);
-
     // get current question
     const currentQuestionInMap = mdMap.findNearestQuestion(
       selectedLineNumbers[0]
@@ -225,7 +250,6 @@ const MarkdownAnnotator = ({
       setErrorMessage("未找到所属的复杂题");
       return;
     }
-    const currentQuestion = quickLookupMap.get(currentQuestionInMap.uuid);
 
     // 更新数据结构
     onMarkQuestionDetail(selectedLineNumbers, selectedQuestionType);
@@ -258,7 +282,9 @@ const MarkdownAnnotator = ({
     const nameMap = {
       section: "大题",
       question: "复杂题",
-      question_material: "复杂题材料",
+      simpleQuestion: "简单题",
+      question_material: "题目材料",
+      simpleQuestion_material: "简单题材料",
       questionDetail: "小题",
       questionDetail_content: "小题内容",
       questionDetail_row: "小题选项",
@@ -273,6 +299,7 @@ const MarkdownAnnotator = ({
       if (
         (containerType === "section" && elementType !== "question") ||
         (containerType === "question" && elementType !== "questionDetail") ||
+        (containerType === "simpleQuestion" && elementType !== "questionDetail_content" && elementType !== "questionDetail_row" && elementType !== "questionDetail_answer" && elementType !== "questionDetail_explanation") ||
         (containerType === "questionDetail" &&
           elementType === "questionDetail_content" &&
           elementType === "questionDetail_row" &&
@@ -389,20 +416,46 @@ const MarkdownAnnotator = ({
     onClose();
   };
 
+  const handleMarkSimpleQuestion = () => {
+    const selectedLineNumbers = selectedLines.map((index) => index + 1);
+    const currentSection = mdMap.findNearestSection(selectedLineNumbers[0]);
+
+    if (!currentSection) {
+      setErrorMessage("未找到所属的大题");
+      return;
+    }
+
+    // 检查重叠
+    const selectedSectionObject = quickLookupMap.get(selectedSection);
+
+    if (mdMap.hasOverlap(selectedLineNumbers, selectedSectionObject)) {
+      setErrorMessage("选中的行范围与其他题目重叠，请重新选择");
+      return;
+    }
+
+    onMarkSimpleQuestion(selectedLineNumbers, selectedQuestionType);
+
+    // 清空选中的行
+    setSelectedLines([]); // 取消选中行
+    setSelectedQuestionType("");
+
+    onClose();
+  };
+
   const handleMarkRow = () => {
     const selectedLineNumbers = selectedLines.map((index) => index + 1);
-    const currentQuestionDetail = mdMap.findNearestContainerObject(
-      selectedLineNumbers[0],
-      "questionDetail"
+    // 对于简单题，可以直接在简单题下添加选项，不需要小题容器
+    const currentContainer = mdMap.findNearestContainerObject(
+      selectedLineNumbers[0]
     );
 
-    if (!currentQuestionDetail) {
-      setErrorMessage("未找到所属的小题");
+    if (!currentContainer || (currentContainer.type !== "questionDetail" && currentContainer.type !== "simpleQuestion")) {
+      setErrorMessage("未找到所属的小题或简单题");
       return;
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他题目重叠，请重新选择");
       return;
     }
 
@@ -416,6 +469,7 @@ const MarkdownAnnotator = ({
   const handlers = {
     handleMarkSection,
     handleMarkQuestion,
+    handleMarkSimpleQuestion,
     handleMarkMaterial,
     handleMarkQuestionDetail,
     handleMarkQuestionContent,
@@ -481,7 +535,7 @@ const MarkdownAnnotator = ({
           renderSectionButton(validSections.length > 0)}
         {availableActions.map((action) => {
           const config = buttonConfig[action];
-          if (action === "markQuestionDetail") {
+          if (action === "markQuestionDetail" || action === "markSimpleQuestion") {
             return (
               <React.Fragment key={action}>
                 <Grid
@@ -521,7 +575,7 @@ const MarkdownAnnotator = ({
                         backgroundColor: colors[config.color],
                         color: "#fff",
                       }}
-                      onClick={handleMarkQuestionDetail}
+                      onClick={() => handlers[config.handler]()}
                       disabled={!selectedQuestionType}
                     >
                       {config.label}

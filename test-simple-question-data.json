@@ -1,0 +1,141 @@
+{
+  "uuid": "test-simple-exam-uuid",
+  "name": "数学简单题测试试卷",
+  "category": "math",
+  "source": "测试来源",
+  "kn": "algebra",
+  "gradeInfo": {
+    "school": "high_school",
+    "grade": "grade_1"
+  },
+  "sections": [
+    {
+      "uuid": "section-1",
+      "name": "## 第一大题：**代数基础** 📝\n\n包含简单题和复杂题的混合练习",
+      "order_in_exam": 1,
+      "questions": [
+        {
+          "uuid": "simple-question-1",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "category": "math",
+          "order_in_section": 1,
+          "kn": "algebra",
+          "gradeInfo": {
+            "school": "high_school",
+            "grade": "grade_1"
+          },
+          "source": "测试来源",
+          "tags": [],
+          "digest": "简单二次方程",
+          "material": "求解二次方程的基本方法：使用求根公式 $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$",
+          "questionContent": {
+            "value": "求解方程 $x^2 - 5x + 6 = 0$ 的解。"
+          },
+          "rows": [
+            {
+              "value": "$x = 2, x = 3$",
+              "isAns": true,
+              "images": []
+            },
+            {
+              "value": "$x = 1, x = 6$",
+              "isAns": false,
+              "images": []
+            },
+            {
+              "value": "$x = -2, x = -3$",
+              "isAns": false,
+              "images": []
+            },
+            {
+              "value": "$x = 0, x = 5$",
+              "isAns": false,
+              "images": []
+            }
+          ],
+          "answer": {
+            "content": ["A"],
+            "images": []
+          },
+          "explanation": "使用因式分解：$(x-2)(x-3) = 0$，所以 $x = 2$ 或 $x = 3$。",
+          "relatedSources": []
+        },
+        {
+          "uuid": "complex-question-1",
+          "type": "question",
+          "questionType": "complex",
+          "category": "math",
+          "order_in_section": 2,
+          "kn": "algebra",
+          "gradeInfo": {
+            "school": "high_school",
+            "grade": "grade_1"
+          },
+          "source": "测试来源",
+          "tags": [],
+          "digest": "复杂二次方程综合题",
+          "material": "## 材料\n\n已知二次函数 $f(x) = ax^2 + bx + c$，其中 $a \\neq 0$。\n\n```python\n# 二次函数求根代码\ndef quadratic_roots(a, b, c):\n    discriminant = b**2 - 4*a*c\n    if discriminant > 0:\n        x1 = (-b + discriminant**0.5) / (2*a)\n        x2 = (-b - discriminant**0.5) / (2*a)\n        return x1, x2\n    elif discriminant == 0:\n        x = -b / (2*a)\n        return x,\n    else:\n        return None  # 无实数解\n```",
+          "questionDetails": [
+            {
+              "uuid": "detail-1",
+              "order_in_question": 1,
+              "questionContent": {
+                "value": "若 $f(x) = 2x^2 - 8x + 6$，求 $f(x) = 0$ 的解。",
+                "images": []
+              },
+              "uiType": "single_selection",
+              "score": 0,
+              "rate": 0,
+              "rows": [
+                {
+                  "value": "$x = 1, x = 3$",
+                  "isAns": true,
+                  "images": []
+                },
+                {
+                  "value": "$x = 2, x = 4$",
+                  "isAns": false,
+                  "images": []
+                },
+                {
+                  "value": "$x = 0, x = 2$",
+                  "isAns": false,
+                  "images": []
+                },
+                {
+                  "value": "$x = -1, x = 3$",
+                  "isAns": false,
+                  "images": []
+                }
+              ],
+              "answer": {
+                "content": ["A"],
+                "images": []
+              },
+              "explanation": "将 $f(x) = 2x^2 - 8x + 6 = 0$ 除以 2 得到 $x^2 - 4x + 3 = 0$，因式分解得 $(x-1)(x-3) = 0$，所以 $x = 1$ 或 $x = 3$。"
+            },
+            {
+              "uuid": "detail-2",
+              "order_in_question": 2,
+              "questionContent": {
+                "value": "求 $f(x) = 2x^2 - 8x + 6$ 的最小值及对应的 $x$ 值。",
+                "images": []
+              },
+              "uiType": "fill_blank",
+              "score": 0,
+              "rate": 0,
+              "rows": [],
+              "answer": {
+                "content": ["当 $x = 2$ 时，$f(x)_{\\min} = -2$"],
+                "images": []
+              },
+              "explanation": "由于 $a = 2 > 0$，抛物线开口向上，对称轴为 $x = -\\frac{b}{2a} = -\\frac{-8}{2 \\cdot 2} = 2$。当 $x = 2$ 时，$f(2) = 2 \\cdot 4 - 8 \\cdot 2 + 6 = 8 - 16 + 6 = -2$。"
+            }
+          ],
+          "relatedSources": []
+        }
+      ]
+    }
+  ]
+}
