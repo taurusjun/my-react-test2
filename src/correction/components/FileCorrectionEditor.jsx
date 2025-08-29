@@ -797,12 +797,80 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     });
   };
 
+  // 检测代码块的辅助函数
+  const detectCodeBlocks = (lines) => {
+    const codeBlocks = [];
+    let inCodeBlock = false;
+    let codeBlockStart = -1;
+    let codeBlockLanguage = "";
+
+    lines.forEach((line, index) => {
+      const content = typeof line === "string" ? line : line.content || "";
+      
+      // 检测代码块开始
+      if (content.trim().startsWith("```")) {
+        if (!inCodeBlock) {
+          inCodeBlock = true;
+          codeBlockStart = index;
+          codeBlockLanguage = content.trim().substring(3).trim();
+        } else {
+          // 代码块结束
+          inCodeBlock = false;
+          codeBlocks.push({
+            start: codeBlockStart,
+            end: index,
+            language: codeBlockLanguage,
+          });
+        }
+      }
+    });
+
+    return codeBlocks;
+  };
+
+  // 检查某行是否在代码块内
+  const isLineInCodeBlock = (lineIndex, codeBlocks) => {
+    return codeBlocks.find(block => 
+      lineIndex >= block.start && lineIndex <= block.end
+    );
+  };
+
+  // 选择完整代码块
+  const selectCodeBlock = (clickedIndex, codeBlocks) => {
+    const codeBlock = isLineInCodeBlock(clickedIndex, codeBlocks);
+    if (codeBlock) {
+      const blockLines = [];
+      for (let i = codeBlock.start; i <= codeBlock.end; i++) {
+        blockLines.push(i);
+      }
+      return blockLines;
+    }
+    return [clickedIndex];
+  };
+
   const renderMarkdownWithLineNumbers = (extra) => {
+    const codeBlocks = detectCodeBlocks(extra);
+
     return extra.map((line, index) => {
       const isSelected = selectedLines.includes(index);
+      const codeBlock = isLineInCodeBlock(index, codeBlocks);
+      const isInCodeBlock = !!codeBlock;
+      const isCodeBlockStart = codeBlock && index === codeBlock.start;
+      const isCodeBlockEnd = codeBlock && index === codeBlock.end;
+      
       const backgroundColor = isSelected
         ? "#d0e0ff"
         : line.backgroundColor || (index % 2 === 0 ? "#f9f9f9" : "#ffffff");
+
+      const content = typeof line === "string" ? line : line.content || "";
+      
+      // 代码块内容的特殊处理
+      let displayContent = content;
+      if (isCodeBlockStart && content.trim().startsWith("```")) {
+        displayContent = content; // 保留开始标记
+      } else if (isCodeBlockEnd && content.trim() === "```") {
+        displayContent = content; // 保留结束标记
+      }
 
       return (
         <div
@@ -814,8 +882,26 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             backgroundColor,
             cursor: "pointer",
             borderBottom: "1px solid #e0e0e0",
+            // 代码块的视觉提示
+            borderLeft: isInCodeBlock ? "4px solid #007acc" : "none",
+            paddingLeft: isInCodeBlock ? "8px" : "0",
           }}
-          onMouseDown={(event) => handleLineClick(event, index)}
+          onMouseDown={(event) => {
+            // 如果点击的是代码块内的行，提供智能选择选项
+            if (isInCodeBlock && (event.altKey || event.detail === 2)) { // Alt+点击 或 双击
+              event.preventDefault();
+              event.stopPropagation();
+              const blockLines = selectCodeBlock(index, codeBlocks);
+              setSelectedLines(blockLines);
+              setAnchorPosition({
+                top: event.clientY,
+                left: event.clientX,
+              });
+            } else {
+              handleLineClick(event, index);
+            }
+          }}
+          title={isInCodeBlock ? `代码块 (${codeBlock.language || 'text'}) - Alt+点击或双击选择整个代码块` : ""}
         >
           <div
             style={{
@@ -827,7 +913,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               color: "#888",
               fontFamily: "monospace",
               userSelect: "none",
-              backgroundColor: "#f0f0f0",
+              backgroundColor: isInCodeBlock ? "#e8f4fd" : "#f0f0f0",
               borderRight: "1px solid #e0e0e0",
             }}
           >
@@ -860,29 +946,111 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
                 {line.label}
               </span>
             )}
-            <ReactMarkdown
-              components={{
-                p: ({ node, ...props }) => (
-                  <p style={{ margin: 0 }} {...props} />
-                ),
+            <div
+              style={{
+                fontFamily: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd 
+                  ? "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace"
+                  : "inherit",
+                fontSize: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd ? "14px" : "inherit",
+                backgroundColor: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd 
+                  ? "#f8f8f8" 
+                  : "transparent",
+                padding: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd ? "4px 8px" : "0",
+                borderRadius: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd ? "4px" : "0",
+                whiteSpace: isInCodeBlock ? "pre" : "normal",
+                lineHeight: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd ? "1.4" : "inherit",
+                border: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd 
+                  ? "1px solid #e1e1e1" 
+                  : "none",
+                boxShadow: isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd 
+                  ? "0 1px 2px rgba(0,0,0,0.05)" 
+                  : "none",
               }}
-              rehypePlugins={[rehypeRaw]}
             >
-              {typeof line === "string" ? line : line.content || ""}
-            </ReactMarkdown>
+              {isInCodeBlock && !isCodeBlockStart && !isCodeBlockEnd ? (
+                // 代码块内容直接显示，不经过markdown解析，保持缩进
+                <span style={{ 
+                  color: "#2d3748",
+                  wordBreak: "break-all",
+                  whiteSpace: "pre-wrap"
+                }}>
+                  {displayContent}
+                </span>
+              ) : isCodeBlockStart ? (
+                // 代码块开始标记的特殊样式
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "#007acc",
+                  color: "white",
+                  padding: "4px 8px",
+                  borderRadius: "4px 4px 0 0",
+                  fontSize: "12px",
+                  fontWeight: "500",
+                  margin: "-4px 0 4px -10px",
+                  fontFamily: "monospace"
+                }}>
+                  <span>📝 代码块开始</span>
+                  {codeBlock.language && (
+                    <span style={{ 
+                      marginLeft: "8px", 
+                      backgroundColor: "rgba(255,255,255,0.2)",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                      fontSize: "11px"
+                    }}>
+                      {codeBlock.language}
+                    </span>
+                  )}
+                </div>
+              ) : isCodeBlockEnd ? (
+                // 代码块结束标记的特殊样式
+                <div style={{
+                  backgroundColor: "#007acc",
+                  color: "white",
+                  padding: "4px 8px",
+                  borderRadius: "0 0 4px 4px",
+                  fontSize: "12px",
+                  fontWeight: "500",
+                  margin: "4px 0 -4px -10px",
+                  textAlign: "center"
+                }}>
+                  📝 代码块结束
+                </div>
+              ) : (
+                <ReactMarkdown
+                  components={{
+                    p: ({ node, ...props }) => (
+                      <p style={{ margin: 0 }} {...props} />
+                    ),
+                    code: ({ node, inline, className, children, ...props }) => (
+                      <code
+                        style={{
+                          backgroundColor: "#f0f0f0",
+                          padding: "2px 4px",
+                          borderRadius: "3px",
+                          fontFamily: "monospace",
+                          fontSize: "13px",
+                          border: "1px solid #e1e1e1",
+                        }}
+                        {...props}
+                      >
+                        {children}
+                      </code>
+                    ),
+                  }}
+                  rehypePlugins={[rehypeRaw]}
+                >
+                  {displayContent}
+                </ReactMarkdown>
+              )}
+            </div>
           </div>
         </div>
       );
     });
   };
 
-  const handleNameChange = (event) => {
-    setExam((prev) => ({ ...prev, name: event.target.value }));
-  };
-
-  const handleCategoryChange = (event) => {
-    setExam((prev) => ({ ...prev, category: event.target.value }));
-  };
 
   useEffect(() => {
     const fetchFileContent = async () => {
@@ -1070,6 +1238,18 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
           </Grid>
         </Grid>
         <Divider sx={{ my: 2 }} />
+        
+        {!isEditing && (
+          <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
+            <Typography variant="body2" color="primary">
+              💡 代码块操作提示：
+              <br />
+              • 代码块用蓝色左边框标识
+              • <strong>Alt + 点击</strong> 或 <strong>双击</strong> 代码块内任意行可选择整个代码块
+              • 鼠标悬停可查看代码块语言类型
+            </Typography>
+          </Box>
+        )}
 
         <Box sx={{ mt: 2, mb: 2, bgcolor: "#f5f5f5", p: 2, borderRadius: 1 }}>
           {isEditing ? (
@@ -1109,6 +1289,13 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             colors={COLORS}
             setSelectedLines={setSelectedLines}
             mdMap={mdMap}
+            // 传递代码块相关的props
+            markdownLines={markdownLines}
+            onSelectCodeBlock={(index) => {
+              const codeBlocks = detectCodeBlocks(markdownLines);
+              const blockLines = selectCodeBlock(index, codeBlocks);
+              setSelectedLines(blockLines);
+            }}
           />
         )}
       </StyledPaper>
