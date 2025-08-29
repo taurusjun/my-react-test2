@@ -37,13 +37,31 @@ const FileCorrectionEditorPage = () => {
 
   const validateExam = (exam) => {
     if (!exam) return false;
-    return (
-      exam.name &&
-      exam.category &&
-      exam.gradeInfo &&
-      exam.gradeInfo.school &&
-      exam.gradeInfo.grade
-    );
+    
+    // 检查名称
+    if (!exam.name || !exam.name.trim()) {
+      return false;
+    }
+    
+    // 检查科目
+    if (!exam.category || !exam.category.trim()) {
+      return false;
+    }
+    
+    // 检查年级信息
+    if (!exam.gradeInfo) {
+      return false;
+    }
+    
+    if (!exam.gradeInfo.school || !exam.gradeInfo.school.trim()) {
+      return false;
+    }
+    
+    if (!exam.gradeInfo.grade || !exam.gradeInfo.grade.trim()) {
+      return false;
+    }
+    
+    return true;
   };
 
   const [errors, setErrors] = useState({
@@ -106,6 +124,7 @@ const FileCorrectionEditorPage = () => {
 
   const handleSubmit = async () => {
     if (editorState && editorState.mdMap && editorState.exam) {
+      
       if (!validateExam(editorState.exam)) {
         setSnackbar({
           open: true,
@@ -188,7 +207,11 @@ const FileCorrectionEditorPage = () => {
           />
         );
       case 2:
-        return <ExamEditor exam={editorState.exam} onExamChange={updateExam} />;
+        return editorState && editorState.exam ? (
+          <ExamEditor exam={editorState.exam} onExamChange={updateExam} />
+        ) : (
+          <div>加载中...</div>
+        );
       case 3:
         return <ExamPreview exam={editorState.exam} />;
       default:

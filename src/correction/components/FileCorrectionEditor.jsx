@@ -365,7 +365,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     }
   };
 
-  const handleKeyUp = (event) => {
+  const handleKeyUp = useCallback((event) => {
     if (
       event.key === "Shift" ||
       event.key === "Meta" ||
@@ -378,7 +378,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         });
       }
     }
-  };
+  }, [selectedLines.length, mousePosition.x, mousePosition.y]);
 
   // 添加处理学习阶段变化的函数
   const handleSchoolLevelChange = (event) => {
@@ -1080,9 +1080,27 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
         const examData = JSON.parse(responseData.examData);
         if (examData && examData.uuid) {
-          setExam({ ...exam, ...examData, sections: newSections });
+          const initialExam = { 
+            sections: newSections,
+            name: examData.name || "",
+            category: examData.category || "",
+            gradeInfo: examData.gradeInfo || { school: "", grade: "" },
+            source: examData.source || "",
+            kn: examData.kn || "",
+            uuid: examData.uuid
+          };
+          setExam(initialExam);
         } else {
-          setExam({ ...exam, uuid: uuidv4(), sections: newSections });
+          const initialExam = { 
+            sections: newSections,
+            name: "",
+            category: "",
+            gradeInfo: { school: "", grade: "" },
+            source: "",
+            kn: "",
+            uuid: uuidv4()
+          };
+          setExam(initialExam);
         }
       } catch (error) {
         console.error("获取文件内容时出错:", error);
@@ -1105,7 +1123,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
     return () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [selectedLines, mousePosition]);
+  }, [handleKeyUp]);
 
   useEffect(() => {
     if (mdMap && exam) {
@@ -1118,7 +1136,7 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         exam: createdExam,
       });
     }
-  }, [mdMap, exam, setEditorState]);
+  }, [mdMap, exam, setEditorState, content, markdownLines, status]);
 
   useEffect(() => {
     // 只有在非编辑状态且scrollPosition发生变化时才滚动
@@ -1160,7 +1178,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               fullWidth
               label="名称"
               value={exam.name}
-              onChange={(e) => setExam({ ...exam, name: e.target.value })}
+              onChange={(e) => {
+                const updatedExam = { ...exam, name: e.target.value };
+                setExam(updatedExam);
+              }}
               variant="outlined"
               sx={{ mb: 2 }}
             />
@@ -1171,7 +1192,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               <InputLabel>科目</InputLabel>
               <Select
                 value={exam.category}
-                onChange={(e) => setExam({ ...exam, category: e.target.value })}
+                onChange={(e) => {
+                  const updatedExam = { ...exam, category: e.target.value };
+                  setExam(updatedExam);
+                }}
                 label="科目"
               >
                 {Object.entries(dictionaries.CategoryDict).map(
@@ -1190,7 +1214,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               fullWidth
               label="来源"
               value={exam.source || ""}
-              onChange={(e) => setExam({ ...exam, source: e.target.value })}
+              onChange={(e) => {
+                const updatedExam = { ...exam, source: e.target.value };
+                setExam(updatedExam);
+              }}
               variant="outlined"
               sx={{ mb: 2 }}
             />
@@ -1215,7 +1242,10 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
               <InputLabel>知识点</InputLabel>
               <Select
                 value={exam.kn}
-                onChange={(e) => setExam({ ...exam, kn: e.target.value })}
+                onChange={(e) => {
+                  const updatedExam = { ...exam, kn: e.target.value };
+                  setExam(updatedExam);
+                }}
                 label="知识点"
               >
                 {availableKnowledgeNodes.map((kn) => (

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   TextField,
   Box,
@@ -141,8 +141,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
   const { dictionaries } = useDictionaries();
   const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
   const [editedExam, setEditedExam] = useState(exam);
-  const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
-  const [editingSectionIndex, setEditingSectionIndex] = useState(null);
   const [editingStates, setEditingStates] = useState({});
 
   const toggleEditing = (key) => {
