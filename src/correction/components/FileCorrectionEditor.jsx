@@ -16,6 +16,9 @@ import {
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
@@ -1039,7 +1042,8 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
                       </code>
                     ),
                   }}
-                  rehypePlugins={[rehypeRaw]}
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex, rehypeRaw]}
                 >
                   {displayContent}
                 </ReactMarkdown>
@@ -1242,11 +1246,11 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
         {!isEditing && (
           <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
             <Typography variant="body2" color="primary">
-              💡 代码块操作提示：
+              💡 操作提示：
               <br />
-              • 代码块用蓝色左边框标识
-              • <strong>Alt + 点击</strong> 或 <strong>双击</strong> 代码块内任意行可选择整个代码块
-              • 鼠标悬停可查看代码块语言类型
+              • <strong>代码块</strong>：用蓝色左边框标识，Alt + 点击或双击选择整个代码块
+              • <strong>LaTeX公式</strong>：行内公式用 <code>$公式$</code>，块级公式用 <code>$$公式$$</code>
+              • <strong>支持的数学符号</strong>：分数 <code>\frac{"{a}"}{"{b}"}</code>，开方 <code>\sqrt{"{a}"}</code>，上下标 <code>x^2</code> <code>x_i</code> 等
             </Typography>
           </Box>
         )}
