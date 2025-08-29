@@ -42,7 +42,7 @@ const buttonConfig = {
     handler: "handleMarkSection",
   },
   markQuestion: {
-    label: "标注为标准题",
+    label: "标注为复杂题",
     color: "QUESTION",
     handler: "handleMarkQuestion",
   },
@@ -150,7 +150,7 @@ const MarkdownAnnotator = ({
     const selectedSectionObject = quickLookupMap.get(selectedSection);
 
     if (mdMap.hasOverlap(selectedLineRange, selectedSectionObject)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -179,7 +179,7 @@ const MarkdownAnnotator = ({
     const selectedSectionObject = quickLookupMap.get(selectedSection);
 
     if (mdMap.hasOverlap(selectedLineNumbers, selectedSectionObject)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -202,7 +202,7 @@ const MarkdownAnnotator = ({
 
     // 检查重叠
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -222,7 +222,7 @@ const MarkdownAnnotator = ({
       selectedLineNumbers[0]
     );
     if (!currentQuestionInMap) {
-      setErrorMessage("未找到所属的标准题");
+      setErrorMessage("未找到所属的复杂题");
       return;
     }
     const currentQuestion = quickLookupMap.get(currentQuestionInMap.uuid);
@@ -257,8 +257,8 @@ const MarkdownAnnotator = ({
 
     const nameMap = {
       section: "大题",
-      question: "标准题",
-      question_material: "标准题材料",
+      question: "复杂题",
+      question_material: "复杂题材料",
       questionDetail: "小题",
       questionDetail_content: "小题内容",
       questionDetail_row: "小题选项",
@@ -303,7 +303,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -328,7 +328,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -353,7 +353,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -378,7 +378,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 
@@ -402,7 +402,7 @@ const MarkdownAnnotator = ({
     }
 
     if (mdMap.hasOverlap(selectedLineNumbers)) {
-      setErrorMessage("选中的行范围与其他大题或标准题重叠，请重新选择");
+      setErrorMessage("选中的行范围与其他大题或复杂题重叠，请重新选择");
       return;
     }
 

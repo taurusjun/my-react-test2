@@ -459,13 +459,13 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
           const sortedMaterial = {
             extra: question.material,
-            name: `标准题${index + 1}.${questionIndex + 1}_材料`,
+            name: `复杂题${index + 1}.${questionIndex + 1}_材料`,
           };
 
           return {
             ...question,
             order: questionIndex + 1,
-            name: `标准题${index + 1}.${questionIndex + 1}`,
+            name: `复杂题${index + 1}.${questionIndex + 1}`,
             questionDetails: sortedQuestionDetails,
             material: sortedMaterial,
           };
