@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Grid,
   Box,
@@ -397,12 +397,12 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   };
 
   // 修改处理 gradeInfo 变化的函数
-  const handleGradeInfoChange = (school, grade) => {
+  const handleGradeInfoChange = useCallback((school, grade) => {
     setExam((prev) => ({
       ...prev,
       gradeInfo: { school, grade },
     }));
-  };
+  }, []);
 
   // 重新排序
   const sortAndRenameSections = (sections) => {
@@ -1121,8 +1121,12 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
   }, [mdMap, exam, setEditorState]);
 
   useEffect(() => {
-    window.scrollTo(0, scrollPosition);
-  }, [exam, scrollPosition]);
+    // 只有在非编辑状态且scrollPosition发生变化时才滚动
+    if (!isEditing && scrollPosition > 0) {
+      window.scrollTo(0, scrollPosition);
+      setScrollPosition(0); // 重置滚动位置，避免重复滚动
+    }
+  }, [scrollPosition, isEditing]);
 
   useEffect(() => {
     if (exam.category && dictionaries.CategoryKNMapping) {
