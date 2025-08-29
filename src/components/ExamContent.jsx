@@ -1,18 +1,114 @@
-import React from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import {
   Typography,
   Box,
   Divider,
   List,
   ListItem,
-  ListItemText,
   Grid,
   Chip,
   styled,
 } from "@mui/material";
 import { safeGet, isSafeArray, safeString, safeNumber } from "../utils/safetyUtils";
+
+// 可重用的Markdown渲染组件
+const MarkdownRenderer = ({ content, sx = {} }) => {
+  if (!content) return null;
+  
+  return (
+    <Box sx={sx}>
+      <ReactMarkdown
+        components={{
+          p: ({ node, ...props }) => (
+            <p style={{ margin: "8px 0", lineHeight: "1.6" }} {...props} />
+          ),
+          code: ({ node, inline, className, children, ...props }) => (
+            <code
+              style={{
+                backgroundColor: inline ? "#f5f5f5" : "#f8f8f8",
+                padding: inline ? "2px 4px" : "12px 16px",
+                borderRadius: "4px",
+                fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+                fontSize: inline ? "0.9em" : "0.85em",
+                border: "1px solid #e1e1e1",
+                display: inline ? "inline" : "block",
+                whiteSpace: inline ? "nowrap" : "pre-wrap",
+                overflow: inline ? "visible" : "auto",
+              }}
+              {...props}
+            >
+              {children}
+            </code>
+          ),
+          pre: ({ node, ...props }) => (
+            <pre
+              style={{
+                backgroundColor: "#f8f8f8",
+                padding: "16px",
+                borderRadius: "6px",
+                overflow: "auto",
+                border: "1px solid #e1e1e1",
+                margin: "16px 0",
+                lineHeight: "1.4",
+              }}
+              {...props}
+            />
+          ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              style={{
+                borderLeft: "4px solid #ddd",
+                paddingLeft: "16px",
+                margin: "16px 0",
+                color: "#666",
+                fontStyle: "italic",
+              }}
+              {...props}
+            />
+          ),
+          table: ({ node, ...props }) => (
+            <table
+              style={{
+                borderCollapse: "collapse",
+                width: "100%",
+                margin: "16px 0",
+              }}
+              {...props}
+            />
+          ),
+          th: ({ node, ...props }) => (
+            <th
+              style={{
+                border: "1px solid #ddd",
+                padding: "8px 12px",
+                backgroundColor: "#f5f5f5",
+                textAlign: "left",
+              }}
+              {...props}
+            />
+          ),
+          td: ({ node, ...props }) => (
+            <td
+              style={{
+                border: "1px solid #ddd",
+                padding: "8px 12px",
+              }}
+              {...props}
+            />
+          ),
+        }}
+        remarkPlugins={[remarkMath]}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
+      >
+        {content}
+      </ReactMarkdown>
+    </Box>
+  );
+};
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
@@ -49,24 +145,35 @@ const ExamContent = ({ exam, showHeader = true }) => {
       <List dense>
         {rows.map((row, index) => (
           <ListItem key={index}>
-            <ListItemText
-              primary={`${String.fromCharCode(65 + index)}. ${row.value || ''}`}
-              secondary={
-                row.images &&
+            <Box sx={{ width: "100%" }}>
+              <Box sx={{ display: "flex", alignItems: "flex-start", mb: 1 }}>
+                <Typography
+                  component="span"
+                  sx={{ minWidth: "24px", fontWeight: "bold", mt: 0.5 }}
+                >
+                  {String.fromCharCode(65 + index)}.
+                </Typography>
+                <Box sx={{ flex: 1, ml: 1 }}>
+                  <MarkdownRenderer content={row.value || ''} />
+                </Box>
+              </Box>
+              {row.images &&
                 Array.isArray(row.images) &&
-                row.images.length > 0 &&
-                row.images.map((image, imgIndex) => (
-                  <img
-                    key={imgIndex}
-                    src={image}
-                    alt={`选项 ${String.fromCharCode(65 + index)} 图片 ${
-                      imgIndex + 1
-                    }`}
-                    style={{ width: "150px", height: "auto", marginTop: "8px" }}
-                  />
-                ))
-              }
-            />
+                row.images.length > 0 && (
+                  <Box sx={{ ml: 3, mt: 1 }}>
+                    {row.images.map((image, imgIndex) => (
+                      <img
+                        key={imgIndex}
+                        src={image}
+                        alt={`选项 ${String.fromCharCode(65 + index)} 图片 ${
+                          imgIndex + 1
+                        }`}
+                        style={{ width: "150px", height: "auto", marginRight: "8px" }}
+                      />
+                    ))}
+                  </Box>
+                )}
+            </Box>
           </ListItem>
         ))}
       </List>
@@ -145,18 +252,32 @@ const ExamContent = ({ exam, showHeader = true }) => {
                 sx={{ mb: 4 }}
                 className={sectionIndex > 0 ? "page-break" : ""}
               >
-                <Typography variant="h6" gutterBottom>
-                  {section.order_in_exam || ''}. {section.name || '未命名部分'}
-                </Typography>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="h6" component="div" sx={{ display: "flex", alignItems: "center" }}>
+                    <span style={{ marginRight: "8px", fontWeight: "bold" }}>
+                      {section.order_in_exam || ''}.
+                    </span>
+                    <Box sx={{ flex: 1 }}>
+                      <MarkdownRenderer 
+                        content={section.name || '未命名部分'}
+                        sx={{ 
+                          "& p": { margin: 0, fontWeight: 600, fontSize: "1.25rem" },
+                          "& h1, & h2, & h3, & h4, & h5, & h6": { margin: 0, fontSize: "1.25rem" }
+                        }}
+                      />
+                    </Box>
+                  </Typography>
+                </Box>
                 {isSafeArray(section.questions) ? (
                   section.questions.map((question) => (
                     <QuestionBox key={question.uuid}>
                       {question.material && (
-                        <Typography sx={{ mb: 1 }}>
-                          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                            {question.material || ''}
-                          </ReactMarkdown>
-                        </Typography>
+                        <Box sx={{ mb: 2, p: 2, backgroundColor: "#f9f9f9", borderRadius: 1, border: "1px solid #e0e0e0" }}>
+                          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "primary.main" }}>
+                            材料：
+                          </Typography>
+                          <MarkdownRenderer content={question.material || ''} />
+                        </Box>
                       )}
                       {isSafeArray(question.questionDetails) && question.questionDetails.map((detail) => {
                         detailCounter++;
@@ -172,9 +293,11 @@ const ExamContent = ({ exam, showHeader = true }) => {
                               >
                                 <strong>{detailCounter}:</strong>{" "}
                               </span>
-                              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                                {detail.questionContent && detail.questionContent.value ? detail.questionContent.value : ''}
-                              </ReactMarkdown>
+                              <Box sx={{ flex: 1 }}>
+                                <MarkdownRenderer 
+                                  content={detail.questionContent && detail.questionContent.value ? detail.questionContent.value : ''} 
+                                />
+                              </Box>
                               <Chip
                                 label={`${detail.score || 0} 分`}
                                 size="small"
@@ -207,13 +330,11 @@ const ExamContent = ({ exam, showHeader = true }) => {
                               </Typography>
 
                               {detail.explanation && (
-                                <Box sx={{ mt: 1 }}>
-                                  <Typography variant="body2">
-                                    <strong>解释：</strong>
+                                <Box sx={{ mt: 2 }}>
+                                  <Typography variant="body2" sx={{ mb: 1, fontWeight: "bold" }}>
+                                    解释：
                                   </Typography>
-                                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                                    {detail.explanation || ''}
-                                  </ReactMarkdown>
+                                  <MarkdownRenderer content={detail.explanation || ''} />
                                 </Box>
                               )}
                             </AnswerBox>
