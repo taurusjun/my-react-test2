@@ -88,6 +88,7 @@ const ExamEditor = ({ exam, onExamChange }) => {
   const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
+  const [editingSectionIndex, setEditingSectionIndex] = useState(null);
   const [previewMode, setPreviewMode] = useState(false);
   const fileInputRefs = useRef([]);
 
@@ -149,6 +150,13 @@ const ExamEditor = ({ exam, onExamChange }) => {
   const handleDigestChange = (sectionIndex, questionIndex, value) => {
     const updatedSections = [...editedExam.sections];
     updatedSections[sectionIndex].questions[questionIndex].digest = value;
+    setEditedExam({ ...editedExam, sections: updatedSections });
+    onExamChange({ ...editedExam, sections: updatedSections });
+  };
+
+  const handleSectionNameChange = (sectionIndex, value) => {
+    const updatedSections = [...editedExam.sections];
+    updatedSections[sectionIndex].name = value;
     setEditedExam({ ...editedExam, sections: updatedSections });
     onExamChange({ ...editedExam, sections: updatedSections });
   };
@@ -250,9 +258,6 @@ const ExamEditor = ({ exam, onExamChange }) => {
     onExamChange({ ...editedExam, sections: updatedSections });
   };
 
-  const handleSave = () => {
-    onExamChange(editedExam);
-  };
 
   const handleQuestionImageDelete = (
     sectionIndex,
@@ -399,12 +404,109 @@ const ExamEditor = ({ exam, onExamChange }) => {
             backgroundColor: "#f9f9f9",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", mb: 2, color: "#333" }}
-          >
-            {sectionIndex + 1}. {section.name} {/* 显示 section 序号 */}
-          </Typography>
+          {editingSectionIndex === sectionIndex ? (
+            <Box sx={{ mb: 2, display: "flex", alignItems: "flex-start" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", color: "#333", minWidth: "40px", mt: 1 }}
+              >
+                {sectionIndex + 1}.
+              </Typography>
+              <Box sx={{ flex: 1, ml: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <IconButton
+                    color="primary"
+                    onClick={() => setEditingSectionIndex(null)}
+                    sx={{ mr: 1 }}
+                  >
+                    <CheckIcon fontSize="small" />
+                  </IconButton>
+                  {previewMode && (
+                    <Typography variant="body2" color="text.secondary">
+                      预览模式：
+                    </Typography>
+                  )}
+                </Box>
+                {previewMode ? (
+                  <MarkdownRenderer
+                    content={section.name}
+                    sx={{
+                      border: "1px solid #e0e0e0",
+                      padding: "12px",
+                      borderRadius: "4px",
+                      backgroundColor: "#f9f9f9",
+                      "& h1, & h2, & h3, & h4, & h5, & h6": {
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        margin: "4px 0",
+                      },
+                      "& p": {
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        margin: "4px 0",
+                      },
+                    }}
+                  />
+                ) : (
+                  <TextField
+                    value={section.name}
+                    onChange={(e) =>
+                      handleSectionNameChange(sectionIndex, e.target.value)
+                    }
+                    fullWidth
+                    variant="outlined"
+                    multiline
+                    rows={2}
+                    placeholder="输入章节名称（支持Markdown语法）"
+                  />
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", color: "#333", minWidth: "40px" }}
+              >
+                {sectionIndex + 1}.
+              </Typography>
+              <IconButton
+                color="primary"
+                onClick={() => setEditingSectionIndex(sectionIndex)}
+                sx={{ mr: 1 }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <Box sx={{ flex: 1 }}>
+                {previewMode ? (
+                  <MarkdownRenderer
+                    content={section.name}
+                    sx={{
+                      "& h1, & h2, & h3, & h4, & h5, & h6": {
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        margin: 0,
+                        color: "#333",
+                      },
+                      "& p": {
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        margin: 0,
+                        color: "#333",
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: "bold", color: "#333" }}
+                  >
+                    {section.name}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          )}
           {section.questions.map((question, questionIndex) => (
             <Box key={question.uuid} sx={{ mb: 2 }}>
               <Box sx={{ position: "relative", mb: 1 }}>
