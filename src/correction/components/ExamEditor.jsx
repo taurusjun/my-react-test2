@@ -15,8 +15,6 @@ import {
   InputLabel,
   Paper,
   Divider,
-  StyledPaper,
-  SectionTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
@@ -30,10 +28,65 @@ import "katex/dist/katex.min.css";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { CategoryDict } from "../../provider/utils/dictionaries";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
-import { normalizeAnswer, createAnswer } from "../../utils/answerUtils";
+import { normalizeAnswer } from "../../utils/answerUtils";
 
-// 可重用的Markdown渲染组件
-const MarkdownRenderer = ({ content, sx = {} }) => {
+// Inline markdown渲染组件
+const InlineMarkdownRenderer = ({ content, sx = {} }) => {
+  if (!content) return null;
+  
+  return (
+    <Box sx={{ display: "inline-block", width: "100%", ...sx }}>
+      <ReactMarkdown
+        components={{
+          p: ({ node, ...props }) => (
+            <span style={{ margin: 0, lineHeight: "1.4" }} {...props} />
+          ),
+          code: ({ node, inline, className, children, ...props }) => (
+            <code
+              style={{
+                backgroundColor: inline ? "#f5f5f5" : "#f8f8f8",
+                padding: inline ? "1px 3px" : "4px 6px",
+                borderRadius: "3px",
+                fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+                fontSize: inline ? "0.9em" : "0.85em",
+                border: "1px solid #e1e1e1",
+              }}
+              {...props}
+            >
+              {children}
+            </code>
+          ),
+          pre: ({ node, ...props }) => (
+            <pre
+              style={{
+                backgroundColor: "#f8f8f8",
+                padding: "8px",
+                borderRadius: "4px",
+                overflow: "auto",
+                border: "1px solid #e1e1e1",
+                margin: "4px 0",
+                lineHeight: "1.2",
+              }}
+              {...props}
+            />
+          ),
+          h1: ({ node, ...props }) => <span style={{ fontSize: "1.2em", fontWeight: "bold" }} {...props} />,
+          h2: ({ node, ...props }) => <span style={{ fontSize: "1.15em", fontWeight: "bold" }} {...props} />,
+          h3: ({ node, ...props }) => <span style={{ fontSize: "1.1em", fontWeight: "bold" }} {...props} />,
+          strong: ({ node, ...props }) => <strong {...props} />,
+          em: ({ node, ...props }) => <em {...props} />,
+        }}
+        remarkPlugins={[remarkMath]}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
+      >
+        {content}
+      </ReactMarkdown>
+    </Box>
+  );
+};
+
+// 块级markdown渲染组件
+const BlockMarkdownRenderer = ({ content, sx = {} }) => {
   if (!content) return null;
   
   return (
@@ -41,19 +94,19 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
       <ReactMarkdown
         components={{
           p: ({ node, ...props }) => (
-            <p style={{ margin: "8px 0" }} {...props} />
+            <p style={{ margin: "8px 0", lineHeight: "1.5" }} {...props} />
           ),
           code: ({ node, inline, className, children, ...props }) => (
             <code
               style={{
-                backgroundColor: "#f0f0f0",
+                backgroundColor: inline ? "#f5f5f5" : "#f8f8f8",
                 padding: inline ? "2px 4px" : "8px 12px",
-                borderRadius: "3px",
+                borderRadius: "4px",
                 fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
-                fontSize: "13px",
+                fontSize: inline ? "0.9em" : "0.85em",
                 border: "1px solid #e1e1e1",
                 display: inline ? "inline" : "block",
-                whiteSpace: inline ? "nowrap" : "pre",
+                whiteSpace: inline ? "nowrap" : "pre-wrap",
               }}
               {...props}
             >
@@ -69,6 +122,7 @@ const MarkdownRenderer = ({ content, sx = {} }) => {
                 overflow: "auto",
                 border: "1px solid #e1e1e1",
                 margin: "12px 0",
+                lineHeight: "1.4",
               }}
               {...props}
             />
@@ -89,7 +143,25 @@ const ExamEditor = ({ exam, onExamChange }) => {
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
   const [editingSectionIndex, setEditingSectionIndex] = useState(null);
-  const [previewMode, setPreviewMode] = useState(false);
+  const [editingStates, setEditingStates] = useState({});
+
+  const toggleEditing = (key) => {
+    setEditingStates(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const getEditingKey = (type, sectionIndex, questionIndex, detailIndex, rowIndex) => {
+    if (type === 'section') return `section_${sectionIndex}`;
+    if (type === 'material') return `material_${sectionIndex}_${questionIndex}`;
+    if (type === 'digest') return `digest_${sectionIndex}_${questionIndex}`;
+    if (type === 'question') return `question_${sectionIndex}_${questionIndex}_${detailIndex}`;
+    if (type === 'row') return `row_${sectionIndex}_${questionIndex}_${detailIndex}_${rowIndex}`;
+    if (type === 'answer') return `answer_${sectionIndex}_${questionIndex}_${detailIndex}`;
+    if (type === 'explanation') return `explanation_${sectionIndex}_${questionIndex}_${detailIndex}`;
+    return type;
+  };
   const fileInputRefs = useRef([]);
 
   useEffect(() => {
@@ -283,30 +355,19 @@ const ExamEditor = ({ exam, onExamChange }) => {
 
   return (
     <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h5">编辑试卷</Typography>
-        <Button
-          variant="outlined"
-          onClick={() => setPreviewMode(!previewMode)}
-          sx={{ minWidth: 120 }}
-        >
-          {previewMode ? "编辑模式" : "预览模式"}
-        </Button>
-      </Box>
+      <Typography variant="h5" sx={{ mb: 3 }}>编辑试卷</Typography>
       
-      {!previewMode && (
-        <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
-          <Typography variant="body2" color="primary">
-            💡 Markdown支持提示：
-            <br />
-            • <strong>LaTeX公式</strong>：行内公式用 <code>$公式$</code>，块级公式用 <code>$$公式$$</code>
-            <br />
-            • <strong>代码块</strong>：用 <code>```语言\n代码\n```</code>
-            <br />
-            • <strong>其他语法</strong>：**粗体**、*斜体*、`行内代码`等
-          </Typography>
-        </Box>
-      )}
+      <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
+        <Typography variant="body2" color="primary">
+          💡 Markdown支持提示：
+          <br />
+          • <strong>LaTeX公式</strong>：行内公式用 <code>$公式$</code>，块级公式用 <code>$$公式$$</code>
+          <br />
+          • <strong>代码块</strong>：用 <code>```语言\n代码\n```</code>
+          <br />
+          • <strong>其他语法</strong>：**粗体**、*斜体*、`行内代码`等
+        </Typography>
+      </Box>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h5" sx={{ mb: 3 }}>
@@ -404,50 +465,24 @@ const ExamEditor = ({ exam, onExamChange }) => {
             backgroundColor: "#f9f9f9",
           }}
         >
-          {editingSectionIndex === sectionIndex ? (
-            <Box sx={{ mb: 2, display: "flex", alignItems: "flex-start" }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold", color: "#333", minWidth: "40px", mt: 1 }}
-              >
-                {sectionIndex + 1}.
-              </Typography>
-              <Box sx={{ flex: 1, ml: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Box sx={{ mb: 2, display: "flex", alignItems: "flex-start" }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: "#333", minWidth: "40px", mt: 0.5 }}
+            >
+              {sectionIndex + 1}.
+            </Typography>
+            <Box sx={{ flex: 1, ml: 1 }}>
+              {editingStates[getEditingKey('section', sectionIndex)] ? (
+                <Box>
                   <IconButton
                     color="primary"
-                    onClick={() => setEditingSectionIndex(null)}
-                    sx={{ mr: 1 }}
+                    onClick={() => toggleEditing(getEditingKey('section', sectionIndex))}
+                    size="small"
+                    sx={{ mb: 1 }}
                   >
                     <CheckIcon fontSize="small" />
                   </IconButton>
-                  {previewMode && (
-                    <Typography variant="body2" color="text.secondary">
-                      预览模式：
-                    </Typography>
-                  )}
-                </Box>
-                {previewMode ? (
-                  <MarkdownRenderer
-                    content={section.name}
-                    sx={{
-                      border: "1px solid #e0e0e0",
-                      padding: "12px",
-                      borderRadius: "4px",
-                      backgroundColor: "#f9f9f9",
-                      "& h1, & h2, & h3, & h4, & h5, & h6": {
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        margin: "4px 0",
-                      },
-                      "& p": {
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        margin: "4px 0",
-                      },
-                    }}
-                  />
-                ) : (
                   <TextField
                     value={section.name}
                     onChange={(e) =>
@@ -458,77 +493,111 @@ const ExamEditor = ({ exam, onExamChange }) => {
                     multiline
                     rows={2}
                     placeholder="输入章节名称（支持Markdown语法）"
+                    sx={{ fontSize: "1.25rem" }}
                   />
-                )}
-              </Box>
-            </Box>
-          ) : (
-            <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold", color: "#333", minWidth: "40px" }}
-              >
-                {sectionIndex + 1}.
-              </Typography>
-              <IconButton
-                color="primary"
-                onClick={() => setEditingSectionIndex(sectionIndex)}
-                sx={{ mr: 1 }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <Box sx={{ flex: 1 }}>
-                {previewMode ? (
-                  <MarkdownRenderer
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+                  onClick={() => toggleEditing(getEditingKey('section', sectionIndex))}
+                >
+                  <InlineMarkdownRenderer
                     content={section.name}
                     sx={{
-                      "& h1, & h2, & h3, & h4, & h5, & h6": {
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        margin: 0,
-                        color: "#333",
-                      },
-                      "& p": {
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        margin: 0,
-                        color: "#333",
-                      },
+                      fontSize: "1.25rem",
+                      fontWeight: "bold",
+                      color: "#333",
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        margin: "-4px -8px",
+                      }
                     }}
                   />
-                ) : (
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: "bold", color: "#333" }}
-                  >
-                    {section.name}
-                  </Typography>
-                )}
-              </Box>
+                  <EditIcon
+                    fontSize="small"
+                    sx={{ ml: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                  />
+                </Box>
+              )}
             </Box>
-          )}
+          </Box>
           {section.questions.map((question, questionIndex) => (
             <Box key={question.uuid} sx={{ mb: 2 }}>
-              <Box sx={{ position: "relative", mb: 1 }}>
-                {editingMaterialIndex === `${sectionIndex}-${questionIndex}` ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <IconButton
-                      color="primary"
-                      onClick={() => setEditingMaterialIndex(null)} // 完成编辑
-                      sx={{ mb: 1 }} // 添加下边距
-                    >
-                      <CheckIcon fontSize="small" />
-                    </IconButton>
+              <Box sx={{ mb: 2 }}>
+                {question.material && (
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold", color: "primary.main" }}>
+                      材料：
+                    </Typography>
+                    {editingStates[getEditingKey('material', sectionIndex, questionIndex)] ? (
+                      <Box>
+                        <IconButton
+                          color="primary"
+                          onClick={() => toggleEditing(getEditingKey('material', sectionIndex, questionIndex))}
+                          size="small"
+                          sx={{ mb: 1 }}
+                        >
+                          <CheckIcon fontSize="small" />
+                        </IconButton>
+                        <TextField
+                          value={question.material}
+                          onChange={(e) =>
+                            handleMaterialChange(
+                              sectionIndex,
+                              questionIndex,
+                              e.target.value
+                            )
+                          }
+                          fullWidth
+                          variant="outlined"
+                          multiline
+                          rows={4}
+                          placeholder="输入材料内容（支持Markdown语法）"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
+                        sx={{
+                          cursor: "pointer",
+                          "&:hover": {
+                            backgroundColor: "#f5f5f5",
+                            borderRadius: "4px",
+                          }
+                        }}
+                        onClick={() => toggleEditing(getEditingKey('material', sectionIndex, questionIndex))}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                          <BlockMarkdownRenderer
+                            content={question.material}
+                            sx={{
+                              border: "1px solid #e0e0e0",
+                              padding: "12px",
+                              borderRadius: "4px",
+                              backgroundColor: "#f9f9f9",
+                              flexGrow: 1,
+                            }}
+                          />
+                          <EditIcon
+                            fontSize="small"
+                            sx={{ ml: 1, mt: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                )}
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                  摘要：
+                </Typography>
+                {editingStates[getEditingKey('digest', sectionIndex, questionIndex)] ? (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <TextField
-                      value={question.material}
+                      value={question.digest}
                       onChange={(e) =>
-                        handleMaterialChange(
+                        handleDigestChange(
                           sectionIndex,
                           questionIndex,
                           e.target.value
@@ -536,93 +605,119 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       }
                       fullWidth
                       variant="outlined"
-                      multiline
-                      rows={4}
+                      placeholder="输入摘要（支持Markdown语法）"
+                      size="small"
                     />
-                  </Box>
-                ) : (
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <IconButton
                       color="primary"
-                      onClick={() =>
-                        setEditingMaterialIndex(
-                          `${sectionIndex}-${questionIndex}`
-                        )
-                      } // 进入编辑模式
-                      sx={{ mr: 1 }}
+                      onClick={() => toggleEditing(getEditingKey('digest', sectionIndex, questionIndex))}
+                      size="small"
+                      sx={{ ml: 1 }}
                     >
-                      <EditIcon fontSize="small" />
+                      <CheckIcon fontSize="small" />
                     </IconButton>
-                    {question.material ? (
-                      <MarkdownRenderer
-                        content={question.material}
-                        sx={{
-                          border: "1px solid #ccc",
-                          padding: "10px",
-                          borderRadius: "4px",
-                          flexGrow: 1,
-                        }}
-                      />
-                    ) : null}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        margin: "-4px -8px",
+                      }
+                    }}
+                    onClick={() => toggleEditing(getEditingKey('digest', sectionIndex, questionIndex))}
+                  >
+                    <InlineMarkdownRenderer
+                      content={question.digest || "点击添加摘要"}
+                      sx={{
+                        color: question.digest ? "inherit" : "text.secondary",
+                        fontStyle: question.digest ? "normal" : "italic",
+                      }}
+                    />
+                    <EditIcon
+                      fontSize="small"
+                      sx={{ ml: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                    />
                   </Box>
                 )}
               </Box>
-              <TextField
-                label="摘要"
-                value={question.digest}
-                onChange={(e) =>
-                  handleDigestChange(
-                    sectionIndex,
-                    questionIndex,
-                    e.target.value
-                  )
-                }
-                fullWidth
-                variant="outlined"
-                sx={{ mb: 1 }}
-              />
               {question.questionDetails.map((detail, detailIndex) => (
                 <Box key={detail.uuid} sx={{ mb: 2 }}>
                   <Typography variant="body1" sx={{ mb: 1 }}>
                     第 {questionIndex + 1}.{detailIndex + 1} 题{" "}
                     {/* 显示小题序号 */}
                   </Typography>
-                  {previewMode ? (
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
-                        题目：
-                      </Typography>
-                      <MarkdownRenderer
-                        content={detail.questionContent.value}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                      题目：
+                    </Typography>
+                    {editingStates[getEditingKey('question', sectionIndex, questionIndex, detailIndex)] ? (
+                      <Box>
+                        <IconButton
+                          color="primary"
+                          onClick={() => toggleEditing(getEditingKey('question', sectionIndex, questionIndex, detailIndex))}
+                          size="small"
+                          sx={{ mb: 1 }}
+                        >
+                          <CheckIcon fontSize="small" />
+                        </IconButton>
+                        <TextField
+                          value={detail.questionContent.value}
+                          onChange={(e) =>
+                            handleDetailChange(
+                              sectionIndex,
+                              questionIndex,
+                              detailIndex,
+                              "questionContent",
+                              { ...detail.questionContent, value: e.target.value }
+                            )
+                          }
+                          fullWidth
+                          variant="outlined"
+                          multiline
+                          rows={4}
+                          placeholder="输入题目内容（支持Markdown语法）"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
                         sx={{
-                          border: "1px solid #e0e0e0",
-                          padding: "12px",
-                          borderRadius: "4px",
-                          backgroundColor: "#fafafa",
+                          cursor: "pointer",
+                          "&:hover": {
+                            backgroundColor: "#f5f5f5",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            margin: "-4px -8px",
+                          }
                         }}
-                      />
-                    </Box>
-                  ) : (
-                    <TextField
-                      label="题目"
-                      value={detail.questionContent.value}
-                      onChange={(e) =>
-                        handleDetailChange(
-                          sectionIndex,
-                          questionIndex,
-                          detailIndex,
-                          "questionContent",
-                          { ...detail.questionContent, value: e.target.value }
-                        )
-                      }
-                      fullWidth
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      InputProps={{ style: { textAlign: "left" } }}
-                      multiline
-                      rows={4}
-                    />
-                  )}
+                        onClick={() => toggleEditing(getEditingKey('question', sectionIndex, questionIndex, detailIndex))}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                          <BlockMarkdownRenderer
+                            content={detail.questionContent.value || "点击添加题目"}
+                            sx={{
+                              border: "1px solid #e0e0e0",
+                              padding: "12px",
+                              borderRadius: "4px",
+                              backgroundColor: "#fafafa",
+                              flexGrow: 1,
+                              color: detail.questionContent.value ? "inherit" : "text.secondary",
+                              fontStyle: detail.questionContent.value ? "normal" : "italic",
+                            }}
+                          />
+                          <EditIcon
+                            fontSize="small"
+                            sx={{ ml: 1, mt: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
                   <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                     <input
                       type="file"
@@ -716,37 +811,65 @@ const ExamEditor = ({ exam, onExamChange }) => {
                                   )}. `}
                                   sx={{ mb: 1 }}
                                 />
-                                {previewMode ? (
-                                  <MarkdownRenderer
-                                    content={row.value}
-                                    sx={{
-                                      border: "1px solid #e0e0e0",
-                                      padding: "8px",
-                                      borderRadius: "4px",
-                                      backgroundColor: "#fafafa",
-                                      ml: 2,
-                                      flexGrow: 1,
-                                    }}
-                                  />
+                                {editingStates[getEditingKey('row', sectionIndex, questionIndex, detailIndex, rowIndex)] ? (
+                                  <Box sx={{ ml: 2, flex: 1 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                                      <IconButton
+                                        color="primary"
+                                        onClick={() => toggleEditing(getEditingKey('row', sectionIndex, questionIndex, detailIndex, rowIndex))}
+                                        size="small"
+                                      >
+                                        <CheckIcon fontSize="small" />
+                                      </IconButton>
+                                    </Box>
+                                    <TextField
+                                      value={row.value}
+                                      onChange={(e) =>
+                                        handleRowChange(
+                                          sectionIndex,
+                                          questionIndex,
+                                          detailIndex,
+                                          rowIndex,
+                                          e.target.value
+                                        )
+                                      }
+                                      fullWidth
+                                      variant="outlined"
+                                      multiline
+                                      rows={3}
+                                      placeholder="输入选项内容（支持Markdown语法）"
+                                    />
+                                  </Box>
                                 ) : (
-                                  <TextField
-                                    value={row.value}
-                                    onChange={(e) =>
-                                      handleRowChange(
-                                        sectionIndex,
-                                        questionIndex,
-                                        detailIndex,
-                                        rowIndex,
-                                        e.target.value
-                                      )
-                                    }
-                                    fullWidth
-                                    variant="outlined"
-                                    sx={{ mb: 1, ml: 2 }}
-                                    InputProps={{ style: { textAlign: "left" } }}
-                                    multiline
-                                    rows={4}
-                                  />
+                                  <Box
+                                    sx={{
+                                      ml: 2,
+                                      flex: 1,
+                                      cursor: "pointer",
+                                      "&:hover": {
+                                        backgroundColor: "#f5f5f5",
+                                        borderRadius: "4px",
+                                        padding: "4px 8px",
+                                        margin: "0 8px 0 8px",
+                                      }
+                                    }}
+                                    onClick={() => toggleEditing(getEditingKey('row', sectionIndex, questionIndex, detailIndex, rowIndex))}
+                                  >
+                                    <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                                      <InlineMarkdownRenderer
+                                        content={row.value || `点击添加选项${String.fromCharCode(65 + rowIndex)}内容`}
+                                        sx={{
+                                          color: row.value ? "inherit" : "text.secondary",
+                                          fontStyle: row.value ? "normal" : "italic",
+                                          flexGrow: 1,
+                                        }}
+                                      />
+                                      <EditIcon
+                                        fontSize="small"
+                                        sx={{ ml: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                                      />
+                                    </Box>
+                                  </Box>
                                 )}
                               </Box>
 
@@ -869,81 +992,144 @@ const ExamEditor = ({ exam, onExamChange }) => {
                         ))}
                       </Select>
                     </>
-                  ) : previewMode ? (
-                    <Box sx={{ mb: 1 }}>
+                  ) : (
+                    <Box sx={{ mb: 2 }}>
                       <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
                         答案：
                       </Typography>
-                      <MarkdownRenderer
-                        content={detail.answer?.content?.join(", ") || ""}
-                        sx={{
-                          border: "1px solid #e0e0e0",
-                          padding: "12px",
-                          borderRadius: "4px",
-                          backgroundColor: "#fff3e0",
-                        }}
-                      />
+                      {editingStates[getEditingKey('answer', sectionIndex, questionIndex, detailIndex)] ? (
+                        <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                          <Box sx={{ flex: 1 }}>
+                            <TextField
+                              value={detail.answer?.content?.join(", ") || ""}
+                              onChange={(e) =>
+                                handleDetailChange(
+                                  sectionIndex,
+                                  questionIndex,
+                                  detailIndex,
+                                  "answer",
+                                  {
+                                    content: [e.target.value],
+                                    images: detail.answer?.images || []
+                                  }
+                                )
+                              }
+                              fullWidth
+                              variant="outlined"
+                              multiline
+                              rows={2}
+                              placeholder="输入答案（支持Markdown语法）"
+                            />
+                          </Box>
+                          <IconButton
+                            color="primary"
+                            onClick={() => toggleEditing(getEditingKey('answer', sectionIndex, questionIndex, detailIndex))}
+                            size="small"
+                            sx={{ ml: 1 }}
+                          >
+                            <CheckIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <Box
+                          sx={{
+                            cursor: "pointer",
+                            "&:hover": {
+                              backgroundColor: "#fff3e0",
+                              borderRadius: "4px",
+                              padding: "4px 8px",
+                              margin: "-4px -8px",
+                            }
+                          }}
+                          onClick={() => toggleEditing(getEditingKey('answer', sectionIndex, questionIndex, detailIndex))}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <InlineMarkdownRenderer
+                              content={detail.answer?.content?.join(", ") || "点击添加答案"}
+                              sx={{
+                                color: detail.answer?.content?.length ? "inherit" : "text.secondary",
+                                fontStyle: detail.answer?.content?.length ? "normal" : "italic",
+                                backgroundColor: "#fff3e0",
+                                padding: "8px 12px",
+                                borderRadius: "4px",
+                                border: "1px solid #ffcc02",
+                              }}
+                            />
+                            <EditIcon
+                              fontSize="small"
+                              sx={{ ml: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                            />
+                          </Box>
+                        </Box>
+                      )}
                     </Box>
-                  ) : (
-                    <TextField
-                      label="答案"
-                      value={detail.answer?.content?.join(", ") || ""}
-                      onChange={(e) =>
-                        handleDetailChange(
-                          sectionIndex,
-                          questionIndex,
-                          detailIndex,
-                          "answer",
-                          {
-                            content: [e.target.value],
-                            images: detail.answer?.images || []
+                  )}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                      解释：
+                    </Typography>
+                    {editingStates[getEditingKey('explanation', sectionIndex, questionIndex, detailIndex)] ? (
+                      <Box>
+                        <IconButton
+                          color="primary"
+                          onClick={() => toggleEditing(getEditingKey('explanation', sectionIndex, questionIndex, detailIndex))}
+                          size="small"
+                          sx={{ mb: 1 }}
+                        >
+                          <CheckIcon fontSize="small" />
+                        </IconButton>
+                        <TextField
+                          value={detail.explanation || ""}
+                          onChange={(e) =>
+                            handleDetailChange(
+                              sectionIndex,
+                              questionIndex,
+                              detailIndex,
+                              "explanation",
+                              e.target.value
+                            )
                           }
-                        )
-                      }
-                      fullWidth
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      InputProps={{ style: { textAlign: "left" } }}
-                      multiline
-                      rows={4}
-                    />
-                  )}
-                  {previewMode ? (
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
-                        解释：
-                      </Typography>
-                      <MarkdownRenderer
-                        content={detail.explanation || ""}
+                          fullWidth
+                          variant="outlined"
+                          multiline
+                          rows={4}
+                          placeholder="输入解释（支持Markdown语法）"
+                        />
+                      </Box>
+                    ) : (
+                      <Box
                         sx={{
-                          border: "1px solid #e0e0e0",
-                          padding: "12px",
-                          borderRadius: "4px",
-                          backgroundColor: "#f3e5f5",
+                          cursor: "pointer",
+                          "&:hover": {
+                            backgroundColor: "#f3e5f5",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            margin: "-4px -8px",
+                          }
                         }}
-                      />
-                    </Box>
-                  ) : (
-                    <TextField
-                      label="解释"
-                      value={detail.explanation || ""}
-                      onChange={(e) =>
-                        handleDetailChange(
-                          sectionIndex,
-                          questionIndex,
-                          detailIndex,
-                          "explanation",
-                          e.target.value
-                        )
-                      }
-                      fullWidth
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                      InputProps={{ style: { textAlign: "left" } }}
-                      multiline
-                      rows={4}
-                    />
-                  )}
+                        onClick={() => toggleEditing(getEditingKey('explanation', sectionIndex, questionIndex, detailIndex))}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+                          <BlockMarkdownRenderer
+                            content={detail.explanation || "点击添加解释"}
+                            sx={{
+                              color: detail.explanation ? "inherit" : "text.secondary",
+                              fontStyle: detail.explanation ? "normal" : "italic",
+                              backgroundColor: "#f3e5f5",
+                              padding: "12px",
+                              borderRadius: "4px",
+                              border: "1px solid #e1bee7",
+                              flexGrow: 1,
+                            }}
+                          />
+                          <EditIcon
+                            fontSize="small"
+                            sx={{ ml: 1, mt: 1, opacity: 0.5, "&:hover": { opacity: 1 } }}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               ))}
             </Box>
