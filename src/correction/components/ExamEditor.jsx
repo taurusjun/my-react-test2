@@ -22,16 +22,73 @@ import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import UploadIcon from "@mui/icons-material/Upload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { CategoryDict } from "../../provider/utils/dictionaries";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
 import { normalizeAnswer, createAnswer } from "../../utils/answerUtils";
+
+// 可重用的Markdown渲染组件
+const MarkdownRenderer = ({ content, sx = {} }) => {
+  if (!content) return null;
+  
+  return (
+    <Box sx={sx}>
+      <ReactMarkdown
+        components={{
+          p: ({ node, ...props }) => (
+            <p style={{ margin: "8px 0" }} {...props} />
+          ),
+          code: ({ node, inline, className, children, ...props }) => (
+            <code
+              style={{
+                backgroundColor: "#f0f0f0",
+                padding: inline ? "2px 4px" : "8px 12px",
+                borderRadius: "3px",
+                fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+                fontSize: "13px",
+                border: "1px solid #e1e1e1",
+                display: inline ? "inline" : "block",
+                whiteSpace: inline ? "nowrap" : "pre",
+              }}
+              {...props}
+            >
+              {children}
+            </code>
+          ),
+          pre: ({ node, ...props }) => (
+            <pre
+              style={{
+                backgroundColor: "#f8f8f8",
+                padding: "12px",
+                borderRadius: "6px",
+                overflow: "auto",
+                border: "1px solid #e1e1e1",
+                margin: "12px 0",
+              }}
+              {...props}
+            />
+          ),
+        }}
+        remarkPlugins={[remarkMath]}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
+      >
+        {content}
+      </ReactMarkdown>
+    </Box>
+  );
+};
 
 const ExamEditor = ({ exam, onExamChange }) => {
   const { dictionaries } = useDictionaries();
   const [availableKnowledgeNodes, setAvailableKnowledgeNodes] = useState([]);
   const [editedExam, setEditedExam] = useState(exam);
   const [editingMaterialIndex, setEditingMaterialIndex] = useState(null);
+  const [previewMode, setPreviewMode] = useState(false);
   const fileInputRefs = useRef([]);
 
   useEffect(() => {
@@ -221,7 +278,30 @@ const ExamEditor = ({ exam, onExamChange }) => {
 
   return (
     <Box>
-      <Typography variant="h5">编辑试卷</Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5">编辑试卷</Typography>
+        <Button
+          variant="outlined"
+          onClick={() => setPreviewMode(!previewMode)}
+          sx={{ minWidth: 120 }}
+        >
+          {previewMode ? "编辑模式" : "预览模式"}
+        </Button>
+      </Box>
+      
+      {!previewMode && (
+        <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
+          <Typography variant="body2" color="primary">
+            💡 Markdown支持提示：
+            <br />
+            • <strong>LaTeX公式</strong>：行内公式用 <code>$公式$</code>，块级公式用 <code>$$公式$$</code>
+            <br />
+            • <strong>代码块</strong>：用 <code>```语言\n代码\n```</code>
+            <br />
+            • <strong>其他语法</strong>：**粗体**、*斜体*、`行内代码`等
+          </Typography>
+        </Box>
+      )}
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="h5" sx={{ mb: 3 }}>
@@ -372,14 +452,14 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       <EditIcon fontSize="small" />
                     </IconButton>
                     {question.material ? (
-                      <Box
+                      <MarkdownRenderer
+                        content={question.material}
                         sx={{
                           border: "1px solid #ccc",
                           padding: "10px",
                           borderRadius: "4px",
                           flexGrow: 1,
                         }}
-                        dangerouslySetInnerHTML={{ __html: question.material }}
                       />
                     ) : null}
                   </Box>
@@ -405,25 +485,42 @@ const ExamEditor = ({ exam, onExamChange }) => {
                     第 {questionIndex + 1}.{detailIndex + 1} 题{" "}
                     {/* 显示小题序号 */}
                   </Typography>
-                  <TextField
-                    label="题目"
-                    value={detail.questionContent.value}
-                    onChange={(e) =>
-                      handleDetailChange(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        "questionContent",
-                        { ...detail.questionContent, value: e.target.value }
-                      )
-                    }
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                    multiline // 设置为多行文本框
-                    rows={4} // 设置行数
-                  />
+                  {previewMode ? (
+                    <Box sx={{ mb: 1 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                        题目：
+                      </Typography>
+                      <MarkdownRenderer
+                        content={detail.questionContent.value}
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          padding: "12px",
+                          borderRadius: "4px",
+                          backgroundColor: "#fafafa",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <TextField
+                      label="题目"
+                      value={detail.questionContent.value}
+                      onChange={(e) =>
+                        handleDetailChange(
+                          sectionIndex,
+                          questionIndex,
+                          detailIndex,
+                          "questionContent",
+                          { ...detail.questionContent, value: e.target.value }
+                        )
+                      }
+                      fullWidth
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                      InputProps={{ style: { textAlign: "left" } }}
+                      multiline
+                      rows={4}
+                    />
+                  )}
                   <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
                     <input
                       type="file"
@@ -517,24 +614,38 @@ const ExamEditor = ({ exam, onExamChange }) => {
                                   )}. `}
                                   sx={{ mb: 1 }}
                                 />
-                                <TextField
-                                  value={row.value}
-                                  onChange={(e) =>
-                                    handleRowChange(
-                                      sectionIndex,
-                                      questionIndex,
-                                      detailIndex,
-                                      rowIndex,
-                                      e.target.value
-                                    )
-                                  }
-                                  fullWidth
-                                  variant="outlined"
-                                  sx={{ mb: 1, ml: 2 }}
-                                  InputProps={{ style: { textAlign: "left" } }}
-                                  multiline
-                                  rows={4}
-                                />
+                                {previewMode ? (
+                                  <MarkdownRenderer
+                                    content={row.value}
+                                    sx={{
+                                      border: "1px solid #e0e0e0",
+                                      padding: "8px",
+                                      borderRadius: "4px",
+                                      backgroundColor: "#fafafa",
+                                      ml: 2,
+                                      flexGrow: 1,
+                                    }}
+                                  />
+                                ) : (
+                                  <TextField
+                                    value={row.value}
+                                    onChange={(e) =>
+                                      handleRowChange(
+                                        sectionIndex,
+                                        questionIndex,
+                                        detailIndex,
+                                        rowIndex,
+                                        e.target.value
+                                      )
+                                    }
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{ mb: 1, ml: 2 }}
+                                    InputProps={{ style: { textAlign: "left" } }}
+                                    multiline
+                                    rows={4}
+                                  />
+                                )}
                               </Box>
 
                               <Box
@@ -656,6 +767,21 @@ const ExamEditor = ({ exam, onExamChange }) => {
                         ))}
                       </Select>
                     </>
+                  ) : previewMode ? (
+                    <Box sx={{ mb: 1 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                        答案：
+                      </Typography>
+                      <MarkdownRenderer
+                        content={detail.answer?.content?.join(", ") || ""}
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          padding: "12px",
+                          borderRadius: "4px",
+                          backgroundColor: "#fff3e0",
+                        }}
+                      />
+                    </Box>
                   ) : (
                     <TextField
                       label="答案"
@@ -675,30 +801,47 @@ const ExamEditor = ({ exam, onExamChange }) => {
                       fullWidth
                       variant="outlined"
                       sx={{ mb: 1 }}
-                      InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                      multiline // 设置为多行文本框
-                      rows={4} // 设置行数
+                      InputProps={{ style: { textAlign: "left" } }}
+                      multiline
+                      rows={4}
                     />
                   )}
-                  <TextField
-                    label="解释"
-                    value={detail.explanation || ""} // 如果没有解释，默认空行
-                    onChange={(e) =>
-                      handleDetailChange(
-                        sectionIndex,
-                        questionIndex,
-                        detailIndex,
-                        "explanation",
-                        e.target.value
-                      )
-                    }
-                    fullWidth
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                    InputProps={{ style: { textAlign: "left" } }} // 左对齐
-                    multiline // 设置为多行文本框
-                    rows={4} // 设置行数
-                  />
+                  {previewMode ? (
+                    <Box sx={{ mb: 1 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                        解释：
+                      </Typography>
+                      <MarkdownRenderer
+                        content={detail.explanation || ""}
+                        sx={{
+                          border: "1px solid #e0e0e0",
+                          padding: "12px",
+                          borderRadius: "4px",
+                          backgroundColor: "#f3e5f5",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <TextField
+                      label="解释"
+                      value={detail.explanation || ""}
+                      onChange={(e) =>
+                        handleDetailChange(
+                          sectionIndex,
+                          questionIndex,
+                          detailIndex,
+                          "explanation",
+                          e.target.value
+                        )
+                      }
+                      fullWidth
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                      InputProps={{ style: { textAlign: "left" } }}
+                      multiline
+                      rows={4}
+                    />
+                  )}
                 </Box>
               ))}
             </Box>
