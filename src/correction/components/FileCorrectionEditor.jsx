@@ -23,7 +23,7 @@ import axios from "axios";
 import MarkdownAnnotator from "./MarkdownAnnotator";
 import MdMap from "../utils/MdMap";
 import { v4 as uuidv4 } from "uuid";
-import { QUESTION_UI_TYPES } from "../../common/constants";
+import { QUESTION_UI_TYPES, mapUITypeToBackendType } from "../../common/constants";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
 import { styled } from "@mui/material/styles";
@@ -76,7 +76,7 @@ const createSubmitExam = (exam, markdownLines) => {
             ]),
             images: [],
           },
-          uiType: question.rows && question.rows.length > 0 ? "single_selection" : "fill_blank",
+          uiType: question.uiType || "fill_blank", // 使用简单题创建时指定的题型
           score: 0,
           rate: 0,
         };
@@ -104,7 +104,7 @@ const createSubmitExam = (exam, markdownLines) => {
 
         return {
           uuid: question.uuid,
-          type: result.uiType === "fill_blank" ? "fillInBlank" : "selection",
+          type: mapUITypeToBackendType(result.uiType),
           category: exam.category,
           order_in_section: question.order,
           kn: exam.kn,
@@ -160,10 +160,9 @@ const createSubmitExam = (exam, markdownLines) => {
 
         return {
           uuid: question.uuid,
-          type:
-            question.questionDetails && question.questionDetails[0]?.uiType === "fill_blank"
-              ? "fillInBlank"
-              : "selection",
+          type: question.questionDetails && question.questionDetails[0]?.uiType 
+            ? mapUITypeToBackendType(question.questionDetails[0].uiType)
+            : "fillInBlank", // 默认类型
           category: exam.category,
           order_in_section: question.order,
           kn: exam.kn,

@@ -1,0 +1,143 @@
+{
+  "uuid": "test-all-simple-types-uuid",
+  "name": "简单题各种题型测试",
+  "category": "math",
+  "source": "测试来源",
+  "kn": "algebra",
+  "gradeInfo": {
+    "school": "high_school",
+    "grade": "grade_1"
+  },
+  "sections": [
+    {
+      "uuid": "section-1",
+      "name": "## 简单题题型测试",
+      "order_in_exam": 1,
+      "questions": [
+        {
+          "uuid": "simple-single-selection",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "single_selection",
+          "name": "简单题1.1 (单项选择题)",
+          "questionContent": {
+            "value": "下列哪个是正确的？"
+          },
+          "rows": [
+            {
+              "value": "选项A",
+              "isAns": true,
+              "images": []
+            },
+            {
+              "value": "选项B", 
+              "isAns": false,
+              "images": []
+            }
+          ],
+          "answer": {
+            "content": ["A"],
+            "images": []
+          },
+          "explanation": "答案是A"
+        },
+        {
+          "uuid": "simple-multi-selection",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "multi_selection",
+          "name": "简单题1.2 (多项选择题)",
+          "questionContent": {
+            "value": "下列哪些是正确的？（多选）"
+          },
+          "rows": [
+            {
+              "value": "选项A",
+              "isAns": true,
+              "images": []
+            },
+            {
+              "value": "选项B",
+              "isAns": true, 
+              "images": []
+            },
+            {
+              "value": "选项C",
+              "isAns": false,
+              "images": []
+            }
+          ],
+          "answer": {
+            "content": ["A", "B"],
+            "images": []
+          },
+          "explanation": "答案是A和B"
+        },
+        {
+          "uuid": "simple-fill-blank",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "fill_blank",
+          "name": "简单题1.3 (填空题)",
+          "questionContent": {
+            "value": "2 + 2 = ____"
+          },
+          "rows": [],
+          "answer": {
+            "content": ["4"],
+            "images": []
+          },
+          "explanation": "2加2等于4"
+        },
+        {
+          "uuid": "simple-short-answer",
+          "type": "simpleQuestion",
+          "questionType": "simple", 
+          "uiType": "short_answer",
+          "name": "简单题1.4 (简答题)",
+          "questionContent": {
+            "value": "请简述二次方程的求解方法。"
+          },
+          "rows": [],
+          "answer": {
+            "content": ["使用求根公式或因式分解法"],
+            "images": []
+          },
+          "explanation": "二次方程可以通过求根公式、因式分解或配方法求解"
+        },
+        {
+          "uuid": "simple-calculation",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "calculation", 
+          "name": "简单题1.5 (计算题)",
+          "questionContent": {
+            "value": "计算：$(x+1)^2 = ?$"
+          },
+          "rows": [],
+          "answer": {
+            "content": ["$x^2 + 2x + 1$"],
+            "images": []
+          },
+          "explanation": "使用完全平方公式展开"
+        },
+        {
+          "uuid": "simple-essay",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "essay",
+          "name": "简单题1.6 (论述题)",
+          "questionContent": {
+            "value": "论述函数的连续性概念及其重要性。"
+          },
+          "rows": [],
+          "answer": {
+            "content": ["函数在某点连续是指该点的左极限、右极限和函数值相等..."],
+            "images": []
+          },
+          "explanation": "这是一个开放性问题，考查对数学概念的理解"
+        }
+      ]
+    }
+  ]
+}
