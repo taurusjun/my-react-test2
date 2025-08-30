@@ -1,0 +1,100 @@
+{
+  "uuid": "test-true-false-uuid",
+  "name": "判断题测试",
+  "category": "math", 
+  "source": "测试来源",
+  "kn": "algebra",
+  "gradeInfo": {
+    "school": "high_school",
+    "grade": "grade_1"
+  },
+  "sections": [
+    {
+      "uuid": "section-1",
+      "name": "## 第一大题：判断题练习",
+      "order_in_exam": 1,
+      "questions": [
+        {
+          "uuid": "true-false-simple-1",
+          "type": "simpleQuestion",
+          "questionType": "simple",
+          "uiType": "true_false",
+          "category": "math",
+          "order_in_section": 1,
+          "kn": "algebra",
+          "gradeInfo": {
+            "school": "high_school", 
+            "grade": "grade_1"
+          },
+          "source": "测试来源",
+          "tags": [],
+          "digest": "二次方程判断题",
+          "material": "",
+          "questionContent": {
+            "value": "对于任意的二次方程 $ax^2 + bx + c = 0$（其中 $a ≠ 0$），当判别式 $\\Delta = b^2 - 4ac > 0$ 时，方程一定有两个不相等的实数根。"
+          },
+          "rows": [],
+          "answer": {
+            "content": ["正确"],
+            "images": []
+          },
+          "explanation": "根据二次方程求根公式，当判别式大于0时，$x = \\frac{-b ± \\sqrt{\\Delta}}{2a}$ 会得到两个不同的实数解。",
+          "relatedSources": []
+        },
+        {
+          "uuid": "true-false-complex-1", 
+          "type": "question",
+          "questionType": "complex",
+          "category": "math",
+          "order_in_section": 2,
+          "kn": "algebra",
+          "gradeInfo": {
+            "school": "high_school",
+            "grade": "grade_1"
+          },
+          "source": "测试来源",
+          "tags": [],
+          "digest": "复杂判断题组合",
+          "material": "## 材料\n\n已知函数 $f(x) = x^2 - 4x + 3$",
+          "questionDetails": [
+            {
+              "uuid": "detail-1",
+              "order_in_question": 1,
+              "questionContent": {
+                "value": "$f(x)$ 的图像开口向上。",
+                "images": []
+              },
+              "uiType": "true_false",
+              "score": 5,
+              "rate": 0,
+              "rows": [],
+              "answer": {
+                "content": ["正确"],
+                "images": []
+              },
+              "explanation": "因为二次项系数 $a = 1 > 0$，所以抛物线开口向上。"
+            },
+            {
+              "uuid": "detail-2", 
+              "order_in_question": 2,
+              "questionContent": {
+                "value": "$f(x)$ 的最小值为 $-1$。",
+                "images": []
+              },
+              "uiType": "true_false",
+              "score": 5,
+              "rate": 0,
+              "rows": [],
+              "answer": {
+                "content": ["正确"],
+                "images": []
+              },
+              "explanation": "对称轴为 $x = 2$，$f(2) = 4 - 8 + 3 = -1$，这是最小值。"
+            }
+          ],
+          "relatedSources": []
+        }
+      ]
+    }
+  ]
+}

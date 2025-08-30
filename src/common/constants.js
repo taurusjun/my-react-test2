@@ -1,6 +1,7 @@
 export const QUESTION_UI_TYPES = {
   single_selection: "单项选择题",
   multi_selection: "多项选择题",
+  true_false: "判断题",
   fill_blank: "填空题",
   short_answer: "简答题",
   calculation: "计算题",
@@ -10,6 +11,7 @@ export const QUESTION_UI_TYPES = {
 export const QUESTION_TYPES = {
   selection: "单项选择题",
   multiSelection: "多项选择题",
+  trueFalse: "判断题",
   fillInBlank: "填空题",
   shortAnswer: "简答题",
   calculation: "计算题",
@@ -19,7 +21,8 @@ export const QUESTION_TYPES = {
 // UI题型到后端题型的映射关系
 export const UI_TYPE_TO_BACKEND_TYPE_MAPPING = {
   single_selection: "selection",
-  multi_selection: "multiSelection", 
+  multi_selection: "multiSelection",
+  true_false: "trueFalse",
   fill_blank: "fillInBlank",
   short_answer: "shortAnswer",
   calculation: "calculation",

@@ -136,9 +136,43 @@ const ExamContent = ({ exam, showHeader = true }) => {
   if (!exam) {
     return <Typography>没有可用的试卷数据。</Typography>;
   }
-  const renderQuestionOptions = (rows) => {
+  const renderQuestionOptions = (rows, uiType = 'single_selection') => {
     if (!isSafeArray(rows)) {
       return null;
+    }
+    
+    // 判断题特殊处理
+    if (uiType === 'true_false') {
+      return (
+        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+          <Box 
+            sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              padding: "8px 16px", 
+              border: "1px solid #e0e0e0", 
+              borderRadius: "4px",
+              backgroundColor: "#f9f9f9"
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold", mr: 1 }}>A.</Typography>
+            <Typography>正确</Typography>
+          </Box>
+          <Box 
+            sx={{ 
+              display: "flex", 
+              alignItems: "center", 
+              padding: "8px 16px", 
+              border: "1px solid #e0e0e0", 
+              borderRadius: "4px",
+              backgroundColor: "#f9f9f9"
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold", mr: 1 }}>B.</Typography>
+            <Typography>错误</Typography>
+          </Box>
+        </Box>
+      );
     }
     
     return (
@@ -321,7 +355,7 @@ const ExamContent = ({ exam, showHeader = true }) => {
                                   />
                                 )
                               )}
-                            {renderQuestionOptions(detail.rows)}
+                            {renderQuestionOptions(detail.rows, detail.uiType)}
 
                             <AnswerBox>
                               <Typography variant="body2">

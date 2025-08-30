@@ -787,9 +787,11 @@ const ExamEditor = ({ exam, onExamChange }) => {
                         ))}
                     </Box>
                   </Box>
-                  {detail.uiType === "single_selection" && (
+                  {(detail.uiType === "single_selection" || detail.uiType === "true_false") && (
                     <>
-                      <Typography variant="subtitle1">选项:</Typography>
+                      <Typography variant="subtitle1">
+                        {detail.uiType === "true_false" ? "判断选项:" : "选项:"}
+                      </Typography>
                       <List>
                         {detail.rows.map((row, rowIndex) => (
                           <ListItem key={rowIndex} sx={{ mb: 2 }}>
@@ -988,6 +990,31 @@ const ExamEditor = ({ exam, onExamChange }) => {
                             {/* 生成 A, B, C, D 等 */}
                           </MenuItem>
                         ))}
+                      </Select>
+                    </>
+                  ) : detail.uiType === "true_false" ? (
+                    <>
+                      <Typography variant="subtitle1">答案:</Typography>
+                      <Select
+                        value={detail.answer?.content?.[0] || ""}
+                        onChange={(e) =>
+                          handleDetailChange(
+                            sectionIndex,
+                            questionIndex,
+                            detailIndex,
+                            "answer",
+                            {
+                              content: [e.target.value],
+                              images: detail.answer?.images || []
+                            }
+                          )
+                        }
+                        fullWidth
+                        variant="outlined"
+                        sx={{ mb: 1 }}
+                      >
+                        <MenuItem value="正确">正确</MenuItem>
+                        <MenuItem value="错误">错误</MenuItem>
                       </Select>
                     </>
                   ) : (
