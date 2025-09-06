@@ -2,8 +2,7 @@ import React from "react";
 import { Typography, Box, Chip, Grid } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 const ErrorQuestionDisplay = ({ questionDetail, dictionaries }) => {
   return (
@@ -65,27 +64,21 @@ const ErrorQuestionDisplay = ({ questionDetail, dictionaries }) => {
           <Typography variant="h6" gutterBottom>
             题目材料
           </Typography>
-          <Typography
-            variant="body1"
-            paragraph
-            sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
-          >
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-              {questionDetail.material}
-            </ReactMarkdown>
-          </Typography>
+          <Box sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}>
+            {questionDetail.material && (
+              <MarkdownRenderer content={questionDetail.material} />
+            )}
+          </Box>
         </>
       ) : null}
       <Typography variant="h6" gutterBottom>
         题目内容
       </Typography>
-      <Typography
-        variant="body1"
-        paragraph
-        sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
-      >
-        {questionDetail.content.value}
-      </Typography>
+      <Box sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1, mb: 2 }}>
+        {questionDetail.content && questionDetail.content.value && (
+          <MarkdownRenderer content={questionDetail.content.value} />
+        )}
+      </Box>
       {questionDetail.content.images &&
         questionDetail.content.images.length > 0 &&
         questionDetail.content.images.map((image, index) => (
@@ -104,24 +97,20 @@ const ErrorQuestionDisplay = ({ questionDetail, dictionaries }) => {
         <CheckCircleOutlineIcon color="success" sx={{ mr: 1 }} />
         <Typography variant="h6">正确答案</Typography>
       </Box>
-      <Typography
-        variant="body1"
-        paragraph
-        sx={{ backgroundColor: "#e8f5e9", p: 2, borderRadius: 1 }}
-      >
-        {questionDetail.correctAnswer}
-      </Typography>
+      <Box sx={{ backgroundColor: "#e8f5e9", p: 2, borderRadius: 1, mb: 2 }}>
+        {questionDetail.correctAnswer && (
+          <MarkdownRenderer content={questionDetail.correctAnswer} />
+        )}
+      </Box>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <ErrorOutlineIcon color="error" sx={{ mr: 1 }} />
         <Typography variant="h6">你的答案</Typography>
       </Box>
-      <Typography
-        variant="body1"
-        paragraph
-        sx={{ backgroundColor: "#ffebee", p: 2, borderRadius: 1 }}
-      >
-        {questionDetail.userAnswer.value}
-      </Typography>
+      <Box sx={{ backgroundColor: "#ffebee", p: 2, borderRadius: 1, mb: 2 }}>
+        {questionDetail.userAnswer && questionDetail.userAnswer.value && (
+          <MarkdownRenderer content={questionDetail.userAnswer.value} />
+        )}
+      </Box>
       {questionDetail.userAnswer.images &&
         questionDetail.userAnswer.images.length > 0 &&
         questionDetail.userAnswer.images.map((image, index) => (
@@ -140,12 +129,11 @@ const ErrorQuestionDisplay = ({ questionDetail, dictionaries }) => {
       <Typography variant="h6" gutterBottom>
         解释
       </Typography>
-      <Typography
-        variant="body1"
-        sx={{ backgroundColor: "#e3f2fd", p: 2, borderRadius: 1 }}
-      >
-        {questionDetail.explanation}
-      </Typography>
+      <Box sx={{ backgroundColor: "#e3f2fd", p: 2, borderRadius: 1 }}>
+        {questionDetail.explanation && (
+          <MarkdownRenderer content={questionDetail.explanation} />
+        )}
+      </Box>
     </Box>
   );
 };

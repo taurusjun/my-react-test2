@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import MarkdownRenderer from "./MarkdownRenderer";
 import {
   Box,
   Button,
@@ -284,18 +285,109 @@ const ErrorQuestionList = () => {
                       </div>
                     </Tooltip>
                   </BodyTableCell>
-                  <BodyTableCell>{question.digest}</BodyTableCell>
                   <BodyTableCell>
-                    <Tooltip title={question.question} arrow>
+                    <Tooltip 
+                      title={question.digest ? <MarkdownRenderer content={question.digest} /> : ""} 
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            maxWidth: 'none',
+                            bgcolor: 'background.paper',
+                            color: 'text.primary',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 1,
+                            p: 1,
+                            '& .MuiTooltip-arrow': {
+                              color: 'background.paper',
+                            },
+                          },
+                        },
+                      }}
+                    >
                       <div
                         style={{
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
                           maxWidth: "200px",
+                          overflow: "hidden",
                         }}
                       >
-                        {question.question}
+                        {question.digest && (
+                          <div style={{ 
+                            overflow: "hidden",
+                            textOverflow: "ellipsis", 
+                            display: "-webkit-box", 
+                            WebkitLineClamp: 2, 
+                            WebkitBoxOrient: "vertical", 
+                            lineHeight: "1.2em",
+                            maxHeight: "2.4em" 
+                          }}>
+                            <MarkdownRenderer 
+                              content={question.digest}
+                              sx={{ 
+                                '& p': { 
+                                  margin: 0,
+                                  display: "inline"
+                                },
+                                '& *': {
+                                  fontSize: '0.875rem'
+                                }
+                              }} 
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </Tooltip>
+                  </BodyTableCell>
+                  <BodyTableCell>
+                    <Tooltip 
+                      title={question.question ? <MarkdownRenderer content={question.question} /> : ""} 
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            maxWidth: 'none',
+                            bgcolor: 'background.paper',
+                            color: 'text.primary',
+                            border: '1px solid #e0e0e0',
+                            borderRadius: 1,
+                            p: 1,
+                            '& .MuiTooltip-arrow': {
+                              color: 'background.paper',
+                            },
+                          },
+                        },
+                      }}
+                    >
+                      <div
+                        style={{
+                          maxWidth: "200px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {question.question && (
+                          <div style={{ 
+                            overflow: "hidden",
+                            textOverflow: "ellipsis", 
+                            display: "-webkit-box", 
+                            WebkitLineClamp: 2, 
+                            WebkitBoxOrient: "vertical", 
+                            lineHeight: "1.2em",
+                            maxHeight: "2.4em" 
+                          }}>
+                            <MarkdownRenderer 
+                              content={question.question}
+                              sx={{ 
+                                '& p': { 
+                                  margin: 0,
+                                  display: "inline"
+                                },
+                                '& *': {
+                                  fontSize: '0.875rem'
+                                }
+                              }} 
+                            />
+                          </div>
+                        )}
                       </div>
                     </Tooltip>
                   </BodyTableCell>
