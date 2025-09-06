@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import MarkdownRenderer from "./MarkdownRenderer";
+import { MarkdownRenderer } from "../../../components/markdown";
 import {
   Box,
   Button,
@@ -287,7 +287,7 @@ const ErrorQuestionList = () => {
                   </BodyTableCell>
                   <BodyTableCell>
                     <Tooltip 
-                      title={question.digest ? <MarkdownRenderer content={question.digest} /> : ""} 
+                      title={question.digest ? <MarkdownRenderer content={question.digest} options={{ inline: true }} /> : ""} 
                       arrow
                       componentsProps={{
                         tooltip: {
@@ -323,15 +323,10 @@ const ErrorQuestionList = () => {
                           }}>
                             <MarkdownRenderer 
                               content={question.digest}
-                              sx={{ 
-                                '& p': { 
-                                  margin: 0,
-                                  display: "inline"
-                                },
-                                '& *': {
-                                  fontSize: '0.875rem'
-                                }
-                              }} 
+                              options={{
+                                inline: true,
+                                fontSize: '0.875rem'
+                              }}
                             />
                           </div>
                         )}
@@ -340,7 +335,7 @@ const ErrorQuestionList = () => {
                   </BodyTableCell>
                   <BodyTableCell>
                     <Tooltip 
-                      title={question.question ? <MarkdownRenderer content={question.question} /> : ""} 
+                      title={question.question ? <MarkdownRenderer content={question.question} options={{ inline: true }} /> : ""} 
                       arrow
                       componentsProps={{
                         tooltip: {
@@ -376,15 +371,10 @@ const ErrorQuestionList = () => {
                           }}>
                             <MarkdownRenderer 
                               content={question.question}
-                              sx={{ 
-                                '& p': { 
-                                  margin: 0,
-                                  display: "inline"
-                                },
-                                '& *': {
-                                  fontSize: '0.875rem'
-                                }
-                              }} 
+                              options={{
+                                inline: true,
+                                fontSize: '0.875rem'
+                              }}
                             />
                           </div>
                         )}

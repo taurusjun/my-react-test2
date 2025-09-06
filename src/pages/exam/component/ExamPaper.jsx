@@ -29,106 +29,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
+import { MarkdownRenderer } from "../../../components/markdown";
 
-// 可重用的Markdown渲染组件
-const MarkdownRenderer = ({ content, sx = {} }) => {
-  if (!content) return null;
-  
-  return (
-    <Box sx={sx}>
-      <ReactMarkdown
-        components={{
-          p: ({ node, ...props }) => (
-            <p style={{ margin: "8px 0", lineHeight: "1.6" }} {...props} />
-          ),
-          code: ({ node, inline, className, children, ...props }) => (
-            <code
-              style={{
-                backgroundColor: inline ? "#f5f5f5" : "#f8f8f8",
-                padding: inline ? "2px 4px" : "12px 16px",
-                borderRadius: "4px",
-                fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
-                fontSize: inline ? "0.9em" : "0.85em",
-                border: "1px solid #e1e1e1",
-                display: inline ? "inline" : "block",
-                whiteSpace: inline ? "nowrap" : "pre-wrap",
-                overflow: inline ? "visible" : "auto",
-              }}
-              {...props}
-            >
-              {children}
-            </code>
-          ),
-          pre: ({ node, ...props }) => (
-            <pre
-              style={{
-                backgroundColor: "#f8f8f8",
-                padding: "16px",
-                borderRadius: "6px",
-                overflow: "auto",
-                border: "1px solid #e1e1e1",
-                margin: "16px 0",
-                lineHeight: "1.4",
-              }}
-              {...props}
-            />
-          ),
-          blockquote: ({ node, ...props }) => (
-            <blockquote
-              style={{
-                borderLeft: "4px solid #ddd",
-                paddingLeft: "16px",
-                margin: "16px 0",
-                color: "#666",
-                fontStyle: "italic",
-              }}
-              {...props}
-            />
-          ),
-          table: ({ node, ...props }) => (
-            <table
-              style={{
-                borderCollapse: "collapse",
-                width: "100%",
-                margin: "16px 0",
-              }}
-              {...props}
-            />
-          ),
-          th: ({ node, ...props }) => (
-            <th
-              style={{
-                border: "1px solid #ddd",
-                padding: "8px 12px",
-                backgroundColor: "#f5f5f5",
-                textAlign: "left",
-              }}
-              {...props}
-            />
-          ),
-          td: ({ node, ...props }) => (
-            <td
-              style={{
-                border: "1px solid #ddd",
-                padding: "8px 12px",
-              }}
-              {...props}
-            />
-          ),
-        }}
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeRaw]}
-      >
-        {content}
-      </ReactMarkdown>
-    </Box>
-  );
-};
+// Using shared MarkdownRenderer component from src/components/markdown
 
 const ExamPaper = () => {
   const { uuid } = useParams();
@@ -365,7 +268,7 @@ const ExamPaper = () => {
                 <Typography component="span" sx={{ fontWeight: "bold" }}>
                   {`${String.fromCharCode(65 + rowIndex)}. `}
                 </Typography>
-                <MarkdownRenderer content={row.value} />
+                <MarkdownRenderer content={row.value} options={{ inline: true }} />
               </Box>
             </Box>
           ))}
@@ -424,7 +327,7 @@ const ExamPaper = () => {
                 <Typography component="span" sx={{ fontWeight: "bold" }}>
                   {`${String.fromCharCode(65 + rowIndex)}. `}
                 </Typography>
-                <MarkdownRenderer content={row.value} />
+                <MarkdownRenderer content={row.value} options={{ inline: true }} />
               </Box>
             </Box>
           ))}
@@ -763,10 +666,11 @@ const ExamPaper = () => {
               </Typography>
               <Box sx={{ flex: 1 }}>
                 <MarkdownRenderer 
-                  content={currentSectionData.name} 
-                  sx={{ 
-                    "& p": { margin: 0, fontWeight: 600, fontSize: "1.25rem" },
-                    "& h1, & h2, & h3, & h4, & h5, & h6": { margin: 0, fontSize: "1.25rem" }
+                  content={currentSectionData.name}
+                  sx={{ fontWeight: 600 }}
+                  options={{
+                    fontSize: "1.25rem",
+                    paragraph: { margin: 0, fontWeight: 600 }
                   }}
                 />
               </Box>
@@ -777,12 +681,14 @@ const ExamPaper = () => {
                   <MarkdownRenderer
                     content={currentQuestionData.material}
                     sx={{
-                      fontStyle: "italic",
-                      fontSize: "1.1rem",
                       p: 2,
                       backgroundColor: "#f9f9f9",
                       borderRadius: 1, 
                       border: "1px solid #e0e0e0"
+                    }}
+                    options={{
+                      fontSize: "1.1rem",
+                      paragraph: { fontStyle: "italic" }
                     }}
                   />
                 </Box>
@@ -799,7 +705,10 @@ const ExamPaper = () => {
                     )}`}
                   </Box>
                   <Box sx={{ flex: 1 }}>
-                    <MarkdownRenderer content={currentDetailData.questionContent.value} />
+                    <MarkdownRenderer 
+                      content={currentDetailData.questionContent.value} 
+                      options={{ paragraph: { margin: "4px 0" } }}
+                    />
                   </Box>
                   <Box sx={{ ml: 2, color: "gray", flexShrink: 0 }}>
                     ({currentDetailData.score} 分)

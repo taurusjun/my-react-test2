@@ -2,7 +2,7 @@ import React from "react";
 import { Typography, Box, Chip, Grid } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import MarkdownRenderer from "./MarkdownRenderer";
+import { MarkdownRenderer } from "../../../components/markdown";
 
 const ErrorQuestionDisplay = ({ questionDetail, dictionaries }) => {
   return (
