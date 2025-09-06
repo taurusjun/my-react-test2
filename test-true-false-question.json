@@ -35,7 +35,7 @@
           },
           "rows": [],
           "answer": {
-            "content": ["正确"],
+            "content": [true],
             "images": []
           },
           "explanation": "根据二次方程求根公式，当判别式大于0时，$x = \\frac{-b ± \\sqrt{\\Delta}}{2a}$ 会得到两个不同的实数解。",
@@ -69,7 +69,7 @@
               "rate": 0,
               "rows": [],
               "answer": {
-                "content": ["正确"],
+                "content": [true],
                 "images": []
               },
               "explanation": "因为二次项系数 $a = 1 > 0$，所以抛物线开口向上。"
@@ -86,7 +86,7 @@
               "rate": 0,
               "rows": [],
               "answer": {
-                "content": ["正确"],
+                "content": [true],
                 "images": []
               },
               "explanation": "对称轴为 $x = 2$，$f(2) = 4 - 8 + 3 = -1$，这是最小值。"

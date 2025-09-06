@@ -219,6 +219,14 @@ const ExamContent = ({ exam, showHeader = true }) => {
     if (answer && typeof answer === 'object' && answer.content) {
       const content = answer.content;
       if (Array.isArray(content)) {
+        // 处理判断题的true/false值
+        if (content.length > 0) {
+          if (content[0] === true || content[0] === 'true') {
+            return "正确";
+          } else if (content[0] === false || content[0] === 'false') {
+            return "错误";
+          }
+        }
         return content.join(", ");
       }
       return content;
@@ -226,7 +234,22 @@ const ExamContent = ({ exam, showHeader = true }) => {
     
     // 处理旧的数组格式（向后兼容）
     if (Array.isArray(answer)) {
+      // 处理判断题的true/false值
+      if (answer.length > 0) {
+        if (answer[0] === true || answer[0] === 'true') {
+          return "正确";
+        } else if (answer[0] === false || answer[0] === 'false') {
+          return "错误";
+        }
+      }
       return answer.join(", ");
+    }
+    
+    // 处理其他情况
+    if (answer === true || answer === 'true') {
+      return "正确";
+    } else if (answer === false || answer === 'false') {
+      return "错误";
     }
     
     return answer;

@@ -6,6 +6,14 @@
 export const normalizeAnswer = (answer) => {
   // 如果已经是正确格式，直接返回
   if (answer && typeof answer === 'object' && answer.content && Array.isArray(answer.content)) {
+    // 处理true/false格式的判断题答案
+    if (answer.content.length > 0 && (answer.content[0] === true || answer.content[0] === false || 
+        answer.content[0] === 'true' || answer.content[0] === 'false')) {
+      return {
+        content: answer.content,
+        images: answer.images || []
+      };
+    }
     return {
       content: answer.content,
       images: answer.images || []
@@ -129,6 +137,14 @@ export const getAnswerDisplayText = (answer, separator = ", ") => {
   if (answer && typeof answer === 'object' && answer.content) {
     const content = answer.content;
     if (Array.isArray(content)) {
+      // 处理判断题的true/false值
+      if (content.length > 0) {
+        if (content[0] === true || content[0] === 'true') {
+          return "正确";
+        } else if (content[0] === false || content[0] === 'false') {
+          return "错误";
+        }
+      }
       return content.join(separator);
     }
     return content;
@@ -136,10 +152,23 @@ export const getAnswerDisplayText = (answer, separator = ", ") => {
   
   // 处理旧的数组格式（向后兼容）
   if (Array.isArray(answer)) {
+    // 处理判断题的true/false值
+    if (answer.length > 0) {
+      if (answer[0] === true || answer[0] === 'true') {
+        return "正确";
+      } else if (answer[0] === false || answer[0] === 'false') {
+        return "错误";
+      }
+    }
     return answer.join(separator);
   }
   
   // 处理字符串或其他类型
+  if (answer === true || answer === 'true') {
+    return "正确";
+  } else if (answer === false || answer === 'false') {
+    return "错误";
+  }
   return answer || "";
 };
 

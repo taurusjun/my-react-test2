@@ -19,8 +19,8 @@ export function useDictionaries() {
   useEffect(() => {
     const fetchDictionaries = async () => {
       try {
-        const response = await axios.get("/api/dictionaries");
-        setDictionaries(response.data);
+        const response = await axios.get("/api/dictionary");
+        setDictionaries(response.data.data);
         setLoading(false);
       } catch (err) {
         console.error("获取字典数据失败:", err);

@@ -39,17 +39,17 @@ setupFileCorrectionMocks(mock);
 // });
 
 // 模拟字典数据的API响应
-mock.onGet("/api/dictionaries").reply(200, {
-  TypeDict,
-  CategoryDict,
-  KNDict,
-  SchoolDict,
-  GradeDict,
-  SchoolGradeMapping,
-  DifficultyDict,
-  TagDict,
-  CategoryKNMapping,
-});
+// mock.onGet("/api/dictionaries").reply(200, {
+//   TypeDict,
+//   CategoryDict,
+//   KNDict,
+//   SchoolDict,
+//   GradeDict,
+//   SchoolGradeMapping,
+//   DifficultyDict,
+//   TagDict,
+//   CategoryKNMapping,
+// });
 
 // // 更新模拟登录的请求处理
 // mock.onPost("/api/login").reply((config) => {

@@ -996,7 +996,8 @@ const ExamEditor = ({ exam, onExamChange }) => {
                     <>
                       <Typography variant="subtitle1">答案:</Typography>
                       <Select
-                        value={detail.answer?.content?.[0] || ""}
+                        value={detail.answer?.content?.[0] === true || detail.answer?.content?.[0] === "true" ? true : 
+                               detail.answer?.content?.[0] === false || detail.answer?.content?.[0] === "false" ? false : ""}
                         onChange={(e) =>
                           handleDetailChange(
                             sectionIndex,
@@ -1013,8 +1014,8 @@ const ExamEditor = ({ exam, onExamChange }) => {
                         variant="outlined"
                         sx={{ mb: 1 }}
                       >
-                        <MenuItem value="正确">正确</MenuItem>
-                        <MenuItem value="错误">错误</MenuItem>
+                        <MenuItem value={true}>正确</MenuItem>
+                        <MenuItem value={false}>错误</MenuItem>
                       </Select>
                     </>
                   ) : (
