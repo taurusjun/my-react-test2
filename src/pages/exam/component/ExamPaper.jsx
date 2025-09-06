@@ -243,6 +243,7 @@ const ExamPaper = () => {
   const renderQuestionDetailAnswerArea = (detail) => {
     const isMultipleChoice = detail.uiType === "multi_selection";
     const isSingleChoice = detail.uiType === "single_selection";
+    const isTrueFalse = detail.uiType === "true_false";
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const isShortAnswer = detail.uiType === "short_answer";
@@ -271,6 +272,31 @@ const ExamPaper = () => {
             />
           ))}
         </FormGroup>
+      );
+    } else if (isTrueFalse) {
+      // 使用字符串值“true”和“false”代替boolean值
+      const currentValue = currentAnswer.content[0];
+      const stringValue = typeof currentValue === 'boolean' ? String(currentValue) : currentValue || "";
+      
+      return (
+        <RadioGroup
+          value={stringValue}
+          onChange={(e) => {
+            // 直接使用字符串值
+            handleAnswerChange(detail.uuid, [e.target.value]);
+          }}
+        >
+          <FormControlLabel
+            value="true"
+            control={<Radio />}
+            label="A. 正确"
+          />
+          <FormControlLabel
+            value="false"
+            control={<Radio />}
+            label="B. 错误"
+          />
+        </RadioGroup>
       );
     } else if (isSingleChoice) {
       return (
@@ -444,9 +470,13 @@ const ExamPaper = () => {
     setOpenDialog(true);
   };
 
+  // 已在判断题中直接使用字符串“true”和“false”值
+  // 不再需要在提交时进行转换
+
   const confirmSubmit = async () => {
     try {
       console.log(answers);
+      
       setLoading(true);
       await axios.post(`/api/my-exams/${uuid}/submit`, {
         answers: answers,
@@ -638,7 +668,9 @@ const ExamPaper = () => {
                     currentDetail
                   )}`}
                 </strong>
-                {currentDetailData.questionContent.value}
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                  {currentDetailData.questionContent.value}
+                </ReactMarkdown>
                 <span style={{ marginLeft: "8px", color: "gray" }}>
                   ({currentDetailData.score} 分)
                 </span>
