@@ -353,7 +353,18 @@ const ExamEditor = ({ exam, onExamChange }) => {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>编辑试卷</Typography>
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h5">编辑试卷</Typography>
+        <Typography variant="h6" color="primary">
+          总分：{editedExam.sections.reduce((totalScore, section) => {
+            return totalScore + section.questions.reduce((sectionScore, question) => {
+              return sectionScore + question.questionDetails.reduce((detailScore, detail) => {
+                return detailScore + (Number(detail.score) || 0);
+              }, 0);
+            }, 0);
+          }, 0)} 分
+        </Typography>
+      </Box>
       
       <Box sx={{ mb: 2, p: 2, bgcolor: "#e3f2fd", borderRadius: 1 }}>
         <Typography variant="body2" color="primary">
@@ -646,10 +657,33 @@ const ExamEditor = ({ exam, onExamChange }) => {
               </Box>
               {question.questionDetails.map((detail, detailIndex) => (
                 <Box key={detail.uuid} sx={{ mb: 2 }}>
-                  <Typography variant="body1" sx={{ mb: 1 }}>
-                    第 {questionIndex + 1}.{detailIndex + 1} 题{" "}
-                    {/* 显示小题序号 */}
-                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Typography variant="body1">
+                      第 {questionIndex + 1}.{detailIndex + 1} 题{" "}
+                      {/* 显示小题序号 */}
+                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Typography variant="body2" sx={{ mr: 1 }}>分值：</Typography>
+                      <TextField
+                        size="small"
+                        type="number"
+                        variant="outlined"
+                        value={detail.score || 0}
+                        onChange={(e) => {
+                          const scoreValue = e.target.value === '' ? 0 : Number(e.target.value);
+                          handleDetailChange(
+                            sectionIndex,
+                            questionIndex,
+                            detailIndex,
+                            "score",
+                            scoreValue
+                          );
+                        }}
+                        inputProps={{ min: 0, step: 0.5 }}
+                        sx={{ width: "80px" }}
+                      />
+                    </Box>
+                  </Box>
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
                       题目：
