@@ -652,44 +652,44 @@ mock.onPost("/api/error-questions-practice/submit").reply((config) => {
 });
 
 // 添加模拟考试名称搜索的 API
-mock.onGet("/api/exam-names").reply((config) => {
-  const { query = "" } = config.params;
+// mock.onGet("/api/exam-names").reply((config) => {
+//   const { query = "" } = config.params;
 
-  const allExamNames = [
-    { uuid: "exam-1", name: "数学期中考试" },
-    { uuid: "exam-2", name: "英语期末考试" },
-    { uuid: "exam-3", name: "物理单元测试" },
-    { uuid: "exam-4", name: "化学期中考试" },
-    { uuid: "exam-5", name: "生物期末考试" },
-    { uuid: "exam-6", name: "历史单元测试" },
-    { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
-    { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
-    { uuid: "uuid-3456-cdef-7890", name: "高中理教材" },
-    { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
-    { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
-    { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
-    { uuid: "uuid-exam-7", name: "2024年英语听力考试" },
-    { uuid: "uuid-exam-8", name: "2023年地理知识竞赛" },
-    { uuid: "uuid-exam-9", name: "2024年信息技术能力测试" },
-    { uuid: "uuid-exam-10", name: "2023年历史学科能力评估" },
-  ];
+//   const allExamNames = [
+//     { uuid: "exam-1", name: "数学期中考试" },
+//     { uuid: "exam-2", name: "英语期末考试" },
+//     { uuid: "exam-3", name: "物理单元测试" },
+//     { uuid: "exam-4", name: "化学期中考试" },
+//     { uuid: "exam-5", name: "生物期末考试" },
+//     { uuid: "exam-6", name: "历史单元测试" },
+//     { uuid: "uuid-1234-abcd-5678", name: "2010年春季物理竞赛" },
+//     { uuid: "uuid-2345-bcde-6789", name: "2011年秋季数学竞赛" },
+//     { uuid: "uuid-3456-cdef-7890", name: "高中理教材" },
+//     { uuid: "uuid-4567-defg-8901", name: "2022年高考真题" },
+//     { uuid: "uuid-5678-efgh-9012", name: "初中数学竞赛题集" },
+//     { uuid: "uuid-6789-fghi-0123", name: "高中化学实验指南" },
+//     { uuid: "uuid-exam-7", name: "2024年英语听力考试" },
+//     { uuid: "uuid-exam-8", name: "2023年地理知识竞赛" },
+//     { uuid: "uuid-exam-9", name: "2024年信息技术能力测试" },
+//     { uuid: "uuid-exam-10", name: "2023年历史学科能力评估" },
+//   ];
 
-  let filteredExamNames = allExamNames;
-  if (query) {
-    filteredExamNames = allExamNames.filter((exam) =>
-      exam.name.toLowerCase().includes(query.toLowerCase())
-    );
-  } else {
-    // 如果没有查询参数，返回前20个考试名称作为默认选项
-    filteredExamNames = allExamNames.slice(0, 20);
-  }
+//   let filteredExamNames = allExamNames;
+//   if (query) {
+//     filteredExamNames = allExamNames.filter((exam) =>
+//       exam.name.toLowerCase().includes(query.toLowerCase())
+//     );
+//   } else {
+//     // 如果没有查询参数，返回前20个考试名称作为默认选项
+//     filteredExamNames = allExamNames.slice(0, 20);
+//   }
 
-  return [200, {
-    success: true,
-    data: filteredExamNames,
-    message: '获取考试名称成功'
-  }];
-});
+//   return [200, {
+//     success: true,
+//     data: filteredExamNames,
+//     message: '获取考试名称成功'
+//   }];
+// });
 
 // 模拟考试提交列表
 // mock.onGet("/api/exam-submissions").reply((config) => {

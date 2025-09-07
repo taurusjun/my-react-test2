@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -37,6 +38,24 @@ const GradingCenter = () => {
   const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
   const [studentNameFilter, setStudentNameFilter] = useState("");
+  const [studentNameInput, setStudentNameInput] = useState("");
+  
+  // Debounced function for student name search
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSetStudentNameFilter = useCallback(
+    debounce((value) => {
+      setStudentNameFilter(value);
+    }, 500),
+    []
+  );
+  
+  // Effect to update the filter when input changes
+  useEffect(() => {
+    debouncedSetStudentNameFilter(studentNameInput);
+    return () => {
+      debouncedSetStudentNameFilter.cancel();
+    };
+  }, [studentNameInput, debouncedSetStudentNameFilter]);
   const [classFilter, setClassFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -160,8 +179,8 @@ const GradingCenter = () => {
               <TextField
                 fullWidth
                 label="搜索考生姓名"
-                value={studentNameFilter}
-                onChange={(e) => setStudentNameFilter(e.target.value)}
+                value={studentNameInput}
+                onChange={(e) => setStudentNameInput(e.target.value)}
                 size="small"
               />
             </Grid>
