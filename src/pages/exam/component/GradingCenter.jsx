@@ -266,20 +266,36 @@ const GradingCenter = () => {
                   </BodyTableCell>
                   <BodyTableCell>
                     {submission.gradingStatus === "completed" ? (
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() =>
-                          handleViewResult(
-                            submission.uuid,
-                            submission.examUuid,
-                            submission.studentUuid,
-                            submission.studentName
-                          )
-                        }
-                      >
-                        查看考卷
-                      </Button>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          onClick={() =>
+                            handleViewResult(
+                              submission.uuid,
+                              submission.examUuid,
+                              submission.studentUuid,
+                              submission.studentName
+                            )
+                          }
+                        >
+                          查看考卷
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() =>
+                            handleStartGrading(
+                              submission.uuid,
+                              submission.examUuid,
+                              submission.studentUuid,
+                              submission.studentName
+                            )
+                          }
+                        >
+                          重新阅卷
+                        </Button>
+                      </Box>
                     ) : (
                       <Button
                         variant="contained"
