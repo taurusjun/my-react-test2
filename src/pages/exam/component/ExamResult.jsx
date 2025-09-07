@@ -15,6 +15,7 @@ import {
   CircularProgress,
   Dialog,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -296,14 +297,34 @@ const ExamResult = () => {
                         "&:nth-of-type(odd)": { backgroundColor: "#fafafa" },
                       }}
                     >
-                      <TableCell>{`${section.order_in_exam}.${
-                        index + 1
-                      }`}</TableCell>
-                      <TableCell>
-                        <MarkdownRenderer 
-                          content={detail.questionContent.value} 
-                          options={{ fontSize: '0.875rem' }}
-                        />
+                      <TableCell>{`${section.order_in_exam}.${question.order_in_section || ""}.${detail.order_in_question || index + 1}`}</TableCell>
+                      <TableCell sx={{ width: "25%", maxWidth: "250px" }}>
+                        <Tooltip 
+                          title={
+                            <Box sx={{ p: 1 }}>
+                              <MarkdownRenderer 
+                                content={detail.questionContent.value}
+                                options={{ fontSize: '0.875rem' }} 
+                              />
+                            </Box>
+                          }
+                          arrow
+                          placement="top-start"
+                        >
+                          <Box sx={{ 
+                            maxHeight: "3.6em", 
+                            overflow: "hidden", 
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical"
+                          }}>
+                            <MarkdownRenderer 
+                              content={detail.questionContent.value} 
+                              options={{ fontSize: '0.875rem' }}
+                            />
+                          </Box>
+                        </Tooltip>
                       </TableCell>
                       <TableCell>{renderAnswer(detail.answer)}</TableCell>
                       <TableCell>
