@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Typography, RadioGroup, FormControlLabel } from "@mui/material";
 import Radio from "@mui/material/Radio";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
+import { MarkdownRenderer } from "../../../components/markdown";
 import {
   Box,
   TextField,
   Button,
   IconButton,
-  InputAdornment,
   FormGroup,
   Checkbox,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRef } from "react";
 
 const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
   const [answers, setAnswers] = useState({});
@@ -23,7 +20,7 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
   useEffect(() => {
     onAnswerChange(answers);
     console.log(answers);
-  }, [answers]);
+  }, [answers, onAnswerChange]);
 
   const handleAnswerChange = (detailUuid, newContent) => {
     setAnswers((prevAnswers) => {
@@ -119,43 +116,65 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
     const currentAnswer = answers[detail.uuid] || { content: [], images: [] };
 
     if (isMultipleChoice) {
+      // 确保options存在且是数组
+      const options = detail.options || [];
       return (
         <FormGroup>
-          {detail.rows.map((row, rowIndex) => (
-            <FormControlLabel
-              key={rowIndex}
-              control={
-                <Checkbox
-                  checked={currentAnswer.content.includes(
-                    String.fromCharCode(65 + rowIndex)
-                  )}
-                  onChange={() =>
-                    handleMultipleChoiceChange(
-                      detail.uuid,
-                      String.fromCharCode(65 + rowIndex)
-                    )
-                  }
-                />
-              }
-              label={`${String.fromCharCode(65 + rowIndex)}. ${row.value}`}
-            />
-          ))}
+          {options.map((option, rowIndex) => {
+            // 处理新的选项格式，如"A. `data.value = 3.14`"
+            // 从选项字符串中提取标识符（"A"、"B"等）和值
+            const match = typeof option === 'string' && option.match(/^([A-Z])\.\s*(.+)$/);
+            const identifier = match ? match[1] : String.fromCharCode(65 + rowIndex);
+            const value = match ? match[2] : (option.value || option);
+            
+            return (
+              <FormControlLabel
+                key={rowIndex}
+                control={
+                  <Checkbox
+                    checked={currentAnswer.content.includes(identifier)}
+                    onChange={() => handleMultipleChoiceChange(detail.uuid, identifier)}
+                  />
+                }
+                label={
+                  <MarkdownRenderer 
+                    content={`${identifier}. ${value}`}
+                    options={{ inline: true, fontSize: '0.875rem' }}
+                  />
+                }
+              />
+            );
+          })}
         </FormGroup>
       );
     } else if (isSingleChoice) {
+      // 确保options存在且是数组
+      const options = detail.options || [];
       return (
         <RadioGroup
           value={currentAnswer.content[0] || ""}
           onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
         >
-          {detail.rows.map((row, rowIndex) => (
-            <FormControlLabel
-              key={rowIndex}
-              value={String.fromCharCode(65 + rowIndex)}
-              control={<Radio />}
-              label={`${String.fromCharCode(65 + rowIndex)}. ${row.value}`}
-            />
-          ))}
+          {options.map((option, rowIndex) => {
+            // 处理新的选项格式，如"A. `data.value = 3.14`"
+            const match = typeof option === 'string' && option.match(/^([A-Z])\.\s*(.+)$/);
+            const identifier = match ? match[1] : String.fromCharCode(65 + rowIndex);
+            const value = match ? match[2] : (option.value || option);
+            
+            return (
+              <FormControlLabel
+                key={rowIndex}
+                value={identifier}
+                control={<Radio />}
+                label={
+                  <MarkdownRenderer 
+                    content={`${identifier}. ${value}`}
+                    options={{ inline: true, fontSize: '0.875rem' }}
+                  />
+                }
+              />
+            );
+          })}
         </RadioGroup>
       );
     } else if (isFillInBlank) {
@@ -243,19 +262,13 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
         {header}
       </Typography>
       {questionDetail.material ? (
-        <Typography
-          variant="body1"
-          paragraph
-          sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1 }}
-        >
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-            {questionDetail.material}
-          </ReactMarkdown>
-        </Typography>
+        <Box sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1, mb: 2 }}>
+          <MarkdownRenderer content={questionDetail.material} />
+        </Box>
       ) : null}
-      <Typography variant="body1" paragraph sx={{ fontWeight: "bold", mb: 2 }}>
-        {questionDetail.content.value}
-      </Typography>
+      <Box sx={{ fontWeight: "bold", mb: 2 }}>
+        <MarkdownRenderer content={questionDetail.content.value} />
+      </Box>
       {questionDetail.content.images &&
         questionDetail.content.images.length > 0 &&
         questionDetail.content.images.map((image, index) => (
