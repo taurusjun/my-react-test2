@@ -17,6 +17,8 @@ import {
   IconButton,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
@@ -25,27 +27,44 @@ const ExamResult = () => {
   const { uuid } = useParams();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
+  const examUuid = searchParams.get("examUuid");
+  const studentUuid = searchParams.get("studentUuid");
   const studentClass = searchParams.get("class");
-  const studentName = searchParams.get("name");
-
+  const studentName = searchParams.get("studentName");
+  
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState(null);
-  const [grades, setGrades] = useState(null);
+  const [points, setPoints] = useState(null);
+  const [totalScore, setTotalScore] = useState(0);
+  const [examTotalScore, setExamTotalScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [enlargedImage, setEnlargedImage] = useState(null);
 
   useEffect(() => {
     const fetchExamResultData = async () => {
       try {
-        const [examResponse, answersResponse, gradesResponse] =
-          await Promise.all([
-            axios.get(`/api/exams/${uuid}`),
-            axios.get(`/api/my-exams/${uuid}/answers`),
-            axios.get(`/api/my-exams/${uuid}/grades`),
-          ]);
-        setExam(examResponse.data.data);
-        setAnswers(answersResponse.data.data);
-        setGrades(gradesResponse.data);
+        const response = await axios.get(`/api/my-exams/${uuid}/grading`);
+        const responseData = response.data.data;
+        console.log('API response data:', responseData);
+        
+        setExam(responseData.examData);
+        setAnswers(responseData.answerScoreMap);
+        setPoints(responseData.pointMap);
+        
+        // 计算总分值
+        const examTotalScore = Object.values(responseData.pointMap).reduce(
+          (sum, point) => sum + point,
+          0
+        );
+        setExamTotalScore(examTotalScore);
+        
+        // 计算学生已获得分数
+        const studentTotalScore = Object.values(responseData.answerScoreMap).reduce(
+          (sum, answer) => sum + (answer.userScore || 0),
+          0
+        );
+        setTotalScore(studentTotalScore);
+        
         setLoading(false);
       } catch (error) {
         console.error("Error fetching exam result data:", error);
@@ -175,7 +194,7 @@ const ExamResult = () => {
     );
   }
 
-  if (!exam || !answers || !grades) {
+  if (!exam || !answers || !points) {
     return (
       <CommonLayout
         currentPage="考试结果"
@@ -252,7 +271,7 @@ const ExamResult = () => {
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-              总分: {grades.totalScore} / {exam.totalScore}
+              总分: {totalScore} / {examTotalScore}
             </Typography>
           </Box>
         </Box>
@@ -289,16 +308,29 @@ const ExamResult = () => {
                       <TableCell>{renderAnswer(detail.answer)}</TableCell>
                       <TableCell>
                         {renderAnswer(
-                          answers.answers[question.uuid]?.[detail.uuid] ||
+                          answers[detail.uuid]?.userAnswer ||
                             "未作答"
                         )}
                       </TableCell>
                       <TableCell>
-                        {answers.answers[question.uuid]?.[detail.uuid]
-                          ? `${
-                              grades.grades[question.uuid]?.[detail.uuid] || 0
-                            } / ${detail.score}`
-                          : `0 / ${detail.score}`}
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              fontWeight: "bold", 
+                              color: answers[detail.uuid]?.userScore === points[detail.uuid] ? "success.main" : "warning.main" 
+                            }}
+                          >
+                            {answers[detail.uuid]?.userScore || 0} / {points[detail.uuid] || 0}
+                          </Typography>
+                          {answers[detail.uuid]?.userScore ? (
+                            answers[detail.uuid].userScore === points[detail.uuid] ? (
+                              <CheckCircleIcon color="success" fontSize="small" sx={{ ml: 1 }} />
+                            ) : (
+                              <CancelIcon color="warning" fontSize="small" sx={{ ml: 1 }} />
+                            )
+                          ) : null}
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))

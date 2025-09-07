@@ -134,9 +134,11 @@ const GradingCenter = () => {
     );
   };
 
-  const handleViewResult = (uuid, studentUuid, studentName) => {
+  const handleViewResult = (uuid, examUuid, studentUuid, studentName) => {
     navigate(
-      `/exam/result/${uuid}?studentUuid=${encodeURIComponent(
+      `/exam/result/${uuid}?examUuid=${encodeURIComponent(
+        examUuid
+      )}&studentUuid=${encodeURIComponent(
         studentUuid
       )}&studentName=${encodeURIComponent(studentName)}`
     );
@@ -270,6 +272,7 @@ const GradingCenter = () => {
                         onClick={() =>
                           handleViewResult(
                             submission.uuid,
+                            submission.examUuid,
                             submission.studentUuid,
                             submission.studentName
                           )
