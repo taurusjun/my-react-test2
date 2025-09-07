@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import { MarkdownRenderer } from "../../../components/markdown";
 import {
   Typography,
   Box,
@@ -66,7 +67,10 @@ const ExamResult = () => {
           {/* 渲染文本内容 */}
           {Array.isArray(content) && content.map((item, index) => (
             <Box key={`content-${index}`} sx={{ mr: 1, mb: 1 }}>
-              <Typography variant="body2">{item}</Typography>
+              <MarkdownRenderer 
+                content={item} 
+                options={{ inline: true, fontSize: '0.875rem' }}
+              />
             </Box>
           ))}
           
@@ -92,7 +96,10 @@ const ExamResult = () => {
                   </IconButton>
                 </Box>
               ) : (
-                <Typography variant="body2">{item}</Typography>
+                <MarkdownRenderer 
+                  content={item} 
+                  options={{ inline: true, fontSize: '0.875rem' }}
+                />
               )}
             </Box>
           ))}
@@ -125,7 +132,10 @@ const ExamResult = () => {
                   </IconButton>
                 </Box>
               ) : (
-                <Typography variant="body2">{item}</Typography>
+                <MarkdownRenderer 
+                  content={item} 
+                  options={{ inline: true, fontSize: '0.875rem' }}
+                />
               )}
             </Box>
           ))}
@@ -133,7 +143,11 @@ const ExamResult = () => {
       );
     }
     
-    return <Typography variant="body2">{answer}</Typography>;
+    // 处理字符串值
+    return <MarkdownRenderer 
+      content={answer} 
+      options={{ inline: true, fontSize: '0.875rem' }}
+    />;
   };
 
   const breadcrumbPaths = getBreadcrumbPaths().examResult;
@@ -266,7 +280,12 @@ const ExamResult = () => {
                       <TableCell>{`${section.order_in_exam}.${
                         index + 1
                       }`}</TableCell>
-                      <TableCell>{detail.questionContent.value}</TableCell>
+                      <TableCell>
+                        <MarkdownRenderer 
+                          content={detail.questionContent.value} 
+                          options={{ fontSize: '0.875rem' }}
+                        />
+                      </TableCell>
                       <TableCell>{renderAnswer(detail.answer)}</TableCell>
                       <TableCell>
                         {renderAnswer(
