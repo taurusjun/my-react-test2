@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation } from "react-router-dom";
+import { format, parseISO } from "date-fns";
 import axios from "axios";
 import { MarkdownRenderer } from "../../../components/markdown";
 import {
@@ -23,6 +24,19 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CommonLayout from "../../../layouts/CommonLayout";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
+
+// Helper function to format date strings
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  try {
+    if (dateString.includes('T')) {
+      return format(parseISO(dateString), 'yyyy-MM-dd HH:mm:ss');
+    }
+    return dateString;
+  } catch (error) {
+    return dateString;
+  }
+};
 
 const ExamResult = () => {
   const { uuid } = useParams();
@@ -233,7 +247,7 @@ const ExamResult = () => {
             mb: 2,
           }}
         >
-          <Box sx={{ display: "flex", gap: 4 }}>
+          <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
             <Paper
               elevation={1}
               sx={{ p: 2, backgroundColor: "#f0f4f8", borderRadius: 2 }}
@@ -260,6 +274,20 @@ const ExamResult = () => {
               </Typography>
               <Typography variant="h6" sx={{ mt: 1, color: "#263238" }}>
                 {studentInfo?.studentName || studentName || "未知"}
+              </Typography>
+            </Paper>
+            <Paper
+              elevation={1}
+              sx={{ p: 2, backgroundColor: "#f0f4f8", borderRadius: 2 }}
+            >
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: "bold", color: "#546e7a" }}
+              >
+                完成时间：
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 1, color: "#263238" }}>
+                {studentInfo?.doneTime ? formatDate(studentInfo.doneTime) : "未知"}
               </Typography>
             </Paper>
           </Box>
