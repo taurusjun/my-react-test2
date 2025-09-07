@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { debounce } from "lodash";
+import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -37,6 +38,22 @@ const GradingCenter = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
+  
+  // Helper function to format dates consistently
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      // Check if the date is in ISO format
+      if (dateString.includes('T')) {
+        return format(parseISO(dateString), 'yyyy-MM-dd HH:mm:ss');
+      }
+      // If it's already in the expected format, return as is
+      return dateString;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString; // Return the original string if parsing fails
+    }
+  };
   const [studentNameFilter, setStudentNameFilter] = useState("");
   const [studentNameInput, setStudentNameInput] = useState("");
   
@@ -203,8 +220,8 @@ const GradingCenter = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <MenuItem value="">所有状态</MenuItem>
-                <MenuItem value="graded">已批改</MenuItem>
-                <MenuItem value="ungraded">未批改</MenuItem>
+                <MenuItem value="completed">已批改</MenuItem>
+                <MenuItem value="pending">未批改</MenuItem>
               </TextField>
             </Grid>
           </Grid>
@@ -218,6 +235,8 @@ const GradingCenter = () => {
                 <StyledTableCell>考生姓名</StyledTableCell>
                 <StyledTableCell>分数</StyledTableCell>
                 <StyledTableCell>提交时间</StyledTableCell>
+                <StyledTableCell>批改教师</StyledTableCell>
+                <StyledTableCell>批改时间</StyledTableCell>
                 <StyledTableCell>状态</StyledTableCell>
                 <StyledTableCell>操作</StyledTableCell>
               </StyledTableRow>
@@ -229,20 +248,22 @@ const GradingCenter = () => {
                   <BodyTableCell>{submission.studentClass}</BodyTableCell>
                   <BodyTableCell>{submission.studentName}</BodyTableCell>
                   <BodyTableCell>
-                    {submission.isGraded ? submission.score : "未批改"}
+                    {submission.gradingStatus === "completed" ? submission.totalScore : "未批改"}
                   </BodyTableCell>
-                  <BodyTableCell>{submission.doneTime}</BodyTableCell>
+                  <BodyTableCell>{formatDate(submission.doneTime)}</BodyTableCell>
+                  <BodyTableCell>{submission.teacherName || "-"}</BodyTableCell>
+                  <BodyTableCell>{formatDate(submission.gradingTime)}</BodyTableCell>
                   <BodyTableCell>
                     <Typography
                       color={
-                        submission.isGraded ? "success.main" : "warning.main"
+                        submission.gradingStatus === "completed" ? "success.main" : "warning.main"
                       }
                     >
-                      {submission.isGraded ? "已批改" : "未批改"}
+                      {submission.gradingStatus === "completed" ? "已批改" : "未批改"}
                     </Typography>
                   </BodyTableCell>
                   <BodyTableCell>
-                    {submission.isGraded ? (
+                    {submission.gradingStatus === "completed" ? (
                       <Button
                         variant="outlined"
                         color="primary"
