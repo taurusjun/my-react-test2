@@ -303,10 +303,13 @@ const ExamResult = () => {
                       <TableCell sx={{ width: "25%", maxWidth: "250px" }}>
                         <Tooltip 
                           title={
-                            <Box sx={{ p: 1 }}>
+                            <Box sx={{ p: 1, bgcolor: "#f5f5f5", color: "#333" }}>
                               <MarkdownRenderer 
                                 content={detail.questionContent.value}
-                                options={{ fontSize: '0.875rem' }} 
+                                options={{ 
+                                  fontSize: '0.875rem',
+                                  tooltip: true
+                                }} 
                               />
                             </Box>
                           }

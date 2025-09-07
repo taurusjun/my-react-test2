@@ -37,9 +37,14 @@ const MarkdownRenderer = ({ content, sx = {}, options = {} }) => {
   const fontSizeStyle = options.fontSize ? 
     { fontSize: options.fontSize } : 
     {};
+    
+  // Text color for tooltip mode
+  const textColorStyle = options.tooltip ?
+    { color: "#333" } :
+    {};
   
   return (
-    <Box sx={sx}>
+    <Box sx={{...sx, ...(options.tooltip ? { color: '#333' } : {})}}>
       <ReactMarkdown
         components={{
           p: ({ node, ...props }) => (
@@ -47,6 +52,7 @@ const MarkdownRenderer = ({ content, sx = {}, options = {} }) => {
               style={{
                 ...paragraphStyle,
                 ...options.paragraph,
+                ...textColorStyle,
               }} 
               {...props} 
             />
@@ -54,12 +60,13 @@ const MarkdownRenderer = ({ content, sx = {}, options = {} }) => {
           code: ({ node, inline, className, children, ...props }) => (
             <code
               style={{
-                backgroundColor: inline ? "#f5f5f5" : "#f8f8f8",
+                backgroundColor: options.tooltip ? "#2d2d2d" : (inline ? "#f5f5f5" : "#f8f8f8"),
+                color: options.tooltip ? "#e0e0e0" : "inherit",
                 padding: inline ? "2px 4px" : "12px 16px",
                 borderRadius: "4px",
                 fontFamily: "Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
                 fontSize: inline ? "0.9em" : "0.85em",
-                border: "1px solid #e1e1e1",
+                border: options.tooltip ? "1px solid #444" : "1px solid #e1e1e1",
                 display: inline ? "inline" : "block",
                 whiteSpace: inline ? "nowrap" : "pre-wrap",
                 overflow: inline ? "visible" : "auto",
@@ -73,11 +80,12 @@ const MarkdownRenderer = ({ content, sx = {}, options = {} }) => {
           pre: ({ node, ...props }) => (
             <pre
               style={{
-                backgroundColor: "#f8f8f8",
+                backgroundColor: options.tooltip ? "#2d2d2d" : "#f8f8f8",
+                color: options.tooltip ? "#e0e0e0" : "inherit",
                 padding: "16px",
                 borderRadius: "6px",
                 overflow: "auto",
-                border: "1px solid #e1e1e1",
+                border: options.tooltip ? "1px solid #444" : "1px solid #e1e1e1",
                 margin: "16px 0",
                 lineHeight: "1.4",
                 ...fontSizeStyle,
