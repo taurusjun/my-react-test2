@@ -40,6 +40,7 @@ const ExamResult = () => {
   const [examTotalScore, setExamTotalScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [enlargedImage, setEnlargedImage] = useState(null);
+  const [studentInfo, setStudentInfo] = useState(null);
 
   useEffect(() => {
     const fetchExamResultData = async () => {
@@ -51,6 +52,7 @@ const ExamResult = () => {
         setExam(responseData.examData);
         setAnswers(responseData.answerScoreMap);
         setPoints(responseData.pointMap);
+        setStudentInfo(responseData.studentInfo);
         
         // 计算总分值
         const examTotalScore = Object.values(responseData.pointMap).reduce(
@@ -257,7 +259,7 @@ const ExamResult = () => {
                 考生姓名：
               </Typography>
               <Typography variant="h6" sx={{ mt: 1, color: "#263238" }}>
-                {studentName || "未知"}
+                {studentInfo?.studentName || studentName || "未知"}
               </Typography>
             </Paper>
           </Box>
