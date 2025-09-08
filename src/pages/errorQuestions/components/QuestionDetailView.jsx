@@ -17,10 +17,19 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
   const [answers, setAnswers] = useState({});
   const fileInputRefs = useRef({});
 
+  // Only call onAnswerChange when answers actually change
+  // Use a ref to prevent unnecessary calls when only the function reference changes
+  const previousAnswersRef = useRef();
+  
   useEffect(() => {
-    onAnswerChange(answers);
-    // console.log(answers);
-  }, [answers, onAnswerChange]);
+    // Only call onAnswerChange if answers has actually changed
+    if (JSON.stringify(previousAnswersRef.current) !== JSON.stringify(answers)) {
+      previousAnswersRef.current = answers;
+      onAnswerChange(answers);
+    }
+    // Intentionally omit onAnswerChange from dependencies to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers]);
 
   const handleAnswerChange = (detailUuid, newContent) => {
     setAnswers((prevAnswers) => {

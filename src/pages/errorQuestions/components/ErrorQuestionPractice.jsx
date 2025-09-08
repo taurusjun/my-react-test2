@@ -145,12 +145,12 @@ const ErrorQuestionPractice = () => {
   //   }
   // };
 
-  const handleAnswerChange = (answers, questionUuid) => {
+  const handleAnswerChange = useCallback((answers, questionUuid) => {
     setUserAnswers(prevAnswers => ({
       ...prevAnswers,
       [questionUuid]: answers[questionUuid]
     }));
-  };
+  }, []);
 
   const handlePageChange = useCallback((_event, value) => {
     setCurrentPage(value);
