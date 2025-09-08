@@ -35,21 +35,67 @@ const ErrorQuestionPractice = () => {
   // 定义 fetchQuestions 函数
   const fetchQuestions = useCallback(async (paramsValue) => {
     try {
-      // 确保将examUuids作为数组传递
-      const params = {
-        examUuids: Array.isArray(paramsValue.examUuids) ? paramsValue.examUuids : [paramsValue.examUuids],
-        page: currentPage,
-        pageSize: itemsPerPage
-      };
-      // 其他参数
-      Object.keys(paramsValue).forEach(key => {
-        if (key !== 'examUuids') {
-          params[key] = paramsValue[key];
+      // 将字符串格式的参数转换为URLSearchParams对象
+      const params = new URLSearchParams(paramsValue);
+      
+      // 准备API请求参数
+      // 旧代码中 const params = new URLSearchParams(paramsValue) 正确处理了多个examUuids
+      // 但我们需要确保axios也以相同的方式发送它们，而不是作为数组
+      const apiParams = {};
+      
+      // 将所有examUuids值单独添加，而不是作为数组
+      const examUuids = params.getAll('examUuids');
+      if (examUuids.length > 0) {
+        // 不要将examUuids设置为数组，而是让axios自动处理多个同名参数
+        apiParams.examUuids = examUuids;
+      }
+      
+      // 添加分页参数
+      apiParams.page = currentPage;
+      apiParams.pageSize = itemsPerPage;
+      
+      // 添加其他参数
+      for (const [key, value] of params.entries()) {
+        if (key !== 'examUuids' && key !== 'page' && key !== 'pageSize') {
+          apiParams[key] = value;
         }
-      });
+      }
+      
+      // 确保errorThreshold参数存在
+      if (!apiParams.errorThreshold && params.has('errorThreshold')) {
+        apiParams.errorThreshold = params.get('errorThreshold');
+      }
 
+      // 打印请求参数，便于调试
+      console.log('API request params:', apiParams);
+      
+      // 当examUuids是数组时，axios默认会将其格式化为 examUuids=xxx&examUuids=yyy
       const response = await axios.get("/api/record/wrong-questions/details", {
-        params,
+        params: apiParams,
+        paramsSerializer: function(params) {
+          // 使用URLSearchParams来确保多个同名参数正确格式化
+          const searchParams = new URLSearchParams();
+          
+          // 特殊处理examUuids数组，确保它们被格式化为 examUuids=xxx&examUuids=yyy
+          if (params.examUuids && Array.isArray(params.examUuids)) {
+            params.examUuids.forEach(uuid => {
+              searchParams.append('examUuids', uuid);
+            });
+            
+            // 移除已处理的examUuids，防止重复添加
+            const { examUuids, ...otherParams } = params;
+            params = otherParams;
+          }
+          
+          // 添加其他所有参数
+          for (const key in params) {
+            if (params.hasOwnProperty(key)) {
+              searchParams.append(key, params[key]);
+            }
+          }
+          
+          return searchParams.toString();
+        }
       });
       
       const newQuestions = response.data.data.items || [];
@@ -72,7 +118,8 @@ const ErrorQuestionPractice = () => {
   // 使用 useEffect 来加载页面数据
   useEffect(() => {
     const params = paramsRef.current;
-    if (params.length === 0) {
+    // 检查params是否为空（可能是空字符串、空数组或未定义）
+    if (!params || (Array.isArray(params) && params.length === 0) || params === '') {
       navigate("/error-questions");
       return;
     }

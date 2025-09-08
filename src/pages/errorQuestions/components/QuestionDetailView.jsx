@@ -19,7 +19,7 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
 
   useEffect(() => {
     onAnswerChange(answers);
-    console.log(answers);
+    // console.log(answers);
   }, [answers, onAnswerChange]);
 
   const handleAnswerChange = (detailUuid, newContent) => {
