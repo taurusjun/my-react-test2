@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -8,6 +8,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Pagination,
+  Grid,
+  Paper,
 } from "@mui/material";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
@@ -19,20 +22,70 @@ const ErrorQuestionPractice = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
+  const [questionsByPage, setQuestionsByPage] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
 
+  const paramsRef = React.useRef(location.state?.params || []);
+  
+  // 定义 fetchQuestions 函数
+  const fetchQuestions = useCallback(async (paramsValue) => {
+    try {
+      // 确保将examUuids作为数组传递
+      const params = {
+        examUuids: Array.isArray(paramsValue.examUuids) ? paramsValue.examUuids : [paramsValue.examUuids],
+        page: currentPage,
+        pageSize: itemsPerPage
+      };
+      // 其他参数
+      Object.keys(paramsValue).forEach(key => {
+        if (key !== 'examUuids') {
+          params[key] = paramsValue[key];
+        }
+      });
+
+      const response = await axios.get("/api/record/wrong-questions/details", {
+        params,
+      });
+      
+      const newQuestions = response.data.data.items || [];
+      setQuestions(newQuestions);
+      setTotalCount(response.data.data.totalCount || 0);
+      
+      // 将新页面的问题保存到分页缓存中
+      setQuestionsByPage(prev => ({
+        ...prev,
+        [currentPage]: newQuestions
+      }));
+      
+      console.log('API Response:', response.data);
+    } catch (error) {
+      console.error("获取错题练习详情失败:", error);
+      // 这里可以添加错误处理逻辑，比如显示错误消息
+    }
+  }, [currentPage, itemsPerPage]);
+  
+  // 使用 useEffect 来加载页面数据
   useEffect(() => {
-    const params = location.state?.params || [];
+    const params = paramsRef.current;
     if (params.length === 0) {
       navigate("/error-questions");
       return;
     }
-    fetchQuestions(params);
-  }, []);
+    
+    // 检查是否已缓存当前页的问题
+    if (questionsByPage[currentPage] && questionsByPage[currentPage].length > 0) {
+      setQuestions(questionsByPage[currentPage]);
+    } else {
+      fetchQuestions(params);
+    }
+  }, [currentPage, navigate, fetchQuestions, questionsByPage]);
 
+  // Old commented-out version of fetchQuestions
   // const fetchQuestions = async (uuids) => {
   //   try {
   //     const response = await axios.get("/api/error-questions-practice", {
@@ -45,34 +98,16 @@ const ErrorQuestionPractice = () => {
   //   }
   // };
 
-  const fetchQuestions = async (paramsValue) => {
-    try {
-      const params = new URLSearchParams(paramsValue);
-      const response = await axios.get("/api/record/wrong-questions/details", {
-        params,
-      });
-      setQuestions(response.data.data.items);
-    } catch (error) {
-      console.error("获取错题练习详情失败:", error);
-      // 这里可以添加错误处理逻辑，比如显示错误消息
-    }
+  const handleAnswerChange = (answers, questionUuid) => {
+    setUserAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [questionUuid]: answers[questionUuid]
+    }));
   };
 
-  const handleAnswerChange = (answers) => {
-    setUserAnswers(answers);
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
+  const handlePageChange = useCallback((_event, value) => {
+    setCurrentPage(value);
+  }, []);
 
   // const handleSubmit = async () => {
   //   try {
@@ -92,17 +127,18 @@ const ErrorQuestionPractice = () => {
 
   const handleSubmit = async () => {
     try {
-      // TODO: 检查userAnswers是否为空
-      if (Object.keys(userAnswers).length < questions.length) {
-        console.error("用户未完成所有题目");
+      if (Object.keys(userAnswers).length === 0) {
+        console.error("请至少回答一道题目");
         return;
       }
+      
       const response = await axios.post(
         "/api/my-exams/wrong-questions/practice",
         {
           answers: userAnswers,
         }
       );
+      
       setResults(response.data);
       setShowResults(true);
     } catch (error) {
@@ -127,42 +163,47 @@ const ErrorQuestionPractice = () => {
         <CommonBreadcrumbs paths={breadcrumbPaths.errorQuestionPractice} />
       )}
     >
-      {questions.length > 0 && (
-        <Box sx={{ backgroundColor: "#f5f5f5", padding: 3, borderRadius: 2 }}>
-          <QuestionDetailView
-            questionDetail={questions[currentQuestionIndex]}
-            onAnswerChange={handleAnswerChange}
-            header={`问题 ${currentQuestionIndex + 1} / ${questions.length}`}
-          />
-          <Box
-            sx={{
-              mt: 3,
-              display: "flex",
-              justifyContent: "flex-start",
-              gap: 2,
-            }}
-          >
-            <Button
-              onClick={handlePreviousQuestion}
-              disabled={currentQuestionIndex === 0}
-              variant="outlined"
-            >
-              上一题
-            </Button>
-            {currentQuestionIndex < questions.length - 1 ? (
-              <Button onClick={handleNextQuestion} variant="outlined">
-                下一题
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                variant="contained"
-                color="primary"
-              >
-                提交
-              </Button>
-            )}
+      {questions.length > 0 ? (
+        <Box>
+          <Grid container spacing={3}>
+            {questions.map((question, index) => (
+              <Grid item xs={12} key={question.uuid}>
+                <Paper elevation={2} sx={{ backgroundColor: "#f5f5f5", padding: 3, borderRadius: 2, mb: 2 }}>
+                  <QuestionDetailView
+                    questionDetail={question}
+                    onAnswerChange={(answers) => handleAnswerChange(answers, question.uuid)}
+                    header={`问题 ${index + 1 + (currentPage - 1) * itemsPerPage}`}
+                  />
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+          
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4, mb: 2 }}>
+            <Pagination 
+              count={Math.ceil(totalCount / itemsPerPage)}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+            />
           </Box>
+          
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Button
+              onClick={handleSubmit}
+              variant="contained"
+              color="primary"
+              disabled={Object.keys(userAnswers).length === 0}
+            >
+              提交答案
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <Typography variant="h6">没有可用的错题</Typography>
         </Box>
       )}
 

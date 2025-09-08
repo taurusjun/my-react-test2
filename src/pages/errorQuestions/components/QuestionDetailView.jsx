@@ -113,6 +113,7 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
     const isFillInBlank = detail.uiType === "fill_blank";
     const isCalculation = detail.uiType === "calculation";
     const isShortAnswer = detail.uiType === "short_answer";
+    const isJudgment = detail.uiType === "judgment";
     const currentAnswer = answers[detail.uuid] || { content: [], images: [] };
 
     if (isMultipleChoice) {
@@ -252,6 +253,24 @@ const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
           placeholder="在此输入您的简答"
           sx={{ mt: 2 }}
         />
+      );
+    } else if (isJudgment) {
+      return (
+        <RadioGroup
+          value={currentAnswer.content[0] || ""}
+          onChange={(e) => handleAnswerChange(detail.uuid, [e.target.value])}
+        >
+          <FormControlLabel
+            value="true"
+            control={<Radio />}
+            label="正确"
+          />
+          <FormControlLabel
+            value="false"
+            control={<Radio />}
+            label="错误"
+          />
+        </RadioGroup>
       );
     }
   };
