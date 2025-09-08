@@ -13,13 +13,24 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const QuestionDetailView = ({ questionDetail, onAnswerChange, header }) => {
+const QuestionDetailView = ({ questionDetail, onAnswerChange, header, initialAnswer }) => {
+  // Initialize answers with initialAnswer if available
   const [answers, setAnswers] = useState({});
   const fileInputRefs = useRef({});
 
   // Only call onAnswerChange when answers actually change
   // Use a ref to prevent unnecessary calls when only the function reference changes
   const previousAnswersRef = useRef();
+
+  // Initialize with the provided initialAnswer when component mounts or initialAnswer changes
+  useEffect(() => {
+    if (initialAnswer && questionDetail.uuid) {
+      setAnswers(prev => ({
+        ...prev,
+        [questionDetail.uuid]: initialAnswer
+      }));
+    }
+  }, [initialAnswer, questionDetail.uuid]);
   
   useEffect(() => {
     // Only call onAnswerChange if answers has actually changed

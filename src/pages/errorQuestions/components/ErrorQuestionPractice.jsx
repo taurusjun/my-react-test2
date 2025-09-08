@@ -39,8 +39,6 @@ const ErrorQuestionPractice = () => {
       const params = new URLSearchParams(paramsValue);
       
       // 准备API请求参数
-      // 旧代码中 const params = new URLSearchParams(paramsValue) 正确处理了多个examUuids
-      // 但我们需要确保axios也以相同的方式发送它们，而不是作为数组
       const apiParams = {};
       
       // 将所有examUuids值单独添加，而不是作为数组
@@ -67,7 +65,7 @@ const ErrorQuestionPractice = () => {
       }
 
       // 打印请求参数，便于调试
-      console.log('API request params:', apiParams);
+      // console.log('API request params:', apiParams);
       
       // 当examUuids是数组时，axios默认会将其格式化为 examUuids=xxx&examUuids=yyy
       const response = await axios.get("/api/record/wrong-questions/details", {
@@ -108,7 +106,7 @@ const ErrorQuestionPractice = () => {
         [currentPage]: newQuestions
       }));
       
-      console.log('API Response:', response.data);
+      // console.log('API Response:', response.data);
     } catch (error) {
       console.error("获取错题练习详情失败:", error);
       // 这里可以添加错误处理逻辑，比如显示错误消息
@@ -220,6 +218,7 @@ const ErrorQuestionPractice = () => {
                     questionDetail={question}
                     onAnswerChange={(answers) => handleAnswerChange(answers, question.uuid)}
                     header={`问题 ${index + 1 + (currentPage - 1) * itemsPerPage}`}
+                    initialAnswer={userAnswers[question.uuid]}
                   />
                 </Paper>
               </Grid>
