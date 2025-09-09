@@ -184,8 +184,17 @@ const ErrorQuestionPractice = () => {
         }
       );
       
-      setResults(response.data);
-      setShowResults(true);
+      // 从响应中获取userExamUuid并导航到练习详情页面
+      const userExamUuid = response.data?.data?.userExamUuid;
+      
+      if (userExamUuid) {
+        // 如果有userExamUuid，则导航到练习详情页面
+        navigate(`/error-questions/practice/${userExamUuid}`);
+      } else {
+        // 如果没有userExamUuid，则显示结果对话框
+        setResults(response.data);
+        setShowResults(true);
+      }
     } catch (error) {
       console.error("提交答案失败:", error);
       // 这里可以添加错误处理逻辑，比如显示错误消息
@@ -194,6 +203,7 @@ const ErrorQuestionPractice = () => {
 
   const handleCloseResults = () => {
     setShowResults(false);
+    // 保持在当前页面，用户可以继续练习或者自行导航
     navigate("/error-questions");
   };
 
