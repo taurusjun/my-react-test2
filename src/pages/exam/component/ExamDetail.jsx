@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import {
   Typography,
@@ -8,11 +9,7 @@ import {
   Divider,
   Grid,
   Chip,
-  Button,
 } from "@mui/material";
-// Removed useDictionaries import as we're using direct rendering
-// Removed ErrorQuestionDisplay import as we're using inline rendering
-import { useParams, useNavigate } from "react-router-dom";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
@@ -20,38 +17,56 @@ import { MarkdownRenderer } from "../../../components/markdown";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
-const ErrorQuestionPracticeDetails = () => {
+const ExamDetail = () => {
   const { uuid } = useParams();
-  const navigate = useNavigate();
-  // Using direct rendering instead of dictionaries and location
-  const [questionDetails, setQuestionDetails] = useState([]);
+  const [examData, setExamData] = useState(null);
+  const [studentInfo, setStudentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [examUuid, setExamUuid] = useState(null);
+  const [questionDetails, setQuestionDetails] = useState([]);
 
   useEffect(() => {
-    const fetchQuestionDetail = async () => {
+    const fetchExamDetail = async () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `/api/user-exams/practice/${uuid}`
+          `/api/user-exams/exam/${uuid}`
         );
-        setQuestionDetails(response.data.data || []);
         
-        // Store the exam UUID if it exists in the response data
-        if (response.data.examUuid) {
-          setExamUuid(response.data.examUuid);
+        const data = response.data.data;
+        setExamData(data.examData);
+        setStudentInfo(data.studentInfo);
+        
+        // 处理问题详情数据
+        if (data.examData && data.examData.sections) {
+          const details = [];
+          data.examData.sections.forEach(section => {
+            section.questions.forEach(question => {
+              question.questionDetails.forEach(detail => {
+                // 为每个问题详情添加用户答案和得分信息
+                const detailWithAnswers = {
+                  ...detail,
+                  userAnswer: data.answerScoreMap[detail.uuid]?.userAnswer || [],
+                  userScore: data.answerScoreMap[detail.uuid]?.userScore || 0,
+                  totalScore: data.pointMap[detail.uuid] || 5,
+                  userResult: data.answerScoreMap[detail.uuid]?.userScore === data.pointMap[detail.uuid] ? 1 : 2
+                };
+                details.push(detailWithAnswers);
+              });
+            });
+          });
+          setQuestionDetails(details);
         }
         
         setLoading(false);
       } catch (err) {
-        console.error("获取错题练习详情失败:", err);
-        setError("获取错题练习详情失败，请稍后重试。");
+        console.error("获取考试详情失败:", err);
+        setError("获取考试详情失败，请稍后重试。");
         setLoading(false);
       }
     };
 
-    fetchQuestionDetail();
+    fetchExamDetail();
   }, [uuid]);
 
   if (loading) {
@@ -80,7 +95,7 @@ const ErrorQuestionPracticeDetails = () => {
     );
   }
 
-  if (!questionDetails || questionDetails.length === 0) {
+  if (!examData || !questionDetails || questionDetails.length === 0) {
     return (
       <Box
         display="flex"
@@ -88,13 +103,12 @@ const ErrorQuestionPracticeDetails = () => {
         alignItems="center"
         height="300px"
       >
-        <Typography>未找到错题练习详情。</Typography>
+        <Typography>未找到考试详情。</Typography>
       </Box>
     );
   }
 
-
-  // 自定义错题练习详情展示组件
+  // 自定义考试详情展示组件
   const renderQuestionDetailView = (questionDetail, index) => {
     return (
       <Box
@@ -146,7 +160,7 @@ const ErrorQuestionPracticeDetails = () => {
           </Grid>
           <Grid item>
             <Chip
-              label={`分数: ${questionDetail.userScore || 0}/${questionDetail.totalScore || questionDetail.score || 5}`}
+              label={`分数: ${questionDetail.userScore || 0}/${questionDetail.totalScore || 5}`}
               color={questionDetail.userResult === 1 ? "success" : "error"}
               size="small"
             />
@@ -168,12 +182,12 @@ const ErrorQuestionPracticeDetails = () => {
           题目内容
         </Typography>
         <Box sx={{ backgroundColor: "#f5f5f5", p: 2, borderRadius: 1, mb: 2 }}>
-          <MarkdownRenderer content={questionDetail.content?.value || ""} />
+          <MarkdownRenderer content={questionDetail.questionContent?.value || ""} />
         </Box>
         
-        {questionDetail.content?.images &&
-          questionDetail.content.images.length > 0 &&
-          questionDetail.content.images.map((image, imgIndex) => (
+        {questionDetail.questionContent?.images &&
+          questionDetail.questionContent.images.length > 0 &&
+          questionDetail.questionContent.images.map((image, imgIndex) => (
             <img
               key={imgIndex}
               src={image}
@@ -207,11 +221,11 @@ const ErrorQuestionPracticeDetails = () => {
           <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>正确答案</Typography>
         </Box>
         <Box sx={{ backgroundColor: "#e8f5e9", p: 2, borderRadius: 1, mb: 2 }}>
-          {Array.isArray(questionDetail.correctAnswer) ? (
-            questionDetail.correctAnswer.join(", ")
+          {Array.isArray(questionDetail.answer) ? (
+            questionDetail.answer.join(", ")
           ) : (
             <Typography>
-              {questionDetail.correctAnswer || "无数据"}
+              {questionDetail.answer || "无数据"}
             </Typography>
           )}
         </Box>
@@ -235,45 +249,32 @@ const ErrorQuestionPracticeDetails = () => {
           )}
         </Box>
 
-        {questionDetail.userAnswerImage && questionDetail.userAnswerImage.length > 0 ? (
+        {questionDetail.explanation && (
           <>
-            <Typography variant="subtitle2" gutterBottom sx={{ mt: 1, color: "text.secondary" }}>
-              用户答案图片
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
+              解析
             </Typography>
-            <img
-              src={questionDetail.userAnswerImage}
-              alt="用户答案图片"
-              style={{
-                width: "150px",
-                height: "auto",
-                marginBottom: "16px",
-              }}
-            />
+            <Box sx={{ backgroundColor: "#e3f2fd", p: 2, borderRadius: 1 }}>
+              <MarkdownRenderer content={questionDetail.explanation} />
+            </Box>
           </>
-        ) : null}
-
-        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
-          解析
-        </Typography>
-        <Box sx={{ backgroundColor: "#e3f2fd", p: 2, borderRadius: 1 }}>
-          {questionDetail.explanation ? (
-            <MarkdownRenderer content={questionDetail.explanation} />
-          ) : (
-            <Typography>无解析</Typography>
-          )}
-        </Box>
+        )}
       </Box>
     );
   };
 
   return (
     <CommonLayout
-      currentPage="错题练习详情"
+      currentPage="考试详情"
       maxWidth="lg"
       showBreadcrumbs={true}
       BreadcrumbsComponent={() => (
         <CommonBreadcrumbs
-          paths={getBreadcrumbPaths().errorQuestionPracticeDetails}
+          paths={getBreadcrumbPaths().examDetail || [
+            { name: "首页", path: "/" },
+            { name: "我的考试", path: "/my-exams/list" },
+            { name: "考试详情" }
+          ]}
         />
       )}
     >
@@ -281,20 +282,23 @@ const ErrorQuestionPracticeDetails = () => {
         elevation={3}
         sx={{ p: 3, bgcolor: "#f5f5f5", borderRadius: "8px" }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h5" gutterBottom color="primary">
-            错题练习详情
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" gutterBottom color="primary" align="center">
+            {examData?.name || "考试"} - 详情
           </Typography>
-          {examUuid && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate(`/exam/result/${examUuid}`, { state: { fromErrorQuestions: true } })}
-            >
-              查看考试
-            </Button>
+          
+          {studentInfo && (
+            <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+              <Typography variant="subtitle1">
+                考生姓名: {studentInfo.studentName || "未知"}
+              </Typography>
+              <Typography variant="subtitle1">
+                完成时间: {studentInfo.doneTime || "未知"}
+              </Typography>
+            </Box>
           )}
         </Box>
+
         {questionDetails.map((questionDetail, index) => (
           <React.Fragment key={questionDetail.uuid || index}>
             {index > 0 && <Divider sx={{ my: 3 }} />}
@@ -306,4 +310,4 @@ const ErrorQuestionPracticeDetails = () => {
   );
 };
 
-export default ErrorQuestionPracticeDetails;
+export default ExamDetail;

@@ -76,5 +76,11 @@ export const getBreadcrumbPaths = () => ({
   // 添加考试用户关联管理路径
   examUserAssignment: [{ name: "考试用户关联管理", url: "/exam-user-assignment" }],
 
+  // 添加考试详情路径
+  examDetail: [
+    { name: "我的考试", url: "/my-exams/list" },
+    { name: "考试详情", url: "" },
+  ],
+
   // ... 其他路径保持不变 ...
 });

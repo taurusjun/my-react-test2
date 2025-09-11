@@ -101,8 +101,8 @@ const MyExams = () => {
     navigate(`/exam/paper/${examId}?mode=${mode}`);
   };
 
-  const handleViewErrors = (examId) => {
-    navigate(`/error-questions/${examId}`);
+  const handleViewExam = (examId) => {
+    navigate(`/exam/detail/${examId}`);
   };
 
   const handleExamChange = (event, newValue) => {
@@ -283,10 +283,10 @@ const MyExams = () => {
                           <Button
                             variant="outlined"
                             color="secondary"
-                            onClick={() => handleViewErrors(exam?.examUuid)}
+                            onClick={() => handleViewExam(exam?.uuid)}
                             startIcon={<ErrorOutlineIcon />}
                           >
-                            查看错题
+                            查看考试
                           </Button>
                         </Box>
                       )}

@@ -11,6 +11,7 @@ import {
   ExamGrading,
   ExamResult,
   GradingCenter,
+  ExamDetail,
 } from "./pages/exam";
 import Login from "./pages/auth/Login";
 import UserCenter from "./pages/user/UserCenter";
@@ -54,6 +55,7 @@ export const routeConfig = [
   { path: "/exam/paper/:uuid", element: ExamPaper, protected: true, allowedRoles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
   { path: "/exam/grading/:uuid", element: ExamGrading, protected: true, allowedRoles: [USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
   { path: "/exam/result/:uuid", element: ExamResult, protected: true, allowedRoles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
+  { path: "/exam/detail/:uuid", element: ExamDetail, protected: true, allowedRoles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
   { path: "/my-exams/list", element: MyExams, protected: true, allowedRoles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
   { path: "/exam/:uuid", element: ExamPaper, protected: true, allowedRoles: [USER_ROLES.STUDENT, USER_ROLES.TEACHER, USER_ROLES.ADMIN] },
 
