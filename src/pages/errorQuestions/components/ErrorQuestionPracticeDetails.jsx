@@ -8,11 +8,10 @@ import {
   Divider,
   Grid,
   Chip,
-  Button,
 } from "@mui/material";
 // Removed useDictionaries import as we're using direct rendering
 // Removed ErrorQuestionDisplay import as we're using inline rendering
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import CommonLayout from "../../../layouts/CommonLayout";
 import { getBreadcrumbPaths } from "../../../config/breadcrumbPaths";
 import CommonBreadcrumbs from "../../../components/CommonBreadcrumbs";
@@ -22,12 +21,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 const ErrorQuestionPracticeDetails = () => {
   const { uuid } = useParams();
-  const navigate = useNavigate();
   // Using direct rendering instead of dictionaries and location
   const [questionDetails, setQuestionDetails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [examUuid, setExamUuid] = useState(null);
 
   useEffect(() => {
     const fetchQuestionDetail = async () => {
@@ -37,12 +34,6 @@ const ErrorQuestionPracticeDetails = () => {
           `/api/user-exams/practice/${uuid}`
         );
         setQuestionDetails(response.data.data || []);
-        
-        // Store the exam UUID if it exists in the response data
-        if (response.data.examUuid) {
-          setExamUuid(response.data.examUuid);
-        }
-        
         setLoading(false);
       } catch (err) {
         console.error("获取错题练习详情失败:", err);
@@ -281,20 +272,9 @@ const ErrorQuestionPracticeDetails = () => {
         elevation={3}
         sx={{ p: 3, bgcolor: "#f5f5f5", borderRadius: "8px" }}
       >
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h5" gutterBottom color="primary">
-            错题练习详情
-          </Typography>
-          {examUuid && (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate(`/exam/result/${examUuid}`, { state: { fromErrorQuestions: true } })}
-            >
-              查看考试
-            </Button>
-          )}
-        </Box>
+        <Typography variant="h5" gutterBottom color="primary" align="center">
+          错题练习详情
+        </Typography>
         {questionDetails.map((questionDetail, index) => (
           <React.Fragment key={questionDetail.uuid || index}>
             {index > 0 && <Divider sx={{ my: 3 }} />}

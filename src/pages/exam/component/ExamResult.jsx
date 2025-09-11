@@ -59,15 +59,7 @@ const ExamResult = () => {
   useEffect(() => {
     const fetchExamResultData = async () => {
       try {
-        // 检查是否从错题练习页面导航过来
-        const fromErrorQuestions = location.state?.fromErrorQuestions;
-        
-        // 根据不同来源使用不同的API接口
-        const apiUrl = fromErrorQuestions
-          ? `/api/user-exams/exam/${uuid}`
-          : `/api/my-exams/${uuid}/grading`;
-          
-        const response = await axios.get(apiUrl);
+        const response = await axios.get(`/api/my-exams/${uuid}/grading`);
         const responseData = response.data.data;
         console.log('API response data:', responseData);
         
