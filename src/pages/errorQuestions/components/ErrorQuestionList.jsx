@@ -216,16 +216,19 @@ const ErrorQuestionList = () => {
               variant="contained"
               color="primary"
               onClick={handleStartPractice}
+              disabled={selectedExams.length === 0}
               sx={{
                 height: "40px",
                 minWidth: 120,
-                boxShadow: "0 3px 5px 2px rgba(33, 150, 243, .3)",
+                boxShadow: selectedExams.length === 0 ? "none" : "0 3px 5px 2px rgba(33, 150, 243, .3)",
                 transition: "all 0.3s",
+                opacity: selectedExams.length === 0 ? 0.7 : 1,
                 "&:hover": {
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 6px 10px 4px rgba(33, 150, 243, .3)",
+                  transform: selectedExams.length === 0 ? "none" : "translateY(-2px)",
+                  boxShadow: selectedExams.length === 0 ? "none" : "0 6px 10px 4px rgba(33, 150, 243, .3)",
                 },
               }}
+              title={selectedExams.length === 0 ? "请先选择至少一个考试" : "开始错题练习"}
             >
               开始练习
             </Button>
