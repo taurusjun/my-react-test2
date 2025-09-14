@@ -467,18 +467,68 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
 
     setMousePosition({ x: event.clientX, y: event.clientY });
 
+    // 检测代码块
+    const codeBlocks = detectCodeBlocks(markdownLines);
+    const codeBlock = isLineInCodeBlock(index, codeBlocks);
+
+    if (codeBlock) {
+      // 如果点击的是代码块内的行，处理整个代码块的选择/取消
+      const blockLines = [];
+      for (let i = codeBlock.start; i <= codeBlock.end; i++) {
+        blockLines.push(i);
+      }
+
+      // 检查当前代码块是否已经完全选中
+      const isCodeBlockFullySelected = blockLines.every(line => selectedLines.includes(line));
+
+      if (event.metaKey || event.ctrlKey) {
+        // Ctrl/Cmd + 点击：切换整个代码块的选择状态
+        if (isCodeBlockFullySelected) {
+          // 如果代码块完全选中，则取消选择整个代码块
+          setSelectedLines(prev => prev.filter(line => !blockLines.includes(line)));
+        } else {
+          // 如果代码块未完全选中，则选择整个代码块（合并到现有选择）
+          setSelectedLines(prev => [...new Set([...prev, ...blockLines])]);
+        }
+      } else {
+        // 普通点击：选择整个代码块（替换现有选择）
+        setSelectedLines(blockLines);
+        setAnchorPosition({
+          top: event.clientY,
+          left: event.clientX,
+        });
+      }
+      return; // 代码块处理完毕，不继续执行下面的逻辑
+    }
+
+    // 非代码块的原有逻辑
     if (event.shiftKey) {
       const startIndex = fixedStartIndex !== null ? fixedStartIndex : index;
       const range = [startIndex, index].sort((a, b) => a - b);
+
+      // 检查选择范围内是否包含代码块，如果包含则扩展选择范围到完整代码块
       const newSelectedLines = [];
       for (let i = range[0]; i <= range[1]; i++) {
-        newSelectedLines.push(i);
+        const blockForLine = isLineInCodeBlock(i, codeBlocks);
+        if (blockForLine) {
+          // 如果当前行在代码块内，添加整个代码块
+          for (let j = blockForLine.start; j <= blockForLine.end; j++) {
+            if (!newSelectedLines.includes(j)) {
+              newSelectedLines.push(j);
+            }
+          }
+        } else {
+          // 如果不在代码块内，正常添加
+          newSelectedLines.push(i);
+        }
       }
-      setSelectedLines(newSelectedLines);
+
+      setSelectedLines([...new Set(newSelectedLines)].sort((a, b) => a - b));
       if (fixedStartIndex === null) {
         setFixedStartIndex(index); // 设置固定的起始位置
       }
     } else if (event.metaKey || event.ctrlKey) {
+      // Ctrl/Cmd + 点击非代码块行：正常的单行切换逻辑
       setSelectedLines((prev) =>
         prev.includes(index)
           ? prev.filter((line) => line !== index)
@@ -1088,21 +1138,9 @@ const FileCorrectionEditor = ({ fileUuid, editable, setEditorState }) => {
             paddingLeft: isInCodeBlock ? "8px" : "0",
           }}
           onMouseDown={(event) => {
-            // 如果点击的是代码块内的行，提供智能选择选项
-            if (isInCodeBlock && (event.altKey || event.detail === 2)) { // Alt+点击 或 双击
-              event.preventDefault();
-              event.stopPropagation();
-              const blockLines = selectCodeBlock(index, codeBlocks);
-              setSelectedLines(blockLines);
-              setAnchorPosition({
-                top: event.clientY,
-                left: event.clientX,
-              });
-            } else {
-              handleLineClick(event, index);
-            }
+            handleLineClick(event, index);
           }}
-          title={isInCodeBlock ? `代码块 (${codeBlock.language || 'text'}) - Alt+点击或双击选择整个代码块` : ""}
+          title={isInCodeBlock ? `代码块 (${codeBlock.language || 'text'}) - 点击选择整个代码块` : ""}
         >
           <div
             style={{
