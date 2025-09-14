@@ -85,12 +85,12 @@ const menuItemConfigs = [
 export const getMenuItemsByRole = (userRole) => {
   if (!userRole) {
     // 如果没有角色信息，返回学生菜单（默认）
-    return menuItemConfigs.filter(item => 
+    return menuItemConfigs.filter(item =>
       item.roles.includes(USER_ROLES.STUDENT)
     );
   }
-  
-  return menuItemConfigs.filter(item => 
+
+  return menuItemConfigs.filter(item =>
     item.roles.includes(userRole)
   );
 };

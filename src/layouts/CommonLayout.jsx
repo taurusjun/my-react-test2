@@ -50,7 +50,7 @@ const CommonLayout = ({
 
   // 根据用户角色获取菜单项
   const userRole = user?.role || USER_ROLES.STUDENT;
-  const finalMenuItems = menuItems.length > 0 ? menuItems : getMenuItemsByRole(userRole);
+  const finalMenuItems = getMenuItemsByRole(userRole);
 
   const drawer = (
     <Box>

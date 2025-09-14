@@ -35,13 +35,13 @@ const Login = () => {
       const { accessToken, user } = response.data.data; // 假设后端返回了 token 和 user 信息
       setToken(accessToken);
       
-      // 确保用户对象包含角色信息，如果没有则默认为学生
+      // 使用后端返回的用户角色信息，不设置默认值
       const userWithRole = {
         ...user,
         username,
-        role: user.role || 'student' // 确保有角色信息
+        // 保持后端返回的原始role值
       };
-      
+
       login(userWithRole); // 使用 login 函数将用户信息添加到 UserContext 中
       localStorage.setItem("user", JSON.stringify(userWithRole)); // 登录成功后保存用户信息和用户名
       // 重定向到之前尝试访问的页面，如果没有则默认到 "/exams/list"
