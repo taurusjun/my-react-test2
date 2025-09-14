@@ -26,7 +26,6 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import MultiLevelSelect from "../../provider/components/MultiLevelSelect";
-import { CategoryDict } from "../../provider/utils/dictionaries";
 import { useDictionaries } from "../../provider/hooks/useDictionaries";
 import { normalizeAnswer } from "../../utils/answerUtils";
 
@@ -407,7 +406,7 @@ const ExamEditor = ({ exam, onExamChange }) => {
                 }
                 label="科目"
               >
-                {Object.entries(CategoryDict).map(([key, value]) => (
+                {Object.entries(dictionaries.CategoryDict).map(([key, value]) => (
                   <MenuItem key={key} value={key}>
                     {value}
                   </MenuItem>
