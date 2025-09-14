@@ -196,11 +196,7 @@ const MarkdownAnnotator = ({
       return;
     }
 
-    // 检查是否选择了题型
-    if (!selectedQuestionType) {
-      setErrorMessage("请选择题型");
-      return;
-    }
+    // 复杂题本身不需要选择题型，题型是在小题中设置的
 
     // 检查重叠
     const selectedSectionObject = quickLookupMap.get(selectedSection);
