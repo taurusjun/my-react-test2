@@ -4,30 +4,22 @@
  * @returns {Object} 新的answer格式 {content: [], images: []}
  */
 export const normalizeAnswer = (answer) => {
-  // 如果已经是正确格式，直接返回
+  // 如果已经是正确格式，转换content中的值为字符串后返回
   if (answer && typeof answer === 'object' && answer.content && Array.isArray(answer.content)) {
-    // 处理true/false格式的判断题答案
-    if (answer.content.length > 0 && (answer.content[0] === true || answer.content[0] === false || 
-        answer.content[0] === 'true' || answer.content[0] === 'false')) {
-      return {
-        content: answer.content,
-        images: answer.images || []
-      };
-    }
     return {
-      content: answer.content,
+      content: answer.content.map(item => String(item)),
       images: answer.images || []
     };
   }
-  
-  // 如果是数组格式，转换为新格式
+
+  // 如果是数组格式，转换为新格式并确保所有值为字符串
   if (Array.isArray(answer)) {
     return {
-      content: answer,
+      content: answer.map(item => String(item)),
       images: []
     };
   }
-  
+
   // 如果不存在或无效，返回默认格式
   return {
     content: [],
